@@ -25,27 +25,63 @@ const sections = [
   {
     id: "attributes",
     html: `
-    <section>
-      <h2 id="section_attributes">Spielwerte</h2>
-      <table>
-        <tr>
-          <th></th>
-          <th id="label_attr_anfang">Anfang</th>
-          <th id="label_attr_steiger">Steigerungen</th>
-          <th id="label_attr_aktuell">Aktuell</th>
-        </tr>
-        <tr><td>KG</td><td><input id="kg_anfang"></td><td><input id="kg_steiger"></td><td><input id="kg_aktuell" readonly></td></tr>
-        <tr><td>BF</td><td><input id="bf_anfang"></td><td><input id="bf_steiger"></td><td><input id="bf_aktuell" readonly></td></tr>
-        <tr><td>ST</td><td><input id="st_anfang"></td><td><input id="st_steiger"></td><td><input id="st_aktuell" readonly></td></tr>
-        <tr><td>WI</td><td><input id="wi_anfang"></td><td><input id="wi_steiger"></td><td><input id="wi_aktuell" readonly></td></tr>
-        <tr><td>I</td><td><input id="i_anfang"></td><td><input id="i_steiger"></td><td><input id="i_aktuell" readonly></td></tr>
-        <tr><td>GW</td><td><input id="gw_anfang"></td><td><input id="gw_steiger"></td><td><input id="gw_aktuell" readonly></td></tr>
-        <tr><td>GS</td><td><input id="gs_anfang"></td><td><input id="gs_steiger"></td><td><input id="gs_aktuell" readonly></td></tr>
-        <tr><td>IN</td><td><input id="in_anfang"></td><td><input id="in_steiger"></td><td><input id="in_aktuell" readonly></td></tr>
-        <tr><td>WK</td><td><input id="wk_anfang"></td><td><input id="wk_steiger"></td><td><input id="wk_aktuell" readonly></td></tr>
-        <tr><td>CH</td><td><input id="ch_anfang"></td><td><input id="ch_steiger"></td><td><input id="ch_aktuell" readonly></td></tr>
-      </table>
-    </section>`
+<section>
+  <h2 id="section_attributes">Spielwerte</h2>
+  <table>
+    <tr>
+      <th></th>
+      <th>KG</th>
+      <th>BF</th>
+      <th>ST</th>
+      <th>WI</th>
+      <th>I</th>
+      <th>GW</th>
+      <th>GS</th>
+      <th>IN</th>
+      <th>WK</th>
+      <th>CH</th>
+    </tr>
+    <tr>
+      <th id="label_attr_anfang">Anfang</th>
+      <td><input id="kg_anfang"></td>
+      <td><input id="bf_anfang"></td>
+      <td><input id="st_anfang"></td>
+      <td><input id="wi_anfang"></td>
+      <td><input id="i_anfang"></td>
+      <td><input id="gw_anfang"></td>
+      <td><input id="gs_anfang"></td>
+      <td><input id="in_anfang"></td>
+      <td><input id="wk_anfang"></td>
+      <td><input id="ch_anfang"></td>
+    </tr>
+    <tr>
+      <th id="label_attr_steiger">Steigerungen</th>
+      <td><input id="kg_steiger"></td>
+      <td><input id="bf_steiger"></td>
+      <td><input id="st_steiger"></td>
+      <td><input id="wi_steiger"></td>
+      <td><input id="i_steiger"></td>
+      <td><input id="gw_steiger"></td>
+      <td><input id="gs_steiger"></td>
+      <td><input id="in_steiger"></td>
+      <td><input id="wk_steiger"></td>
+      <td><input id="ch_steiger"></td>
+    </tr>
+    <tr>
+      <th id="label_attr_aktuell">Aktuell</th>
+      <td><input id="kg_aktuell" readonly></td>
+      <td><input id="bf_aktuell" readonly></td>
+      <td><input id="st_aktuell" readonly></td>
+      <td><input id="wi_aktuell" readonly></td>
+      <td><input id="i_aktuell" readonly></td>
+      <td><input id="gw_aktuell" readonly></td>
+      <td><input id="gs_aktuell" readonly></td>
+      <td><input id="in_aktuell" readonly></td>
+      <td><input id="wk_aktuell" readonly></td>
+      <td><input id="ch_aktuell" readonly></td>
+    </tr>
+  </table>
+</section>
   },
 
   // 🏃‍♂️ Bewegung
