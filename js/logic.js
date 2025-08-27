@@ -84,6 +84,142 @@ function updateSkills() {
 }
 
 // -------------------------
+// Autosave / Autoload (vollständiger Zustand)
+// -------------------------
+
+function saveData() {
+  let data = {};
+
+  // Feste Inputs mit ID
+  const inputs = document.querySelectorAll("input[id], select[id], textarea[id]");
+  inputs.forEach(el => {
+    data[el.id] = el.value;
+  });
+
+  // Dynamische Tabellen (mit Buttons & Selects)
+  const tables = [
+    "weaponsTable", "armorTable", "equipmentTable",
+    "spellsTable", "talentsTable", "mutationTable",
+    "psychologyTable", "groupedSkillsTable", "basicSkillsTable"
+  ];
+
+  data.tables = {};
+
+  tables.forEach(tableId => {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+    let rows = [];
+    table.querySelectorAll("tr").forEach((row, idx) => {
+      if (idx === 0) return; // Header überspringen
+      let cells = [];
+      row.querySelectorAll("td").forEach(cell => {
+        if (cell.querySelector("input")) {
+          cells.push({ type: "input", value: cell.querySelector("input").value });
+        } else if (cell.querySelector("select")) {
+          cells.push({ type: "select", value: cell.querySelector("select").value });
+        } else if (cell.querySelector("button.skill-btn")) {
+          cells.push({ type: "button", value: cell.querySelector("button.skill-btn").textContent });
+        } else {
+          cells.push({ type: "empty" });
+        }
+      });
+      rows.push(cells);
+    });
+    data.tables[tableId] = rows;
+  });
+
+  localStorage.setItem("charData", JSON.stringify(data));
+}
+
+function loadData() {
+  const saved = localStorage.getItem("charData");
+  if (!saved) return;
+  const data = JSON.parse(saved);
+
+  // Feste Inputs wiederherstellen
+  Object.keys(data).forEach(key => {
+    if (key === "tables") return;
+    const el = document.getElementById(key);
+    if (el) el.value = data[key];
+  });
+
+  // Tabellen wiederherstellen
+  if (data.tables) {
+    Object.keys(data.tables).forEach(tableId => {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+
+      // Alle Zeilen außer Header löschen
+      while (table.rows.length > 1) {
+        table.deleteRow(1);
+      }
+
+      // Zeilen aus gespeicherten Daten einfügen
+      data.tables[tableId].forEach(rowData => {
+        const row = table.insertRow(-1);
+        rowData.forEach(cellData => {
+          const cell = row.insertCell(-1);
+          if (!cellData) return;
+          if (cellData.type === "input") {
+            cell.innerHTML = `<input value="${cellData.value}">`;
+          } else if (cellData.type === "select") {
+            cell.innerHTML = `
+              <select>
+                <option value="kg" ${cellData.value==="kg"?"selected":""}>KG</option>
+                <option value="bf" ${cellData.value==="bf"?"selected":""}>BF</option>
+                <option value="st" ${cellData.value==="st"?"selected":""}>ST</option>
+                <option value="wi" ${cellData.value==="wi"?"selected":""}>WI</option>
+                <option value="ge" ${cellData.value==="ge"?"selected":""}>GE</option>
+                <option value="in" ${cellData.value==="in"?"selected":""}>IN</option>
+                <option value="wk" ${cellData.value==="wk"?"selected":""}>WK</option>
+                <option value="ch" ${cellData.value==="ch"?"selected":""}>CH</option>
+              </select>`;
+            cell.querySelector("select").value = cellData.value;
+          } else if (cellData.type === "button") {
+            cell.innerHTML = `<button class="skill-btn">${cellData.value}</button>`;
+            if (cellData.value === "✠") {
+              row.classList.add("skill-marked");
+            }
+          }
+        });
+        // Immer Lösch-Button ergänzen, falls nicht in Mutationen/Psychologie
+        if (!["basicSkillsTable"].includes(tableId)) {
+          const delCell = row.insertCell(-1);
+          delCell.innerHTML = '<button onclick="deleteRow(this)">🗑</button>';
+        }
+      });
+    });
+  }
+
+  // Nachladen → alle Berechnungen aktualisieren
+  updateAttributes();
+  updateLebenspunkte();
+  updateKorruption();
+  updateArmor();
+  updateEquipment();
+  updateWeapons();
+  updateMoney();
+  updateTraglast();
+}
+
+// Autosave triggern
+document.addEventListener("input", (e) => {
+  if (["INPUT","SELECT","TEXTAREA"].includes(e.target.tagName)) {
+    saveData();
+  }
+});
+
+// Auch Buttons speichern
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("skill-btn") || e.target.textContent === "🗑") {
+    saveData();
+  }
+});
+
+// Laden beim Start
+document.addEventListener("DOMContentLoaded", loadData);
+
+// -------------------------
 // Gruppierte Fähigkeiten: Zeilen hinzufügen
 // -------------------------
 function addGroupedSkillRow() {
