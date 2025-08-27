@@ -3,102 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Warhammer Fantasy Charakterbogen</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="style.css">
+  <title>Charakterbogen – Warhammer Fantasy</title>
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Podkova&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <h1 id="title">Warhammer Fantasy Charakterbogen</h1>
+  <header>
+    <h1>Charakterbogen</h1>
+  </header>
 
-  <!-- Toolbar -->
-  <div class="toolbar">
-    <div class="lang-buttons">
-      <button data-lang="de">🇩🇪</button>
-      <button data-lang="en">🇬🇧</button>
-      <button data-lang="fr">🇫🇷</button>
-      <button data-lang="ru">🇷🇺</button>
-    </div>
-    <div>
-      <button id="exportBtn" class="file-btn">📤 Export</button>
-      <input type="file" id="importFile" style="display:none">
-      <button id="importBtn" class="file-btn">📥 Import</button>
-    </div>
-  </div>
+  <main id="main-content">
+    <!-- Sections werden dynamisch von sections.js geladen -->
+  </main>
 
-  <!-- Hier werden die Sektionen eingefügt -->
-  <div id="app"></div>
+  <footer>
+    <p>⚔ Warhammer Fantasy Charakterbogen – PWA Version</p>
+  </footer>
 
-  <!-- Module -->
-  <script src="sections.js"></script>
-  <script src="translations.js"></script>
-  <script src="logic.js"></script>
-
-  <script>
-    // Render Sektionen
-    document.getElementById("app").innerHTML = sections.map(s => s.html).join("");
-
-    // LocalStorage (Auto-Save)
-    const fields = document.querySelectorAll("input, textarea");
-    fields.forEach(field => {
-      if (!field.id) return;
-      const saved = localStorage.getItem(field.id);
-      if (saved !== null) field.value = saved;
-      field.addEventListener("input", () => {
-        localStorage.setItem(field.id, field.value);
-      });
-    });
-
-    // Export
-    document.getElementById("exportBtn").addEventListener("click", () => {
-      let data = {};
-      fields.forEach(f => { if (f.id) data[f.id] = f.value; });
-      const blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "charakterbogen.json";
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-
-    // Import
-    document.getElementById("importBtn").addEventListener("click", () => {
-      document.getElementById("importFile").click();
-    });
-    document.getElementById("importFile").addEventListener("change", e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = evt => {
-        try {
-          const data = JSON.parse(evt.target.result);
-          Object.keys(data).forEach(key => {
-            const f = document.getElementById(key);
-            if (f) { f.value = data[key]; localStorage.setItem(key, data[key]); }
-          });
-        } catch (err) { alert("Fehler beim Import: " + err); }
-      };
-      reader.readAsText(file);
-    });
-
-    // Sprachen
-    function setLanguage(lang) {
-      const dict = translations[lang];
-      for (let key in dict) {
-        const el = document.getElementById(key);
-        if (el) el.textContent = dict[key];
-      }
-      localStorage.setItem("lang", lang);
-    }
-    document.querySelectorAll(".lang-buttons button").forEach(btn => {
-      btn.addEventListener("click", () => setLanguage(btn.dataset.lang));
-    });
-    setLanguage(localStorage.getItem("lang") || "de");
-
-    // Service Worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js');
-    }
-  </script>
+  <!-- Scripts -->
+  <script src="js/translations.js"></script>
+  <script src="js/sections.js"></script>
+  <script src="js/logic.js"></script>
 </body>
 </html>
