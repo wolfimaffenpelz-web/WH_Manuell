@@ -81,7 +81,7 @@ const sections = [
       <td><input id="ch_aktuell" readonly></td>
     </tr>
   </table>
-</section>
+    </section>`
   },
 
   // 🏃‍♂️ Bewegung
@@ -136,6 +136,32 @@ const sections = [
         <tr><td>Wahrnehmung</td><td><input id="wahrn_sw"></td><td><input id="wahrn_st"></td><td><input id="wahrn_w" readonly></td></tr>
         <tr><td>Zechen</td><td><input id="zechen_sw"></td><td><input id="zechen_st"></td><td><input id="zechen_w" readonly></td></tr>
       </table>
+    </section>`
+  },
+
+  // 🧩 Gruppierte & Ausbaufähigkeiten
+  {
+    id: "grouped_skills",
+    html: `
+    <section>
+      <h2 id="section_grouped_skills">Gruppierte & Ausbaufähigkeiten</h2>
+      <table id="groupedSkillsTable">
+        <tr>
+          <th id="label_gskill_name">Name</th>
+          <th id="label_gskill_attr">Attribut</th>
+          <th id="label_gskill_attrval">Attr.-Wert</th>
+          <th id="label_gskill_st">Steigerung</th>
+          <th id="label_gskill_w">Wert</th>
+        </tr>
+        <tr>
+          <td><input id="gskill1_name"></td>
+          <td><input id="gskill1_attr" placeholder="z.B. IN"></td>
+          <td><input id="gskill1_attrval" readonly></td>
+          <td><input id="gskill1_st"></td>
+          <td><input id="gskill1_w" readonly></td>
+        </tr>
+      </table>
+      <button type="button" onclick="addGroupedSkillRow()">+ Zeile hinzufügen</button>
     </section>`
   },
 
@@ -283,32 +309,6 @@ const sections = [
     <section>
       <h2 id="section_corruption">Korrumpierung & Mutation</h2>
       <textarea id="korrumpierung"></textarea>
-    </section>`
-  },
-
-  // 🧩 Gruppierte & Ausbaufähigkeiten
-  {
-    id: "grouped_skills",
-    html: `
-    <section>
-      <h2 id="section_grouped_skills">Gruppierte & Ausbaufähigkeiten</h2>
-      <table id="groupedSkillsTable">
-        <tr>
-          <th id="label_gskill_name">Name</th>
-          <th id="label_gskill_attr">Attribut</th>
-          <th id="label_gskill_attrval">Attr.-Wert</th>
-          <th id="label_gskill_st">Steigerung</th>
-          <th id="label_gskill_w">Wert</th>
-        </tr>
-        <tr>
-          <td><input id="gskill1_name"></td>
-          <td><input id="gskill1_attr" placeholder="z.B. IN"></td>
-          <td><input id="gskill1_attrval" readonly></td>
-          <td><input id="gskill1_st"></td>
-          <td><input id="gskill1_w" readonly></td>
-        </tr>
-      </table>
-      <button type="button" onclick="addGroupedSkillRow()">+ Zeile hinzufügen</button>
     </section>`
   }
 ];
