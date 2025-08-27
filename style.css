@@ -1,3 +1,58 @@
+/* ================================
+   Styling für die Attribut-Tabelle
+   ================================ */
+#section_attributes table {
+  table-layout: fixed; /* feste Spaltenbreiten */
+  border-collapse: collapse;
+  width: 100%;
+}
+
+/* Kräftigeres Raster */
+#section_attributes th,
+#section_attributes td {
+  border: 1.5px solid #000;
+  text-align: center;
+  padding: 4px;
+  font-size: 13px;
+}
+/* Erste Zeile (Attribut-Kürzel) */
+#section_attributes tr:first-child th {
+  font-weight: bold;
+  font-size: 14px;
+  background: #ddd; /* dezente Hinterlegung */
+}
+
+/* Erste Spalte (Zeilenbeschriftungen) */
+#section_attributes th:first-child {
+  width: 90px; /* Platz für „Steigerungen“ */
+  text-align: left;
+  font-weight: bold;
+}
+
+/* Alle Attribut-Spalten sehr schmal */
+#section_attributes td,
+#section_attributes th:not(:first-child) {
+  width: 40px;
+}
+
+/* Eingabefelder kompakt + Monospace */
+#section_attributes input {
+  width: 2.5em; /* genau zwei Zeichen breit */
+  font-family: monospace;
+  text-align: center;
+  padding: 2px;
+}
+
+/* Hover/Focus-Effekt */
+#section_attributes input:focus {
+  background: #eef;
+  outline: none;
+}
+
+/* „Aktuell“-Zeile farblich hervorheben */
+#section_attributes tr:last-child {
+  background: #f9f5c2; /* dezentes Hellgelb */
+}
 /* Hintergrund und Atmosphäre */
 body {
   font-family: "Times New Roman", serif;
@@ -91,59 +146,4 @@ textarea {
 }
 .file-btn {
   margin-right: 10px;
-}
-/* ================================
-   Styling für die Attribut-Tabelle
-   ================================ */
-#section_attributes table {
-  table-layout: fixed; /* feste Spaltenbreiten */
-  border-collapse: collapse;
-  width: 100%;
-}
-
-/* Kräftigeres Raster */
-#section_attributes th,
-#section_attributes td {
-  border: 1.5px solid #000;
-  text-align: center;
-  padding: 4px;
-  font-size: 13px;
-}
-/* Erste Zeile (Attribut-Kürzel) */
-#section_attributes tr:first-child th {
-  font-weight: bold;
-  font-size: 14px;
-  background: #ddd; /* dezente Hinterlegung */
-}
-
-/* Erste Spalte (Zeilenbeschriftungen) */
-#section_attributes th:first-child {
-  width: 90px; /* Platz für „Steigerungen“ */
-  text-align: left;
-  font-weight: bold;
-}
-
-/* Alle Attribut-Spalten sehr schmal */
-#section_attributes td,
-#section_attributes th:not(:first-child) {
-  width: 40px;
-}
-
-/* Eingabefelder kompakt + Monospace */
-#section_attributes input {
-  width: 2.5em; /* genau zwei Zeichen breit */
-  font-family: monospace;
-  text-align: center;
-  padding: 2px;
-}
-
-/* Hover/Focus-Effekt */
-#section_attributes input:focus {
-  background: #eef;
-  outline: none;
-}
-
-/* „Aktuell“-Zeile farblich hervorheben */
-#section_attributes tr:last-child {
-  background: #f9f5c2; /* dezentes Hellgelb */
 }
