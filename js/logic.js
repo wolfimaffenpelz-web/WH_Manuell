@@ -203,7 +203,7 @@ function addRow(tableId) {
       <td><input type="number" readonly></td>
       <td><input type="number"></td>
       <td><input type="number" readonly></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState();">❌</button></td>
+      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); updateAttributes();">❌</button></td>
     `;
   }
   else if (tableId === "talent-table") {
@@ -211,7 +211,7 @@ function addRow(tableId) {
       <td>◯</td>
       <td><input type="text"></td>
       <td><input type="text"></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState();">❌</button></td>
+      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); updateAttributes();">❌</button></td>
     `;
   }
   else if (tableId === "waffen-table") {
@@ -221,7 +221,7 @@ function addRow(tableId) {
       <td><input type="number"></td>
       <td><input type="text"></td>
       <td><textarea></textarea></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState();">❌</button></td>
+      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); updateAttributes();">❌</button></td>
     `;
   }
   else if (tableId === "ruestung-table") {
@@ -237,7 +237,7 @@ function addRow(tableId) {
       <td><input type="number"></td>
       <td><input type="number"></td>
       <td><textarea></textarea></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState();">❌</button></td>
+      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); updateAttributes();">❌</button></td>
     `;
   }
   else if (tableId === "ausruestung-table") {
@@ -246,7 +246,7 @@ function addRow(tableId) {
       <td><input type="number"></td>
       <td><input type="number"></td>
       <td><textarea></textarea></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState();">❌</button></td>
+      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); updateAttributes();">❌</button></td>
     `;
   }
   else if (tableId === "zauber-table") {
@@ -257,7 +257,7 @@ function addRow(tableId) {
       <td><input type="text"></td>
       <td><input type="text"></td>
       <td><textarea></textarea></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState();">❌</button></td>
+      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); updateAttributes();">❌</button></td>
     `;
   }
   else if (tableId === "mutationen-table") {
@@ -267,23 +267,24 @@ function addRow(tableId) {
         <select><option>Körper</option><option>Geist</option></select>
       </td>
       <td><textarea></textarea></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState();">❌</button></td>
+      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); updateAttributes();">❌</button></td>
     `;
   }
   else if (tableId === "psychologie-table") {
     row.innerHTML = `
       <td><input type="text"></td>
       <td><textarea></textarea></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState();">❌</button></td>
+      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); updateAttributes();">❌</button></td>
     `;
   }
   else if (tableId === "exp-table") {
     row.innerHTML = `
       <td><input type="number"></td>
       <td><input type="text"></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateErfahrung();">❌</button></td>
+      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); updateAttributes();">❌</button></td>
     `;
   }
+  updateAttributes();
 }
 
 // =========================
@@ -431,16 +432,16 @@ function updateErfahrung() {
     document.getElementById("exp-simple-gesamt").value = akt + ausg;
   } else {
     // Voller Modus
-    let akt = 0, ausg = 0;
+    let aktuell = 0, ausg = 0;
     document.querySelectorAll("#exp-table tr").forEach((row, idx) => {
       if (idx === 0) return;
       const val = parseInt(row.cells[0].querySelector("input").value) || 0;
-      if (val >= 0) akt += val;
-      else ausg += Math.abs(val);
+      aktuell += val;
+      if (val < 0) ausg += -val;
     });
-    document.getElementById("exp-full-akt").value = akt;
+    document.getElementById("exp-full-akt").value = aktuell;
     document.getElementById("exp-full-ausg").value = ausg;
-    document.getElementById("exp-full-gesamt").value = akt + ausg;
+    document.getElementById("exp-full-gesamt").value = aktuell + ausg;
   }
 }
 
@@ -472,11 +473,10 @@ function initLogic() {
   renderSections();
   initCharacterManagement();
 
-  document.querySelectorAll("input, textarea, select").forEach(el => {
-    el.addEventListener("input", () => {
+  document.addEventListener("input", e => {
+    if (e.target.matches("input, textarea, select")) {
       updateAttributes();
-      saveState();
-    });
+    }
   });
 
   const toggle = document.getElementById("exp-toggle");
@@ -489,8 +489,7 @@ function initLogic() {
         document.getElementById("exp-simple").style.display = "none";
         document.getElementById("exp-full").style.display = "block";
       }
-      updateErfahrung();
-      saveState();
+      updateAttributes();
     });
   }
 
