@@ -101,9 +101,9 @@ const sections = [
         <tr>
           <th>Fähigkeit</th>
           <th>At.</th>
-          <th>Wert</th>
-          <th>Steig.</th>
-          <th>Gesamt</th>
+          <th class="wert-col">Wert</th>
+          <th class="wert-col">Steig.</th>
+          <th class="wert-col">Gesamt</th>
         </tr>
         <!-- Reihenfolge fix nach Referenz -->
         ${[
@@ -118,9 +118,9 @@ const sections = [
           <tr>
             <td>${name}</td>
             <td>${att}</td>
-            <td><input type="number" id="grund-${name}-wert" readonly></td>
-            <td><input type="number" id="grund-${name}-steig"></td>
-            <td><input type="number" id="grund-${name}-gesamt" readonly></td>
+            <td class="wert-col"><input type="number" id="grund-${name}-wert" readonly></td>
+            <td class="wert-col"><input type="number" id="grund-${name}-steig"></td>
+            <td class="wert-col"><input type="number" id="grund-${name}-gesamt" readonly></td>
           </tr>`).join("")}
       </table>
       <div class="section-divider"></div>
@@ -137,9 +137,9 @@ const sections = [
           <th>Mark</th>
           <th>Fähigkeit</th>
           <th>At.</th>
-          <th>Wert</th>
-          <th>Steig.</th>
-          <th>Gesamt</th>
+          <th class="wert-col">Wert</th>
+          <th class="wert-col">Steig.</th>
+          <th class="wert-col">Gesamt</th>
           <th>❌</th>
         </tr>
       </table>
@@ -387,11 +387,11 @@ sections.push(
       <!-- Simpler Modus -->
       <div id="exp-simple">
         <table class="full-width">
-          <tr><th>Aktuell</th><th>Ausgegeben</th><th>Gesamt</th></tr>
+          <tr><th>Aktuell</th><th>Ausgegeben</th><th class="wert-col">Gesamt</th></tr>
           <tr>
             <td><input type="number" id="exp-simple-akt"></td>
             <td><input type="number" id="exp-simple-ausg"></td>
-            <td><input type="number" id="exp-simple-gesamt" readonly></td>
+            <td class="wert-col"><input type="number" id="exp-simple-gesamt" readonly></td>
           </tr>
         </table>
       </div>
@@ -399,16 +399,16 @@ sections.push(
       <!-- Voller Modus -->
       <div id="exp-full" style="display:none;">
         <table class="full-width">
-          <tr><th>Aktuell</th><th>Ausgegeben</th><th>Gesamt</th></tr>
+          <tr><th>Aktuell</th><th>Ausgegeben</th><th class="wert-col">Gesamt</th></tr>
           <tr>
             <td><input type="number" id="exp-full-akt" readonly></td>
             <td><input type="number" id="exp-full-ausg" readonly></td>
-            <td><input type="number" id="exp-full-gesamt" readonly></td>
+            <td class="wert-col"><input type="number" id="exp-full-gesamt" readonly></td>
           </tr>
         </table>
 
         <table class="full-width" id="exp-table">
-          <tr><th>Wert</th><th>Kommentar</th><th>❌</th></tr>
+          <tr><th class="wert-col">Wert</th><th>Kommentar</th><th>❌</th></tr>
         </table>
         <button class="add-row" onclick="addRow('exp-table')">+ Eintrag</button>
       </div>

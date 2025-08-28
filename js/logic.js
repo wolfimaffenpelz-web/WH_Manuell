@@ -200,9 +200,9 @@ function addRow(tableId) {
           <option value="WK">WK</option><option value="CH">CH</option>
         </select>
       </td>
-      <td><input type="number" readonly></td>
-      <td><input type="number"></td>
-      <td><input type="number" readonly></td>
+      <td class="wert-col"><input type="number" readonly></td>
+      <td class="wert-col"><input type="number"></td>
+      <td class="wert-col"><input type="number" readonly></td>
       <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState();">❌</button></td>
     `;
   }
@@ -279,7 +279,7 @@ function addRow(tableId) {
   }
   else if (tableId === "exp-table") {
     row.innerHTML = `
-      <td><input type="number"></td>
+      <td class="wert-col"><input type="number"></td>
       <td><input type="text"></td>
       <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateErfahrung();">❌</button></td>
     `;

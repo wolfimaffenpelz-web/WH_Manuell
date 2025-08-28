@@ -71,6 +71,11 @@ th {
   font-weight: bold;
 }
 
+th.wert-col,
+td.wert-col {
+  width: 60px;
+}
+
 /* 100% Tabellenbreite */
 .full-width {
   width: 100%;
