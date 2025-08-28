@@ -1,4 +1,6 @@
-  // =========================
+const sections = [
+
+// =========================
   // Grunddaten
   // =========================
   {
@@ -34,7 +36,6 @@
     ],
     collapsible: true // einklappbar, Standard offen
   },
-const sections = [
   // =========================
   // Spielwerte (Attribute)
   // =========================
