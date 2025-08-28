@@ -472,6 +472,19 @@ function initLogic() {
   renderSections();
   initCharacterManagement();
 
+  // Toggle visibility of Grunddaten section
+  const grundHeader = document.querySelector("#grunddaten h2");
+  const grundBody = document.querySelector("#grunddaten .section-body");
+  if (grundHeader && grundBody) {
+    const collapsed = localStorage.getItem("grunddaten-collapsed") === "true";
+    grundBody.style.display = collapsed ? "none" : "";
+    grundHeader.addEventListener("click", () => {
+      const isCollapsed = grundBody.style.display === "none";
+      grundBody.style.display = isCollapsed ? "" : "none";
+      localStorage.setItem("grunddaten-collapsed", (!isCollapsed).toString());
+    });
+  }
+
   document.querySelectorAll("input, textarea, select").forEach(el => {
     el.addEventListener("input", () => {
       updateAttributes();
