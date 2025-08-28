@@ -1,316 +1,342 @@
-// -------------------------
-// Sections.js
-// Enthält die Struktur aller Tabellen & Abschnitte
-// -------------------------
+// sections.js – Alle Segmente & Tabellen
 
 function loadSections() {
   const main = document.getElementById("main-content");
+  main.innerHTML = `
+    ${sectionGrunddaten()}
+    ${sectionAttribute()}
+    ${sectionLebenspunkte()}
+    ${sectionGrundfertigkeiten()}
+    ${sectionGruppierteFertigkeiten()}
+    ${sectionWaffen()}
+    ${sectionRuestung()}
+    ${sectionAusrüstung()}
+    ${sectionZauber()}
+    ${sectionMutationen()}
+    ${sectionPsychologie()}
+    ${sectionKorruption()}
+    ${sectionTraglast()}
+    ${sectionVermoegen()}
+    ${sectionSchicksalUndZaehaigkeit()}
+    ${sectionErfahrung()}
+  `;
+}
 
-  // -------------------------
-  // Grunddaten (3 Tabellen)
-  // -------------------------
-  main.innerHTML += `
-  <section id="section_basics">
+// ---------------- Grunddaten ----------------
+function sectionGrunddaten() {
+  return `
+  <section id="section_grunddaten">
     <h2>Grunddaten</h2>
-
-    <!-- Tabelle 1 -->
-    <table>
+    <table class="narrow">
       <tr>
         <th>Name</th>
-        <th>Rasse</th>
+        <td><input id="char_name" type="text"></td>
         <th>Klasse</th>
-        <th>Karriere</th>
+        <td><input id="char_class" type="text"></td>
       </tr>
       <tr>
-        <td><input class="text-long" id="char_name"></td>
-        <td><input class="text-medium" id="char_race"></td>
-        <td><input class="text-medium" id="char_class"></td>
-        <td><input class="text-long" id="char_career"></td>
-      </tr>
-    </table>
-
-    <!-- Tabelle 2 -->
-    <table>
-      <tr>
+        <th>Rasse</th>
+        <td><input id="char_race" type="text"></td>
         <th>Karrierestufe</th>
+        <td><input id="char_career" type="text" class="num-2"></td>
+      </tr>
+      <tr>
         <th>Status</th>
-        <th>Alter</th>
+        <td><input id="char_status" type="text"></td>
         <th>Geschlecht</th>
-      </tr>
-      <tr>
-        <td><input class="text-long" id="career_level"></td>
-        <td><input class="text-medium" id="char_status"></td>
-        <td><input class="num-3" id="char_age"></td>
-        <td><input class="text-short" id="char_gender"></td>
-      </tr>
-    </table>
-
-    <!-- Tabelle 3 -->
-    <table class="segment-separator">
-      <tr>
-        <th>Größe</th>
-        <th>Gewicht</th>
-        <th>Augenfarbe</th>
-        <th>Haarfarbe</th>
-      </tr>
-      <tr>
-        <td><input class="num-3" id="char_height"></td>
-        <td><input class="num-3" id="char_weight"></td>
-        <td><input class="text-medium" id="char_eyes"></td>
-        <td><input class="text-medium" id="char_hair"></td>
+        <td><input id="char_gender" type="text"></td>
       </tr>
     </table>
   </section>
   `;
+}
 
-  // -------------------------
-  // Attribute
-  // -------------------------
-  main.innerHTML += `
+// ---------------- Attribute ----------------
+function sectionAttribute() {
+  return `
   <section id="section_attributes">
-    <h2>Attribute</h2>
-    <table class="segment-separator">
+    <h2>Spielwerte</h2>
+    <table class="wide">
       <tr>
         <th></th>
-        <th>KG</th><th>BF</th><th>ST</th><th>WI</th>
-        <th>GE</th><th>IN</th><th>WK</th><th>CH</th>
+        <th>KG</th><th>BF</th><th>ST</th><th>WI</th><th>I</th>
+        <th>GW</th><th>GS</th><th>IN</th><th>WK</th><th>CH</th>
       </tr>
       <tr>
         <td>Anfang</td>
-        <td><input id="kg_start" class="num-3"></td>
-        <td><input id="bf_start" class="num-3"></td>
-        <td><input id="st_start" class="num-3"></td>
-        <td><input id="wi_start" class="num-3"></td>
-        <td><input id="ge_start" class="num-3"></td>
-        <td><input id="in_start" class="num-3"></td>
-        <td><input id="wk_start" class="num-3"></td>
-        <td><input id="ch_start" class="num-3"></td>
+        <td><input id="attr_KG_base" class="num-2"></td>
+        <td><input id="attr_BF_base" class="num-2"></td>
+        <td><input id="attr_ST_base" class="num-2"></td>
+        <td><input id="attr_WI_base" class="num-2"></td>
+        <td><input id="attr_I_base" class="num-2"></td>
+        <td><input id="attr_GW_base" class="num-2"></td>
+        <td><input id="attr_GS_base" class="num-2"></td>
+        <td><input id="attr_IN_base" class="num-2"></td>
+        <td><input id="attr_WK_base" class="num-2"></td>
+        <td><input id="attr_CH_base" class="num-2"></td>
       </tr>
       <tr>
-        <td>Steigerungen</td>
-        <td><input id="kg_up" class="num-3"></td>
-        <td><input id="bf_up" class="num-3"></td>
-        <td><input id="st_up" class="num-3"></td>
-        <td><input id="wi_up" class="num-3"></td>
-        <td><input id="ge_up" class="num-3"></td>
-        <td><input id="in_up" class="num-3"></td>
-        <td><input id="wk_up" class="num-3"></td>
-        <td><input id="ch_up" class="num-3"></td>
+        <td>Steig.</td>
+        <td><input id="attr_KG_adv" class="num-2"></td>
+        <td><input id="attr_BF_adv" class="num-2"></td>
+        <td><input id="attr_ST_adv" class="num-2"></td>
+        <td><input id="attr_WI_adv" class="num-2"></td>
+        <td><input id="attr_I_adv" class="num-2"></td>
+        <td><input id="attr_GW_adv" class="num-2"></td>
+        <td><input id="attr_GS_adv" class="num-2"></td>
+        <td><input id="attr_IN_adv" class="num-2"></td>
+        <td><input id="attr_WK_adv" class="num-2"></td>
+        <td><input id="attr_CH_adv" class="num-2"></td>
       </tr>
       <tr>
-        <td><b>Aktuell</b></td>
-        <td><input id="kg_w" class="num-3" readonly></td>
-        <td><input id="bf_w" class="num-3" readonly></td>
-        <td><input id="st_w" class="num-3" readonly></td>
-        <td><input id="wi_w" class="num-3" readonly></td>
-        <td><input id="ge_w" class="num-3" readonly></td>
-        <td><input id="in_w" class="num-3" readonly></td>
-        <td><input id="wk_w" class="num-3" readonly></td>
-        <td><input id="ch_w" class="num-3" readonly></td>
+        <td>Aktuell</td>
+        <td><input id="attr_KG" readonly class="num-2"></td>
+        <td><input id="attr_BF" readonly class="num-2"></td>
+        <td><input id="attr_ST" readonly class="num-2"></td>
+        <td><input id="attr_WI" readonly class="num-2"></td>
+        <td><input id="attr_I" readonly class="num-2"></td>
+        <td><input id="attr_GW" readonly class="num-2"></td>
+        <td><input id="attr_GS" readonly class="num-2"></td>
+        <td><input id="attr_IN" readonly class="num-2"></td>
+        <td><input id="attr_WK" readonly class="num-2"></td>
+        <td><input id="attr_CH" readonly class="num-2"></td>
       </tr>
     </table>
   </section>
   `;
-
-  // -------------------------
-  // Lebenspunkte
-  // -------------------------
-  main.innerHTML += `
+}
+// ---------------- Lebenspunkte ----------------
+function sectionLebenspunkte() {
+  return `
   <section id="section_wounds">
     <h2>Lebenspunkte</h2>
-    <table class="segment-separator">
+    <table class="narrow">
       <tr>
-        <th>STB</th>
-        <th>WIB</th>
-        <th>WKB × 2</th>
-        <th>Robustheit*</th>
-        <th>Summe</th>
-        <th>LP</th>
+        <th>STB</th><th>WIB</th><th>2×WKB</th><th>Robustheit*</th><th>Summe</th><th>LP</th>
       </tr>
       <tr>
-        <td><input id="lp_stb" class="num-3" readonly></td>
-        <td><input id="lp_wib" class="num-3" readonly></td>
-        <td><input id="lp_wkb2" class="num-3" readonly></td>
-        <td><input id="lp_robustheit_bonus" class="num-3" readonly></td>
-        <td><input id="lp_robustheit" class="num-3" readonly></td>
-        <td><input id="lp_current" class="num-3"></td>
+        <td><input id="wound_stb" readonly class="num-2"></td>
+        <td><input id="wound_wib" readonly class="num-2"></td>
+        <td><input id="wound_wkb2" readonly class="num-2"></td>
+        <td><input id="wound_robust" readonly class="num-2"></td>
+        <td><input id="wound_sum" readonly class="num-2"></td>
+        <td><input id="wound_lp" class="num-2"></td>
       </tr>
     </table>
-    <div class="footnote">
-      * Bonus aus Talent „Robustheit“ (engl. Hardy), falls vorhanden, sonst leer.
+    <small>* Robustheit wird automatisch berechnet, falls das Talent „Robustheit“/„Hardy“ vorhanden ist</small>
+  </section>
+  `;
+}
+
+// ---------------- Grundfertigkeiten ----------------
+function sectionGrundfertigkeiten() {
+  return `
+  <section id="section_basic_skills">
+    <h2>Grundfähigkeiten</h2>
+    <table class="wide">
+      <tr>
+        <th></th><th>Fähigkeit</th><th>Attribut</th><th>Wert</th>
+      </tr>
+      ${grundfertigkeitenListe().map(skill => `
+      <tr>
+        <td><button class="mark-btn" data-skill="${skill.id}">◯</button></td>
+        <td>${skill.name}</td>
+        <td><span id="skill_${skill.id}_attr">${skill.attr}</span> 
+            (<span id="skill_${skill.id}_attrval"></span>)</td>
+        <td><input id="skill_${skill.id}_val" class="num-2"></td>
+      </tr>
+      `).join("")}
+    </table>
+  </section>
+  `;
+}
+
+function grundfertigkeitenListe() {
+  return [
+    { id: "animalcare", name: "Tierkunde", attr: "IN" },
+    { id: "charm", name: "Charme", attr: "CH" },
+    { id: "charmanimal", name: "Tiere besänftigen", attr: "WI" },
+    { id: "climb", name: "Klettern", attr: "ST" },
+    { id: "cool", name: "Kaltblütigkeit", attr: "WK" },
+    { id: "consumealcohol", name: "Trinken", attr: "WI" },
+    { id: "dodge", name: "Ausweichen", attr: "GW" },
+    { id: "endurance", name: "Ausdauer", attr: "WI" },
+    { id: "entertain", name: "Unterhalten", attr: "CH" },
+    { id: "gamble", name: "Spielen", attr: "IN" },
+    { id: "gossip", name: "Klatsch", attr: "CH" },
+    { id: "haggle", name: "Feilschen", attr: "CH" },
+    { id: "intimidate", name: "Einschüchtern", attr: "ST" },
+    { id: "intuition", name: "Intuition", attr: "I" },
+    { id: "leadership", name: "Führen", attr: "CH" },
+    { id: "melee_basic", name: "Nahkampf (Standard)", attr: "KG" },
+    { id: "outdoor", name: "Wildnisleben", attr: "IN" },
+    { id: "perception", name: "Wahrnehmung", attr: "I" },
+    { id: "ride", name: "Reiten", attr: "GS" },
+    { id: "row", name: "Rudern", attr: "ST" },
+    { id: "stealth", name: "Schleichen", attr: "GE" }, 
+    { id: "swim", name: "Schwimmen", attr: "ST" }
+  ];
+}
+// ---------------- Gruppierte Fähigkeiten ----------------
+function sectionGruppierteFertigkeiten() {
+  return `
+  <section id="section_grouped_skills">
+    <h2>Gruppierte & Ausbaufähigkeiten</h2>
+    <table class="wide" id="groupedSkillsTable">
+      <tr>
+        <th></th><th>Fähigkeit</th><th>Attribut</th><th>Wert</th><th>🗑</th>
+      </tr>
+    </table>
+    <button onclick="addGroupedSkill()">➕</button>
+  </section>
+  `;
+}
+
+// ---------------- Waffen ----------------
+function sectionWaffen() {
+  return `
+  <section id="section_weapons">
+    <h2>Waffen</h2>
+    <table class="wide" id="weaponsTable">
+      <tr>
+        <th>Name</th><th>Gruppe</th><th>TP</th><th>RW</th><th>Schaden</th><th>🗑</th>
+      </tr>
+    </table>
+    <button onclick="addWeapon()">➕</button>
+  </section>
+  `;
+}
+
+// ---------------- Rüstung ----------------
+function sectionRuestung() {
+  return `
+  <section id="section_armor">
+    <h2>Rüstungspunkte</h2>
+    <div class="armor-container">
+      <svg id="armorFigure" viewBox="0 0 200 420">
+        <!-- Graue Silhouette (vereinfacht) -->
+        <rect x="60" y="40" width="80" height="300" fill="#ccc" rx="20"/>
+        <circle cx="100" cy="20" r="20" fill="#ccc"/>
+        <!-- Stiefel -->
+        <rect x="70" y="340" width="20" height="50" fill="#bbb"/>
+        <rect x="110" y="340" width="20" height="50" fill="#bbb"/>
+        <polygon points="70,340 90,330 90,340" fill="#999"/>
+        <polygon points="110,340 130,330 130,340" fill="#999"/>
+        <!-- Schwert links -->
+        <rect x="45" y="200" width="8" height="80" fill="#888"/>
+        <rect x="40" y="190" width="18" height="15" fill="#666"/>
+      </svg>
+      <table class="wide" id="armorTable">
+        <tr>
+          <th>Name</th><th>Trefferzone</th><th>RP</th><th>🗑</th>
+        </tr>
+      </table>
+      <button onclick="addArmor()">➕</button>
     </div>
   </section>
   `;
+}
 
-  // -------------------------
-  // Grundfähigkeiten
-  // -------------------------
-  main.innerHTML += `
-  <section id="section_skills">
-    <h2>Grundfähigkeiten</h2>
-    <table class="segment-separator" id="basicSkillsTable">
-      <tr>
-        <th>✠</th>
-        <th>Name</th>
-        <th>Attribut</th>
-        <th>Attr.-Wert</th>
-        <th>Steigerung</th>
-        <th>Wert</th>
-      </tr>
-      <tr>
-        <td><button class="skill-btn">◯</button></td>
-        <td>Ausweichen</td>
-        <td>I</td>
-        <td><input id="skill_ausweichen_attr" class="num-3" readonly></td>
-        <td><input id="skill_ausweichen_up" class="num-3"></td>
-        <td><input id="skill_ausweichen_val" class="num-3" readonly></td>
-      </tr>
-      <!-- Weitere Grundfähigkeiten analog -->
-    </table>
-  </section>
-  `;
-
-  // -------------------------
-  // Gruppierte Fähigkeiten
-  // -------------------------
-  main.innerHTML += `
-  <section id="section_grouped_skills">
-    <h2>Gruppierte & Ausbaufähigkeiten</h2>
-    <table class="segment-separator" id="groupedSkillsTable">
-      <tr>
-        <th>✠</th>
-        <th>Name</th>
-        <th>Attribut</th>
-        <th>Attr.-Wert</th>
-        <th>Steigerung</th>
-        <th>Wert</th>
-        <th>🗑</th>
-      </tr>
-    </table>
-    <button type="button" onclick="addGroupedSkillRow()">+ Zeile hinzufügen</button>
-  </section>
-  `;
-  // -------------------------
-  // Waffen
-  // -------------------------
-  main.innerHTML += `
-  <section id="section_weapons">
-    <h2>Waffen</h2>
-    <table class="segment-separator" id="weaponsTable">
-      <tr>
-        <th>Name</th>
-        <th>Gruppe</th>
-        <th>TP</th>
-        <th>RW</th>
-        <th>Qualitäten</th>
-        <th>🗑</th>
-      </tr>
-    </table>
-    <button type="button" onclick="addWeaponRow()">+ Zeile hinzufügen</button>
-  </section>
-  `;
-
-  // -------------------------
-  // Rüstung + Figur
-  // -------------------------
-  main.innerHTML += `
-  <section id="section_armor">
-    <h2>Rüstungspunkte</h2>
-    <svg id="armorFigure" viewBox="0 0 200 420">
-      <!-- Kopf -->
-      <text x="100" y="15" text-anchor="middle" font-size="10">01–09</text>
-      <foreignObject x="85" y="40" width="30" height="20">
-        <input id="zone_head" readonly class="num-3" />
-      </foreignObject>
-      <text x="100" y="75" text-anchor="middle" font-size="10">Kopf</text>
-
-      <!-- Körper -->
-      <text x="100" y="110" text-anchor="middle" font-size="10">45–79</text>
-      <foreignObject x="85" y="150" width="30" height="20">
-        <input id="zone_body" readonly class="num-3" />
-      </foreignObject>
-      <text x="100" y="180" text-anchor="middle" font-size="10">Körper</text>
-
-      <!-- Linker Arm -->
-      <text x="40" y="110" text-anchor="middle" font-size="10">10–24</text>
-      <foreignObject x="30" y="150" width="30" height="20">
-        <input id="zone_larm" readonly class="num-3" />
-      </foreignObject>
-      <text x="40" y="180" text-anchor="middle" font-size="10">L. Arm</text>
-
-      <!-- Rechter Arm -->
-      <text x="160" y="110" text-anchor="middle" font-size="10">25–44</text>
-      <foreignObject x="140" y="150" width="30" height="20">
-        <input id="zone_rarm" readonly class="num-3" />
-      </foreignObject>
-      <text x="160" y="180" text-anchor="middle" font-size="10">R. Arm</text>
-
-      <!-- Linkes Bein -->
-      <text x="70" y="250" text-anchor="middle" font-size="10">80–89</text>
-      <foreignObject x="60" y="300" width="30" height="20">
-        <input id="zone_lleg" readonly class="num-3" />
-      </foreignObject>
-      <text x="70" y="330" text-anchor="middle" font-size="10">L. Bein</text>
-
-      <!-- Rechtes Bein -->
-      <text x="130" y="250" text-anchor="middle" font-size="10">90–100</text>
-      <foreignObject x="120" y="300" width="30" height="20">
-        <input id="zone_rleg" readonly class="num-3" />
-      </foreignObject>
-      <text x="130" y="330" text-anchor="middle" font-size="10">R. Bein</text>
-
-      <!-- Schild -->
-      <rect x="85" y="360" width="30" height="20" fill="#999"/>
-      <foreignObject x="85" y="360" width="30" height="20">
-        <input id="zone_shield" readonly class="num-3" />
-      </foreignObject>
-      <text x="100" y="395" text-anchor="middle" font-size="10">Schild</text>
-    </svg>
-
-    <h2>Rüstung</h2>
-    <table class="segment-separator" id="armorTable">
-      <tr>
-        <th>Name</th>
-        <th>Trefferzone</th>
-        <th>TP</th>
-        <th>RP</th>
-        <th>Qualitäten</th>
-        <th>🗑</th>
-      </tr>
-    </table>
-    <button type="button" onclick="addArmorRow()">+ Zeile hinzufügen</button>
-  </section>
-  `;
-
-  // -------------------------
-  // Ausrüstung
-  // -------------------------
-  main.innerHTML += `
+// ---------------- Ausrüstung ----------------
+function sectionAusrüstung() {
+  return `
   <section id="section_equipment">
     <h2>Ausrüstung</h2>
-    <table class="segment-separator" id="equipmentTable">
+    <table class="wide" id="equipmentTable">
       <tr>
-        <th>Name</th>
-        <th>Menge</th>
-        <th>TP</th>
-        <th>🗑</th>
+        <th>Name</th><th>Menge</th><th>TP</th><th>🗑</th>
       </tr>
     </table>
-    <button type="button" onclick="addEquipmentRow()">+ Zeile hinzufügen</button>
+    <button onclick="addEquipment()">➕</button>
   </section>
   `;
+}
 
-  // -------------------------
-  // Vermögen
-  // -------------------------
-  main.innerHTML += `
+// ---------------- Zauber & Gebete ----------------
+function sectionZauber() {
+  return `
+  <section id="section_spells">
+    <h2>Zauber & Gebete</h2>
+    <table class="wide" id="spellsTable">
+      <tr>
+        <th>Name</th><th>Stufe</th><th>🗑</th>
+      </tr>
+    </table>
+    <button onclick="addSpell()">➕</button>
+  </section>
+  `;
+}
+
+// ---------------- Mutationen ----------------
+function sectionMutationen() {
+  return `
+  <section id="section_mutations">
+    <h2>Mutationen</h2>
+    <table class="wide" id="mutationsTable">
+      <tr><th>Mutation</th><th>🗑</th></tr>
+    </table>
+    <button onclick="addMutation()">➕</button>
+  </section>
+  `;
+}
+
+// ---------------- Psychologie ----------------
+function sectionPsychologie() {
+  return `
+  <section id="section_psychology">
+    <h2>Psychologie</h2>
+    <table class="wide" id="psychologyTable">
+      <tr><th>Eintrag</th><th>🗑</th></tr>
+    </table>
+    <button onclick="addPsychology()">➕</button>
+  </section>
+  `;
+}
+// ---------------- Korruption ----------------
+function sectionKorruption() {
+  return `
+  <section id="section_corruption">
+    <h2>Korruption</h2>
+    <table class="narrow">
+      <tr><th>Max.</th><th>Aktuell</th></tr>
+      <tr>
+        <td><input id="corruption_max" readonly class="num-2"></td>
+        <td><input id="corruption_current" class="num-2"></td>
+      </tr>
+    </table>
+    <h3>Mutationen</h3>
+    <table class="wide" id="corruptionMutations">
+      <tr><th>Mutation</th><th>🗑</th></tr>
+    </table>
+    <button onclick="addCorruptionMutation()">➕</button>
+  </section>
+  `;
+}
+
+// ---------------- Traglast ----------------
+function sectionTraglast() {
+  return `
+  <section id="section_encumbrance">
+    <h2>Traglast</h2>
+    <table class="narrow">
+      <tr><td>Waffen</td><td><input id="enc_wpn" readonly class="num-2"></td></tr>
+      <tr><td>Rüstung</td><td><input id="enc_arm" readonly class="num-2"></td></tr>
+      <tr><td>Ausrüstung</td><td><input id="enc_eq" readonly class="num-2"></td></tr>
+      <tr><td>Maximale TP</td><td><input id="enc_max" readonly class="num-2"></td></tr>
+      <tr><td>Gesamt</td><td><input id="enc_total" readonly class="num-2"></td></tr>
+    </table>
+  </section>
+  `;
+}
+
+// ---------------- Vermögen ----------------
+function sectionVermoegen() {
+  return `
   <section id="section_money">
     <h2>Vermögen</h2>
-    <table id="moneyTable">
+    <table class="narrow">
       <tr>
-        <th>🟡 GK</th>
-        <th>⚪ S</th>
-        <th>🟤 G</th>
+        <th>🟡 GK</th><th>⚪ S</th><th>🟤 G</th>
       </tr>
       <tr>
         <td><input id="money_gk" class="num-3"></td>
@@ -318,159 +344,70 @@ function loadSections() {
         <td><input id="money_g" class="num-3"></td>
       </tr>
     </table>
-
-    <table class="segment-separator">
-      <tr>
-        <th>Gesamt GK</th>
-        <th>Gesamt S</th>
-        <th>Gesamt G</th>
-      </tr>
-      <tr>
-        <td><input id="money_total_gk" class="num-3" readonly></td>
-        <td><input id="money_total_s" class="num-3" readonly></td>
-        <td><input id="money_total_g" class="num-3" readonly></td>
-      </tr>
-    </table>
+    <div id="money_total" class="money-total"></div>
   </section>
   `;
-  // -------------------------
-  // Zauber & Gebete
-  // -------------------------
-  main.innerHTML += `
-  <section id="section_spells">
-    <h2>Zauber & Gebete</h2>
-    <table class="segment-separator" id="spellsTable">
-      <tr>
-        <th>Name</th>
-        <th>ZW</th>
-        <th>Reichweite</th>
-        <th>Ziel</th>
-        <th>Dauer</th>
-        <th>Effekt</th>
-        <th>🗑</th>
-      </tr>
-    </table>
-    <button type="button" onclick="addSpellRow()">+ Zeile hinzufügen</button>
-  </section>
-  `;
+}
 
-  // -------------------------
-  // Talente
-  // -------------------------
-  main.innerHTML += `
-  <section id="section_talents">
-    <h2>Talente</h2>
-    <table class="segment-separator" id="talentsTable">
-      <tr>
-        <th>✠</th>
-        <th>Name</th>
-        <th>Stufe</th>
-        <th>🗑</th>
-      </tr>
-    </table>
-    <button type="button" onclick="addTalentRow()">+ Zeile hinzufügen</button>
-  </section>
-  `;
-
-  // -------------------------
-  // Korruption & Mutationen
-  // -------------------------
-  main.innerHTML += `
-  <section id="section_corruption">
-    <h2>Korruption & Mutationen</h2>
-    <div id="corruptionBlock" class="flex-tables">
-      <div class="table-container">
-        <h3>Korruptionspunkte</h3>
-        <table>
-          <tr>
-            <th>Max.</th>
-            <th>Aktuell</th>
-          </tr>
-          <tr>
-            <td><input id="korruption_max" readonly class="num-3"></td>
-            <td><input id="korruption_current" class="num-3"></td>
-          </tr>
-        </table>
-      </div>
-      <div class="table-container">
-        <h3>Mutationen</h3>
-        <table id="mutationTable">
-          <tr>
-            <th>Name</th>
-            <th>🗑</th>
-          </tr>
-          <tr>
-            <td><input></td>
-            <td><button onclick="deleteMutationRow(this)">🗑</button></td>
-          </tr>
-        </table>
-        <button type="button" onclick="addMutationRow()">+ Zeile hinzufügen</button>
-      </div>
+// ---------------- Schicksal & Zähigkeit ----------------
+function sectionSchicksalUndZaehaigkeit() {
+  return `
+  <section id="section_fate_resilience">
+    <h2>Schicksal & Zähigkeit</h2>
+    <div class="dual-table">
+      <table class="narrow">
+        <tr><th>Schicksal</th><td><input id="fate_val" class="num-2"></td></tr>
+        <tr><th>Glück</th><td><input id="fate_luck" class="num-2"> / <span id="fate_luck_max"></span></td></tr>
+      </table>
+      <div class="table-divider"></div>
+      <table class="narrow">
+        <tr><th>Zähigkeit</th><td><input id="res_val" class="num-2"></td></tr>
+        <tr><th>Mut</th><td><input id="res_mut" class="num-2"> / <span id="res_mut_max"></span></td></tr>
+      </table>
+    </div>
+    <div class="motivation">
+      <h3>Motivation</h3>
+      <textarea id="motivation_text"></textarea>
     </div>
   </section>
   `;
+}
 
-  // -------------------------
-  // Psychologie
-  // -------------------------
-  main.innerHTML += `
-  <section id="section_psychology">
-    <h2>Psychologie</h2>
-    <table id="psychologyTable">
-      <tr>
-        <th>Name</th>
-        <th>🗑</th>
-      </tr>
-      <tr>
-        <td><input></td>
-        <td><button onclick="deletePsychologyRow(this)">🗑</button></td>
-      </tr>
-    </table>
-    <button type="button" onclick="addPsychologyRow()">+ Zeile hinzufügen</button>
-  </section>
-  `;
-
-  // -------------------------
-  // Sünde
-  // -------------------------
-  main.innerHTML += `
-  <section id="section_sin">
-    <table class="segment-separator">
-      <tr>
-        <td><b>Sünde</b></td>
-        <td><input id="sin_value" class="num-2" maxlength="2"></td>
-      </tr>
-    </table>
-  </section>
-  `;
-
-  // -------------------------
-  // Traglast
-  // -------------------------
-  main.innerHTML += `
-  <section id="section_encumbrance">
-    <table class="segment-separator">
-      <tr>
-        <td>Waffen</td>
-        <td><input id="enc_weapons" class="num-3" readonly></td>
-      </tr>
-      <tr>
-        <td>Rüstung</td>
-        <td><input id="enc_armor" class="num-3" readonly></td>
-      </tr>
-      <tr>
-        <td>Ausrüstung</td>
-        <td><input id="enc_equipment" class="num-3" readonly></td>
-      </tr>
-      <tr>
-        <td>Maximale TP</td>
-        <td><input id="traglast_max" class="num-3" readonly></td>
-      </tr>
-      <tr>
-        <td>Gesamt</td>
-        <td><input id="traglast_total" class="num-3" readonly></td>
-      </tr>
-    </table>
+// ---------------- Erfahrung ----------------
+function sectionErfahrung() {
+  return `
+  <section id="section_experience">
+    <h2>Erfahrung</h2>
+    <label class="switch">
+      <input type="checkbox" id="exp_toggle">
+      <span class="slider"></span>
+      <span class="switch-label">Vereinfacht / Voll</span>
+    </label>
+    <div id="exp_simple">
+      <table class="narrow">
+        <tr><th>Erhalten</th><th>Ausgegeben</th><th>Gesamt</th></tr>
+        <tr>
+          <td><input id="exp_simple_gain" class="num-5"></td>
+          <td><input id="exp_simple_spent" class="num-5"></td>
+          <td><input id="exp_simple_total" readonly class="num-5"></td>
+        </tr>
+      </table>
+    </div>
+    <div id="exp_full" style="display:none;">
+      <table class="narrow">
+        <tr><th>Erhalten</th><th>Ausgegeben</th><th>Gesamt</th></tr>
+        <tr>
+          <td><input id="exp_full_gain" readonly class="num-5"></td>
+          <td><input id="exp_full_spent" readonly class="num-5"></td>
+          <td><input id="exp_full_total" readonly class="num-5"></td>
+        </tr>
+      </table>
+      <table class="wide" id="expTable">
+        <tr><th>Wert</th><th>Kommentar</th><th>🗑</th></tr>
+      </table>
+      <button onclick="addExpRow()">➕</button>
+      <button onclick="toggleExpComments()">Alle einklappen / ausklappen</button>
+    </div>
   </section>
   `;
 }
