@@ -203,7 +203,7 @@ function addRow(tableId) {
       <td><input type="number" readonly></td>
       <td><input type="number"></td>
       <td><input type="number" readonly></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState();">❌</button></td>
+      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte();">❌</button></td>
     `;
   }
   else if (tableId === "talent-table") {
@@ -211,7 +211,7 @@ function addRow(tableId) {
       <td>◯</td>
       <td><input type="text"></td>
       <td><input type="text"></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState();">❌</button></td>
+      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte();">❌</button></td>
     `;
   }
   else if (tableId === "waffen-table") {
@@ -221,7 +221,7 @@ function addRow(tableId) {
       <td><input type="number"></td>
       <td><input type="text"></td>
       <td><textarea></textarea></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState();">❌</button></td>
+      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte();">❌</button></td>
     `;
   }
   else if (tableId === "ruestung-table") {
@@ -237,7 +237,7 @@ function addRow(tableId) {
       <td><input type="number"></td>
       <td><input type="number"></td>
       <td><textarea></textarea></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState();">❌</button></td>
+      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte();">❌</button></td>
     `;
   }
   else if (tableId === "ausruestung-table") {
@@ -246,7 +246,7 @@ function addRow(tableId) {
       <td><input type="number"></td>
       <td><input type="number"></td>
       <td><textarea></textarea></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState();">❌</button></td>
+      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte();">❌</button></td>
     `;
   }
   else if (tableId === "zauber-table") {
@@ -257,7 +257,7 @@ function addRow(tableId) {
       <td><input type="text"></td>
       <td><input type="text"></td>
       <td><textarea></textarea></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState();">❌</button></td>
+      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte();">❌</button></td>
     `;
   }
   else if (tableId === "mutationen-table") {
@@ -267,23 +267,29 @@ function addRow(tableId) {
         <select><option>Körper</option><option>Geist</option></select>
       </td>
       <td><textarea></textarea></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState();">❌</button></td>
+      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte();">❌</button></td>
     `;
   }
   else if (tableId === "psychologie-table") {
     row.innerHTML = `
       <td><input type="text"></td>
       <td><textarea></textarea></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState();">❌</button></td>
+      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte();">❌</button></td>
     `;
   }
   else if (tableId === "exp-table") {
     row.innerHTML = `
       <td><input type="number"></td>
       <td><input type="text"></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateErfahrung();">❌</button></td>
+      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateErfahrung();">❌</button></td>
     `;
   }
+
+  if (tableId === "exp-table") {
+    updateErfahrung();
+  }
+  saveState();
+  updateLebenspunkte();
 }
 
 // =========================
@@ -472,11 +478,15 @@ function initLogic() {
   renderSections();
   initCharacterManagement();
 
-  document.querySelectorAll("input, textarea, select").forEach(el => {
-    el.addEventListener("input", () => {
-      updateAttributes();
-      saveState();
-    });
+  document.addEventListener("input", e => {
+    if (e.target.matches("input, textarea, select")) {
+      if (e.target.closest("#talent-table")) {
+        updateLebenspunkte();
+        saveState();
+      } else {
+        updateAttributes();
+      }
+    }
   });
 
   const toggle = document.getElementById("exp-toggle");
