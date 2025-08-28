@@ -1,418 +1,327 @@
-// sections.js – Alle Segmente & Tabellen
+const sections = [
+  // =========================
+  // Grunddaten (einklappbar)
+  // =========================
+  {
+    id: "grunddaten",
+    title: "Grunddaten",
+    type: "flex",
+    collapsible: true,
+    defaultOpen: true,
+    groups: [
+      {
+        label: "Identität",
+        fields: [
+          { id: "char_name", label: "Name", type: "text" },
+          { id: "char_volk", label: "Volk", type: "text" },
+          { id: "char_gender", label: "Geschlecht", type: "text" }
+        ]
+      },
+      {
+        label: "Karriere",
+        fields: [
+          { id: "char_career", label: "Karriere", type: "text" },
+          { id: "char_career_level", label: "Karrierestufe", type: "text" },
+          { id: "char_career_path", label: "Karriereweg", type: "text" },
+          { id: "char_status", label: "Status", type: "text" }
+        ]
+      },
+      {
+        label: "Erscheinung",
+        fields: [
+          { id: "char_age", label: "Alter", type: "text" },
+          { id: "char_height", label: "Körpergröße", type: "text" },
+          { id: "char_hair", label: "Haare", type: "text" },
+          { id: "char_eyes", label: "Augen", type: "text" }
+        ]
+      }
+    ]
+  },
 
-function loadSections() {
-  const main = document.getElementById("main-content");
-  main.innerHTML = `
-    ${sectionGrunddaten()}
-    ${sectionAttribute()}
-    ${sectionLebenspunkte()}
-    ${sectionGrundfertigkeiten()}
-    ${sectionGruppierteFertigkeiten()}
-    ${sectionWaffen()}
-    ${sectionRuestung()}
-    ${sectionAusrüstung()}
-    ${sectionZauber()}
-    ${sectionMutationen()}
-    ${sectionPsychologie()}
-    ${sectionKorruption()}
-    ${sectionTraglast()}
-    ${sectionVermoegen()}
-    ${sectionSchicksalUndZaehaigkeit()}
-    ${sectionErfahrung()}
-  `;
-}
+  // =========================
+  // Spielwerte / Attribute
+  // =========================
+  {
+    id: "attributes",
+    title: "Spielwerte",
+    type: "table",
+    headers: ["", "ST", "GE", "GS", "IN", "WI", "WK", "CH", "FF", "LP", "KP"],
+    rows: [
+      ["Anfang", 
+        { id: "attr_ST_start", type: "number", maxLength: 2 },
+        { id: "attr_GE_start", type: "number", maxLength: 2 },
+        { id: "attr_GS_start", type: "number", maxLength: 2 },
+        { id: "attr_IN_start", type: "number", maxLength: 2 },
+        { id: "attr_WI_start", type: "number", maxLength: 2 },
+        { id: "attr_WK_start", type: "number", maxLength: 2 },
+        { id: "attr_CH_start", type: "number", maxLength: 2 },
+        { id: "attr_FF_start", type: "number", maxLength: 2 },
+        { id: "attr_LP_start", type: "number", maxLength: 2 },
+        { id: "attr_KP_start", type: "number", maxLength: 2 }
+      ],
+      ["Steig.", 
+        { id: "attr_ST_steig", type: "number", maxLength: 2 },
+        { id: "attr_GE_steig", type: "number", maxLength: 2 },
+        { id: "attr_GS_steig", type: "number", maxLength: 2 },
+        { id: "attr_IN_steig", type: "number", maxLength: 2 },
+        { id: "attr_WI_steig", type: "number", maxLength: 2 },
+        { id: "attr_WK_steig", type: "number", maxLength: 2 },
+        { id: "attr_CH_steig", type: "number", maxLength: 2 },
+        { id: "attr_FF_steig", type: "number", maxLength: 2 },
+        { id: "attr_LP_steig", type: "number", maxLength: 2 },
+        { id: "attr_KP_steig", type: "number", maxLength: 2 }
+      ],
+      ["Aktuell", 
+        { id: "attr_ST_total", type: "number", maxLength: 2, readonly: true },
+        { id: "attr_GE_total", type: "number", maxLength: 2, readonly: true },
+        { id: "attr_GS_total", type: "number", maxLength: 2, readonly: true },
+        { id: "attr_IN_total", type: "number", maxLength: 2, readonly: true },
+        { id: "attr_WI_total", type: "number", maxLength: 2, readonly: true },
+        { id: "attr_WK_total", type: "number", maxLength: 2, readonly: true },
+        { id: "attr_CH_total", type: "number", maxLength: 2, readonly: true },
+        { id: "attr_FF_total", type: "number", maxLength: 2, readonly: true },
+        { id: "attr_LP_total", type: "number", maxLength: 2, readonly: true },
+        { id: "attr_KP_total", type: "number", maxLength: 2, readonly: true }
+      ]
+    ]
+  },
 
-// ---------------- Grunddaten ----------------
-function sectionGrunddaten() {
-  return `
-  <section id="section_grunddaten">
-    <h2>Grunddaten</h2>
-    <table class="narrow">
-      <tr>
-        <th>Name</th>
-        <td><input id="char_name" type="text"></td>
-        <th>Klasse</th>
-        <td><input id="char_class" type="text"></td>
-      </tr>
-      <tr>
-        <th>Rasse</th>
-        <td><input id="char_race" type="text"></td>
-        <th>Karrierestufe</th>
-        <td><input id="char_career" type="text" class="num-2"></td>
-      </tr>
-      <tr>
-        <th>Status</th>
-        <td><input id="char_status" type="text"></td>
-        <th>Geschlecht</th>
-        <td><input id="char_gender" type="text"></td>
-      </tr>
-    </table>
-  </section>
-  `;
-}
+  // =========================
+  // Grundfähigkeiten
+  // =========================
+  {
+    id: "grundskills",
+    title: "Grundfähigkeiten",
+    type: "table",
+    headers: ["Fähigkeit", "Attribut", "Wert", "Steig.", "Gesamt"],
+    rows: [
+      ["Athletik", "ST", "", "", ""],
+      ["Wahrnehmung", "IN", "", "", ""],
+      ["Heimlichkeit", "GE", "", "", ""],
+      ["Charme", "CH", "", "", ""],
+      ["Willenskraft", "WK", "", "", ""],
+      ["Fingerfertigkeit", "FF", "", "", ""]
+    ]
+  },
 
-// ---------------- Attribute ----------------
-function sectionAttribute() {
-  return `
-  <section id="section_attributes">
-    <h2>Spielwerte</h2>
-    <table class="wide">
-      <tr>
-        <th></th>
-        <th>KG</th><th>BF</th><th>ST</th><th>WI</th><th>I</th>
-        <th>GW</th><th>GS</th><th>IN</th><th>WK</th><th>CH</th>
-      </tr>
-      <tr>
-        <td>Anfang</td>
-        <td><input id="attr_KG_base" class="num-2"></td>
-        <td><input id="attr_BF_base" class="num-2"></td>
-        <td><input id="attr_ST_base" class="num-2"></td>
-        <td><input id="attr_WI_base" class="num-2"></td>
-        <td><input id="attr_I_base" class="num-2"></td>
-        <td><input id="attr_GW_base" class="num-2"></td>
-        <td><input id="attr_GS_base" class="num-2"></td>
-        <td><input id="attr_IN_base" class="num-2"></td>
-        <td><input id="attr_WK_base" class="num-2"></td>
-        <td><input id="attr_CH_base" class="num-2"></td>
-      </tr>
-      <tr>
-        <td>Steig.</td>
-        <td><input id="attr_KG_adv" class="num-2"></td>
-        <td><input id="attr_BF_adv" class="num-2"></td>
-        <td><input id="attr_ST_adv" class="num-2"></td>
-        <td><input id="attr_WI_adv" class="num-2"></td>
-        <td><input id="attr_I_adv" class="num-2"></td>
-        <td><input id="attr_GW_adv" class="num-2"></td>
-        <td><input id="attr_GS_adv" class="num-2"></td>
-        <td><input id="attr_IN_adv" class="num-2"></td>
-        <td><input id="attr_WK_adv" class="num-2"></td>
-        <td><input id="attr_CH_adv" class="num-2"></td>
-      </tr>
-      <tr>
-        <td>Aktuell</td>
-        <td><input id="attr_KG" readonly class="num-2"></td>
-        <td><input id="attr_BF" readonly class="num-2"></td>
-        <td><input id="attr_ST" readonly class="num-2"></td>
-        <td><input id="attr_WI" readonly class="num-2"></td>
-        <td><input id="attr_I" readonly class="num-2"></td>
-        <td><input id="attr_GW" readonly class="num-2"></td>
-        <td><input id="attr_GS" readonly class="num-2"></td>
-        <td><input id="attr_IN" readonly class="num-2"></td>
-        <td><input id="attr_WK" readonly class="num-2"></td>
-        <td><input id="attr_CH" readonly class="num-2"></td>
-      </tr>
-    </table>
-  </section>
-  `;
-}
-// ---------------- Lebenspunkte ----------------
-function sectionLebenspunkte() {
-  return `
-  <section id="section_wounds">
-    <h2>Lebenspunkte</h2>
-    <table class="narrow">
-      <tr>
-        <th>STB</th><th>WIB</th><th>2×WKB</th><th>Robustheit*</th><th>Summe</th><th>LP</th>
-      </tr>
-      <tr>
-        <td><input id="wound_stb" readonly class="num-2"></td>
-        <td><input id="wound_wib" readonly class="num-2"></td>
-        <td><input id="wound_wkb2" readonly class="num-2"></td>
-        <td><input id="wound_robust" readonly class="num-2"></td>
-        <td><input id="wound_sum" readonly class="num-2"></td>
-        <td><input id="wound_lp" class="num-2"></td>
-      </tr>
-    </table>
-    <small>* Robustheit wird automatisch berechnet, falls das Talent „Robustheit“/„Hardy“ vorhanden ist</small>
-  </section>
-  `;
-}
+  // =========================
+  // Gruppierte Fähigkeiten
+  // =========================
+  {
+    id: "groupskills",
+    title: "Gruppierte Fähigkeiten",
+    type: "dynamic-table",
+    headers: ["Fähigkeit", "Attribut", "Wert", "Steig.", "Gesamt", "🗑"],
+    rows: []
+  },
 
-// ---------------- Grundfähigkeiten ----------------
-function sectionGrundfertigkeiten() {
-  return `
-  <section id="section_basic_skills">
-    <h2>Grundfähigkeiten</h2>
-    <table class="wide">
-      <tr>
-        <th>Fähigkeit</th><th>Attr</th><th>Wert</th><th>Steig.</th><th>Gesamt</th>
-      </tr>
-      ${grundfertigkeitenListe().map(skill => `
-      <tr>
-        <td>${skill.name}</td>
-        <td>${skill.attr}</td>
-        <td><span id="skill_${skill.id}_attrval" class="num-2"></span></td>
-        <td><input id="skill_${skill.id}_steig" class="num-2"></td>
-        <td><input id="skill_${skill.id}_total" readonly class="num-2"></td>
-      </tr>
-      `).join("")}
-    </table>
-  </section>
-  `;
-}
+  // =========================
+  // Talente
+  // =========================
+  {
+    id: "talents",
+    title: "Talente",
+    type: "dynamic-table",
+    headers: ["Name", "Notizen", "🗑"],
+    rows: []
+  },
+  // =========================
+  // Lebenspunkte
+  // =========================
+  {
+    id: "lebenspunkte",
+    title: "Lebenspunkte",
+    type: "table",
+    headers: ["STB", "WIB", "2×WKB", "Robustheit*", "Summe LP"],
+    rows: [
+      [
+        { id: "lp_stb", type: "number", readonly: true },
+        { id: "lp_wib", type: "number", readonly: true },
+        { id: "lp_wkb", type: "number", readonly: true },
+        { id: "lp_robustheit", type: "number", readonly: true },
+        { id: "lp_total", type: "number", readonly: true }
+      ]
+    ]
+  },
 
-function grundfertigkeitenListe() {
-  return [
-    { id: "anführen", name: "Anführen", attr: "CH" },
-    { id: "athletik", name: "Athletik", attr: "GW" },
-    { id: "ausdauer", name: "Ausdauer", attr: "WI" },
-    { id: "ausweichen", name: "Ausweichen", attr: "GW" },
-    { id: "besonnenheit", name: "Besonnenheit", attr: "WK" },
-    { id: "bestechen", name: "Bestechen", attr: "CH" },
-    { id: "charme", name: "Charme", attr: "CH" },
-    { id: "einschüchtern", name: "Einschüchtern", attr: "ST" },
-    { id: "fahren", name: "Fahren", attr: "GW" },
-    { id: "feilschen", name: "Feilschen", attr: "CH" },
-    { id: "glücksspiel", name: "Glücksspiel", attr: "IN" },
-    { id: "intuition", name: "Intuition", attr: "I" },
-    { id: "klatsch", name: "Klatsch", attr: "CH" },
-    { id: "klettern", name: "Klettern", attr: "ST" },
-    { id: "kunst", name: "Kunst", attr: "GS" },
-    { id: "nahkampf", name: "Nahkampf", attr: "KG" },
-    { id: "nahkampf_std", name: "Nahkampf (Std.)", attr: "KG" },
-    { id: "navigation", name: "Navigation", attr: "I" },
-    { id: "reiten", name: "Reiten", attr: "GW" },
-    { id: "rudern", name: "Rudern", attr: "ST" },
-    { id: "schleichen", name: "Schleichen", attr: "GW" },
-    { id: "tiere_bezirzen", name: "Tiere bezirzen", attr: "WK" },
-    { id: "überleben", name: "Überleben", attr: "IN" },
-    { id: "unterhalten", name: "Unterhalten", attr: "CH" },
-    { id: "wahrnehmung", name: "Wahrnehmung", attr: "I" },
-    { id: "zechen", name: "Zechen", attr: "WI" }
-  ];
-}
+  // =========================
+  // Rüstung
+  // =========================
+  {
+    id: "armor",
+    title: "Rüstung",
+    type: "dynamic-table",
+    headers: ["Name", "Trefferzone", "RP", "TP", "Qualitäten", "🗑"],
+    rows: [],
+    dropdowns: {
+      "Trefferzone": ["Kopf", "Linker Arm", "Rechter Arm", "Körper", "Linkes Bein", "Rechtes Bein", "Schild"]
+    }
+  },
 
-// ---------------- Gruppierte Fähigkeiten ----------------
-function sectionGruppierteFertigkeiten() {
-  return `
-  <section id="section_grouped_skills">
-    <h2>Gruppierte & Ausbaufähigkeiten</h2>
-    <table class="wide" id="groupedSkillsTable">
-      <tr>
-        <th>Name</th><th>Attr</th><th>Wert</th><th>Steig.</th><th>Gesamt</th><th>🗑</th>
-      </tr>
-    </table>
-    <button onclick="addGroupedSkill()">➕</button>
-  </section>
-  `;
-}
+  // =========================
+  // Waffen
+  // =========================
+  {
+    id: "weapons",
+    title: "Waffen",
+    type: "dynamic-table",
+    headers: ["Gruppe", "Name", "TP", "Notizen", "🗑"],
+    rows: []
+  },
 
-// ---------------- Waffen ----------------
-function sectionWaffen() {
-  return `
-  <section id="section_weapons">
-    <h2>Waffen</h2>
-    <table class="wide" id="weaponsTable">
-      <tr>
-        <th>Name</th><th>Gruppe</th><th>TP</th><th>RW</th><th>Schaden</th><th>🗑</th>
-      </tr>
-    </table>
-    <button onclick="addWeapon()">➕</button>
-  </section>
-  `;
-}
+  // =========================
+  // Ausrüstung
+  // =========================
+  {
+    id: "equipment",
+    title: "Ausrüstung",
+    type: "dynamic-table",
+    headers: ["Name", "Menge", "TP", "Notizen", "🗑"],
+    rows: []
+  },
+  // =========================
+  // Korruption
+  // =========================
+  {
+    id: "corruption",
+    title: "Korruption",
+    type: "table",
+    headers: ["Max.", "Aktuell"],
+    rows: [
+      [
+        { id: "corruption_max", type: "number", readonly: true },
+        { id: "corruption_current", type: "number" }
+      ]
+    ]
+  },
 
-// ---------------- Rüstung ----------------
-function sectionRuestung() {
-  return `
-  <section id="section_armor">
-    <h2>Rüstungspunkte</h2>
-    <div class="armor-container">
-      <svg id="armorFigure" viewBox="0 0 200 420">
-        <!-- Graue Silhouette (vereinfacht) -->
-        <rect x="60" y="40" width="80" height="300" fill="#ccc" rx="20"/>
-        <circle cx="100" cy="20" r="20" fill="#ccc"/>
-        <!-- Stiefel -->
-        <rect x="70" y="340" width="20" height="50" fill="#bbb"/>
-        <rect x="110" y="340" width="20" height="50" fill="#bbb"/>
-        <polygon points="70,340 90,330 90,340" fill="#999"/>
-        <polygon points="110,340 130,330 130,340" fill="#999"/>
-        <!-- Schwert links -->
-        <rect x="45" y="200" width="8" height="80" fill="#888"/>
-        <rect x="40" y="190" width="18" height="15" fill="#666"/>
-      </svg>
-      <table class="wide" id="armorTable">
-        <tr>
-          <th>Name</th><th>Trefferzone</th><th>RP</th><th>🗑</th>
-        </tr>
-      </table>
-      <button onclick="addArmor()">➕</button>
-    </div>
-  </section>
-  `;
-}
+  // =========================
+  // Mutationen
+  // =========================
+  {
+    id: "mutations",
+    title: "Mutationen",
+    type: "dynamic-table",
+    headers: ["Name", "Betroffen", "🗑"],
+    rows: [],
+    dropdowns: {
+      "Betroffen": ["Körper", "Geist"]
+    }
+  },
 
-// ---------------- Ausrüstung ----------------
-function sectionAusrüstung() {
-  return `
-  <section id="section_equipment">
-    <h2>Ausrüstung</h2>
-    <table class="wide" id="equipmentTable">
-      <tr>
-        <th>Name</th><th>Menge</th><th>TP</th><th>🗑</th>
-      </tr>
-    </table>
-    <button onclick="addEquipment()">➕</button>
-  </section>
-  `;
-}
+  // =========================
+  // Psychologie
+  // =========================
+  {
+    id: "psychology",
+    title: "Psychologie",
+    type: "dynamic-table",
+    headers: ["Name", "🗑"],
+    rows: []
+  },
 
-// ---------------- Zauber & Gebete ----------------
-function sectionZauber() {
-  return `
-  <section id="section_spells">
-    <h2>Zauber & Gebete</h2>
-    <table class="wide" id="spellsTable">
-      <tr>
-        <th>Name</th><th>Stufe</th><th>🗑</th>
-      </tr>
-    </table>
-    <button onclick="addSpell()">➕</button>
-  </section>
-  `;
-}
+  // =========================
+  // Vermögen
+  // =========================
+  {
+    id: "wealth",
+    title: "Vermögen",
+    type: "table",
+    headers: ["💰 GK", "🥈 S", "🪙 G"],
+    rows: [
+      [
+        { id: "wealth_gk", type: "number", maxLength: 3 },
+        { id: "wealth_s", type: "number", maxLength: 3 },
+        { id: "wealth_g", type: "number", maxLength: 3 }
+      ]
+    ]
+  },
 
-// ---------------- Mutationen ----------------
-function sectionMutationen() {
-  return `
-  <section id="section_mutations">
-    <h2>Mutationen</h2>
-    <table class="wide" id="mutationsTable">
-      <tr><th>Mutation</th><th>🗑</th></tr>
-    </table>
-    <button onclick="addMutation()">➕</button>
-  </section>
-  `;
-}
+  // =========================
+  // Schulden
+  // =========================
+  {
+    id: "debts",
+    title: "Schulden",
+    type: "table",
+    headers: ["💰 GK", "🥈 S", "🪙 G"],
+    rows: [
+      [
+        { id: "debt_gk", type: "number", maxLength: 3 },
+        { id: "debt_s", type: "number", maxLength: 3 },
+        { id: "debt_g", type: "number", maxLength: 3 }
+      ]
+    ]
+  },
 
-// ---------------- Psychologie ----------------
-function sectionPsychologie() {
-  return `
-  <section id="section_psychology">
-    <h2>Psychologie</h2>
-    <table class="wide" id="psychologyTable">
-      <tr><th>Eintrag</th><th>🗑</th></tr>
-    </table>
-    <button onclick="addPsychology()">➕</button>
-  </section>
-  `;
-}
-// ---------------- Korruption ----------------
-function sectionKorruption() {
-  return `
-  <section id="section_corruption">
-    <h2>Korruption</h2>
-    <table class="narrow">
-      <tr><th>Max.</th><th>Aktuell</th></tr>
-      <tr>
-        <td><input id="corruption_max" readonly class="num-2"></td>
-        <td><input id="corruption_current" class="num-2"></td>
-      </tr>
-    </table>
-    <h3>Mutationen</h3>
-    <table class="wide" id="corruptionMutations">
-      <tr><th>Mutation</th><th>🗑</th></tr>
-    </table>
-    <button onclick="addCorruptionMutation()">➕</button>
-  </section>
-  `;
-}
+  // =========================
+  // Nettosumme (dynamisch)
+  // =========================
+  {
+    id: "networth",
+    title: "Nettosumme",
+    type: "table",
+    headers: ["💰 GK", "🥈 S", "🪙 G"],
+    rows: [
+      [
+        { id: "net_gk", type: "number", readonly: true },
+        { id: "net_s", type: "number", readonly: true },
+        { id: "net_g", type: "number", readonly: true }
+      ]
+    ]
+  },
+  // =========================
+  // Zauber & Gebete
+  // =========================
+  {
+    id: "spells",
+    title: "Zauber & Gebete",
+    type: "dynamic-table",
+    headers: ["Name", "ZW", "RW", "Ziel", "⏳ Dauer", "Effekt", "🗑"],
+    rows: []
+  },
 
-// ---------------- Traglast ----------------
-function sectionTraglast() {
-  return `
-  <section id="section_encumbrance">
-    <h2>Traglast</h2>
-    <table class="narrow">
-      <tr><td>Waffen</td><td><input id="enc_wpn" readonly class="num-2"></td></tr>
-      <tr><td>Rüstung</td><td><input id="enc_arm" readonly class="num-2"></td></tr>
-      <tr><td>Ausrüstung</td><td><input id="enc_eq" readonly class="num-2"></td></tr>
-      <tr><td>Maximale TP</td><td><input id="enc_max" readonly class="num-2"></td></tr>
-      <tr><td>Gesamt</td><td><input id="enc_total" readonly class="num-2"></td></tr>
-    </table>
-  </section>
-  `;
-}
+  // =========================
+  // Erfahrung (einfach)
+  // =========================
+  {
+    id: "experience_simple",
+    title: "Erfahrung (Einfach)",
+    type: "table",
+    headers: ["Aktuell", "Ausgegeben", "Gesamt"],
+    rows: [
+      [
+        { id: "exp_simple_current", type: "number", maxLength: 5 },
+        { id: "exp_simple_spent", type: "number", maxLength: 5 },
+        { id: "exp_simple_total", type: "number", readonly: true }
+      ]
+    ]
+  },
 
-// ---------------- Vermögen ----------------
-function sectionVermoegen() {
-  return `
-  <section id="section_money">
-    <h2>Vermögen</h2>
-    <table class="narrow">
-      <tr>
-        <th>🟡 GK</th><th>⚪ S</th><th>🟤 G</th>
-      </tr>
-      <tr>
-        <td><input id="money_gk" class="num-3"></td>
-        <td><input id="money_s" class="num-3"></td>
-        <td><input id="money_g" class="num-3"></td>
-      </tr>
-    </table>
-    <div id="money_total" class="money-total"></div>
-  </section>
-  `;
-}
-
-// ---------------- Schicksal & Zähigkeit ----------------
-function sectionSchicksalUndZaehaigkeit() {
-  return `
-  <section id="section_fate_resilience">
-    <h2>Schicksal & Zähigkeit</h2>
-    <div class="dual-table">
-      <table class="narrow">
-        <tr><th>Schicksal</th><td><input id="fate_val" class="num-2"></td></tr>
-        <tr><th>Glück</th><td><input id="fate_luck" class="num-2"> / <span id="fate_luck_max"></span></td></tr>
-      </table>
-      <div class="table-divider"></div>
-      <table class="narrow">
-        <tr><th>Zähigkeit</th><td><input id="res_val" class="num-2"></td></tr>
-        <tr><th>Mut</th><td><input id="res_mut" class="num-2"> / <span id="res_mut_max"></span></td></tr>
-      </table>
-    </div>
-    <div class="motivation">
-      <h3>Motivation</h3>
-      <textarea id="motivation_text"></textarea>
-    </div>
-  </section>
-  `;
-}
-
-// ---------------- Erfahrung ----------------
-function sectionErfahrung() {
-  return `
-  <section id="section_experience">
-    <h2>Erfahrung</h2>
-    <label class="switch">
-      <input type="checkbox" id="exp_toggle">
-      <span class="slider"></span>
-      <span class="switch-label">Vereinfacht / Voll</span>
-    </label>
-    <div id="exp_simple">
-      <table class="narrow">
-        <tr><th>Erhalten</th><th>Ausgegeben</th><th>Gesamt</th></tr>
-        <tr>
-          <td><input id="exp_simple_gain" class="num-5"></td>
-          <td><input id="exp_simple_spent" class="num-5"></td>
-          <td><input id="exp_simple_total" readonly class="num-5"></td>
-        </tr>
-      </table>
-    </div>
-    <div id="exp_full" style="display:none;">
-      <table class="narrow">
-        <tr><th>Erhalten</th><th>Ausgegeben</th><th>Gesamt</th></tr>
-        <tr>
-          <td><input id="exp_full_gain" readonly class="num-5"></td>
-          <td><input id="exp_full_spent" readonly class="num-5"></td>
-          <td><input id="exp_full_total" readonly class="num-5"></td>
-        </tr>
-      </table>
-      <table class="wide" id="expTable">
-        <tr><th>Wert</th><th>Kommentar</th><th>🗑</th></tr>
-      </table>
-      <button onclick="addExpRow()">➕</button>
-      <button onclick="toggleExpComments()">Alle einklappen / ausklappen</button>
-    </div>
-  </section>
-  `;
-}
+  // =========================
+  // Erfahrung (voll)
+  // =========================
+  {
+    id: "experience_full",
+    title: "Erfahrung (Voll)",
+    type: "complex",
+    parts: [
+      {
+        type: "table",
+        headers: ["Aktuell", "Ausgegeben", "Gesamt"],
+        rows: [
+          [
+            { id: "exp_full_current", type: "number", readonly: true },
+            { id: "exp_full_spent", type: "number", readonly: true },
+            { id: "exp_full_total", type: "number", readonly: true }
+          ]
+        ]
+      },
+      {
+        type: "dynamic-table",
+        headers: ["Wert", "Kommentar", "🗑"],
+        rows: []
+      }
+    ]
+  }
+];
