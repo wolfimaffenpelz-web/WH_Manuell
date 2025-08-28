@@ -1,159 +1,160 @@
-/* style.css – Layout & Styling */
-
-/* Fonts */
+/* =========================
+   Grundlegendes Layout
+========================= */
 body {
   font-family: 'Podkova', serif;
   margin: 0;
   padding: 0;
-  background: #fdfdfd;
-  color: #000;
+  background: #f5f5f5;
+  color: #111;
 }
+
 h1, h2, h3 {
   font-family: 'UnifrakturMaguntia', cursive;
-}
-h1 { text-align: center; }
-
-/* Toolbar */
-#toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
-  margin: 10px;
-}
-#toolbar select, #toolbar button {
-  font-size: 1rem;
-  padding: 4px 8px;
+  text-align: center;
 }
 
-/* Modal */
-.modal {
-  display:none;
-  position:fixed;
-  z-index:1000;
-  left:0; top:0;
-  width:100%; height:100%;
-  background:rgba(0,0,0,0.7);
-}
-.modal-content {
-  background:#fff;
-  margin:15% auto;
-  padding:20px;
-  width:200px;
-  text-align:center;
-}
-
-/* Sections */
 section {
-  padding: 6px;
-  border-bottom: 2.5px solid black;
-}
-section:last-of-type {
-  border-bottom: none;
+  margin: 10px auto;
+  padding: 5px 10px;
+  width: 95%;
 }
 
-/* Tables */
+footer {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.9em;
+}
+
+/* =========================
+   Tabellen allgemein
+========================= */
 table {
   border-collapse: collapse;
+  width: auto; /* Default: nicht gezwungen auf 100% */
+  margin-bottom: 10px;
+}
+
+table.fullwidth {
+  width: 100%;
+}
+
+table.ninety {
+  width: 90%;
   margin: auto;
 }
-table.narrow th, table.narrow td,
-table.wide th, table.wide td {
+
+td, th {
   border: 1.5px solid black;
-  padding: 2px;
+  padding: 4px;
+  text-align: center;
+  vertical-align: middle;
 }
-table th {
+
+th {
   font-weight: bold;
 }
-table input, table select {
-  width: 100%;
+
+tr td:first-child,
+tr th:first-child {
+  text-align: left;
+}
+
+/* Nur Innenlinien, keine Außenrahmen */
+table, table td, table th {
+  border: none;
+}
+table td, table th {
+  border-bottom: 1.5px solid black;
+  border-right: 1.5px solid black;
+}
+table tr td:first-child,
+table tr th:first-child {
+  border-left: 1.5px solid black;
+}
+table tr:first-child th {
+  border-top: 1.5px solid black;
+}
+
+/* =========================
+   Eingabefelder
+========================= */
+input[type="number"],
+input[type="text"],
+textarea,
+select {
+  width: 98%;
   box-sizing: border-box;
   border: none;
   text-align: center;
 }
-input[type="text"] {
+
+tr td:first-child input {
   text-align: left;
 }
 
-/* Zahlenfelder */
-.num-2 { width: 2ch; text-align:center; }
-.num-3 { width: 3ch; text-align:center; }
-.num-5 { width: 5ch; text-align:center; }
-
-/* Money total */
-.money-total {
-  margin-top:4px;
-  font-weight:bold;
-  text-align:center;
+/* =========================
+   Markierungen / Warnungen
+========================= */
+.over-max {
+  color: red;
+  font-weight: bold;
 }
 
-/* Fate & Resilience */
-.dual-table {
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  gap:12px;
-}
-.table-divider {
-  width:2.5px;
-  background:black;
+.highlighted {
+  background-color: #e0e0e0;
+  font-weight: bold;
 }
 
-/* Motivation */
-.motivation textarea {
-  width:95%;
-  min-height:50px;
+/* =========================
+   Popup
+========================= */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
 }
 
-/* Erfahrung */
-.switch {
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.switch input { display:none; }
-.slider {
-  width:40px; height:20px;
-  background:#ccc;
-  border-radius:10px;
-  position:relative;
-}
-.slider::before {
-  content:"";
-  position:absolute;
-  width:18px; height:18px;
-  background:white;
-  border-radius:50%;
-  top:1px; left:1px;
-  transition:0.3s;
-}
-input:checked + .slider::before {
-  transform:translateX(20px);
-}
-.switch-label {
-  font-size:0.9rem;
-}
-#exp_full table td input[name="exp_val"] {
-  text-align:right;
-}
-#exp_full input[name="exp_val"] {
-  color:black;
-}
-#exp_full input[name="exp_val"].positive {
-  color:green; font-weight:bold;
-}
-#exp_full input[name="exp_val"].negative {
-  color:red; font-weight:bold;
+.popup-box {
+  background: white;
+  padding: 20px;
+  border: 2px solid black;
+  text-align: center;
 }
 
-/* Armor SVG */
-.armor-container {
-  display:flex;
-  flex-direction:column;
-  align-items:center;
+.popup-box button {
+  margin-top: 10px;
+  padding: 5px 15px;
 }
-#armorFigure {
-  width:200px; height:auto;
-  margin:10px auto;
-  display:block;
+
+/* =========================
+   Segment-Trennlinien
+========================= */
+.segment-divider {
+  width: 90%;
+  height: 2.5px;
+  background: black;
+  margin: 15px auto;
+}
+
+/* =========================
+   Flexbox Grunddaten
+========================= */
+.flex-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.flex-field {
+  flex: 1;
+  min-width: 120px;
 }
