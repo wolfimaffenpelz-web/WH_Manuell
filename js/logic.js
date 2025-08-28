@@ -449,19 +449,35 @@ function updateErfahrung() {
 // =========================
 document.addEventListener("focusin", e => {
   if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
-    const cell = e.target.closest("td");
+    const table = e.target.closest("table");
+    const cell = e.target.closest("td, th");
     const row = e.target.closest("tr");
-    if (cell) cell.classList.add("active");
-    if (row) row.classList.add("active");
+    if (table && table.id === "attribute-table" && cell) {
+      const idx = cell.cellIndex;
+      table.querySelectorAll("tr").forEach(r => {
+        const c = r.cells[idx];
+        if (c) c.classList.add("active");
+      });
+    } else if (row) {
+      row.classList.add("active");
+    }
   }
 });
 
 document.addEventListener("focusout", e => {
   if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
-    const cell = e.target.closest("td");
+    const table = e.target.closest("table");
+    const cell = e.target.closest("td, th");
     const row = e.target.closest("tr");
-    if (cell) cell.classList.remove("active");
-    if (row) row.classList.remove("active");
+    if (table && table.id === "attribute-table" && cell) {
+      const idx = cell.cellIndex;
+      table.querySelectorAll("tr").forEach(r => {
+        const c = r.cells[idx];
+        if (c) c.classList.remove("active");
+      });
+    } else if (row) {
+      row.classList.remove("active");
+    }
   }
 });
 
