@@ -1,5 +1,5 @@
 // =========================
-// Rendering-Funktion (alle Typen)
+// Rendering-Funktion (DOM-Aufbau für alle Typen aus sections.js)
 // =========================
 function renderSections() {
   const main = document.getElementById("main-content");
@@ -146,93 +146,6 @@ function renderSections() {
       sectionEl.appendChild(btn);
     }
 
-    // Komplexe Tabellen (z. B. Erfahrung Voll)
-    if (sec.type === "complex") {
-      sec.parts.forEach(part => {
-        if (part.type === "table") {
-          const table = document.createElement("table");
-          table.className = "fullwidth";
-
-          const thead = document.createElement("thead");
-          const trHead = document.createElement("tr");
-          part.headers.forEach(h => {
-            const th = document.createElement("th");
-            th.textContent = h;
-            trHead.appendChild(th);
-          });
-          thead.appendChild(trHead);
-          table.appendChild(thead);
-
-          const tbody = document.createElement("tbody");
-          part.rows.forEach(row => {
-            const tr = document.createElement("tr");
-            row.forEach(cell => {
-              const td = document.createElement("td");
-              let el = document.createElement("input");
-              el.type = cell.type || "text";
-              if (cell.id) el.id = cell.id;
-              if (cell.readonly) el.readOnly = true;
-              td.appendChild(el);
-              tr.appendChild(td);
-            });
-            tbody.appendChild(tr);
-          });
-          table.appendChild(tbody);
-          sectionEl.appendChild(table);
-        }
-
-        if (part.type === "dynamic-table") {
-          const table = document.createElement("table");
-          table.setAttribute("data-dynamic", "true");
-          table.setAttribute("data-id", sec.id + "_detail");
-          table.className = "fullwidth";
-
-          const thead = document.createElement("thead");
-          const trHead = document.createElement("tr");
-          part.headers.forEach(h => {
-            const th = document.createElement("th");
-            th.textContent = h;
-            trHead.appendChild(th);
-          });
-          thead.appendChild(trHead);
-          table.appendChild(thead);
-
-          const tbody = document.createElement("tbody");
-          table.appendChild(tbody);
-          sectionEl.appendChild(table);
-
-          const btn = document.createElement("button");
-          btn.textContent = "➕ Eintrag hinzufügen";
-          btn.onclick = () => {
-            const tr = document.createElement("tr");
-            part.headers.forEach(h => {
-              const td = document.createElement("td");
-
-              if (h === "🗑") {
-                const delBtn = document.createElement("button");
-                delBtn.textContent = "❌";
-                delBtn.onclick = () => tr.remove();
-                td.appendChild(delBtn);
-              } else if (h === "Kommentar") {
-                const textarea = document.createElement("textarea");
-                textarea.dataset.key = h;
-                td.appendChild(textarea);
-              } else {
-                const input = document.createElement("input");
-                input.type = "text";
-                input.dataset.key = h;
-                td.appendChild(input);
-              }
-
-              tr.appendChild(td);
-            });
-            tbody.appendChild(tr);
-          };
-          sectionEl.appendChild(btn);
-        }
-      });
-    }
-
     main.appendChild(sectionEl);
 
     if (idx < sections.length - 1) {
@@ -324,7 +237,6 @@ function setNum(id, value) {
   const el = document.getElementById(id);
   if (el) el.value = value;
 }
-
 // =========================
 // Attribute + Skills
 // =========================
@@ -342,11 +254,12 @@ function updateAttributes() {
   updateWounds();
 }
 
+// Grundfähigkeiten: fester Bezug zum Attribut
 function updateSkills() {
   const rows = document.querySelectorAll("#grundskills tbody tr");
   rows.forEach(tr => {
     const cells = tr.querySelectorAll("td");
-    const attr = cells[1].textContent;
+    const attr = cells[1].textContent.trim(); // Kürzel wie ST, IN, WI
     const value = getNum(`attr_${attr}_total`);
     const steig = parseInt(cells[3].querySelector("input")?.value || "0");
     const gesamt = value + steig;
@@ -355,6 +268,7 @@ function updateSkills() {
   });
 }
 
+// Gruppierte Fähigkeiten: Dropdown wählt Attribut
 function updateGroupedSkills() {
   const rows = document.querySelectorAll("#groupskills tbody tr");
   rows.forEach(tr => {
@@ -374,7 +288,7 @@ function updateGroupedSkills() {
 }
 
 // =========================
-// LP, Korruption, Traglast
+// Lebenspunkte
 // =========================
 function updateWounds() {
   const ST = getNum("attr_ST_total");
@@ -384,8 +298,10 @@ function updateWounds() {
   const wib = Math.floor(WI / 10);
   const wkb = Math.floor(WK / 10) * 2;
   let robustheit = 0;
+
   const talents = (window.savedTalents || []).map(t => t.name?.toLowerCase());
   if (talents.includes("robustheit") || talents.includes("hardy")) robustheit = wib;
+
   const total = stb + wib + wkb + robustheit;
   setNum("lp_stb", stb);
   setNum("lp_wib", wib);
@@ -394,11 +310,15 @@ function updateWounds() {
   setNum("lp_total", total);
 }
 
+// =========================
+// Korruption
+// =========================
 function updateCorruption() {
   const WI = getNum("attr_WI_total");
   const WK = getNum("attr_WK_total");
   const max = Math.floor(WI / 10) + Math.floor(WK / 10);
   setNum("corruption_max", max);
+
   const field = document.getElementById("corruption_current");
   if (!field) return;
   const current = parseInt(field.value || "0");
@@ -407,11 +327,15 @@ function updateCorruption() {
   if (current < 0) field.value = 0;
 }
 
+// =========================
+// Traglast
+// =========================
 function updateEncumbrance() {
   const ST = getNum("attr_ST_total");
   const WI = getNum("attr_WI_total");
   const maxTP = Math.floor(ST / 10) + Math.floor(WI / 10);
   let totalTP = 0;
+
   document.querySelectorAll("#weapons tbody tr").forEach(tr => {
     const tp = parseInt(tr.querySelector("[data-key='TP']")?.value || "0");
     totalTP += tp;
@@ -425,6 +349,7 @@ function updateEncumbrance() {
     const tp = parseInt(tr.querySelector("[data-key='TP']")?.value || "0");
     totalTP += qty * tp;
   });
+
   const maxEl = document.getElementById("encumbrance_max");
   const totalEl = document.getElementById("encumbrance_total");
   if (maxEl && totalEl) {
@@ -462,6 +387,7 @@ function updateExperienceFull() {
   setNum("exp_full_current", current);
   setNum("exp_full_spent", spent);
   setNum("exp_full_total", total);
+
   const currentField = document.getElementById("exp_full_current");
   if (current < 0 && !wasNegativeExp) {
     showPopup("Achtung: Erfahrung unter 0 nicht erlaubt!");
@@ -473,7 +399,7 @@ function updateExperienceFull() {
 }
 
 // =========================
-// Talente + Popup
+// Talente
 // =========================
 function updateTalents() {
   const talents = [];
@@ -482,9 +408,12 @@ function updateTalents() {
     talents.push({ name });
   });
   window.savedTalents = talents;
-  updateWounds();
+  updateWounds(); // Hardy/Robustheit trigger
 }
 
+// =========================
+// Popup
+// =========================
 function showPopup(message) {
   const overlay = document.createElement("div");
   overlay.className = "popup-overlay";
@@ -514,6 +443,7 @@ function initLogic() {
   updateExperienceSimple();
   updateExperienceFull();
   updateTalents();
+
   document.querySelectorAll("input, select, textarea").forEach(el => {
     el.addEventListener("input", () => {
       updateAttributes();
