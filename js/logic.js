@@ -294,51 +294,61 @@ function updateFateResilience() {
 }
 // ---------------- Skills ----------------
 function updateSkills() {
-  // Grundfertigkeiten
+  // Grundfähigkeiten
   grundfertigkeitenListe().forEach(skill => {
-    const attrVal = parseInt(document.getElementById(`attr_${skill.attr}`).value)||0;
-    document.getElementById(`skill_${skill.id}_attrval`).textContent = attrVal;
-    const steig = parseInt(document.getElementById(`skill_${skill.id}_val`).value)||0;
-    // aktueller Wert = Attribut + Steigerung
+    const attrVal = parseInt(document.getElementById(`attr_${skill.attr}`).value) || 0;
+    const steig = parseInt(document.getElementById(`skill_${skill.id}_steig`).value) || 0;
     const total = attrVal + steig;
-    document.getElementById(`skill_${skill.id}_val`).value = total;
+
+    // Schreibe Werte in die Tabelle
+    const valEl = document.getElementById(`skill_${skill.id}_attrval`);
+    if (valEl) valEl.textContent = attrVal;
+
+    const totalEl = document.getElementById(`skill_${skill.id}_total`);
+    if (totalEl) totalEl.value = total;
   });
 
   // Gruppierte Fähigkeiten
   const table = document.getElementById("groupedSkillsTable");
   if (table) {
-    Array.from(table.rows).forEach((row,i)=>{
-      if(i===0)return;
-      const sel=row.querySelector("select[name='attr']");
-      const steig=row.querySelector("input[name='steigerung']");
-      const val=row.querySelector("input[name='wert']");
-      if(sel && steig && val) {
-        const attr=sel.value;
-        const attrVal=parseInt(document.getElementById(`attr_${attr}`).value)||0;
-        const steigVal=parseInt(steiger.value)||0;
-        val.value=attrVal+steigVal;
+    Array.from(table.rows).forEach((row, i) => {
+      if (i === 0) return; // Header überspringen
+      const sel = row.querySelector("select[name='attr']");
+      const steig = row.querySelector("input[name='steigerung']");
+      const attrValEl = row.querySelector("span[name='attrval']");
+      const totalEl = row.querySelector("input[name='wert']");
+
+      if (sel && steig && attrValEl && totalEl) {
+        const attr = sel.value;
+        const attrVal = parseInt(document.getElementById(`attr_${attr}`).value) || 0;
+        attrValEl.textContent = attrVal;
+
+        const steigVal = parseInt(steiger.value) || 0;
+        totalEl.value = attrVal + steigVal;
       }
     });
   }
 }
 
+
 // ---------------- Dynamische Tabellen Add/Delete ----------------
+// ---------------- Gruppierte hinzufügen ----------------
 function addGroupedSkill() {
-  const table=document.getElementById("groupedSkillsTable");
-  const row=table.insertRow();
-  row.innerHTML=`
-    <td><button class="mark-btn">◯</button></td>
-    <td><input name="name"></td>
+  const table = document.getElementById("groupedSkillsTable");
+  const row = table.insertRow();
+  row.innerHTML = `
     <td>
-      <select name="attr">
+      <select name="attr" onchange="updateSkills()">
         <option value="KG">KG</option><option value="BF">BF</option><option value="ST">ST</option>
         <option value="WI">WI</option><option value="I">I</option><option value="GW">GW</option>
         <option value="GS">GS</option><option value="IN">IN</option><option value="WK">WK</option><option value="CH">CH</option>
       </select>
     </td>
-    <td><input name="steigerung" class="num-2"></td>
+    <td><span name="attrval" class="num-2"></span></td>
+    <td><input name="steigerung" class="num-2" oninput="updateSkills()"></td>
     <td><input name="wert" readonly class="num-2"></td>
-    <td><button onclick="this.parentNode.parentNode.remove()">🗑</button></td>`;
+    <td><button onclick="this.parentNode.parentNode.remove(); updateSkills();">🗑</button></td>
+  `;
 }
 
 function addWeapon() {
