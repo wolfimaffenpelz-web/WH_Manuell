@@ -101,7 +101,7 @@ input[readonly], .readonly {
 }
 
 /* Highlighting */
-tr.active, td.active {
+tr.active, td.active, th.active {
   outline: 2px solid darkred;
 }
 
