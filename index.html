@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Charakterbogen – Warhammer Fantasy</title>
-  
+
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Podkova&display=swap" rel="stylesheet">
-  
+
   <!-- Styles -->
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -15,6 +15,24 @@
   <header>
     <h1>Charakterbogen</h1>
   </header>
+
+  <!-- Toolbar -->
+  <div id="toolbar">
+    <select id="characterSelect"></select>
+    <button onclick="importData()">📥</button>
+    <button onclick="exportData()">📤</button>
+    <button onclick="newCharacter()">➕</button>
+    <button onclick="showDeleteConfirm()">🗑</button>
+  </div>
+
+  <!-- Delete Popup -->
+  <div id="deleteConfirm" class="modal">
+    <div class="modal-content">
+      <p>Diesen Charakter wirklich löschen?</p>
+      <button id="confirmYes">Ja</button>
+      <button id="confirmNo">Nein</button>
+    </div>
+  </div>
 
   <main id="main-content">
     <!-- Sections werden dynamisch von sections.js geladen -->
