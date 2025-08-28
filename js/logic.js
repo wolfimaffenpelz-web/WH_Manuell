@@ -156,6 +156,7 @@ function updateAttributes() {
   updateGrundfaehigkeiten();
   updateLebenspunkte();
   updateKorruption();
+  updateRuestung();
   updateTraglast();
   updateVermoegen();
   updateErfahrung();
@@ -342,6 +343,35 @@ function updateKorruption() {
   } else {
     document.getElementById("korruption-akt").classList.remove("readonly-red");
   }
+}
+
+// =========================
+// 🛡️ Rüstung
+// =========================
+function updateRuestung() {
+  const zones = {
+    "Kopf": 0,
+    "Linker Arm": 0,
+    "Rechter Arm": 0,
+    "Brust": 0,
+    "Linkes Bein": 0,
+    "Rechtes Bein": 0
+  };
+
+  document.querySelectorAll("#ruestung-table tr").forEach((row, idx) => {
+    if (idx === 0) return;
+    const zoneSel = row.cells[1].querySelector("select");
+    const zone = zoneSel ? zoneSel.value : "";
+    const rp = parseInt(row.cells[2].querySelector("input").value) || 0;
+    if (zones.hasOwnProperty(zone)) zones[zone] += rp;
+  });
+
+  document.getElementById("rp-kopf").value = zones["Kopf"] || 0;
+  document.getElementById("rp-larm").value = zones["Linker Arm"] || 0;
+  document.getElementById("rp-rarm").value = zones["Rechter Arm"] || 0;
+  document.getElementById("rp-brust").value = zones["Brust"] || 0;
+  document.getElementById("rp-lbein").value = zones["Linkes Bein"] || 0;
+  document.getElementById("rp-rbein").value = zones["Rechtes Bein"] || 0;
 }
 
 // =========================
