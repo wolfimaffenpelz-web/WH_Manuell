@@ -3,7 +3,7 @@ body {
   font-family: 'Podkova', serif;
   margin: 0;
   padding: 0;
-  background: #f4f4f4;
+  background: #FAF0E6;
   color: #111;
 }
 
@@ -117,7 +117,7 @@ button.delete-row {
 /* Segment-Trennung */
 .section-divider {
   border-bottom: 2.5px solid #000;
-  width: 90%;
+  width: 95%;
   margin: 15px auto;
 }
 
