@@ -128,22 +128,21 @@ function sectionLebenspunkte() {
   `;
 }
 
-// ---------------- Grundfertigkeiten ----------------
+// ---------------- Grundfähigkeiten ----------------
 function sectionGrundfertigkeiten() {
   return `
   <section id="section_basic_skills">
     <h2>Grundfähigkeiten</h2>
     <table class="wide">
       <tr>
-        <th></th><th>Fähigkeit</th><th>Attribut</th><th>Wert</th>
+        <th>Attr</th><th>Wert</th><th>Steig.</th><th>Gesamt</th>
       </tr>
       ${grundfertigkeitenListe().map(skill => `
       <tr>
-        <td><button class="mark-btn" data-skill="${skill.id}">◯</button></td>
-        <td>${skill.name}</td>
-        <td><span id="skill_${skill.id}_attr">${skill.attr}</span> 
-            (<span id="skill_${skill.id}_attrval"></span>)</td>
-        <td><input id="skill_${skill.id}_val" class="num-2"></td>
+        <td>${skill.attr}</td>
+        <td><span id="skill_${skill.id}_attrval" class="num-2"></span></td>
+        <td><input id="skill_${skill.id}_steig" class="num-2"></td>
+        <td><input id="skill_${skill.id}_total" readonly class="num-2"></td>
       </tr>
       `).join("")}
     </table>
@@ -153,30 +152,35 @@ function sectionGrundfertigkeiten() {
 
 function grundfertigkeitenListe() {
   return [
-    { id: "animalcare", name: "Tierkunde", attr: "IN" },
-    { id: "charm", name: "Charme", attr: "CH" },
-    { id: "charmanimal", name: "Tiere besänftigen", attr: "WI" },
-    { id: "climb", name: "Klettern", attr: "ST" },
-    { id: "cool", name: "Kaltblütigkeit", attr: "WK" },
-    { id: "consumealcohol", name: "Trinken", attr: "WI" },
-    { id: "dodge", name: "Ausweichen", attr: "GW" },
-    { id: "endurance", name: "Ausdauer", attr: "WI" },
-    { id: "entertain", name: "Unterhalten", attr: "CH" },
-    { id: "gamble", name: "Spielen", attr: "IN" },
-    { id: "gossip", name: "Klatsch", attr: "CH" },
-    { id: "haggle", name: "Feilschen", attr: "CH" },
-    { id: "intimidate", name: "Einschüchtern", attr: "ST" },
+    { id: "anführen", name: "Anführen", attr: "CH" },
+    { id: "athletik", name: "Athletik", attr: "GW" },
+    { id: "ausdauer", name: "Ausdauer", attr: "WI" },
+    { id: "ausweichen", name: "Ausweichen", attr: "GW" },
+    { id: "besonnenheit", name: "Besonnenheit", attr: "WK" },
+    { id: "bestechen", name: "Bestechen", attr: "CH" },
+    { id: "charme", name: "Charme", attr: "CH" },
+    { id: "einschüchtern", name: "Einschüchtern", attr: "ST" },
+    { id: "fahren", name: "Fahren", attr: "GW" },
+    { id: "feilschen", name: "Feilschen", attr: "CH" },
+    { id: "glücksspiel", name: "Glücksspiel", attr: "IN" },
     { id: "intuition", name: "Intuition", attr: "I" },
-    { id: "leadership", name: "Führen", attr: "CH" },
-    { id: "melee_basic", name: "Nahkampf (Standard)", attr: "KG" },
-    { id: "outdoor", name: "Wildnisleben", attr: "IN" },
-    { id: "perception", name: "Wahrnehmung", attr: "I" },
-    { id: "ride", name: "Reiten", attr: "GS" },
-    { id: "row", name: "Rudern", attr: "ST" },
-    { id: "stealth", name: "Schleichen", attr: "GE" }, 
-    { id: "swim", name: "Schwimmen", attr: "ST" }
+    { id: "klatsch", name: "Klatsch", attr: "CH" },
+    { id: "klettern", name: "Klettern", attr: "ST" },
+    { id: "kunst", name: "Kunst", attr: "GS" },
+    { id: "nahkampf", name: "Nahkampf", attr: "KG" },
+    { id: "nahkampf_std", name: "Nahkampf (Std.)", attr: "KG" },
+    { id: "navigation", name: "Navigation", attr: "I" },
+    { id: "reiten", name: "Reiten", attr: "GW" },
+    { id: "rudern", name: "Rudern", attr: "ST" },
+    { id: "schleichen", name: "Schleichen", attr: "GW" },
+    { id: "tiere_bezirzen", name: "Tiere bezirzen", attr: "WK" },
+    { id: "überleben", name: "Überleben", attr: "IN" },
+    { id: "unterhalten", name: "Unterhalten", attr: "CH" },
+    { id: "wahrnehmung", name: "Wahrnehmung", attr: "I" },
+    { id: "zechen", name: "Zechen", attr: "WI" }
   ];
 }
+
 // ---------------- Gruppierte Fähigkeiten ----------------
 function sectionGruppierteFertigkeiten() {
   return `
@@ -184,7 +188,7 @@ function sectionGruppierteFertigkeiten() {
     <h2>Gruppierte & Ausbaufähigkeiten</h2>
     <table class="wide" id="groupedSkillsTable">
       <tr>
-        <th></th><th>Fähigkeit</th><th>Attribut</th><th>Wert</th><th>🗑</th>
+        <th>Attr</th><th>Wert</th><th>Steig.</th><th>Gesamt</th><th>🗑</th>
       </tr>
     </table>
     <button onclick="addGroupedSkill()">➕</button>
