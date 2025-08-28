@@ -337,6 +337,7 @@ function addGroupedSkill() {
   const table = document.getElementById("groupedSkillsTable");
   const row = table.insertRow();
   row.innerHTML = `
+    <td><input name="name"></td>
     <td>
       <select name="attr" onchange="updateSkills()">
         <option value="KG">KG</option><option value="BF">BF</option><option value="ST">ST</option>
