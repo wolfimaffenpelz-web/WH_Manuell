@@ -196,9 +196,13 @@ sections.push(
     content: `
       <!-- Übersicht RP pro Zone -->
       <table class="ruestung-uebersicht">
-        <tr><th>Zone</th><th>01–09</th><th>10–24</th><th>25–44</th><th>80–89</th><th>90–100</th></tr>
-        <tr><td>Trefferzone</td><td>Kopf</td><td>Linker Arm</td><td>Rechter Arm</td><td>Linkes Bein</td><td>Rechtes Bein</td></tr>
-        <tr><td>RP gesamt</td><td><input id="rp-kopf" readonly></td><td><input id="rp-larm" readonly></td><td><input id="rp-rarm" readonly></td><td><input id="rp-lbein" readonly></td><td><input id="rp-rbein" readonly></td></tr>
+        <tr><th>Trefferzone</th><th>Trefferbereich</th><th>Summe RP</th></tr>
+        <tr><td>Kopf</td><td>01–09</td><td><input id="rp-kopf" readonly></td></tr>
+        <tr><td>Linker Arm</td><td>10–24</td><td><input id="rp-larm" readonly></td></tr>
+        <tr><td>Rechter Arm</td><td>25–44</td><td><input id="rp-rarm" readonly></td></tr>
+        <tr><td>Brust</td><td>45–79</td><td><input id="rp-brust" readonly></td></tr>
+        <tr><td>Linkes Bein</td><td>80–89</td><td><input id="rp-lbein" readonly></td></tr>
+        <tr><td>Rechtes Bein</td><td>90–100</td><td><input id="rp-rbein" readonly></td></tr>
       </table>
 
       <!-- Dynamische Rüstungsteile -->
