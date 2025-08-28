@@ -135,10 +135,11 @@ function sectionGrundfertigkeiten() {
     <h2>Grundfähigkeiten</h2>
     <table class="wide">
       <tr>
-        <th>Attr</th><th>Wert</th><th>Steig.</th><th>Gesamt</th>
+        <th>Fähigkeit</th><th>Attr</th><th>Wert</th><th>Steig.</th><th>Gesamt</th>
       </tr>
       ${grundfertigkeitenListe().map(skill => `
       <tr>
+        <td>${skill.name}</td>
         <td>${skill.attr}</td>
         <td><span id="skill_${skill.id}_attrval" class="num-2"></span></td>
         <td><input id="skill_${skill.id}_steig" class="num-2"></td>
@@ -188,7 +189,7 @@ function sectionGruppierteFertigkeiten() {
     <h2>Gruppierte & Ausbaufähigkeiten</h2>
     <table class="wide" id="groupedSkillsTable">
       <tr>
-        <th>Attr</th><th>Wert</th><th>Steig.</th><th>Gesamt</th><th>🗑</th>
+        <th>Name</th><th>Attr</th><th>Wert</th><th>Steig.</th><th>Gesamt</th><th>🗑</th>
       </tr>
     </table>
     <button onclick="addGroupedSkill()">➕</button>
