@@ -50,3 +50,37 @@ document.addEventListener("DOMContentLoaded", () => {
   renderSections();
   loadData();
 });
+// Update Attribute Berechnungen
+function updateAttributes() {
+  const attrs = ["KG","BF","ST","WI","I","GW","GS","IN","WK","CH"];
+  attrs.forEach(attr => {
+    const start = parseInt(document.getElementById(attr+"_start")?.value || 0);
+    const steig = parseInt(document.getElementById(attr+"_steig")?.value || 0);
+    const aktuellEl = document.getElementById(attr+"_aktuell");
+    if (aktuellEl) {
+      aktuellEl.value = start + steig;
+    }
+  });
+  saveData();
+}
+
+// Markierungssystem Attribute
+const attributeMarks = {};
+function handleMarkButton(e) {
+  const attr = e.target.dataset.attr;
+  const symbols = ["◯","✠","⚔","☠","🛡"];
+  let current = symbols.indexOf(e.target.textContent);
+  current = (current + 1) % symbols.length;
+  e.target.textContent = symbols[current];
+  attributeMarks[attr] = symbols[current];
+  saveData();
+}
+
+// Events für Attribute
+document.addEventListener("input", updateAttributes);
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".mark-btn").forEach(btn => {
+    btn.addEventListener("click", handleMarkButton);
+  });
+  updateAttributes();
+});
