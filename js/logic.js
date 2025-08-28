@@ -1,4 +1,250 @@
 // =========================
+// Rendering-Funktion (vollständig für alle Typen)
+// =========================
+function renderSections() {
+  const main = document.getElementById("main-content");
+  main.innerHTML = "";
+
+  sections.forEach((sec, idx) => {
+    const sectionEl = document.createElement("section");
+    sectionEl.id = sec.id;
+
+    // Titel
+    const title = document.createElement("h2");
+    title.textContent = t(sec.id);
+    sectionEl.appendChild(title);
+
+    // Flexbox (z. B. Grunddaten)
+    if (sec.type === "flex") {
+      sec.groups.forEach(group => {
+        const groupDiv = document.createElement("div");
+        groupDiv.className = "flex-group";
+
+        group.fields.forEach(f => {
+          const fieldDiv = document.createElement("div");
+          fieldDiv.className = "flex-field";
+
+          const label = document.createElement("label");
+          label.textContent = f.label;
+          label.setAttribute("for", f.id);
+
+          const input = document.createElement("input");
+          input.type = f.type || "text";
+          input.id = f.id;
+
+          fieldDiv.appendChild(label);
+          fieldDiv.appendChild(input);
+          groupDiv.appendChild(fieldDiv);
+        });
+
+        sectionEl.appendChild(groupDiv);
+      });
+    }
+
+    // Normale Tabellen
+    if (sec.type === "table") {
+      const table = document.createElement("table");
+      if (sec.width === "full") table.className = "fullwidth";
+      if (sec.width === "ninety") table.className = "ninety";
+
+      const thead = document.createElement("thead");
+      const trHead = document.createElement("tr");
+      sec.headers.forEach(h => {
+        const th = document.createElement("th");
+        th.textContent = h;
+        trHead.appendChild(th);
+      });
+      thead.appendChild(trHead);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+      sec.rows.forEach(row => {
+        const tr = document.createElement("tr");
+        row.forEach(cell => {
+          const td = document.createElement("td");
+          if (typeof cell === "string") {
+            td.textContent = cell;
+          } else {
+            let el;
+            if (cell.textarea) {
+              el = document.createElement("textarea");
+            } else {
+              el = document.createElement("input");
+              el.type = cell.type || "text";
+              if (cell.readonly) el.readOnly = true;
+              if (cell.maxLength) el.maxLength = cell.maxLength;
+            }
+            if (cell.id) el.id = cell.id;
+            td.appendChild(el);
+          }
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      sectionEl.appendChild(table);
+    }
+
+    // Dynamische Tabellen
+    if (sec.type === "dynamic-table") {
+      const table = document.createElement("table");
+      table.setAttribute("data-dynamic", "true");
+      table.setAttribute("data-id", sec.id);
+      table.className = "fullwidth";
+
+      const thead = document.createElement("thead");
+      const trHead = document.createElement("tr");
+      sec.headers.forEach(h => {
+        const th = document.createElement("th");
+        th.textContent = h;
+        trHead.appendChild(th);
+      });
+      thead.appendChild(trHead);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+      table.appendChild(tbody);
+      sectionEl.appendChild(table);
+
+      // Button zum Hinzufügen
+      const btn = document.createElement("button");
+      btn.textContent = "➕ Zeile hinzufügen";
+      btn.onclick = () => {
+        const tr = document.createElement("tr");
+        sec.headers.forEach(h => {
+          const td = document.createElement("td");
+
+          if (h === "🗑") {
+            const delBtn = document.createElement("button");
+            delBtn.textContent = "❌";
+            delBtn.onclick = () => tr.remove();
+            td.appendChild(delBtn);
+          } else if (sec.dropdowns && sec.dropdowns[h]) {
+            const select = document.createElement("select");
+            select.dataset.key = h;
+            sec.dropdowns[h].forEach(opt => {
+              const option = document.createElement("option");
+              option.value = opt;
+              option.textContent = opt;
+              select.appendChild(option);
+            });
+            td.appendChild(select);
+          } else if (h === "Notizen" || h === "Effekt" || h === "Qualitäten" || h === "Kommentar") {
+            const textarea = document.createElement("textarea");
+            textarea.dataset.key = h;
+            td.appendChild(textarea);
+          } else {
+            const input = document.createElement("input");
+            input.type = "text";
+            input.dataset.key = h;
+            td.appendChild(input);
+          }
+
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      };
+      sectionEl.appendChild(btn);
+    }
+
+    // Komplexe Tabellen (z. B. Erfahrung Voll)
+    if (sec.type === "complex") {
+      sec.parts.forEach(part => {
+        if (part.type === "table") {
+          const table = document.createElement("table");
+          table.className = "fullwidth";
+
+          const thead = document.createElement("thead");
+          const trHead = document.createElement("tr");
+          part.headers.forEach(h => {
+            const th = document.createElement("th");
+            th.textContent = h;
+            trHead.appendChild(th);
+          });
+          thead.appendChild(trHead);
+          table.appendChild(thead);
+
+          const tbody = document.createElement("tbody");
+          part.rows.forEach(row => {
+            const tr = document.createElement("tr");
+            row.forEach(cell => {
+              const td = document.createElement("td");
+              let el = document.createElement("input");
+              el.type = cell.type || "text";
+              if (cell.id) el.id = cell.id;
+              if (cell.readonly) el.readOnly = true;
+              td.appendChild(el);
+              tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+          });
+          table.appendChild(tbody);
+          sectionEl.appendChild(table);
+        }
+
+        if (part.type === "dynamic-table") {
+          const table = document.createElement("table");
+          table.setAttribute("data-dynamic", "true");
+          table.setAttribute("data-id", sec.id + "_detail");
+          table.className = "fullwidth";
+
+          const thead = document.createElement("thead");
+          const trHead = document.createElement("tr");
+          part.headers.forEach(h => {
+            const th = document.createElement("th");
+            th.textContent = h;
+            trHead.appendChild(th);
+          });
+          thead.appendChild(trHead);
+          table.appendChild(thead);
+
+          const tbody = document.createElement("tbody");
+          table.appendChild(tbody);
+          sectionEl.appendChild(table);
+
+          const btn = document.createElement("button");
+          btn.textContent = "➕ Eintrag hinzufügen";
+          btn.onclick = () => {
+            const tr = document.createElement("tr");
+            part.headers.forEach(h => {
+              const td = document.createElement("td");
+
+              if (h === "🗑") {
+                const delBtn = document.createElement("button");
+                delBtn.textContent = "❌";
+                delBtn.onclick = () => tr.remove();
+                td.appendChild(delBtn);
+              } else if (h === "Kommentar") {
+                const textarea = document.createElement("textarea");
+                textarea.dataset.key = h;
+                td.appendChild(textarea);
+              } else {
+                const input = document.createElement("input");
+                input.type = "text";
+                input.dataset.key = h;
+                td.appendChild(input);
+              }
+
+              tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+          };
+          sectionEl.appendChild(btn);
+        }
+      });
+    }
+
+    main.appendChild(sectionEl);
+
+    // Segment-Trennlinie außer nach der letzten Section
+    if (idx < sections.length - 1) {
+      const divider = document.createElement("div");
+      divider.className = "segment-divider";
+      main.appendChild(divider);
+    }
+  });
+}
+// =========================
 // Speicher- und Ladelogik
 // =========================
 
