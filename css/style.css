@@ -3,101 +3,159 @@ body {
   font-family: 'Podkova', serif;
   margin: 0;
   padding: 0;
-  background: #fdfdfd;
+  background: #f4f4f4;
   color: #111;
 }
 
 h1, h2, h3 {
   font-family: 'UnifrakturMaguntia', cursive;
-  text-align: center;
-  margin: 0.5em 0;
-}
-
-/* Tabellen */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  border: none; /* Außenrahmen weg */
-  margin-bottom: 1em;
-}
-
-table th, table td {
-  border: 1.5px solid black; /* nur Innenlinien */
-  padding: 4px;
-  text-align: center;
-  vertical-align: middle;
-}
-
-/* Erste Zeile fett */
-table tr:first-child th {
-  font-weight: bold;
-}
-
-/* Ausrichtung */
-td.text-left, th.text-left {
-  text-align: left;
-}
-td.text-center, th.text-center {
+  margin: 10px 0;
   text-align: center;
 }
 
-/* Eingabefelder */
-input, select, textarea {
-  width: 98%;
-  box-sizing: border-box;
-  border: none;        /* Eingabefelder ohne eigenen Rahmen */
-  background: none;    /* verschmilzt mit Tabellenfeld */
-  text-align: center;  /* Zahlen mittig */
-  font-family: inherit;
-}
-
-/* Links für Texteingabe (z. B. Namen) */
-input.text-left, textarea.text-left {
-  text-align: left;
-}
-
-/* Berechnete Felder */
-.readonly {
-  background: #eaeaea; /* hellgrau */
-  font-weight: normal;
-}
-
-/* Feste Labels */
-.fixed {
-  background: #eaeaea;
-  font-weight: bold;
-}
-
-/* Highlight aktive Zeile oder Spalte */
-.highlight-row {
-  outline: 2px solid darkred;
-}
-.highlight-col {
-  outline: 2px solid darkred;
-}
-
-/* Segment-Trennlinie */
-.section-divider {
-  border-bottom: 2.5px solid black;
-  margin: 1.5em 5% 1.5em 5%; /* links/rechts 5% kürzer */
-}
-
-/* Popups */
-.popup-overlay {
+/* Overlay Passwort */
+.overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: none;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
 }
-.popup {
+
+.overlay-content {
   background: #fff;
-  padding: 1em 2em;
-  border: 2px solid black;
+  padding: 20px;
+  border-radius: 5px;
   text-align: center;
 }
+
+.overlay-content input {
+  margin: 10px 0;
+  padding: 5px;
+  width: 150px;
+}
+
+/* Charakter-Management */
+.character-management {
+  text-align: center;
+  margin: 10px 0;
+}
+
+.character-management select,
+.character-management button {
+  margin: 0 5px;
+  padding: 5px 10px;
+}
+
+/* Tabellen allgemein */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 10px 0;
+}
+
+th, td {
+  border: none; /* äußere Rahmen unsichtbar */
+  border-bottom: 1px solid #000; /* nur Innenlinien */
+  padding: 4px;
+  text-align: center;
+  vertical-align: middle;
+  max-width: 120px;
+  overflow: hidden;
+}
+
+th {
+  font-weight: bold;
+}
+
+/* 100% Tabellenbreite */
+.full-width {
+  width: 100%;
+}
+
+/* Eingabefelder */
+input[type="text"],
+input[type="number"],
+textarea {
+  width: 98%;
+  border: none;
+  background: transparent;
+  text-align: center;
+  font-family: inherit;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 20px;
+}
+
+input[readonly], .readonly {
+  background: #e6e6e6; /* grau für feste/berechnete Felder */
+  font-weight: bold;
+}
+
+/* Highlighting */
+tr.active, td.active {
+  outline: 2px solid darkred;
+}
+
+/* Buttons für Zeilenverwaltung */
+button.add-row, button.delete-row {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button.delete-row {
+  color: red;
+}
+
+/* Segment-Trennung */
+.section-divider {
+  border-bottom: 2.5px solid #000;
+  width: 90%;
+  margin: 15px auto;
+}
+
+/* Popups (z.B. Löschen, Korruption) */
+.popup {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  padding: 20px;
+  border: 2px solid #000;
+  z-index: 1100;
+  text-align: center;
+}
+
 .popup button {
-  margin: 0.5em;
+  margin: 5px;
+  padding: 5px 10px;
+}
+
+/* Farben für Werte */
+.negative {
+  color: red;
+}
+
+.positive {
+  color: green;
+}
+
+.readonly-red {
+  background: #f2d6d6; /* blasses rot für „Problemfelder“ */
+  font-weight: bold;
+}
+
+/* Icon Styling */
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
 }
