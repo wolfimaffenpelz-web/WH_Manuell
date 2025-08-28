@@ -110,16 +110,75 @@ function renderSections() {
 // =========================
 // 💾 Speicher- und Lade-Logik
 // =========================
+function serializeTable(tableId) {
+  const table = document.getElementById(tableId);
+  const data = [];
+  if (!table) return data;
+
+  table.querySelectorAll("tr").forEach((row, idx) => {
+    if (idx === 0) return; // Skip header
+    const rowData = [];
+    row.querySelectorAll("input, select, textarea").forEach(el => {
+      if (el.type === "checkbox" || el.type === "radio") {
+        rowData.push(el.checked);
+      } else {
+        rowData.push(el.value);
+      }
+    });
+    data.push(rowData);
+  });
+  return data;
+}
+
+function deserializeTable(tableId, data) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  // remove existing rows except header
+  while (table.rows.length > 1) {
+    table.deleteRow(1);
+  }
+  if (!data || !Array.isArray(data)) return;
+  data.forEach(rowData => {
+    addRow(tableId);
+    const row = table.rows[table.rows.length - 1];
+    const inputs = row.querySelectorAll("input, select, textarea");
+    rowData.forEach((val, idx) => {
+      const el = inputs[idx];
+      if (!el) return;
+      if (el.type === "checkbox" || el.type === "radio") {
+        el.checked = val;
+      } else {
+        el.value = val;
+      }
+    });
+  });
+}
+
 function saveState() {
   if (!currentCharacter) return;
   const state = {};
 
   document.querySelectorAll("input, textarea, select").forEach(el => {
+    if (!el.id) return;
     if (el.type === "checkbox" || el.type === "radio") {
       state[el.id] = el.checked;
     } else {
       state[el.id] = el.value;
     }
+  });
+
+  [
+    "grupp-table",
+    "talent-table",
+    "waffen-table",
+    "ruestung-table",
+    "ausruestung-table",
+    "zauber-table",
+    "mutationen-table",
+    "psychologie-table",
+    "exp-table"
+  ].forEach(id => {
+    state[id] = serializeTable(id);
   });
 
   localStorage.setItem("state-" + currentCharacter, JSON.stringify(state));
@@ -130,6 +189,7 @@ function loadState() {
   const state = JSON.parse(localStorage.getItem("state-" + currentCharacter) || "{}");
 
   document.querySelectorAll("input, textarea, select").forEach(el => {
+    if (!el.id) return;
     if (state.hasOwnProperty(el.id)) {
       if (el.type === "checkbox" || el.type === "radio") {
         el.checked = state[el.id];
@@ -137,6 +197,20 @@ function loadState() {
         el.value = state[el.id];
       }
     }
+  });
+
+  [
+    "grupp-table",
+    "talent-table",
+    "waffen-table",
+    "ruestung-table",
+    "ausruestung-table",
+    "zauber-table",
+    "mutationen-table",
+    "psychologie-table",
+    "exp-table"
+  ].forEach(id => {
+    deserializeTable(id, state[id]);
   });
 
   updateAttributes();
