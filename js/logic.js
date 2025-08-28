@@ -1,441 +1,383 @@
-// logic.js – zentrale Logik
+// =========================
+// Speicher- und Ladelogik
+// =========================
 
-// ---------------- Passwortschutz ----------------
-const PASSWORD = "1234";
-
-window.addEventListener("load", () => {
-  const authenticated = localStorage.getItem("authenticated");
-  if (authenticated === "true") {
-    initApp();
-  } else {
-    const pw = prompt("Bitte Passwort eingeben:");
-    if (pw === PASSWORD) {
-      localStorage.setItem("authenticated", "true");
-      initApp();
-    } else {
-      alert("Falsches Passwort. Zugriff verweigert.");
-    }
-  }
-});
-
-function initApp() {
-  loadSections();
-  loadCharacters();
-  attachEventListeners();
-}
-
-// ---------------- Multi-Charakter Verwaltung ----------------
-let characters = JSON.parse(localStorage.getItem("characters") || "{}");
-let activeCharacter = null;
-
-function loadCharacters() {
-  const select = document.getElementById("characterSelect");
-  select.innerHTML = "";
-  for (let name in characters) {
-    const opt = document.createElement("option");
-    opt.value = name;
-    opt.textContent = name;
-    select.appendChild(opt);
-  }
-  if (activeCharacter && characters[activeCharacter]) {
-    select.value = activeCharacter;
-    loadData(characters[activeCharacter]);
-  }
-  select.onchange = () => {
-    activeCharacter = select.value;
-    loadData(characters[activeCharacter]);
-  };
-}
-
-function newCharacter() {
-  if (activeCharacter) saveData();
-  activeCharacter = prompt("Name für neuen Charakter:");
-  if (!activeCharacter) return;
-  characters[activeCharacter] = {};
-  localStorage.setItem("characters", JSON.stringify(characters));
-  loadCharacters();
-}
-
-function showDeleteConfirm() {
-  const modal = document.getElementById("deleteConfirm");
-  modal.style.display = "block";
-  document.getElementById("confirmYes").onclick = () => {
-    deleteCharacter();
-    modal.style.display = "none";
-  };
-  document.getElementById("confirmNo").onclick = () => {
-    modal.style.display = "none";
-  };
-}
-
-function deleteCharacter() {
-  if (activeCharacter && characters[activeCharacter]) {
-    delete characters[activeCharacter];
-    localStorage.setItem("characters", JSON.stringify(characters));
-    activeCharacter = null;
-    loadCharacters();
-    document.getElementById("main-content").innerHTML = "";
-  }
-}
-
-// ---------------- Save & Load ----------------
+// Daten speichern
 function saveData() {
-  if (!activeCharacter) return;
   const data = {};
-  document.querySelectorAll("input, textarea, select").forEach(el => {
-    if (el.type === "checkbox" || el.type === "radio") {
-      data[el.id] = el.checked;
-    } else {
-      data[el.id] = el.value;
-    }
-  });
-  characters[activeCharacter] = data;
-  localStorage.setItem("characters", JSON.stringify(characters));
-}
 
-function loadData(data) {
-  if (!data) return;
-  Object.keys(data).forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      if (el.type === "checkbox" || el.type === "radio") {
-        el.checked = data[id];
+  // Alle Eingabefelder
+  document.querySelectorAll("input, textarea, select").forEach(el => {
+    if (el.id) {
+      if (el.type === "checkbox") {
+        data[el.id] = el.checked;
       } else {
-        el.value = data[id];
+        data[el.id] = el.value;
       }
     }
   });
-  updateAll();
+
+  // Dynamische Tabellen
+  document.querySelectorAll("table[data-dynamic]").forEach(table => {
+    const id = table.getAttribute("data-id");
+    const rows = [];
+    table.querySelectorAll("tbody tr").forEach(tr => {
+      const rowData = {};
+      tr.querySelectorAll("input, textarea, select").forEach(el => {
+        if (el.dataset.key) {
+          rowData[el.dataset.key] = el.value;
+        }
+      });
+      rows.push(rowData);
+    });
+    data[id] = rows;
+  });
+
+  localStorage.setItem("charData", JSON.stringify(data));
 }
 
-// ---------------- Import / Export ----------------
-function exportData() {
-  saveData();
-  const blob = new Blob([JSON.stringify(characters)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "characters.json";
-  a.click();
-}
+// Daten laden
+function loadData() {
+  const raw = localStorage.getItem("charData");
+  if (!raw) return;
+  const data = JSON.parse(raw);
 
-function importData() {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "application/json";
-  input.onchange = e => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onload = () => {
-      characters = JSON.parse(reader.result);
-      localStorage.setItem("characters", JSON.stringify(characters));
-      loadCharacters();
-    };
-    reader.readAsText(file);
-  };
-  input.click();
-}
+  // Eingabefelder
+  Object.keys(data).forEach(key => {
+    const el = document.getElementById(key);
+    if (el) {
+      if (el.type === "checkbox") {
+        el.checked = data[key];
+      } else {
+        el.value = data[key];
+      }
+    }
+  });
 
-// ---------------- Event Listener ----------------
-function attachEventListeners() {
-  document.querySelectorAll("input, textarea, select").forEach(el => {
-    el.addEventListener("input", () => {
-      updateAll();
-      saveData();
+  // Dynamische Tabellen
+  document.querySelectorAll("table[data-dynamic]").forEach(table => {
+    const id = table.getAttribute("data-id");
+    if (!data[id]) return;
+    const tbody = table.querySelector("tbody");
+    tbody.innerHTML = "";
+    data[id].forEach(row => {
+      const tr = document.createElement("tr");
+      Object.keys(row).forEach(key => {
+        const td = document.createElement("td");
+        const input = document.createElement("input");
+        input.value = row[key];
+        input.dataset.key = key;
+        td.appendChild(input);
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
     });
   });
 }
-// ---------------- Update-Funktionen ----------------
-function updateAll() {
+
+// Auto-Speichern bei Änderung
+document.addEventListener("input", () => saveData());
+document.addEventListener("change", () => saveData());
+
+// =========================
+// Hilfsfunktionen
+// =========================
+
+// Zahl auslesen mit Fallback
+function getNum(id) {
+  const el = document.getElementById(id);
+  return el ? parseInt(el.value || "0") : 0;
+}
+
+// Wert setzen
+function setNum(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.value = value;
+}
+// =========================
+// Attribute-Berechnung
+// =========================
+
+function updateAttributes() {
+  const attrs = ["ST", "GE", "GS", "IN", "WI", "WK", "CH", "FF", "LP", "KP"];
+
+  attrs.forEach(attr => {
+    const start = getNum(`attr_${attr}_start`);
+    const steig = getNum(`attr_${attr}_steig`);
+    const total = start + steig;
+    setNum(`attr_${attr}_total`, total);
+  });
+
+  // Abhängigkeiten triggern
+  updateSkills();
+  updateGroupedSkills();
+  updateCorruption();
+  updateWounds();
+}
+
+// =========================
+// Grundfähigkeiten berechnen
+// =========================
+
+function updateSkills() {
+  const rows = document.querySelectorAll("#grundskills tbody tr");
+  rows.forEach(tr => {
+    const cells = tr.querySelectorAll("td");
+    const attr = cells[1].textContent;
+    const value = getNum(`attr_${attr}_total`);
+    const steig = parseInt(cells[3].querySelector("input")?.value || "0");
+    const gesamt = value + steig;
+    cells[2].querySelector("input").value = value;
+    cells[4].querySelector("input").value = gesamt;
+  });
+}
+
+// =========================
+// Gruppierte Fähigkeiten berechnen
+// =========================
+
+function updateGroupedSkills() {
+  const rows = document.querySelectorAll("#groupskills tbody tr");
+  rows.forEach(tr => {
+    const inputs = tr.querySelectorAll("input, select");
+    let attr = "", steig = 0;
+    inputs.forEach(el => {
+      if (el.dataset.key === "attr") attr = el.value;
+      if (el.dataset.key === "steigerung") steig = parseInt(el.value || "0");
+    });
+    const attrValue = getNum(`attr_${attr}_total`);
+    const total = attrValue + steig;
+    inputs.forEach(el => {
+      if (el.dataset.key === "attrValue") el.value = attrValue;
+      if (el.dataset.key === "gesamt") el.value = total;
+    });
+  });
+}
+// =========================
+// Lebenspunkte (mit Robustheit)
+// =========================
+
+function updateWounds() {
+  const ST = getNum("attr_ST_total");
+  const WI = getNum("attr_WI_total");
+  const WK = getNum("attr_WK_total");
+
+  const stb = Math.floor(ST / 10);
+  const wib = Math.floor(WI / 10);
+  const wkb = Math.floor(WK / 10) * 2;
+
+  // Robustheit prüfen (Talent Hardy oder Robustheit vorhanden?)
+  let robustheit = 0;
+  const talents = (window.savedTalents || []).map(t => t.name?.toLowerCase());
+  if (talents.includes("robustheit") || talents.includes("hardy")) {
+    robustheit = wib;
+  }
+
+  const total = stb + wib + wkb + robustheit;
+
+  setNum("lp_stb", stb);
+  setNum("lp_wib", wib);
+  setNum("lp_wkb", wkb);
+  setNum("lp_robustheit", robustheit);
+  setNum("lp_total", total);
+}
+
+// =========================
+// Korruption
+// =========================
+
+function updateCorruption() {
+  const WI = getNum("attr_WI_total");
+  const WK = getNum("attr_WK_total");
+  const max = Math.floor(WI / 10) + Math.floor(WK / 10);
+
+  setNum("corruption_max", max);
+
+  const current = getNum("corruption_current");
+  const field = document.getElementById("corruption_current");
+
+  if (current > max) {
+    field.classList.add("over-max");
+  } else {
+    field.classList.remove("over-max");
+  }
+
+  // Block negative Werte
+  if (current < 0) {
+    field.value = 0;
+  }
+}
+
+// =========================
+// Traglast
+// =========================
+
+function updateEncumbrance() {
+  const ST = getNum("attr_ST_total");
+  const WI = getNum("attr_WI_total");
+  const maxTP = Math.floor(ST / 10) + Math.floor(WI / 10);
+
+  let totalTP = 0;
+
+  // Waffen
+  document.querySelectorAll("#weapons tbody tr").forEach(tr => {
+    const tp = parseInt(tr.querySelector("[data-key='TP']")?.value || "0");
+    totalTP += tp;
+  });
+
+  // Rüstung
+  document.querySelectorAll("#armor tbody tr").forEach(tr => {
+    const tp = parseInt(tr.querySelector("[data-key='TP']")?.value || "0");
+    totalTP += tp;
+  });
+
+  // Ausrüstung
+  document.querySelectorAll("#equipment tbody tr").forEach(tr => {
+    const qty = parseInt(tr.querySelector("[data-key='Menge']")?.value || "0");
+    const tp = parseInt(tr.querySelector("[data-key='TP']")?.value || "0");
+    totalTP += qty * tp;
+  });
+
+  // Ausgabe
+  const maxEl = document.getElementById("encumbrance_max");
+  const totalEl = document.getElementById("encumbrance_total");
+
+  if (maxEl && totalEl) {
+    maxEl.value = maxTP;
+    totalEl.value = totalTP;
+
+    if (totalTP > maxTP) {
+      totalEl.classList.add("over-max");
+    } else {
+      totalEl.classList.remove("over-max");
+    }
+  }
+}
+// =========================
+// Erfahrung (Einfach)
+// =========================
+function updateExperienceSimple() {
+  const current = getNum("exp_simple_current");
+  const spent = getNum("exp_simple_spent");
+  const total = current + spent;
+
+  setNum("exp_simple_total", total);
+}
+
+// =========================
+// Erfahrung (Voll)
+// =========================
+let wasNegativeExp = false;
+
+function updateExperienceFull() {
+  const rows = document.querySelectorAll("#experience_full tbody tr");
+  let current = 0;
+  let spent = 0;
+
+  rows.forEach(tr => {
+    const inputs = tr.querySelectorAll("input");
+    if (inputs.length >= 2) {
+      const value = parseInt(inputs[0].value || "0");
+      if (value > 0) {
+        current += value;
+      } else if (value < 0) {
+        spent += Math.abs(value);
+      }
+    }
+  });
+
+  const total = current + spent;
+
+  setNum("exp_full_current", current);
+  setNum("exp_full_spent", spent);
+  setNum("exp_full_total", total);
+
+  // Warnung bei negativem "Aktuell"
+  const currentField = document.getElementById("exp_full_current");
+  if (current < 0 && !wasNegativeExp) {
+    showPopup("Achtung: Erfahrung unter 0 nicht erlaubt!");
+    wasNegativeExp = true;
+  }
+  if (current >= 0) {
+    wasNegativeExp = false;
+  }
+
+  if (current < 0) {
+    currentField.classList.add("over-max");
+  } else {
+    currentField.classList.remove("over-max");
+  }
+}
+
+// =========================
+// Talente (Hardy/Robustheit)
+// =========================
+function updateTalents() {
+  const talents = [];
+  document.querySelectorAll("#talents tbody tr").forEach(tr => {
+    const name = tr.querySelector("[data-key='Name']")?.value || "";
+    talents.push({ name });
+  });
+  window.savedTalents = talents;
+
+  // Trigger Robustheit in Lebenspunkten
+  updateWounds();
+}
+// =========================
+// Popup (z. B. Erfahrung < 0)
+// =========================
+function showPopup(message) {
+  const overlay = document.createElement("div");
+  overlay.className = "popup-overlay";
+
+  const box = document.createElement("div");
+  box.className = "popup-box";
+
+  const text = document.createElement("p");
+  text.textContent = message;
+
+  const btn = document.createElement("button");
+  btn.textContent = "OK";
+  btn.onclick = () => document.body.removeChild(overlay);
+
+  box.appendChild(text);
+  box.appendChild(btn);
+  overlay.appendChild(box);
+
+  document.body.appendChild(overlay);
+}
+
+// =========================
+// Init-Funktion
+// =========================
+function initLogic() {
+  loadData();
+
+  // Erste Berechnungen
   updateAttributes();
   updateWounds();
   updateCorruption();
   updateEncumbrance();
-  updateMoney();
-  updateExperience();
-  updateFateResilience();
-  updateSkills();
-}
+  updateExperienceSimple();
+  updateExperienceFull();
+  updateTalents();
 
-// Attribute: Aktuell = Basis + Steigerung
-function updateAttributes() {
-  const attrs = ["KG","BF","ST","WI","I","GW","GS","IN","WK","CH"];
-  attrs.forEach(a => {
-    const base = parseInt(document.getElementById(`attr_${a}_base`).value) || 0;
-    const adv = parseInt(document.getElementById(`attr_${a}_adv`).value) || 0;
-    document.getElementById(`attr_${a}`).value = base + adv;
-  });
-}
-
-// Lebenspunkte
-function updateWounds() {
-  const ST = parseInt(document.getElementById("attr_ST").value) || 0;
-  const WI = parseInt(document.getElementById("attr_WI").value) || 0;
-  const WK = parseInt(document.getElementById("attr_WK").value) || 0;
-
-  const stb = Math.floor(ST/10);
-  const wib = Math.floor(WI/10);
-  const wkb = Math.floor(WK/10);
-
-  const robust = parseInt(document.getElementById("wound_robust").value) || 0;
-
-  document.getElementById("wound_stb").value = stb;
-  document.getElementById("wound_wib").value = wib;
-  document.getElementById("wound_wkb2").value = 2*wkb;
-  document.getElementById("wound_sum").value = stb + wib + (2*wkb) + robust;
-}
-
-// Korruption
-function updateCorruption() {
-  const WI = parseInt(document.getElementById("attr_WI").value) || 0;
-  const WK = parseInt(document.getElementById("attr_WK").value) || 0;
-  const max = Math.floor(WI/10) + Math.floor(WK/10);
-  document.getElementById("corruption_max").value = max;
-}
-
-// Traglast
-function updateEncumbrance() {
-  const ST = parseInt(document.getElementById("attr_ST").value) || 0;
-  const WI = parseInt(document.getElementById("attr_WI").value) || 0;
-  const stb = Math.floor(ST/10);
-  const wib = Math.floor(WI/10);
-  const max = stb + wib;
-  document.getElementById("enc_max").value = max;
-
-  const wpn = sumTable("weaponsTable","TP");
-  const arm = sumTable("armorTable","RP");
-  const eq = sumTableMulti("equipmentTable","Menge","TP");
-
-  document.getElementById("enc_wpn").value = wpn;
-  document.getElementById("enc_arm").value = arm;
-  document.getElementById("enc_eq").value = eq;
-
-  const total = wpn+arm+eq;
-  const totalEl = document.getElementById("enc_total");
-  totalEl.value = total;
-  if (total > max) {
-    totalEl.style.color = "red";
-    totalEl.style.fontWeight = "bold";
-  } else {
-    totalEl.style.color = "black";
-    totalEl.style.fontWeight = "normal";
-  }
-}
-
-function sumTable(tableId,colName) {
-  const table = document.getElementById(tableId);
-  if (!table) return 0;
-  let sum=0;
-  Array.from(table.rows).forEach((row,i)=>{
-    if(i===0)return;
-    const cell = row.querySelector(`input[name='${colName}']`);
-    if(cell) sum += parseInt(cell.value)||0;
-  });
-  return sum;
-}
-function sumTableMulti(tableId,col1,col2) {
-  const table = document.getElementById(tableId);
-  if (!table) return 0;
-  let sum=0;
-  Array.from(table.rows).forEach((row,i)=>{
-    if(i===0)return;
-    const c1 = row.querySelector(`input[name='${col1}']`);
-    const c2 = row.querySelector(`input[name='${col2}']`);
-    if(c1 && c2) sum += (parseInt(c1.value)||0)*(parseInt(c2.value)||0);
-  });
-  return sum;
-}
-
-// Geld
-function updateMoney() {
-  const gk = parseInt(document.getElementById("money_gk").value)||0;
-  const s  = parseInt(document.getElementById("money_s").value)||0;
-  const g  = parseInt(document.getElementById("money_g").value)||0;
-  let totalG = g + (s*12) + (gk*240);
-  const newGK = Math.floor(totalG/240);
-  totalG %= 240;
-  const newS = Math.floor(totalG/12);
-  totalG %= 12;
-  const newG = totalG;
-  document.getElementById("money_total").textContent = `🟡 ${newGK} / ⚪ ${newS} / 🟤 ${newG}`;
-}
-
-// Erfahrung
-function updateExperience() {
-  const toggle = document.getElementById("exp_toggle");
-  if (!toggle) return;
-  if (toggle.checked) {
-    document.getElementById("exp_simple").style.display="none";
-    document.getElementById("exp_full").style.display="block";
-    let gain=0,spent=0;
-    document.querySelectorAll("#expTable tr").forEach((row,i)=>{
-      if(i===0)return;
-      const val = parseInt(row.querySelector("input[name='exp_val']").value)||0;
-      if(val>=0) gain+=val; else spent+=Math.abs(val);
+  // Events
+  document.querySelectorAll("input, select, textarea").forEach(el => {
+    el.addEventListener("input", () => {
+      updateAttributes();
+      updateWounds();
+      updateCorruption();
+      updateEncumbrance();
+      updateExperienceSimple();
+      updateExperienceFull();
+      updateTalents();
+      saveData();
     });
-    document.getElementById("exp_full_gain").value=gain;
-    document.getElementById("exp_full_spent").value=spent;
-    document.getElementById("exp_full_total").value=gain-spent;
-  } else {
-    document.getElementById("exp_simple").style.display="block";
-    document.getElementById("exp_full").style.display="none";
-    const gain=parseInt(document.getElementById("exp_simple_gain").value)||0;
-    const spent=parseInt(document.getElementById("exp_simple_spent").value)||0;
-    document.getElementById("exp_simple_total").value=gain-spent;
-  }
-}
-
-// Schicksal & Zähigkeit
-function updateFateResilience() {
-  const fate = parseInt(document.getElementById("fate_val").value)||0;
-  const res  = parseInt(document.getElementById("res_val").value)||0;
-  document.getElementById("fate_luck_max").textContent=fate;
-  document.getElementById("res_mut_max").textContent=res;
-}
-// ---------------- Skills ----------------
-function updateSkills() {
-  // Grundfähigkeiten
-  grundfertigkeitenListe().forEach(skill => {
-    const attrVal = parseInt(document.getElementById(`attr_${skill.attr}`).value) || 0;
-    const steig = parseInt(document.getElementById(`skill_${skill.id}_steig`).value) || 0;
-    const total = attrVal + steig;
-
-    // Schreibe Werte in die Tabelle
-    const valEl = document.getElementById(`skill_${skill.id}_attrval`);
-    if (valEl) valEl.textContent = attrVal;
-
-    const totalEl = document.getElementById(`skill_${skill.id}_total`);
-    if (totalEl) totalEl.value = total;
-  });
-
-  // Gruppierte Fähigkeiten
-  const table = document.getElementById("groupedSkillsTable");
-  if (table) {
-    Array.from(table.rows).forEach((row, i) => {
-      if (i === 0) return; // Header überspringen
-      const sel = row.querySelector("select[name='attr']");
-      const steig = row.querySelector("input[name='steigerung']");
-      const attrValEl = row.querySelector("span[name='attrval']");
-      const totalEl = row.querySelector("input[name='wert']");
-
-      if (sel && steig && attrValEl && totalEl) {
-        const attr = sel.value;
-        const attrVal = parseInt(document.getElementById(`attr_${attr}`).value) || 0;
-        attrValEl.textContent = attrVal;
-
-        const steigVal = parseInt(steiger.value) || 0;
-        totalEl.value = attrVal + steigVal;
-      }
-    });
-  }
-}
-
-
-// ---------------- Dynamische Tabellen Add/Delete ----------------
-// ---------------- Gruppierte hinzufügen ----------------
-function addGroupedSkill() {
-  const table = document.getElementById("groupedSkillsTable");
-  const row = table.insertRow();
-  row.innerHTML = `
-    <td><input name="name"></td>
-    <td>
-      <select name="attr" onchange="updateSkills()">
-        <option value="KG">KG</option><option value="BF">BF</option><option value="ST">ST</option>
-        <option value="WI">WI</option><option value="I">I</option><option value="GW">GW</option>
-        <option value="GS">GS</option><option value="IN">IN</option><option value="WK">WK</option><option value="CH">CH</option>
-      </select>
-    </td>
-    <td><span name="attrval" class="num-2"></span></td>
-    <td><input name="steigerung" class="num-2" oninput="updateSkills()"></td>
-    <td><input name="wert" readonly class="num-2"></td>
-    <td><button onclick="this.parentNode.parentNode.remove(); updateSkills();">🗑</button></td>
-  `;
-}
-
-function addWeapon() {
-  const table=document.getElementById("weaponsTable");
-  const row=table.insertRow();
-  row.innerHTML=`
-    <td><input name="Name"></td>
-    <td><input name="Gruppe"></td>
-    <td><input name="TP" class="num-2"></td>
-    <td><input name="RW" class="num-2"></td>
-    <td><input name="Schaden" class="num-2"></td>
-    <td><button onclick="this.parentNode.parentNode.remove()">🗑</button></td>`;
-}
-
-function addArmor() {
-  const table=document.getElementById("armorTable");
-  const row=table.insertRow();
-  row.innerHTML=`
-    <td><input name="Name"></td>
-    <td>
-      <select name="Trefferzone">
-        <option>Kopf</option><option>Linker Arm</option><option>Rechter Arm</option>
-        <option>Körper</option><option>Linkes Bein</option><option>Rechtes Bein</option>
-        <option>Schild</option>
-      </select>
-    </td>
-    <td><input name="RP" class="num-2"></td>
-    <td><button onclick="this.parentNode.parentNode.remove()">🗑</button></td>`;
-}
-
-function addEquipment() {
-  const table=document.getElementById("equipmentTable");
-  const row=table.insertRow();
-  row.innerHTML=`
-    <td><input name="Name"></td>
-    <td><input name="Menge" class="num-2"></td>
-    <td><input name="TP" class="num-2"></td>
-    <td><button onclick="this.parentNode.parentNode.remove()">🗑</button></td>`;
-}
-
-function addSpell() {
-  const table=document.getElementById("spellsTable");
-  const row=table.insertRow();
-  row.innerHTML=`
-    <td><input name="Name"></td>
-    <td><input name="Stufe" class="num-2"></td>
-    <td><button onclick="this.parentNode.parentNode.remove()">🗑</button></td>`;
-}
-
-function addMutation() {
-  const table=document.getElementById("mutationsTable");
-  const row=table.insertRow();
-  row.innerHTML=`
-    <td><input name="mutation"></td>
-    <td><button onclick="this.parentNode.parentNode.remove()">🗑</button></td>`;
-}
-
-function addPsychology() {
-  const table=document.getElementById("psychologyTable");
-  const row=table.insertRow();
-  row.innerHTML=`
-    <td><input name="psychology"></td>
-    <td><button onclick="this.parentNode.parentNode.remove()">🗑</button></td>`;
-}
-
-function addCorruptionMutation() {
-  const table=document.getElementById("corruptionMutations");
-  const row=table.insertRow();
-  row.innerHTML=`
-    <td><input name="c_mut"></td>
-    <td><button onclick="this.parentNode.parentNode.remove()">🗑</button></td>`;
-}
-
-function addExpRow() {
-  const table=document.getElementById("expTable");
-  const row=table.insertRow();
-  row.innerHTML=`
-    <td><input name="exp_val" class="num-5"></td>
-    <td><input name="exp_comment"></td>
-    <td><button onclick="this.parentNode.parentNode.remove()">🗑</button></td>`;
-}
-function toggleExpComments() {
-  const rows=document.querySelectorAll("#expTable tr");
-  rows.forEach((row,i)=>{
-    if(i===0)return;
-    const comment=row.querySelector("input[name='exp_comment']");
-    if(comment.style.display==="none") comment.style.display="block"; else comment.style.display="none";
   });
 }
+
+// =========================
+// Start
+// =========================
+window.addEventListener("load", initLogic);
