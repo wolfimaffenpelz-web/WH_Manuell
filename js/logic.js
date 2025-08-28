@@ -7,15 +7,31 @@ function initPasswordProtection() {
   const overlay = document.getElementById("password-overlay");
   const input = document.getElementById("password-input");
   const button = document.getElementById("password-submit");
+  const logoutBtn = document.getElementById("logout");
+
+  if (localStorage.getItem("auth") === "true") {
+    overlay.style.display = "none";
+    if (logoutBtn) logoutBtn.style.display = "inline-block";
+    initLogic();
+  }
 
   button.addEventListener("click", () => {
     if (input.value === "1234") {
       overlay.style.display = "none";
+      localStorage.setItem("auth", "true");
+      if (logoutBtn) logoutBtn.style.display = "inline-block";
       initLogic();
     } else {
       alert("Falsches Passwort!");
     }
   });
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("auth");
+      location.reload();
+    });
+  }
 }
 document.addEventListener("DOMContentLoaded", initPasswordProtection);
 
