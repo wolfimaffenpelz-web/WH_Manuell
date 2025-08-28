@@ -4,10 +4,10 @@ self.addEventListener("install", e => {
       return cache.addAll([
         "/",
         "/index.html",
-        "/style.css",
-        "/sections.js",
-        "/translations.js",
-        "/logic.js",
+        "/css/style.css",
+        "/js/sections.js",
+        "/js/translations.js",
+        "/js/logic.js",
         "/manifest.json"
       ]);
     })
