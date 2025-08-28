@@ -140,7 +140,38 @@ function loadState() {
   });
 
   updateAttributes();
+  restoreMarkers();
 }
+
+// =========================
+// 🔘 Markierungen
+// =========================
+function toggleMarker(el) {
+  const hid = document.getElementById(el.dataset.input);
+  if (!hid) return;
+  if (hid.value === "1") {
+    hid.value = "0";
+    el.textContent = "◯";
+  } else {
+    hid.value = "1";
+    el.textContent = "✚";
+  }
+  saveState();
+}
+
+function restoreMarkers() {
+  document.querySelectorAll(".marker").forEach(el => {
+    const hid = document.getElementById(el.dataset.input);
+    if (!hid) return;
+    el.textContent = hid.value === "1" ? "✚" : "◯";
+  });
+}
+
+document.addEventListener("click", e => {
+  if (e.target.classList.contains("marker")) {
+    toggleMarker(e.target);
+  }
+});
 // =========================
 // 📊 Attribute Berechnungen
 // =========================
