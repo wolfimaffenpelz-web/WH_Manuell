@@ -1,30 +1,35 @@
-// -------------------------
-// Translations.js
-// Enthält Sprachstrings (aktuell nur Deutsch)
-// -------------------------
-
 const translations = {
   de: {
-    basics: "Grunddaten",
-    attributes: "Attribute",
-    wounds: "Lebenspunkte",
-    skills_basic: "Grundfähigkeiten",
-    skills_grouped: "Gruppierte & Ausbaufähigkeiten",
-    weapons: "Waffen",
-    armor: "Rüstung",
-    armor_points: "Rüstungspunkte",
-    equipment: "Ausrüstung",
-    money: "Vermögen",
-    spells: "Zauber & Gebete",
+    grunddaten: "Grunddaten",
+    attributes: "Spielwerte",
+    grundskills: "Grundfähigkeiten",
+    groupskills: "Gruppierte Fähigkeiten",
     talents: "Talente",
-    corruption: "Korruption & Mutationen",
+    lebenspunkte: "Lebenspunkte",
+    armor: "Rüstung",
+    weapons: "Waffen",
+    equipment: "Ausrüstung",
+    corruption: "Korruption",
+    mutations: "Mutationen",
     psychology: "Psychologie",
-    sin: "Sünde",
-    encumbrance: "Traglast"
+    wealth: "Vermögen",
+    debts: "Schulden",
+    networth: "Nettosumme",
+    spells: "Zauber & Gebete",
+    experience_simple: "Erfahrung (Einfach)",
+    experience_full: "Erfahrung (Voll)"
+  },
+  en: {
+    // reserviert für Zukunft
+  },
+  fr: {
+    // reserviert für Zukunft
+  },
+  ru: {
+    // reserviert für Zukunft
   }
 };
 
-// Aktuelle Sprache (Standard = Deutsch)
 let currentLang = "de";
 
 function t(key) {
