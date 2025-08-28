@@ -1,3 +1,30 @@
+function initLogic() {
+  renderSections();   // <<< GANZ OBEN hinzufügen!
+
+  loadData();
+  updateAttributes();
+  updateWounds();
+  updateCorruption();
+  updateEncumbrance();
+  updateExperienceSimple();
+  updateExperienceFull();
+  updateTalents();
+
+  // Events binden
+  document.querySelectorAll("input, select, textarea").forEach(el => {
+    el.addEventListener("input", () => {
+      updateAttributes();
+      updateWounds();
+      updateCorruption();
+      updateEncumbrance();
+      updateExperienceSimple();
+      updateExperienceFull();
+      updateTalents();
+      saveData();
+    });
+  });
+}
+
 // =========================
 // Rendering-Funktion (vollständig für alle Typen)
 // =========================
