@@ -3,25 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>⚔ Warhammer Fantasy Charakterbogen</title>
-
+  <title>Charakterbogen – Warhammer Fantasy</title>
+  
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Podkova&display=swap" rel="stylesheet">
-
+  
   <!-- Styles -->
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <!-- Passwortschutz Overlay -->
+  <div id="password-overlay" class="overlay">
+    <div class="overlay-content">
+      <h2>🔒 Zugang</h2>
+      <p>Bitte Passwort eingeben:</p>
+      <input type="password" id="password-input" maxlength="20">
+      <button id="password-submit">OK</button>
+    </div>
+  </div>
+
+  <!-- Hauptcontainer -->
   <header>
     <h1>Charakterbogen</h1>
   </header>
 
+  <!-- Multi-Charakter Verwaltung -->
+  <section id="character-management" class="character-management">
+    <select id="character-select"></select>
+    <button id="new-character">➕ Neu</button>
+    <button id="delete-character">🗑️ Löschen</button>
+  </section>
+
   <main id="main-content">
-    <!-- Segmente werden aus sections.js geladen -->
+    <!-- Sections werden dynamisch aus sections.js gerendert -->
   </main>
 
   <footer>
-    <p>⚔ Warhammer Fantasy Charakterbogen – PWA Version</p>
+    <p>⚔ Warhammer Fantasy Charakterbogen – Version 0.8.2</p>
   </footer>
 
   <!-- Scripts -->
