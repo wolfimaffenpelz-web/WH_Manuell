@@ -5,6 +5,7 @@ body {
   padding: 0;
   background: #FAF0E6;
   color: #111;
+  overflow-x: hidden;
 }
 
 h1, h2, h3 {
@@ -55,6 +56,8 @@ table {
   border-collapse: collapse;
   width: 100%;
   margin: 10px 0;
+  table-layout: fixed;
+  word-wrap: break-word;
 }
 
 th, td {
@@ -158,4 +161,14 @@ button.delete-row {
   border: none;
   cursor: pointer;
   font-size: 18px;
+}
+
+/* Rüstungsübersicht vertikal */
+.ruestung-uebersicht th,
+.ruestung-uebersicht td {
+  text-align: left;
+}
+
+.ruestung-uebersicht input {
+  width: 100%;
 }
