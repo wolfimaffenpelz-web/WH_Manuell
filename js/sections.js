@@ -49,6 +49,19 @@ const sections = [
           <th>I</th><th>GW</th><th>GS</th><th>IN</th><th>WK</th><th>CH</th>
         </tr>
         <tr>
+          <td>Mark</td>
+          <td><span class="marker" data-input="KG-mark">◯</span><input type="hidden" id="KG-mark" value="0"></td>
+          <td><span class="marker" data-input="BF-mark">◯</span><input type="hidden" id="BF-mark" value="0"></td>
+          <td><span class="marker" data-input="ST-mark">◯</span><input type="hidden" id="ST-mark" value="0"></td>
+          <td><span class="marker" data-input="WI-mark">◯</span><input type="hidden" id="WI-mark" value="0"></td>
+          <td><span class="marker" data-input="I-mark">◯</span><input type="hidden" id="I-mark" value="0"></td>
+          <td><span class="marker" data-input="GW-mark">◯</span><input type="hidden" id="GW-mark" value="0"></td>
+          <td><span class="marker" data-input="GS-mark">◯</span><input type="hidden" id="GS-mark" value="0"></td>
+          <td><span class="marker" data-input="IN-mark">◯</span><input type="hidden" id="IN-mark" value="0"></td>
+          <td><span class="marker" data-input="WK-mark">◯</span><input type="hidden" id="WK-mark" value="0"></td>
+          <td><span class="marker" data-input="CH-mark">◯</span><input type="hidden" id="CH-mark" value="0"></td>
+        </tr>
+        <tr>
           <td>Anfang</td>
           <td><input type="number" id="KG-start"></td>
           <td><input type="number" id="BF-start"></td>
