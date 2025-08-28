@@ -190,7 +190,7 @@ sections.push(
       <table class="full-width" id="waffen-table">
         <tr>
           <th>Name</th>
-          <th>Gruppe</th>
+          <th class="text-left">Gruppe</th>
           <th>TP</th>
           <th>RW</th>
           <th>Notizen</th>

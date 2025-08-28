@@ -339,7 +339,7 @@ function addRow(tableId) {
   else if (tableId === "waffen-table") {
     row.innerHTML = `
       <td><input type="text"></td>
-      <td><input type="text"></td>
+      <td class="text-left"><input type="text"></td>
       <td><input type="number"></td>
       <td><input type="text"></td>
       <td><textarea></textarea></td>

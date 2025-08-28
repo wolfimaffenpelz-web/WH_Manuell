@@ -74,6 +74,30 @@ th {
   font-weight: bold;
 }
 
+td:first-child,
+th:first-child {
+  text-align: left;
+}
+
+td:first-child input,
+th:first-child input,
+td:first-child textarea,
+th:first-child textarea {
+  text-align: left;
+}
+
+td.text-left,
+th.text-left {
+  text-align: left;
+}
+
+td.text-left input,
+th.text-left input,
+td.text-left textarea,
+th.text-left textarea {
+  text-align: left;
+}
+
 /* 100% Tabellenbreite */
 .full-width {
   width: 100%;
