@@ -123,6 +123,25 @@ function renderSections() {
   });
 }
 
+function initGrunddatenToggle() {
+  const section = document.getElementById("grunddaten");
+  if (!section) return;
+  const body = section.querySelector(".section-body");
+  const header = section.querySelector("h2");
+  if (!body || !header) return;
+  const collapsed = localStorage.getItem("grunddaten-collapsed") === "true";
+  if (collapsed) body.style.display = "none";
+  header.addEventListener("click", () => {
+    if (body.style.display === "none") {
+      body.style.display = "block";
+      localStorage.setItem("grunddaten-collapsed", "false");
+    } else {
+      body.style.display = "none";
+      localStorage.setItem("grunddaten-collapsed", "true");
+    }
+  });
+}
+
 // =========================
 // 💾 Speicher- und Lade-Logik
 // =========================
@@ -322,9 +341,9 @@ function addRow(tableId) {
           <option value="WK">WK</option><option value="CH">CH</option>
         </select>
       </td>
-      <td><input type="number" readonly></td>
-      <td><input type="number"></td>
-      <td><input type="number" readonly></td>
+      <td class="wsg"><input type="number" readonly></td>
+      <td class="wsg"><input type="number"></td>
+      <td class="wsg"><input type="number" readonly></td>
       <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte();">❌</button></td>
     `;
   }
@@ -643,6 +662,7 @@ document.addEventListener("focusout", e => {
 // =========================
 function initLogic() {
   renderSections();
+  initGrunddatenToggle();
   initCharacterManagement();
 
   document.addEventListener("input", e => {

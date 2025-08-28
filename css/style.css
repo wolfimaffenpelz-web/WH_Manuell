@@ -91,6 +91,11 @@ th.text-left {
   text-align: left;
 }
 
+th.wsg,
+td.wsg {
+  width: 60px;
+}
+
 td.text-left input,
 th.text-left input,
 td.text-left textarea,

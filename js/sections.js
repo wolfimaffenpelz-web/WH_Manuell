@@ -7,33 +7,35 @@ const sections = [
     id: "grunddaten",
     title: "Grunddaten",
     content: `
-      <div class="subsection">
-        <h3>Identität</h3>
-        <table class="full-width">
-          <tr><td>Name</td><td><input type="text" id="char-name"></td></tr>
-          <tr><td>Volk</td><td><input type="text" id="char-volk"></td></tr>
-          <tr><td>Geschlecht</td><td><input type="text" id="char-geschlecht"></td></tr>
-        </table>
+      <div class="section-body">
+        <div class="subsection">
+          <h3>Identität</h3>
+          <table class="full-width">
+            <tr><td>Name</td><td><input type="text" id="char-name"></td></tr>
+            <tr><td>Volk</td><td><input type="text" id="char-volk"></td></tr>
+            <tr><td>Geschlecht</td><td><input type="text" id="char-geschlecht"></td></tr>
+          </table>
+        </div>
+        <div class="subsection">
+          <h3>Karriere</h3>
+          <table class="full-width">
+            <tr><td>Karriere</td><td><input type="text" id="char-karriere"></td></tr>
+            <tr><td>Karrierestufe</td><td><input type="text" id="char-stufe"></td></tr>
+            <tr><td>Karriereweg</td><td><input type="text" id="char-weg"></td></tr>
+            <tr><td>Status</td><td><input type="text" id="char-status"></td></tr>
+          </table>
+        </div>
+        <div class="subsection">
+          <h3>Erscheinung</h3>
+          <table class="full-width">
+            <tr><td>Alter</td><td><input type="text" id="char-alter"></td></tr>
+            <tr><td>Körpergröße</td><td><input type="text" id="char-groesse"></td></tr>
+            <tr><td>Haare</td><td><input type="text" id="char-haare"></td></tr>
+            <tr><td>Augen</td><td><input type="text" id="char-augen"></td></tr>
+          </table>
+        </div>
+        <div class="section-divider"></div>
       </div>
-      <div class="subsection">
-        <h3>Karriere</h3>
-        <table class="full-width">
-          <tr><td>Karriere</td><td><input type="text" id="char-karriere"></td></tr>
-          <tr><td>Karrierestufe</td><td><input type="text" id="char-stufe"></td></tr>
-          <tr><td>Karriereweg</td><td><input type="text" id="char-weg"></td></tr>
-          <tr><td>Status</td><td><input type="text" id="char-status"></td></tr>
-        </table>
-      </div>
-      <div class="subsection">
-        <h3>Erscheinung</h3>
-        <table class="full-width">
-          <tr><td>Alter</td><td><input type="text" id="char-alter"></td></tr>
-          <tr><td>Körpergröße</td><td><input type="text" id="char-groesse"></td></tr>
-          <tr><td>Haare</td><td><input type="text" id="char-haare"></td></tr>
-          <tr><td>Augen</td><td><input type="text" id="char-augen"></td></tr>
-        </table>
-      </div>
-      <div class="section-divider"></div>
     `
   },
 
@@ -114,9 +116,9 @@ const sections = [
         <tr>
           <th>Fähigkeit</th>
           <th>At.</th>
-          <th>Wert</th>
-          <th>Steig.</th>
-          <th>Gesamt</th>
+          <th class="wsg">Wert</th>
+          <th class="wsg">Steig.</th>
+          <th class="wsg">Gesamt</th>
         </tr>
         <!-- Reihenfolge fix nach Referenz -->
         ${[
@@ -131,9 +133,9 @@ const sections = [
           <tr>
             <td>${name}</td>
             <td>${att}</td>
-            <td><input type="number" id="grund-${name}-wert" readonly></td>
-            <td><input type="number" id="grund-${name}-steig"></td>
-            <td><input type="number" id="grund-${name}-gesamt" readonly></td>
+            <td class="wsg"><input type="number" id="grund-${name}-wert" readonly></td>
+            <td class="wsg"><input type="number" id="grund-${name}-steig"></td>
+            <td class="wsg"><input type="number" id="grund-${name}-gesamt" readonly></td>
           </tr>`).join("")}
       </table>
       <div class="section-divider"></div>
@@ -150,9 +152,9 @@ const sections = [
           <th>Mark</th>
           <th>Fähigkeit</th>
           <th>At.</th>
-          <th>Wert</th>
-          <th>Steig.</th>
-          <th>Gesamt</th>
+          <th class="wsg">Wert</th>
+          <th class="wsg">Steig.</th>
+          <th class="wsg">Gesamt</th>
           <th>❌</th>
         </tr>
       </table>
