@@ -101,11 +101,11 @@ function initCharacterManagement() {
       }
     });
     document.querySelectorAll("#attribute-table input").forEach(feld => {
-       if (feld.id.endsWith("-Anf")) {
-         feld.value = 60;           // Startwert der Spielwerte
-           } else if (feld.id.endsWith("-steig")) {
-         feld.value = 0;            // keine Steigerung zu Beginn
-          }
+      } else if (el.type === "hidden") {
+        el.value = "0";
+      } else if (el.type === "number") {
+        el.value = "55";
+      }
     });
     document.getElementById("char-name").value = "Default";
     document.getElementById("char-volk").value = "Mensch";
