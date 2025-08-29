@@ -712,6 +712,10 @@ th.mark-col, td.mark-col {
   padding: 0;
 }
 
+.line-marker {
+  font-size: 90%;
+}
+
 /* Kompakte Spielwerte-Tabelle */
 #attribute-table {
   width: auto;
