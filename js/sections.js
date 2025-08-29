@@ -134,6 +134,7 @@ const sections = [
           ].map(([name,att]) => `
           <tr>
             <td class="mark-col"><span class="line-marker" data-input="grund-${name}-mark">◯</span><input type="hidden" id="grund-${name}-mark" value="0"></td>
+
             <td>${name}</td>
             <td>${att}</td>
             <td class="wsg"><input type="number" id="grund-${name}-wert" readonly></td>

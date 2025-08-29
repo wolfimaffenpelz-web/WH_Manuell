@@ -260,7 +260,6 @@ function loadState() {
 // =========================
 const attrSymbols = ["◯","✠","⚔","☠","🛡"];
 let markerPopup = null;
-
 function updateAttrHeader(el, val) {
   const header = document.querySelector("#attribute-table .attr-header");
   if (!header) return;
@@ -300,7 +299,6 @@ function enforceAttributeExclusivity() {
   }
   if (changed) saveState();
 }
-
 function applyAttrMarker(el, val) {
   const hid = document.getElementById(el.dataset.input);
   if (!hid) return;
@@ -325,7 +323,6 @@ function applyAttrMarker(el, val) {
   updateAttrHeader(el, val);
   saveState();
 }
-
 function selectAttrMarker(el) {
   const hid = document.getElementById(el.dataset.input);
   if (!hid) return;
@@ -345,7 +342,6 @@ function selectAttrMarker(el) {
     });
   });
 }
-
 function toggleLineMarker(el) {
   const hid = el.nextElementSibling;
   if (!hid) return;
