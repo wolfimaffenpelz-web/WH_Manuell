@@ -234,7 +234,7 @@ td.delete-col {
 }
 #attribute-table th:not(:first-child),
 #attribute-table td:not(:first-child) {
-  width: min-content;
+  width: 23px;
 }
 
 #grund-table th:nth-child(1),
