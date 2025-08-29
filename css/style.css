@@ -1,20 +1,20 @@
-/* Fonts */
+/* Grundlegende Schriftarten und Basislayout */
 body {
-  font-family: 'Podkova', serif;
+  font-family: 'Podkova', serif; /* Standard-Schrift für den Bogen */
   margin: 0;
   padding: 0;
-  background: #FAF0E6;
-  color: #111;
-  overflow-x: hidden;
+  background: #FAF0E6; /* Pergamentfarbe */
+  color: #111; /* dunkler Text */
+  overflow-x: hidden; /* horizontales Scrollen verhindern */
 }
 
 h1, h2, h3 {
-  font-family: 'UnifrakturMaguntia', cursive;
+  font-family: 'UnifrakturMaguntia', cursive; /* gotische Überschrift */
   margin: 10px 0;
   text-align: center;
 }
 
-/* Overlay Passwort */
+/* Overlay Passwort: abgedunkelter Hintergrund bei Login */
 .overlay {
   position: fixed;
   top: 0; left: 0;
@@ -29,7 +29,7 @@ h1, h2, h3 {
 .overlay-content {
   background: #fff;
   padding: 20px;
-  border-radius: 5px;
+  border-radius: 5px; /* abgerundete Kanten */
   text-align: center;
 }
 
@@ -39,7 +39,7 @@ h1, h2, h3 {
   width: 150px;
 }
 
-/* Charakter-Management */
+/* Charakter-Management oben auf der Seite */
 .character-management {
   text-align: center;
   margin: 10px 0;
@@ -51,12 +51,12 @@ h1, h2, h3 {
   padding: 5px 10px;
 }
 
-/* Tabellen allgemein */
+/* Tabellen allgemein: Layout für alle Tabellen im Bogen */
 table {
   border-collapse: collapse;
   width: 100%;
   margin: 10px 0;
-  table-layout: fixed;
+  table-layout: fixed; /* feste Breite für Zellen */
   word-wrap: break-word;
 }
 
@@ -66,7 +66,7 @@ th, td {
   padding: 4px;
   text-align: center;
   vertical-align: middle;
-  max-width: 120px;
+  max-width: 120px; /* verhindert zu breite Felder */
   overflow: hidden;
 }
 
@@ -108,7 +108,7 @@ th.text-left textarea {
   width: 100%;
 }
 
-/* Eingabefelder */
+/* Eingabefelder: transparent, damit Tabellenlinien sichtbar bleiben */
 input[type="text"],
 input[type="number"],
 textarea {
@@ -131,7 +131,7 @@ input[readonly], .readonly {
 
 /* Highlighting */
 tr.active, td.active, th.active {
-  outline: 2px solid darkred;
+  outline: 2px solid darkred; /* visuelles Highlight der aktiven Zeile/Spalte */
 }
 
 /* Buttons für Zeilenverwaltung */
@@ -195,7 +195,7 @@ button.delete-row {
 /* Rüstungsübersicht vertikal */
 .ruestung-uebersicht th,
 .ruestung-uebersicht td {
-  text-align: left;
+  text-align: left; /* Tabelle „Rüstung“ vertikal ausgerichtet */
 }
 
 .ruestung-uebersicht input {

@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Charakterbogen – Warhammer Fantasy</title>
-  
-  <!-- Fonts -->
+
+  <!-- Fonts: Fraktur-Schrift für Überschriften, Podkova für Fließtext -->
   <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Podkova&display=swap" rel="stylesheet">
-  
-  <!-- Styles -->
+
+  <!-- Styles: zentrales Stylesheet für Layout & Farben -->
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -22,28 +22,28 @@
     </div>
   </div>
 
-  <!-- Hauptcontainer -->
+  <!-- Hauptcontainer mit Titel und optionalem Logout-Button -->
   <header>
     <h1>Charakterbogen</h1>
-    <button id="logout" style="display:none">Logout</button>
+    <button id="logout" style="display:none">Logout</button><!-- Logout erscheint nach Authentifizierung -->
   </header>
 
-  <!-- Multi-Charakter Verwaltung -->
+  <!-- Verwaltung zum Umschalten/Erstellen/Löschen von Charakteren -->
   <section id="character-management" class="character-management">
-    <select id="character-select"></select>
-    <button id="new-character">➕ Neu</button>
-    <button id="delete-character">🗑️ Löschen</button>
+    <select id="character-select"></select><!-- Dropdown mit vorhandenen Charakteren -->
+    <button id="new-character">➕ Neu</button><!-- legt basierend auf Char-Namen einen neuen Eintrag an -->
+    <button id="delete-character">🗑️ Löschen</button><!-- entfernt aktuellen Charakter -->
   </section>
 
   <main id="main-content">
     <!-- Sections werden dynamisch aus sections.js gerendert -->
-  </main>
+  </main><!-- hier werden beim Start alle Bereiche eingefügt -->
 
   <footer>
-    <p>⚔ Warhammer Fantasy Charakterbogen – Version 0.8.2</p>
+    <p>⚔ Warhammer Fantasy Charakterbogen – Version 0.8.2</p><!-- einfache Fußzeile mit Version -->
   </footer>
 
-  <!-- Scripts -->
+  <!-- Scripts: zunächst Struktur, dann Logik laden -->
   <script src="js/sections.js"></script>
   <script src="js/logic.js"></script>
 </body>

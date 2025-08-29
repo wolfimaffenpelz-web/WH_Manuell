@@ -1,4 +1,5 @@
 {
+  "_comment": "PWA-Manifest mit Basisinformationen zur App",
   "name": "Warhammer Fantasy Charakterbogen",
   "short_name": "Charakterbogen",
   "start_url": ".",

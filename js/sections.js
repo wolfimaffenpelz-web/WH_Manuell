@@ -1,6 +1,7 @@
 // sections.js v0.8.2
 // Enthält die Struktur aller Segmente für den Charakterbogen
 
+// Array mit allen Abschnittsdefinitionen
 const sections = [
   // 🧾 Grunddaten
   {
