@@ -266,7 +266,7 @@ td.delete-col {
 #attribute-table th:first-child,
 #attribute-table td:first-child {
   text-align: left;
-  width: min-content;
+  width: auto;
   font-weight: 500;
 }
 #attribute-table th:not(:first-child),
@@ -455,25 +455,29 @@ td.delete-col {
   font-family: 'Podkova', serif;
   color: #111;
 }
-#zauber-table th:nth-child(1),
-#zauber-table td:nth-child(1) {
+#zauber-table th:nth-child(4),
+#zauber-table td:nth-child(4) {
   text-align: left;
-  width: 25%;
+  width: auto;
+  min-width: 20px;
 }
-#zauber-table th:nth-child(2),
-#zauber-table td:nth-child(2),
+#zauber-table th:nth-child(1),
+#zauber-table td:nth-child(1),
 #zauber-table th:nth-child(6),
 #zauber-table td:nth-child(6),
  {
-  width: 60px;
+ text-align: left;
+  min-width: 30%; 
+  width: auto;
 }
 #zauber-table th:nth-child(5),
 #zauber-table td:nth-child(5),
 #zauber-table th:nth-child(3),
 #zauber-table td:nth-child(3),
-#zauber-table th:nth-child(4),
-#zauber-table td:nth-child(4) {
-  width: auto;
+#zauber-table th:nth-child(2),
+#zauber-table td:nth-child(2) {
+  width: 20px;
+  text-align: center;
 }
 #zauber-table th:last-child,
 #zauber-table td:last-child {
@@ -684,22 +688,22 @@ td.delete-col {
 th.mark-col, td.mark-col {
   width: 20px;
   text-align: center !important;
-  padding: 1px;
+  padding: 3px;
 }
 
 .marker-row td {
-  padding: 1px;
+  padding: 3px;
 }
 
 .attr-marker,
 .line-marker {
-  padding: 1px;
+  padding: 3px;
 }
 
 /* Auswahlpopup für Attributmarker */
 .marker-select button {
   font-size: 24px;
-  margin: 0 5px;
+  margin: 3 3px;
 }
 
 
