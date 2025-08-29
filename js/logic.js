@@ -99,13 +99,13 @@ function initCharacterManagement() {
       } else {
         el.value = "Dummy";
       }
+    });
     document.querySelectorAll("#attribute-table input").forEach(feld => {
-       if (feld.id.endsWith("-start")) {
+       if (feld.id.endsWith("Anfang")) {
          feld.value = 60;           // Startwert der Spielwerte
            } else if (feld.id.endsWith("-steig")) {
          feld.value = 0;            // keine Steigerung zu Beginn
-          } else if (feld.id.endsWith("-akt")) {
-         feld.value = 60;           // Anfangs-Σ entspricht dem Startwert
+          }
   }  
     });
     document.getElementById("char-name").value = "Default";
