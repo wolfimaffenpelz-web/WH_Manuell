@@ -101,7 +101,7 @@ function initCharacterManagement() {
       }
     });
     document.querySelectorAll("#attribute-table input").forEach(feld => {
-       if (feld.id.endsWith("Anfang")) {
+       if (feld.id.endsWith("-Anf")) {
          feld.value = 60;           // Startwert der Spielwerte
            } else if (feld.id.endsWith("-steig")) {
          feld.value = 0;            // keine Steigerung zu Beginn
@@ -119,7 +119,6 @@ function initCharacterManagement() {
     document.getElementById("char-groesse").value = "180";
     document.getElementById("char-haare").value = "Braun";
     document.getElementById("char-augen").value = "Blau";
-    updateAttributes();
     saveState();   
   }
 
