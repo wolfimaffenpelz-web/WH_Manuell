@@ -184,6 +184,37 @@ const sections = [
       <div class="section-divider"></div>
     `
   },
+  // 📊 Prozentbalken
+  {
+    id: "prozentbalken",
+    title: "",
+    content: `
+      <div class="percent-bar-container">
+        <div class="percent-bar"></div>
+        <span class="percent-label" style="left:5%;">5%</span>
+        <span class="percent-label" style="left:10%;">10%</span>
+        <span class="percent-label" style="left:15%;">15%</span>
+        <span class="percent-label" style="left:20%;">20%</span>
+        <span class="percent-label" style="left:25%;">25%</span>
+        <span class="percent-label" style="left:30%;">30%</span>
+        <span class="percent-label" style="left:35%;">35%</span>
+        <span class="percent-label" style="left:40%;">40%</span>
+        <span class="percent-label" style="left:45%;">45%</span>
+        <span class="percent-label" style="left:50%;">50%</span>
+        <span class="percent-label" style="left:55%;">55%</span>
+        <span class="percent-label" style="left:60%;">60%</span>
+        <span class="percent-label" style="left:65%;">65%</span>
+        <span class="percent-label" style="left:70%;">70%</span>
+        <span class="percent-label" style="left:75%;">75%</span>
+        <span class="percent-label" style="left:80%;">80%</span>
+        <span class="percent-label" style="left:85%;">85%</span>
+        <span class="percent-label" style="left:90%;">90%</span>
+        <span class="percent-label" style="left:95%;">95%</span>
+        <span class="percent-label end" style="left:100%;">100%</span>
+      </div>
+      <div class="section-divider"></div>
+    `
+  },
 ];
 // Fortsetzung sections.js v0.8.2
 
