@@ -268,15 +268,18 @@ td.delete-col {
 #attribute-table td:first-child {
   text-align: left;
   width: fit-content;
-  min-width: 80px
+  min-width: 80px;
+  white-space: nowrap;
   font-weight: 500;
+  padding: 0 2px;
 }
 #attribute-table th:not(:first-child),
 #attribute-table td:not(:first-child) {
-  width: 22px;
-  padding: 1px;
-  margin: 1px;
-  font-weight: semibolt;
+  width: 3ch;
+  padding: 0 2px;
+  text-align: center;
+  white-space: nowrap;
+  font-weight: 600;
 }
 
 #grund-table,
@@ -718,18 +721,15 @@ th.mark-col, td.mark-col {
 
 /* Kompakte Spielwerte-Tabelle */
 #attribute-table {
-  width: auto;
-  table-layout: auto;
-}
-
-#attribute-table th,
-#attribute-table td {
-  padding: 0 2px;
+  width: 100%;
+  table-layout: fixed;
 }
 
 #attribute-table input[type="number"] {
-  width: 3em;
-
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0;
+  text-align: center;
 }
 /* Auswahlpopup für Attributmarker */
 .marker-select button {
