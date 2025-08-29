@@ -100,17 +100,18 @@ function initCharacterManagement() {
         el.value = "Dummy";
       }
     });
-    document.getElementById("char-name").value = "Default";
+    document.getElementById("char-name").value = "Günther";
     document.getElementById("char-volk").value = "Mensch";
-    document.getElementById("char-geschlecht").value = "m";
+    document.getElementById("char-geschlecht").value = "männlich";
     document.getElementById("char-karriere").value = "Krieger";
     document.getElementById("char-stufe").value = "1";
     document.getElementById("char-weg").value = "Soldat";
-    document.getElementById("char-status").value = "Bürger";
+    document.getElementById("char-status").value = "Bronze - Stufe 1";
     document.getElementById("char-alter").value = "25";
     document.getElementById("char-groesse").value = "180";
     document.getElementById("char-haare").value = "Braun";
     document.getElementById("char-augen").value = "Blau";
+    document.getElementById("korruption-akt").value = "0"
     saveState();   
   }
 
