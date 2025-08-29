@@ -275,11 +275,11 @@ td.delete-col {
 }
 #attribute-table th:not(:first-child),
 #attribute-table td:not(:first-child) {
-  width: 2.5ch;
-  padding: 0;
+  width: 3ch;
+  padding: 0 2px;
   text-align: center;
   white-space: nowrap;
-  font-weight: semibolt;
+  font-weight: 600;
 }
 
 #grund-table,
