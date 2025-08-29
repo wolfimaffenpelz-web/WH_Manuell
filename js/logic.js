@@ -101,7 +101,7 @@ function initCharacterManagement() {
       }
     });
     document.querySelectorAll("#attribute-table input").forEach(feld => {
-      } else if (el.type === "hidden") {
+      if (el.type === "hidden") {
         el.value = "0";
       } else if (el.type === "number") {
         el.value = "55";
