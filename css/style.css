@@ -131,7 +131,7 @@ input[readonly], .readonly {
 }
 
 /* Highlighting */
-tr.active, td.active, th.active {
+td.active {
   outline: 2px solid darkred; /* visuelles Highlight der aktiven Zeile/Spalte */
 }
 
