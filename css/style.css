@@ -283,6 +283,12 @@ td.delete-col {
 #grupp-table td:nth-child(n+4):not(:last-child) {
   width: 40px;
 }
+#talent-table th:nth-child(1),
+#talent-table td:nth-child(1),
+#talent-table th:last-child,
+#talent-table td:last-child {
+  width: 40px;
+}
 
 /* Abstand zwischen Tabellen */
 .table-gap {
