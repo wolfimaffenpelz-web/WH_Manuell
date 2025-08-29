@@ -267,12 +267,13 @@ td.delete-col {
 #attribute-table th:first-child,
 #attribute-table td:first-child {
   text-align: left;
-  width: auto;
+  width: fit-content;
+  min-width: 80px
   font-weight: 500;
 }
 #attribute-table th:not(:first-child),
 #attribute-table td:not(:first-child) {
-  width: 22px;
+  width: 25px;
   padding: 1px;
   margin: 1px;
 }
@@ -286,6 +287,7 @@ td.delete-col {
 #grund-table th:nth-child(1),
 #grund-table td:nth-child(1) {
   width: 15px;
+  text-align: center;
 }
 #grund-table th:nth-child(2),
 #grund-table td:nth-child(2) {
@@ -306,6 +308,7 @@ td.delete-col {
 #grupp-table th:nth-child(1),
 #grupp-table td:nth-child(1) {
   width: 15px;
+  text-align: center;
 }
 
 }
