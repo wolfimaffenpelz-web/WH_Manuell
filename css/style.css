@@ -231,6 +231,8 @@ td.delete-col {
 #attribute-table td:first-child {
   text-align: left;
   width: min-content;
+  font-weight: semibold;
+}
 }
 #attribute-table th:not(:first-child),
 #attribute-table td:not(:first-child) {
