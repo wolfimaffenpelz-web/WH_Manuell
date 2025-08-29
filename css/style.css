@@ -234,12 +234,12 @@ td.delete-col {
 }
 #attribute-table th:not(:first-child),
 #attribute-table td:not(:first-child) {
-  width: 20px;
+  width: 30px;
 }
 
 #grund-table th:nth-child(1),
 #grund-table td:nth-child(1) {
-  width: 20px;
+  width: 30px;
 }
 #grund-table th:nth-child(2),
 #grund-table td:nth-child(2) {
@@ -248,14 +248,14 @@ td.delete-col {
 }
 #grund-table th:nth-child(n+3),
 #grund-table td:nth-child(n+3) {
-  width: 20px;
+  width: 30px;
 }
 
 #grupp-table th:nth-child(1),
 #grupp-table td:nth-child(1),
 #grupp-table th:last-child,
 #grupp-table td:last-child {
-  width: 20px;
+  width: 30px;
 }
 #grupp-table th:nth-child(2),
 #grupp-table td:nth-child(2) {
@@ -268,7 +268,7 @@ td.delete-col {
 }
 #grupp-table th:nth-child(n+4):not(:last-child),
 #grupp-table td:nth-child(n+4):not(:last-child) {
-  width: 20px;
+  width: 30px;
 }
 
 /* Abstand zwischen Tabellen */
