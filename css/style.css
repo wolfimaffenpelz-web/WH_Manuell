@@ -137,12 +137,14 @@ textarea {
 }
 
 #grupp-table select,
-#ruestung-table select {
+#ruestung-table select,
+#mutationen-table select {
   background: inherit;
 }
 
 #grupp-table select:invalid,
-#ruestung-table select:invalid {
+#ruestung-table select:invalid,
+#mutationen-table select:invalid {
   background: #eee;
 }
 

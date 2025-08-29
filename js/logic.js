@@ -613,7 +613,11 @@ function addRow(tableId) {
     row.innerHTML = `
       <td><input type="text"></td>
       <td>
-        <select><option>Körper</option><option>Geist</option></select>
+        <select required>
+          <option value="" selected disabled>-</option>
+          <option>Körper</option>
+          <option>Geist</option>
+        </select>
       </td>
       <td><textarea></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
