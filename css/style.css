@@ -271,12 +271,14 @@ td.delete-col {
   min-width: 80px;
   white-space: nowrap;
   font-weight: 500;
+  padding: 0 2px;
 }
 #attribute-table th:not(:first-child),
 #attribute-table td:not(:first-child) {
-  width: 22px;
-  padding: 1px;
-  margin: 1px;
+  width: 2.5ch;
+  padding: 0;
+  text-align: center;
+  white-space: nowrap;
   font-weight: semibolt;
 }
 
@@ -719,13 +721,11 @@ th.mark-col, td.mark-col {
   table-layout: fixed;
 }
 
-#attribute-table th,
-#attribute-table td {
-  padding: 0 2px;
-}
-
 #attribute-table input[type="number"] {
   width: 100%;
+  box-sizing: border-box;
+  padding: 0;
+  text-align: center;
 }
 /* Auswahlpopup für Attributmarker */
 .marker-select button {
