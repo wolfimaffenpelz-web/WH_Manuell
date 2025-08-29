@@ -198,6 +198,14 @@ button.delete-row {
   text-align: left; /* Tabelle „Rüstung“ vertikal ausgerichtet */
 }
 
+/* Marker Styles */
+.attr-cross { background: #add8e6; font-weight: bold; }
+.attr-axes { background: #cd7f32; font-weight: bold; }
+.attr-skull { background: silver; font-weight: bold; }
+.attr-shield { background: gold; font-weight: bold; }
+
+.line-marked { background: #ddd; font-weight: bold; }
+
 .ruestung-uebersicht input {
   width: 100%;
 }
