@@ -160,8 +160,8 @@ button.delete-row {
 
 /* Segment-Trennung */
 .section-divider {
-  border-bottom: 2.5px solid #000;
-  width: 95%;
+  border-bottom: 3.5px solid #000;
+  width: 98%;
   margin: 15px auto;
 }
 
