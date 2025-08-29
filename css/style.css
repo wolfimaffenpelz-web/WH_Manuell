@@ -136,6 +136,16 @@ textarea {
   min-height: 20px;
 }
 
+#grupp-table select,
+#ruestung-table select {
+  background: inherit;
+}
+
+#grupp-table select:invalid,
+#ruestung-table select:invalid {
+  background: #eee;
+}
+
 input[readonly], .readonly {
   background: #e6e6e6; /* grau für feste/berechnete Felder */
   font-weight: bold;
@@ -147,14 +157,19 @@ td.active {
 }
 
 /* Buttons für Zeilenverwaltung */
-button.add-row, button.delete-row {
+button.add-row,
+button.delete-row {
   background: none;
   border: none;
   cursor: pointer;
+}
+
+button.add-row {
   font-size: 16px;
 }
 
 button.delete-row {
+  font-size: 13px;
   color: red;
 }
 
@@ -222,7 +237,7 @@ button.delete-row {
 /* Löschspalte */
 th.delete-col,
 td.delete-col {
-  width: 30px;
+  width: 24px;
 }
 
 /* Münz-Icons */
@@ -265,11 +280,10 @@ td.delete-col {
 }
 
 #grupp-table th:nth-child(1),
-#grupp-table td:nth-child(1),
-#grupp-table th:last-child,
-#grupp-table td:last-child {
+#grupp-table td:nth-child(1) {
   width: 30px;
 }
+
 #grupp-table th:nth-child(2),
 #grupp-table td:nth-child(2) {
   text-align: left;
@@ -284,9 +298,7 @@ td.delete-col {
   width: 40px;
 }
 #talent-table th:nth-child(1),
-#talent-table td:nth-child(1),
-#talent-table th:last-child,
-#talent-table td:last-child {
+#talent-table td:nth-child(1) {
   width: 30px;
 }
 
