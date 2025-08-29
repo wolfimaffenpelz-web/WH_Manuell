@@ -268,7 +268,8 @@ td.delete-col {
 #attribute-table td:first-child {
   text-align: left;
   width: fit-content;
-  min-width: 80px
+  min-width: 80px;
+  white-space: nowrap;
   font-weight: 500;
 }
 #attribute-table th:not(:first-child),
@@ -714,8 +715,8 @@ th.mark-col, td.mark-col {
 
 /* Kompakte Spielwerte-Tabelle */
 #attribute-table {
-  width: auto;
-  table-layout: auto;
+  width: 100%;
+  table-layout: fixed;
 }
 
 #attribute-table th,
@@ -724,8 +725,7 @@ th.mark-col, td.mark-col {
 }
 
 #attribute-table input[type="number"] {
-  width: 3em;
-
+  width: 100%;
 }
 /* Auswahlpopup für Attributmarker */
 .marker-select button {
