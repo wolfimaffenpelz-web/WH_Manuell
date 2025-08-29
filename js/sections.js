@@ -46,23 +46,23 @@ const sections = [
     title: "Spielwerte",
     content: `
       <table class="full-width" id="attribute-table">
-        <tr>
+        <tr class="marker-row">
+          <td></td>
+          <td><span class="attr-marker" data-input="KG-mark">◯</span><input type="hidden" id="KG-mark" value="0"></td>
+          <td><span class="attr-marker" data-input="BF-mark">◯</span><input type="hidden" id="BF-mark" value="0"></td>
+          <td><span class="attr-marker" data-input="ST-mark">◯</span><input type="hidden" id="ST-mark" value="0"></td>
+          <td><span class="attr-marker" data-input="WI-mark">◯</span><input type="hidden" id="WI-mark" value="0"></td>
+          <td><span class="attr-marker" data-input="I-mark">◯</span><input type="hidden" id="I-mark" value="0"></td>
+          <td><span class="attr-marker" data-input="GW-mark">◯</span><input type="hidden" id="GW-mark" value="0"></td>
+          <td><span class="attr-marker" data-input="GS-mark">◯</span><input type="hidden" id="GS-mark" value="0"></td>
+          <td><span class="attr-marker" data-input="IN-mark">◯</span><input type="hidden" id="IN-mark" value="0"></td>
+          <td><span class="attr-marker" data-input="WK-mark">◯</span><input type="hidden" id="WK-mark" value="0"></td>
+          <td><span class="attr-marker" data-input="CH-mark">◯</span><input type="hidden" id="CH-mark" value="0"></td>
+        </tr>
+        <tr class="attr-header">
           <th></th>
           <th>KG</th><th>BF</th><th>ST</th><th>WI</th>
           <th>I</th><th>GW</th><th>GS</th><th>IN</th><th>WK</th><th>CH</th>
-        </tr>
-        <tr>
-          <td>Mark</td>
-          <td><span class="marker" data-input="KG-mark">◯</span><input type="hidden" id="KG-mark" value="0"></td>
-          <td><span class="marker" data-input="BF-mark">◯</span><input type="hidden" id="BF-mark" value="0"></td>
-          <td><span class="marker" data-input="ST-mark">◯</span><input type="hidden" id="ST-mark" value="0"></td>
-          <td><span class="marker" data-input="WI-mark">◯</span><input type="hidden" id="WI-mark" value="0"></td>
-          <td><span class="marker" data-input="I-mark">◯</span><input type="hidden" id="I-mark" value="0"></td>
-          <td><span class="marker" data-input="GW-mark">◯</span><input type="hidden" id="GW-mark" value="0"></td>
-          <td><span class="marker" data-input="GS-mark">◯</span><input type="hidden" id="GS-mark" value="0"></td>
-          <td><span class="marker" data-input="IN-mark">◯</span><input type="hidden" id="IN-mark" value="0"></td>
-          <td><span class="marker" data-input="WK-mark">◯</span><input type="hidden" id="WK-mark" value="0"></td>
-          <td><span class="marker" data-input="CH-mark">◯</span><input type="hidden" id="CH-mark" value="0"></td>
         </tr>
         <tr>
           <td>Anfang</td>
@@ -112,9 +112,10 @@ const sections = [
   {
     id: "grundfaehigkeiten",
     title: "Grundfähigkeiten",
-    content: `
-      <table class="full-width" id="grund-table">
+      content: `
+        <table class="full-width" id="grund-table">
         <tr>
+          <th>Mark</th>
           <th>Fähigkeit</th>
           <th>At.</th>
           <th class="wsg">Wert</th>
@@ -130,18 +131,19 @@ const sections = [
           ["Nahkampf (Standard)","KG"],["Navigation","I"],["Reiten","GW"],["Rudern","ST"],
           ["Schleichen","GW"],["Tiere bezirzen","WK"],["Überleben","IN"],["Unterhalten","CH"],
           ["Wahrnehmung","I"],["Zechen","WI"]
-        ].map(([name,att]) => `
+          ].map(([name,att]) => `
           <tr>
+            <td><span class="line-marker" data-input="grund-${name}-mark">◯</span><input type="hidden" id="grund-${name}-mark" value="0"></td>
             <td>${name}</td>
             <td>${att}</td>
             <td class="wsg"><input type="number" id="grund-${name}-wert" readonly></td>
             <td class="wsg"><input type="number" id="grund-${name}-steig"></td>
             <td class="wsg"><input type="number" id="grund-${name}-gesamt" readonly></td>
           </tr>`).join("")}
-      </table>
-      <div class="section-divider"></div>
-    `
-  },
+        </table>
+        <div class="section-divider"></div>
+      `
+    },
 
   // ⚔️ Gruppierte Fähigkeiten
   {
