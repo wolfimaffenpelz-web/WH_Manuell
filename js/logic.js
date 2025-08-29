@@ -4,21 +4,21 @@
 // 🔒 Passwortschutz
 // =========================
 function initPasswordProtection() {
-  const overlay = document.getElementById("password-overlay");
-  const input = document.getElementById("password-input");
-  const button = document.getElementById("password-submit");
-  const logoutBtn = document.getElementById("logout");
+  const overlay = document.getElementById("password-overlay"); // dunkler Hintergrund
+  const input = document.getElementById("password-input");     // Eingabefeld für Passwort
+  const button = document.getElementById("password-submit");   // OK-Button
+  const logoutBtn = document.getElementById("logout");         // Logout-Button
 
   if (localStorage.getItem("auth") === "true") {
-    overlay.style.display = "none";
+    overlay.style.display = "none"; // sofort anzeigen, wenn bereits authentifiziert
     if (logoutBtn) logoutBtn.style.display = "inline-block";
-    initLogic();
+    initLogic(); // Hauptlogik starten
   }
 
   button.addEventListener("click", () => {
     if (input.value === "1234") {
-      overlay.style.display = "none";
-      localStorage.setItem("auth", "true");
+      overlay.style.display = "none";          // Overlay ausblenden
+      localStorage.setItem("auth", "true");    // Flag setzen
       if (logoutBtn) logoutBtn.style.display = "inline-block";
       initLogic();
     } else {
@@ -28,8 +28,8 @@ function initPasswordProtection() {
 
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
-      localStorage.removeItem("auth");
-      location.reload();
+      localStorage.removeItem("auth"); // Auth-Flag löschen
+      location.reload();               // Seite neu laden
     });
   }
 }
@@ -41,9 +41,9 @@ document.addEventListener("DOMContentLoaded", initPasswordProtection);
 let currentCharacter = null;
 
 function loadCharacterList() {
-  const select = document.getElementById("character-select");
+  const select = document.getElementById("character-select"); // Dropdown-Element
   select.innerHTML = "";
-  const chars = JSON.parse(localStorage.getItem("characters") || "[]");
+  const chars = JSON.parse(localStorage.getItem("characters") || "[]"); // gespeicherte Namen
   chars.forEach(name => {
     const opt = document.createElement("option");
     opt.value = name;
@@ -51,7 +51,7 @@ function loadCharacterList() {
     select.appendChild(opt);
   });
   if (chars.length > 0) {
-    currentCharacter = chars[0];
+    currentCharacter = chars[0]; // ersten Charakter vorauswählen
     select.value = currentCharacter;
   }
 }
@@ -59,51 +59,51 @@ function loadCharacterList() {
 function saveCharacter(name) {
   let chars = JSON.parse(localStorage.getItem("characters") || "[]");
   if (!chars.includes(name)) {
-    chars.push(name);
+    chars.push(name); // neuen Namen hinzufügen
     localStorage.setItem("characters", JSON.stringify(chars));
   }
-  currentCharacter = name;
+  currentCharacter = name; // aktiven Charakter setzen
 }
 
 function deleteCharacter(name) {
   let chars = JSON.parse(localStorage.getItem("characters") || "[]");
-  chars = chars.filter(c => c !== name);
+  chars = chars.filter(c => c !== name); // entfernen
   localStorage.setItem("characters", JSON.stringify(chars));
   if (chars.length > 0) {
-    currentCharacter = chars[0];
+    currentCharacter = chars[0]; // anderen Charakter wählen
   } else {
-    currentCharacter = null;
+    currentCharacter = null; // keiner übrig
   }
   loadCharacterList();
 }
 
 function initCharacterManagement() {
   const select = document.getElementById("character-select");
-  const newBtn = document.getElementById("new-character");
-  const delBtn = document.getElementById("delete-character");
+  const newBtn = document.getElementById("new-character"); // neuer Charakter
+  const delBtn = document.getElementById("delete-character"); // löschen
 
   loadCharacterList();
 
   select.addEventListener("change", () => {
-    currentCharacter = select.value;
+    currentCharacter = select.value; // Dropdown-Wahl
     loadState();
   });
 
   newBtn.addEventListener("click", () => {
     const nameField = document.getElementById("char-name");
     const newName = nameField && nameField.value ? nameField.value : "Unbenannt";
-    saveCharacter(newName);
+    saveCharacter(newName); // neuen Namen speichern
     saveState();
     loadCharacterList();
     select.value = newName;
   });
 
   delBtn.addEventListener("click", () => {
-    if (!currentCharacter) return;
+    if (!currentCharacter) return; // nichts zu löschen
     const popup = confirm(`Charakter "${currentCharacter}" wirklich löschen?`);
     if (popup) {
       deleteCharacter(currentCharacter);
-      if (currentCharacter) loadState();
+      if (currentCharacter) loadState(); // anderen laden
       else location.reload();
     }
   });
@@ -114,12 +114,12 @@ function initCharacterManagement() {
 // =========================
 function renderSections() {
   const main = document.getElementById("main-content");
-  main.innerHTML = "";
+  main.innerHTML = ""; // vorherige Inhalte entfernen
   sections.forEach(sec => {
     const sectionEl = document.createElement("section");
-    sectionEl.id = sec.id;
+    sectionEl.id = sec.id; // ID für spätere Referenz
     sectionEl.innerHTML = `<h2>${sec.title}</h2>${sec.content}`;
-    main.appendChild(sectionEl);
+    main.appendChild(sectionEl); // anhängen
   });
 }
 
@@ -133,10 +133,10 @@ function initGrunddatenToggle() {
   if (collapsed) body.style.display = "none";
   header.addEventListener("click", () => {
     if (body.style.display === "none") {
-      body.style.display = "block";
+      body.style.display = "block"; // Abschnitt öffnen
       localStorage.setItem("grunddaten-collapsed", "false");
     } else {
-      body.style.display = "none";
+      body.style.display = "none"; // Abschnitt schließen
       localStorage.setItem("grunddaten-collapsed", "true");
     }
   });
@@ -148,19 +148,19 @@ function initGrunddatenToggle() {
 function serializeTable(tableId) {
   const table = document.getElementById(tableId);
   const data = [];
-  if (!table) return data;
+  if (!table) return data; // Tabelle existiert nicht
 
   table.querySelectorAll("tr").forEach((row, idx) => {
-    if (idx === 0) return; // Skip header
+    if (idx === 0) return; // Kopfzeile überspringen
     const rowData = [];
     row.querySelectorAll("input, select, textarea").forEach(el => {
       if (el.type === "checkbox" || el.type === "radio") {
-        rowData.push(el.checked);
+        rowData.push(el.checked); // boolean speichern
       } else {
         rowData.push(el.value);
       }
     });
-    data.push(rowData);
+    data.push(rowData); // Zeile hinzufügen
   });
   return data;
 }
@@ -168,20 +168,20 @@ function serializeTable(tableId) {
 function deserializeTable(tableId, data) {
   const table = document.getElementById(tableId);
   if (!table) return;
-  // remove existing rows except header
+  // vorhandene Zeilen außer Kopf entfernen
   while (table.rows.length > 1) {
     table.deleteRow(1);
   }
   if (!data || !Array.isArray(data)) return;
   data.forEach(rowData => {
-    addRow(tableId);
+    addRow(tableId); // neue Zeile erzeugen
     const row = table.rows[table.rows.length - 1];
     const inputs = row.querySelectorAll("input, select, textarea");
     rowData.forEach((val, idx) => {
       const el = inputs[idx];
       if (!el) return;
       if (el.type === "checkbox" || el.type === "radio") {
-        el.checked = val;
+        el.checked = val; // boolean wiederherstellen
       } else {
         el.value = val;
       }
@@ -190,9 +190,10 @@ function deserializeTable(tableId, data) {
 }
 
 function saveState() {
-  if (!currentCharacter) return;
+  if (!currentCharacter) return; // nichts gespeichert
   const state = {};
 
+  // alle Felder mit ID einsammeln
   document.querySelectorAll("input, textarea, select").forEach(el => {
     if (!el.id) return;
     if (el.type === "checkbox" || el.type === "radio") {
@@ -202,6 +203,7 @@ function saveState() {
     }
   });
 
+  // Tabellen separat serialisieren
   [
     "grupp-table",
     "talent-table",
@@ -223,6 +225,7 @@ function loadState() {
   if (!currentCharacter) return;
   const state = JSON.parse(localStorage.getItem("state-" + currentCharacter) || "{}");
 
+  // Werte in Felder zurückschreiben
   document.querySelectorAll("input, textarea, select").forEach(el => {
     if (!el.id) return;
     if (state.hasOwnProperty(el.id)) {
@@ -245,7 +248,7 @@ function loadState() {
     "psychologie-table",
     "exp-table"
   ].forEach(id => {
-    deserializeTable(id, state[id]);
+    deserializeTable(id, state[id]); // Tabellen rekonstruieren
   });
 
   updateAttributes();
@@ -256,14 +259,14 @@ function loadState() {
 // 🔘 Markierungen
 // =========================
 function toggleMarker(el) {
-  const hid = document.getElementById(el.dataset.input);
+  const hid = document.getElementById(el.dataset.input); // verborgenes Feld
   if (!hid) return;
   if (hid.value === "1") {
     hid.value = "0";
-    el.textContent = "◯";
+    el.textContent = "◯"; // Marker entfernen
   } else {
     hid.value = "1";
-    el.textContent = "✚";
+    el.textContent = "✚"; // Marker setzen
   }
   saveState();
 }
@@ -272,7 +275,7 @@ function restoreMarkers() {
   document.querySelectorAll(".marker").forEach(el => {
     const hid = document.getElementById(el.dataset.input);
     if (!hid) return;
-    el.textContent = hid.value === "1" ? "✚" : "◯";
+    el.textContent = hid.value === "1" ? "✚" : "◯"; // Status wiederherstellen
   });
 }
 
@@ -287,10 +290,10 @@ document.addEventListener("click", e => {
 function updateAttributes() {
   const attrs = ["KG","BF","ST","WI","I","GW","GS","IN","WK","CH"];
   attrs.forEach(att => {
-    const start = parseInt(document.getElementById(att+"-start").value) || 0;
-    const steig = parseInt(document.getElementById(att+"-steig").value) || 0;
+    const start = parseInt(document.getElementById(att+"-start").value) || 0; // Basiswert
+    const steig = parseInt(document.getElementById(att+"-steig").value) || 0; // Steigerung
     const akt = start + steig;
-    document.getElementById(att+"-akt").value = akt;
+    document.getElementById(att+"-akt").value = akt; // Gesamtwert anzeigen
   });
 
   updateGrundfaehigkeiten();
@@ -314,9 +317,9 @@ function updateGrundfaehigkeiten() {
     if (!attCell) return;
     const att = attCell.textContent.trim();
     const attVal = parseInt(document.getElementById(att+"-akt").value) || 0;
-    const steig = parseInt(row.cells[3].querySelector("input").value) || 0;
-    row.cells[2].querySelector("input").value = attVal;
-    row.cells[4].querySelector("input").value = attVal + steig;
+    const steig = parseInt(row.cells[3].querySelector("input").value) || 0; // individuelle Steigerung
+    row.cells[2].querySelector("input").value = attVal; // Basiswert
+    row.cells[4].querySelector("input").value = attVal + steig; // Gesamtwert
   });
 }
 
@@ -324,10 +327,11 @@ function updateGrundfaehigkeiten() {
 // ⚔️ Gruppierte Fähigkeiten
 // =========================
 function addRow(tableId) {
-  const table = document.getElementById(tableId);
-  const row = table.insertRow(-1);
+  const table = document.getElementById(tableId); // Ziel-Tabelle
+  const row = table.insertRow(-1); // neue Zeile am Ende
 
   if (tableId === "grupp-table") {
+    // Vorlage für gruppierte Fähigkeiten
     row.innerHTML = `
       <td>◯</td>
       <td><input type="text"></td>
@@ -348,6 +352,7 @@ function addRow(tableId) {
     `;
   }
   else if (tableId === "talent-table") {
+    // Zeile für Talente
     row.innerHTML = `
       <td>◯</td>
       <td><input type="text"></td>
@@ -356,6 +361,7 @@ function addRow(tableId) {
     `;
   }
   else if (tableId === "waffen-table") {
+    // Waffenliste
     row.innerHTML = `
       <td><input type="text"></td>
       <td class="text-left"><input type="text"></td>
@@ -366,6 +372,7 @@ function addRow(tableId) {
     `;
   }
   else if (tableId === "ruestung-table") {
+    // Rüstungsstücke
     row.innerHTML = `
       <td><input type="text"></td>
       <td>
@@ -382,6 +389,7 @@ function addRow(tableId) {
     `;
   }
   else if (tableId === "ausruestung-table") {
+    // Allgemeine Ausrüstung
     row.innerHTML = `
       <td><input type="text"></td>
       <td><input type="number"></td>
@@ -391,6 +399,7 @@ function addRow(tableId) {
     `;
   }
   else if (tableId === "zauber-table") {
+    // Zauber oder Gebete
     row.innerHTML = `
       <td><input type="text"></td>
       <td><input type="number"></td>
@@ -402,6 +411,7 @@ function addRow(tableId) {
     `;
   }
   else if (tableId === "mutationen-table") {
+    // Mutationen mit Kategorie
     row.innerHTML = `
       <td><input type="text"></td>
       <td>
@@ -412,6 +422,7 @@ function addRow(tableId) {
     `;
   }
   else if (tableId === "psychologie-table") {
+    // Einträge für psychologische Effekte
     row.innerHTML = `
       <td><input type="text"></td>
       <td><textarea></textarea></td>
@@ -419,6 +430,7 @@ function addRow(tableId) {
     `;
   }
   else if (tableId === "exp-table") {
+    // Erfahrungspunkte-Modus "Voll"
     row.innerHTML = `
       <td><input type="number"></td>
       <td><input type="text"></td>
@@ -427,10 +439,10 @@ function addRow(tableId) {
   }
 
   if (tableId === "exp-table") {
-    updateErfahrung();
+    updateErfahrung(); // nach Änderung Erfahrungswerte neu berechnen
   }
   saveState();
-  updateLebenspunkte();
+  updateLebenspunkte(); // Lebenspunkte können von Talenten abhängen
 }
 
 // =========================
@@ -439,10 +451,10 @@ function addRow(tableId) {
 function checkTalentEffects() {
   let hardy = false;
   document.querySelectorAll("#talent-table tr").forEach((row, idx) => {
-    if (idx === 0) return; // skip header
+    if (idx === 0) return; // Kopfzeile überspringen
     const name = row.cells[1].querySelector("input").value.toLowerCase();
     if (name.includes("robustheit") || name.includes("hardy")) {
-      hardy = true;
+      hardy = true; // Talent gefunden
     }
   });
   return hardy;
@@ -455,12 +467,13 @@ function updateLebenspunkte() {
   const WI = parseInt(document.getElementById("WI-akt").value) || 0;
   const WK = parseInt(document.getElementById("WK-akt").value) || 0;
 
+  // Basiswerte berechnen
   const stb = Math.floor(ST/10);
   const wib = Math.floor(WI/10);
   const wkb = Math.floor(WK/10) * 2;
 
   const hardy = checkTalentEffects();
-  const robust = hardy ? wib : 0;
+  const robust = hardy ? wib : 0; // Robustheit addiert WI-Anteil
 
   document.getElementById("lp-stb").value = stb;
   document.getElementById("lp-wib").value = wib;
@@ -477,7 +490,7 @@ function updateLebenspunkte() {
 function updateKorruption() {
   const WI = parseInt(document.getElementById("WI-akt").value) || 0;
   const WK = parseInt(document.getElementById("WK-akt").value) || 0;
-  const max = Math.floor(WI/10) + Math.floor(WK/10);
+  const max = Math.floor(WI/10) + Math.floor(WK/10); // zulässige Korruption
   const akt = parseInt(document.getElementById("korruption-akt").value) || 0;
 
   const maxEl = document.getElementById("korruption-max");
@@ -502,14 +515,14 @@ function updateRuestung() {
     "Brust": 0,
     "Linkes Bein": 0,
     "Rechtes Bein": 0
-  };
+  }; // Sammeln der besten Rüstungswerte pro Zone
 
   document.querySelectorAll("#ruestung-table tr").forEach((row, idx) => {
     if (idx === 0) return;
     const zoneSel = row.cells[1].querySelector("select");
     const zone = zoneSel ? zoneSel.value : "";
     const rp = parseInt(row.cells[2].querySelector("input").value) || 0;
-    if (zones.hasOwnProperty(zone)) zones[zone] += rp;
+    if (zones.hasOwnProperty(zone)) zones[zone] += rp; // Werte je Zone addieren
   });
 
   document.getElementById("rp-kopf").value = zones["Kopf"] || 0;
@@ -526,20 +539,23 @@ function updateRuestung() {
 function updateTraglast() {
   const ST = parseInt(document.getElementById("ST-akt").value) || 0;
   const WI = parseInt(document.getElementById("WI-akt").value) || 0;
-  const max = Math.floor(ST/10) + Math.floor(WI/10);
+  const max = Math.floor(ST/10) + Math.floor(WI/10); // maximale Traglast
 
   let waffenTP = 0, ruestungTP = 0, ausrTP = 0;
 
+  // Gewicht der Waffen aufsummieren
   document.querySelectorAll("#waffen-table tr").forEach((row, idx) => {
     if (idx === 0) return;
     waffenTP += parseInt(row.cells[2].querySelector("input").value) || 0;
   });
 
+  // Gewicht der Rüstungsteile
   document.querySelectorAll("#ruestung-table tr").forEach((row, idx) => {
     if (idx === 0) return;
     ruestungTP += parseInt(row.cells[3].querySelector("input").value) || 0;
   });
 
+  // Ausrüstung: Menge * Tragpunkte
   document.querySelectorAll("#ausruestung-table tr").forEach((row, idx) => {
     if (idx === 0) return;
     const menge = parseInt(row.cells[1].querySelector("input").value) || 0;
@@ -556,6 +572,7 @@ function updateTraglast() {
   const gesamtEl = document.getElementById("trag-gesamt");
   gesamtEl.value = gesamt;
 
+  // Warnung, wenn überladen
   if (gesamt > max) {
     gesamtEl.classList.add("readonly-red");
   } else {
@@ -582,14 +599,14 @@ function updateVermoegen() {
 
   const block = document.getElementById("nettovermoegen-block");
   if (debtG !== 0) {
-    block.style.display = "block";
+    block.style.display = "block"; // Nettosumme anzeigen
     const gkFinal = Math.floor(netto/240);
     const sFinal = Math.floor((netto%240)/12);
     const gFinal = netto % 12;
-    document.getElementById("nettovermoegen").innerText = 
+    document.getElementById("nettovermoegen").innerText =
       `${gkFinal} 💰 / ${sFinal} 🥈 / ${gFinal} 🥉`;
   } else {
-    block.style.display = "none";
+    block.style.display = "none"; // kein Schuldenblock nötig
   }
 }
 
@@ -606,7 +623,7 @@ function updateErfahrung() {
     const ausg = parseInt(document.getElementById("exp-simple-ausg").value) || 0;
     document.getElementById("exp-simple-gesamt").value = akt + ausg;
   } else {
-    // Voller Modus
+    // Voller Modus mit Tabellenzeilen
     let akt = 0, ausg = 0;
     document.querySelectorAll("#exp-table tr").forEach((row, idx) => {
       if (idx === 0) return;
@@ -632,10 +649,10 @@ document.addEventListener("focusin", e => {
       const idx = cell.cellIndex;
       table.querySelectorAll("tr").forEach(r => {
         const c = r.cells[idx];
-        if (c) c.classList.add("active");
+        if (c) c.classList.add("active"); // Spalte hervorheben
       });
     } else if (row) {
-      row.classList.add("active");
+      row.classList.add("active"); // Zeile hervorheben
     }
   }
 });

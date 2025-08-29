@@ -1,3 +1,4 @@
+// Übersetzungsobjekt: nach Sprache unterteilt
 const translations = {
   de: {
     grunddaten: "Grunddaten",
@@ -30,8 +31,9 @@ const translations = {
   }
 };
 
-let currentLang = "de";
+let currentLang = "de"; // aktuell aktive Sprache
 
+// Helper-Funktion: gibt Übersetzung zurück oder key, falls nicht vorhanden
 function t(key) {
   return translations[currentLang][key] || key;
 }
