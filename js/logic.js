@@ -106,7 +106,6 @@ function initCharacterManagement() {
            } else if (feld.id.endsWith("-steig")) {
          feld.value = 0;            // keine Steigerung zu Beginn
           }
-  }  
     });
     document.getElementById("char-name").value = "Default";
     document.getElementById("char-volk").value = "Mensch";
