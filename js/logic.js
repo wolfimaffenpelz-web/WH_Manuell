@@ -527,16 +527,16 @@ function addRow(tableId) {
     row.innerHTML = `
       <td class="mark-col"><span class="line-marker">◯</span><input type="hidden" value="0"></td>
       <td><input type="text"></td>
-      <td>
-        <select>
-          <option value="">-</option>
-          <option value="KG">KG</option><option value="BF">BF</option>
-          <option value="ST">ST</option><option value="WI">WI</option>
-          <option value="I">I</option><option value="GW">GW</option>
-          <option value="GS">GS</option><option value="IN">IN</option>
-          <option value="WK">WK</option><option value="CH">CH</option>
-        </select>
-      </td>
+        <td>
+          <select required>
+            <option value="" selected disabled>-</option>
+            <option value="KG">KG</option><option value="BF">BF</option>
+            <option value="ST">ST</option><option value="WI">WI</option>
+            <option value="I">I</option><option value="GW">GW</option>
+            <option value="GS">GS</option><option value="IN">IN</option>
+            <option value="WK">WK</option><option value="CH">CH</option>
+          </select>
+        </td>
       <td class="wsg"><input type="number" readonly></td>
       <td class="wsg"><input type="number"></td>
       <td class="wsg"><input type="number" readonly></td>
@@ -572,13 +572,14 @@ function addRow(tableId) {
     // Rüstungsstücke
     row.innerHTML = `
       <td><input type="text"></td>
-      <td>
-        <select>
-          <option>Kopf</option><option>Linker Arm</option>
-          <option>Rechter Arm</option><option>Linkes Bein</option>
-          <option>Rechtes Bein</option><option>Brust</option>
-        </select>
-      </td>
+        <td>
+          <select required>
+            <option value="" selected disabled>-</option>
+            <option>Kopf</option><option>Linker Arm</option>
+            <option>Rechter Arm</option><option>Linkes Bein</option>
+            <option>Rechtes Bein</option><option>Brust</option>
+          </select>
+        </td>
       <td><input type="number"></td>
       <td><input type="number"></td>
       <td><textarea></textarea></td>
@@ -612,7 +613,11 @@ function addRow(tableId) {
     row.innerHTML = `
       <td><input type="text"></td>
       <td>
-        <select><option>Körper</option><option>Geist</option></select>
+        <select required>
+          <option value="" selected disabled>-</option>
+          <option>Körper</option>
+          <option>Geist</option>
+        </select>
       </td>
       <td><textarea></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
