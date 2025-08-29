@@ -114,9 +114,10 @@ input[type="number"],
 textarea {
   width: 98%;
   border: none;
-  background: transparent;
+  background: #f8d7d7;
   text-align: center;
   font-family: inherit;
+  font-weight: bold;
 }
 
 textarea {
@@ -193,9 +194,86 @@ button.delete-row {
 }
 
 /* Rüstungsübersicht vertikal */
-.ruestung-uebersicht th,
-.ruestung-uebersicht td {
-  text-align: left; /* Tabelle „Rüstung“ vertikal ausgerichtet */
+/* Rüstungsübersicht Spaltenausrichtung */
+.ruestung-uebersicht th:nth-child(1),
+.ruestung-uebersicht td:nth-child(1) {
+  text-align: left;
+  white-space: nowrap;
+}
+.ruestung-uebersicht th:nth-child(2),
+.ruestung-uebersicht td:nth-child(2),
+.ruestung-uebersicht th:nth-child(3),
+.ruestung-uebersicht td:nth-child(3) {
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Löschspalte */
+th.delete-col,
+td.delete-col {
+  width: 30px;
+}
+
+/* Münz-Icons */
+.coin {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+.coin.gold { background: #d4af37; }
+.coin.silver { background: #c0c0c0; }
+.coin.copper { background: #b87333; }
+
+/* Tabellenformatierungen */
+#attribute-table th:first-child,
+#attribute-table td:first-child {
+  text-align: left;
+  width: auto;
+}
+#attribute-table th:not(:first-child),
+#attribute-table td:not(:first-child) {
+  width: 40px;
+}
+
+#grund-table th:nth-child(1),
+#grund-table td:nth-child(1) {
+  width: 30px;
+}
+#grund-table th:nth-child(2),
+#grund-table td:nth-child(2) {
+  text-align: left;
+  width: auto;
+}
+#grund-table th:nth-child(n+3),
+#grund-table td:nth-child(n+3) {
+  width: 40px;
+}
+
+#grupp-table th:nth-child(1),
+#grupp-table td:nth-child(1),
+#grupp-table th:last-child,
+#grupp-table td:last-child {
+  width: 30px;
+}
+#grupp-table th:nth-child(2),
+#grupp-table td:nth-child(2) {
+  text-align: left;
+  width: auto;
+}
+#grupp-table th:nth-child(3),
+#grupp-table td:nth-child(3) {
+  width: 60px;
+}
+#grupp-table th:nth-child(n+4):not(:last-child),
+#grupp-table td:nth-child(n+4):not(:last-child) {
+  width: 40px;
+}
+
+/* Abstand zwischen Tabellen */
+.table-gap {
+  height: 3em;
 }
 
 /* Marker Styles */

@@ -90,12 +90,29 @@ function initCharacterManagement() {
   });
 
   newBtn.addEventListener("click", () => {
-    const nameField = document.getElementById("char-name");
-    const newName = nameField && nameField.value ? nameField.value : "Unbenannt";
-    saveCharacter(newName); // neuen Namen speichern
-    saveState();
-    loadCharacterList();
-    select.value = newName;
+    const popup = document.createElement("div");
+    popup.className = "popup";
+    popup.innerHTML = `
+      <p>Charaktername:</p>
+      <input type="text" id="new-char-name">
+      <br>
+      <button id="new-char-ok">OK</button>
+      <button id="new-char-cancel">Abbrechen</button>
+    `;
+    document.body.appendChild(popup);
+    const input = document.getElementById("new-char-name");
+    input.focus();
+    document.getElementById("new-char-ok").addEventListener("click", () => {
+      const newName = input.value.trim();
+      if (!newName) { alert("Name erforderlich"); return; }
+      saveCharacter(newName);
+      saveState();
+      loadCharacterList();
+      select.value = newName;
+      loadState();
+      popup.remove();
+    });
+    document.getElementById("new-char-cancel").addEventListener("click", () => popup.remove());
   });
 
   delBtn.addEventListener("click", () => {
@@ -398,6 +415,7 @@ function updateAttributes() {
   });
 
   updateGrundfaehigkeiten();
+  updateGruppierteFaehigkeiten();
   updateLebenspunkte();
   updateKorruption();
   updateRuestung();
@@ -427,6 +445,23 @@ function updateGrundfaehigkeiten() {
 // =========================
 // ⚔️ Gruppierte Fähigkeiten
 // =========================
+function updateGruppierteFaehigkeiten() {
+  const rows = document.querySelectorAll("#grupp-table tr");
+  rows.forEach((row, idx) => {
+    if (idx === 0) return;
+    const sel = row.cells[2]?.querySelector("select");
+    const base = row.cells[3]?.querySelector("input");
+    const steig = row.cells[4]?.querySelector("input");
+    const ges = row.cells[5]?.querySelector("input");
+    if (!sel || !base || !steig || !ges) return;
+    const att = sel.value;
+    const attVal = att ? (parseInt(document.getElementById(att + "-akt").value) || 0) : 0;
+    base.value = att ? attVal : "";
+    const steigVal = parseInt(steig.value) || 0;
+    ges.value = att ? attVal + steigVal : steigVal;
+  });
+}
+
 function addRow(tableId) {
   const table = document.getElementById(tableId); // Ziel-Tabelle
   const row = table.insertRow(-1); // neue Zeile am Ende
@@ -449,8 +484,13 @@ function addRow(tableId) {
       <td class="wsg"><input type="number" readonly></td>
       <td class="wsg"><input type="number"></td>
       <td class="wsg"><input type="number" readonly></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
+    const sel = row.cells[2].querySelector("select");
+    const steig = row.cells[4].querySelector("input");
+    sel.addEventListener("change", () => { updateGruppierteFaehigkeiten(); saveState(); });
+    steig.addEventListener("input", () => { updateGruppierteFaehigkeiten(); saveState(); });
+    updateGruppierteFaehigkeiten();
   }
   else if (tableId === "talent-table") {
     // Zeile für Talente
@@ -458,7 +498,7 @@ function addRow(tableId) {
       <td class="mark-col"><span class="line-marker">◯</span><input type="hidden" value="0"></td>
       <td><input type="text"></td>
       <td><input type="text"></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
   else if (tableId === "waffen-table") {
@@ -469,7 +509,7 @@ function addRow(tableId) {
       <td><input type="number"></td>
       <td><input type="text"></td>
       <td><textarea></textarea></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
   else if (tableId === "ruestung-table") {
@@ -486,7 +526,7 @@ function addRow(tableId) {
       <td><input type="number"></td>
       <td><input type="number"></td>
       <td><textarea></textarea></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
   else if (tableId === "ausruestung-table") {
@@ -496,7 +536,7 @@ function addRow(tableId) {
       <td><input type="number"></td>
       <td><input type="number"></td>
       <td><textarea></textarea></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
   else if (tableId === "zauber-table") {
@@ -508,7 +548,7 @@ function addRow(tableId) {
       <td><input type="text"></td>
       <td><input type="text"></td>
       <td><textarea></textarea></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
   else if (tableId === "mutationen-table") {
@@ -519,7 +559,7 @@ function addRow(tableId) {
         <select><option>Körper</option><option>Geist</option></select>
       </td>
       <td><textarea></textarea></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
   else if (tableId === "psychologie-table") {
@@ -527,7 +567,7 @@ function addRow(tableId) {
     row.innerHTML = `
       <td><input type="text"></td>
       <td><textarea></textarea></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
   else if (tableId === "exp-table") {
@@ -535,7 +575,7 @@ function addRow(tableId) {
     row.innerHTML = `
       <td><input type="number"></td>
       <td><input type="text"></td>
-      <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateErfahrung();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateErfahrung(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
 
@@ -689,25 +729,31 @@ function updateVermoegen() {
   const s  = parseInt(document.getElementById("verm-s").value) || 0;
   const g  = parseInt(document.getElementById("verm-g").value) || 0;
 
-  const sgk = parseInt(document.getElementById("schul-gk").value) || 0;
-  const ss  = parseInt(document.getElementById("schul-s").value) || 0;
-  const sg  = parseInt(document.getElementById("schul-g").value) || 0;
+  let sgk = parseInt(document.getElementById("schul-gk").value) || 0;
+  let ss  = parseInt(document.getElementById("schul-s").value) || 0;
+  let sg  = parseInt(document.getElementById("schul-g").value) || 0;
+
+  // nur negative Werte zulassen
+  if (sgk > 0) { sgk = -sgk; document.getElementById("schul-gk").value = sgk; }
+  if (ss > 0) { ss = -ss; document.getElementById("schul-s").value = ss; }
+  if (sg > 0) { sg = -sg; document.getElementById("schul-g").value = sg; }
 
   // Normalisierung: 1 GK = 20 S, 1 S = 12 G
   let totalG = g + s*12 + gk*240;
-  let debtG = sg + ss*12 + sgk*240;
-  let netto = totalG - debtG;
+  let debtG = sg + ss*12 + sgk*240; // negative Summe
+  let netto = totalG + debtG;
 
   const block = document.getElementById("nettovermoegen-block");
-  if (debtG !== 0) {
+  if (sgk || ss || sg) {
     block.style.display = "block"; // Nettosumme anzeigen
-    const gkFinal = Math.floor(netto/240);
-    const sFinal = Math.floor((netto%240)/12);
+    const gkFinal = Math.trunc(netto/240);
+    const sFinal = Math.trunc((netto%240)/12);
     const gFinal = netto % 12;
-    document.getElementById("nettovermoegen").innerText =
-      `${gkFinal} 💰 / ${sFinal} 🥈 / ${gFinal} 🥉`;
+    document.getElementById("netto-gk").value = gkFinal;
+    document.getElementById("netto-s").value = sFinal;
+    document.getElementById("netto-g").value = gFinal;
   } else {
-    block.style.display = "none"; // kein Schuldenblock nötig
+    block.style.display = "none"; // keine Schulden
   }
 }
 
