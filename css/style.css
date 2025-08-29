@@ -174,7 +174,7 @@ button.add-row {
 button.delete-row {
   font-size: 11px;
   color: red;
-  padding: 1px;
+  padding: 0;
 }
 
 /* Segment-Trennung */
@@ -241,8 +241,8 @@ button.delete-row {
 /* Löschspalte */
 th.delete-col,
 td.delete-col {
-  width: 13px;
-  padding: 1px;
+  width: 20px;
+  padding: 0;
 }
 
 /* Münz-Icons */
@@ -699,18 +699,33 @@ td.delete-col {
 th.mark-col, td.mark-col {
   width: 17px;
   text-align: center !important;
-  padding: 3px;
+  padding: 0;
 }
 
 .marker-row td {
-  padding: 3px;
-}
+  padding: 0;
 
+}
 .attr-marker,
 .line-marker {
-  padding: 3px;
+  padding: 0;
 }
 
+/* Kompakte Spielwerte-Tabelle */
+#attribute-table {
+  width: auto;
+  table-layout: auto;
+}
+
+#attribute-table th,
+#attribute-table td {
+  padding: 0 2px;
+}
+
+#attribute-table input[type="number"] {
+  width: 3em;
+
+}
 /* Auswahlpopup für Attributmarker */
 .marker-select button {
   font-size: 24px;
