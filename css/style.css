@@ -61,13 +61,24 @@ table {
 }
 
 th, td {
-  border: none; /* äußere Rahmen unsichtbar */
-  border-bottom: 1px solid #000; /* nur Innenlinien */
+  border: 0; /* Zellen erhalten zunächst keinen Rahmen */
   padding: 4px;
   text-align: center;
   vertical-align: middle;
   max-width: 120px; /* verhindert zu breite Felder */
   overflow: hidden;
+}
+
+/* Vertikale innere Linien: alle Zellen nach der ersten Spalte */
+td + td,
+th + th {
+  border-left: 1px solid #000;
+}
+
+/* Horizontale innere Linien: alle Zellen nach der ersten Zeile */
+tr + tr td,
+tr + tr th {
+  border-top: 1px solid #000;
 }
 
 th {
