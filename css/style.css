@@ -306,7 +306,8 @@ td.delete-col {
 }
 #grupp-table th:last-child,
 #grupp-table td:last-child {
-  width: 12px;
+  text-align: left;
+  width: 15px;
 }
 
 #grupp-table th:nth-child(2),
@@ -335,7 +336,8 @@ td.delete-col {
 
 #talent-table th:last-child,
 #talent-table td:last-child {
-  width: 12px;
+ text-align: left;
+  width: 15px;
 }
 
 /* Waffen-Tabelle */
@@ -414,7 +416,7 @@ td.delete-col {
 }
 #ruestung-table th:last-child,
 #ruestung-table td:last-child {
-  width: 12px;
+  width: 15px;
 }
 
 /* Ausrüstung */
@@ -441,7 +443,7 @@ td.delete-col {
 }
 #ausruestung-table th:last-child,
 #ausruestung-table td:last-child {
-  width: 12px;
+  width: 15px;
 }
 
 /* Zauber & Gebete */
@@ -474,7 +476,7 @@ td.delete-col {
 }
 #zauber-table th:last-child,
 #zauber-table td:last-child {
-  width: 12px;
+  width: 15px;
 }
 
 /* Korruption */
@@ -511,7 +513,7 @@ td.delete-col {
 }
 #mutationen-table th:last-child,
 #mutationen-table td:last-child {
-  width: 12px;
+  width: 15px;
 }
 
 /* Psychologie */
@@ -532,7 +534,7 @@ td.delete-col {
 }
 #psychologie-table th:last-child,
 #psychologie-table td:last-child {
-  width: 12px;
+  width: 15px;
 }
 
 /* Lebenspunkte */
@@ -618,7 +620,7 @@ td.delete-col {
 }
 #exp-table th:last-child,
 #exp-table td:last-child {
-  width: 12px;
+  width: 15px;
 }
 
 /* Erfahrung – einfache & volle Tabelle */
