@@ -821,6 +821,7 @@ function updateVermoegen() {
 // =========================
 // ⭐ Erfahrung
 // =========================
+let aktWarNegativ = false;
 function updateErfahrung() {
   const toggle = document.getElementById("exp-toggle");
   if (!toggle) return;
@@ -832,16 +833,27 @@ function updateErfahrung() {
     document.getElementById("exp-simple-gesamt").value = akt + ausg;
   } else {
     // Voller Modus mit Tabellenzeilen
-    let akt = 0, ausg = 0;
+    let akt = 0, ausg = 0, gesamt = 0;
     document.querySelectorAll("#exp-table tr").forEach((row, idx) => {
       if (idx === 0) return;
       const val = parseInt(row.cells[0].querySelector("input").value) || 0;
       akt += val;
-      if (val < 0) ausg += Math.abs(val);
+      if (val < 0) {
+        ausg += val;
+      } else {
+        gesamt += val;
+      }
     });
     document.getElementById("exp-full-akt").value = akt;
     document.getElementById("exp-full-ausg").value = ausg;
-    document.getElementById("exp-full-gesamt").value = akt + ausg;
+    document.getElementById("exp-full-gesamt").value = gesamt;
+
+    if (akt < 0 && !aktWarNegativ) {
+      alert("Warnung: Aktuell ist negativ!");
+      aktWarNegativ = true;
+    } else if (akt >= 0 && aktWarNegativ) {
+      aktWarNegativ = false;
+    }
   }
 }
 
