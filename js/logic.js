@@ -100,13 +100,6 @@ function initCharacterManagement() {
         el.value = "Dummy";
       }
     });
-    document.querySelectorAll("#attribute-table input").forEach(feld => {
-      if (el.type === "hidden") {
-        el.value = "0";
-      } else if (el.type === "number") {
-        el.value = "55";
-      }
-    });
     document.getElementById("char-name").value = "Default";
     document.getElementById("char-volk").value = "Mensch";
     document.getElementById("char-geschlecht").value = "m";
