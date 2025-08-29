@@ -82,6 +82,38 @@ function initCharacterManagement() {
   const newBtn = document.getElementById("new-character"); // neuer Charakter
   const delBtn = document.getElementById("delete-character"); // löschen
 
+  // Beim ersten Aufruf einen Default-Charakter mit Dummywerten anlegen
+  let chars = JSON.parse(localStorage.getItem("characters") || "[]");
+  if (chars.length === 0) {
+    const defaultName = "Default";
+    saveCharacter(defaultName);
+    ensureInitialRows();
+    document.querySelectorAll("input, textarea, select").forEach(el => {
+      if (!el.id) return;
+      if (el.type === "checkbox" || el.type === "radio") {
+        el.checked = false;
+      } else if (el.type === "hidden") {
+        el.value = "0";
+      } else if (el.type === "number") {
+        el.value = "1";
+      } else {
+        el.value = "Dummy";
+      }
+    });
+    document.getElementById("char-name").value = "Default";
+    document.getElementById("char-volk").value = "Mensch";
+    document.getElementById("char-geschlecht").value = "m";
+    document.getElementById("char-karriere").value = "Krieger";
+    document.getElementById("char-stufe").value = "1";
+    document.getElementById("char-weg").value = "Soldat";
+    document.getElementById("char-status").value = "Bürger";
+    document.getElementById("char-alter").value = "25";
+    document.getElementById("char-groesse").value = "180";
+    document.getElementById("char-haare").value = "Braun";
+    document.getElementById("char-augen").value = "Blau";
+    saveState();
+  }
+
   loadCharacterList();
 
   select.addEventListener("change", () => {
