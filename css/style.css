@@ -280,7 +280,7 @@ td.delete-col {
 }
 #grund-table th:nth-child(1),
 #grund-table td:nth-child(1) {
-  width: 30px;
+  width: 15px;
 }
 #grund-table th:nth-child(2),
 #grund-table td:nth-child(2) {
@@ -300,7 +300,7 @@ td.delete-col {
 }
 #grupp-table th:nth-child(1),
 #grupp-table td:nth-child(1) {
-  width: 30px;
+  width: 15px;
 }
 
 }
@@ -331,7 +331,7 @@ td.delete-col {
 }
 #talent-table th:nth-child(1),
 #talent-table td:nth-child(1) {
-  width: 30px;
+  width: 15px;
 }
 
 #talent-table th:last-child,
@@ -460,18 +460,17 @@ td.delete-col {
 }
 #zauber-table th:nth-child(2),
 #zauber-table td:nth-child(2),
+#zauber-table th:nth-child(6),
+#zauber-table td:nth-child(6),
+ {
+  width: 60px;
+}
+#zauber-table th:nth-child(5),
+#zauber-table td:nth-child(5),
 #zauber-table th:nth-child(3),
 #zauber-table td:nth-child(3),
 #zauber-table th:nth-child(4),
 #zauber-table td:nth-child(4) {
-  width: 60px;
-}
-#zauber-table th:nth-child(5),
-#zauber-table td:nth-child(5) {
-  width: 40px;
-}
-#zauber-table th:nth-child(6),
-#zauber-table td:nth-child(6) {
   width: auto;
 }
 #zauber-table th:last-child,
@@ -488,7 +487,7 @@ td.delete-col {
 }
 #korruption-table th,
 #korruption-table td {
-  width: 50%;
+  width: auto;
 }
 
 /* Mutationen */
@@ -505,7 +504,7 @@ td.delete-col {
 }
 #mutationen-table th:nth-child(2),
 #mutationen-table td:nth-child(2) {
-  width: 30%;
+  width: 40px;
 }
 #mutationen-table th:nth-child(3),
 #mutationen-table td:nth-child(3) {
