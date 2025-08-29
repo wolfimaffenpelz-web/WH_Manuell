@@ -259,7 +259,7 @@ function loadState() {
 // 🔘 Markierungen
 // =========================
 const attrSymbols = ["◯","✠","⚔","☠","🛡"];
-
+let markerPopup = null;
 function updateAttrHeader(el, val) {
   const header = document.querySelector("#attribute-table .attr-header");
   if (!header) return;
@@ -299,17 +299,13 @@ function enforceAttributeExclusivity() {
   }
   if (changed) saveState();
 }
-
-function selectAttrMarker(el) {
+function applyAttrMarker(el, val) {
   const hid = document.getElementById(el.dataset.input);
   if (!hid) return;
-  const choice = prompt("Symbol wählen:\n0: ◯\n1: ✠\n2: ⚔\n3: ☠\n4: 🛡", hid.value);
-  if (choice === null) return;
-  const val = parseInt(choice);
-  if (isNaN(val) || val < 0 || val >= attrSymbols.length) return;
 
   if (val === 1) {
-    const count = Array.from(document.querySelectorAll('.attr-marker')).filter(m => document.getElementById(m.dataset.input).value === "1").length;
+    const count = Array.from(document.querySelectorAll('.attr-marker'))
+      .filter(m => document.getElementById(m.dataset.input).value === "1").length;
     if (count >= 3 && hid.value !== "1") {
       alert("Max 3 ✠ erlaubt.");
       return;
@@ -327,7 +323,25 @@ function selectAttrMarker(el) {
   updateAttrHeader(el, val);
   saveState();
 }
+function selectAttrMarker(el) {
+  const hid = document.getElementById(el.dataset.input);
+  if (!hid) return;
 
+  if (markerPopup) markerPopup.remove();
+  markerPopup = document.createElement('div');
+  markerPopup.className = 'popup marker-select';
+  markerPopup.innerHTML = attrSymbols.map((s,i)=>`<button class="icon-btn" data-val="${i}">${s}</button>`).join('');
+  document.body.appendChild(markerPopup);
+
+  markerPopup.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = parseInt(btn.dataset.val);
+      applyAttrMarker(el, val);
+      markerPopup.remove();
+      markerPopup = null;
+    });
+  });
+}
 function toggleLineMarker(el) {
   const hid = el.nextElementSibling;
   if (!hid) return;
@@ -420,7 +434,7 @@ function addRow(tableId) {
   if (tableId === "grupp-table") {
     // Vorlage für gruppierte Fähigkeiten
     row.innerHTML = `
-      <td><span class="line-marker">◯</span><input type="hidden" value="0"></td>
+      <td class="mark-col"><span class="line-marker">◯</span><input type="hidden" value="0"></td>
       <td><input type="text"></td>
       <td>
         <select>
@@ -441,7 +455,7 @@ function addRow(tableId) {
   else if (tableId === "talent-table") {
     // Zeile für Talente
     row.innerHTML = `
-      <td><span class="line-marker">◯</span><input type="hidden" value="0"></td>
+      <td class="mark-col"><span class="line-marker">◯</span><input type="hidden" value="0"></td>
       <td><input type="text"></td>
       <td><input type="text"></td>
       <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte();">❌</button></td>

@@ -210,6 +210,18 @@ button.delete-row {
   width: 100%;
 }
 
+/* Markerspaltendicke */
+th.mark-col, td.mark-col {
+  width: 24px;
+  text-align: center !important;
+}
+
+/* Auswahlpopup für Attributmarker */
+.marker-select button {
+  font-size: 24px;
+  margin: 0 5px;
+}
+
 
 /* Slider für Erfahrungstoggle */
 .switch {

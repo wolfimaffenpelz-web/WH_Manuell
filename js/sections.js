@@ -115,7 +115,7 @@ const sections = [
       content: `
         <table class="full-width" id="grund-table">
         <tr>
-          <th>Mark</th>
+          <th class="mark-col">✠</th>
           <th>Fähigkeit</th>
           <th>At.</th>
           <th class="wsg">Wert</th>
@@ -133,7 +133,8 @@ const sections = [
           ["Wahrnehmung","I"],["Zechen","WI"]
           ].map(([name,att]) => `
           <tr>
-            <td><span class="line-marker" data-input="grund-${name}-mark">◯</span><input type="hidden" id="grund-${name}-mark" value="0"></td>
+            <td class="mark-col"><span class="line-marker" data-input="grund-${name}-mark">◯</span><input type="hidden" id="grund-${name}-mark" value="0"></td>
+
             <td>${name}</td>
             <td>${att}</td>
             <td class="wsg"><input type="number" id="grund-${name}-wert" readonly></td>
@@ -152,7 +153,7 @@ const sections = [
     content: `
       <table class="full-width" id="grupp-table">
         <tr>
-          <th>Mark</th>
+          <th class="mark-col">✠</th>
           <th>Fähigkeit</th>
           <th>At.</th>
           <th class="wsg">Wert</th>
@@ -173,7 +174,7 @@ const sections = [
     content: `
       <table class="full-width" id="talent-table">
         <tr>
-          <th>Mark</th>
+          <th class="mark-col">✠</th>
           <th>Talent</th>
           <th>Notiz</th>
           <th>❌</th>
