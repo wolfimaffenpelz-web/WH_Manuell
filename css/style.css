@@ -35,7 +35,7 @@ h1, h2, h3 {
 
 .overlay-content input {
   margin: 10px 0;
-  padding: 4px;
+  padding: 3px;
   width: 150px;
 }
 
@@ -47,8 +47,8 @@ h1, h2, h3 {
 
 .character-management select,
 .character-management button {
-  margin: 0 5px;
-  padding: 4px 4px;
+  margin: 5px;
+  padding: 3px;
 }
 
 /* Tabellen allgemein: Layout für alle Tabellen im Bogen */
@@ -62,7 +62,7 @@ table {
 
 th, td {
   border: 0; /* Zellen erhalten zunächst keinen Rahmen */
-  padding: 4px;
+  padding: 2px;
   text-align: center;
   vertical-align: middle;
   max-width: 120px; /* verhindert zu breite Felder */
@@ -154,7 +154,8 @@ input[readonly], .readonly {
 }
 
 /* Highlighting */
-td.active {
+th.active;
+tr.active {
   outline: 2px solid darkred; /* visuelles Highlight der aktiven Zeile/Spalte */
 }
 
@@ -171,7 +172,7 @@ button.add-row {
 }
 
 button.delete-row {
-  font-size: 13px;
+  font-size: 11px;
   color: red;
   padding: 1px;
 }
@@ -197,7 +198,7 @@ button.delete-row {
 
 .popup button {
   margin: 5px;
-  padding: 4px 4px;
+  padding: 4px;
 }
 
 /* Farben für Werte */
@@ -240,7 +241,7 @@ button.delete-row {
 /* Löschspalte */
 th.delete-col,
 td.delete-col {
-  width: 15px;
+  width: 13px;
   padding: 1px;
 }
 
@@ -271,7 +272,9 @@ td.delete-col {
 }
 #attribute-table th:not(:first-child),
 #attribute-table td:not(:first-child) {
-  width: 25px;
+  width: 22px;
+  padding: 1px;
+  margin: 1px;
 }
 
 #grund-table,
@@ -418,6 +421,7 @@ td.delete-col {
 }
 #ruestung-table th:last-child,
 #ruestung-table td:last-child {
+ text-align: left;
   width: 15px;
 }
 
@@ -446,6 +450,7 @@ td.delete-col {
 #ausruestung-table th:last-child,
 #ausruestung-table td:last-child {
   width: 15px;
+   text-align: left;
 }
 
 /* Zauber & Gebete */
@@ -482,6 +487,7 @@ td.delete-col {
 #zauber-table th:last-child,
 #zauber-table td:last-child {
   width: 15px;
+   text-align: left;
 }
 
 /* Korruption */
@@ -519,6 +525,7 @@ td.delete-col {
 #mutationen-table th:last-child,
 #mutationen-table td:last-child {
   width: 15px;
+   text-align: left;
 }
 
 /* Psychologie */
@@ -540,6 +547,7 @@ td.delete-col {
 #psychologie-table th:last-child,
 #psychologie-table td:last-child {
   width: 15px;
+   text-align: left;
 }
 
 /* Lebenspunkte */
@@ -686,7 +694,7 @@ td.delete-col {
 
 /* Markerspaltendicke */
 th.mark-col, td.mark-col {
-  width: 20px;
+  width: 17px;
   text-align: center !important;
   padding: 3px;
 }
