@@ -255,18 +255,29 @@ td.delete-col {
 .coin.copper { background: #b87333; }
 
 /* Tabellenformatierungen */
+#attribute-table,
+#attribute-table th,
+#attribute-table td {
+  font-family: 'Podkova', serif;
+  color: #111;
+}
 #attribute-table th:first-child,
 #attribute-table td:first-child {
   text-align: left;
   width: min-content;
-  font-weight: semibold;
-}
+  font-weight: 600;
 }
 #attribute-table th:not(:first-child),
 #attribute-table td:not(:first-child) {
   width: 25px;
 }
 
+#grund-table,
+#grund-table th,
+#grund-table td {
+  font-family: 'Podkova', serif;
+  color: #111;
+}
 #grund-table th:nth-child(1),
 #grund-table td:nth-child(1) {
   width: 30px;
@@ -281,6 +292,12 @@ td.delete-col {
   width: 40px;
 }
 
+#grupp-table,
+#grupp-table th,
+#grupp-table td {
+  font-family: 'Podkova', serif;
+  color: #111;
+}
 #grupp-table th:nth-child(1),
 #grupp-table td:nth-child(1) {
   width: 30px;
@@ -299,9 +316,337 @@ td.delete-col {
 #grupp-table td:nth-child(n+4):not(:last-child) {
   width: 40px;
 }
+#talent-table,
+#talent-table th,
+#talent-table td {
+  font-family: 'Podkova', serif;
+  color: #111;
+}
 #talent-table th:nth-child(1),
 #talent-table td:nth-child(1) {
   width: 30px;
+}
+
+/* Waffen-Tabelle */
+#waffen-table,
+#waffen-table th,
+#waffen-table td {
+  font-family: 'Podkova', serif;
+  color: #111;
+}
+#waffen-table th:nth-child(1),
+#waffen-table td:nth-child(1) {
+  text-align: left;
+  width: 25%;
+}
+#waffen-table th:nth-child(2),
+#waffen-table td:nth-child(2) {
+  text-align: left;
+  width: 20%;
+}
+#waffen-table th:nth-child(3),
+#waffen-table td:nth-child(3),
+#waffen-table th:nth-child(4),
+#waffen-table td:nth-child(4) {
+  width: 60px;
+}
+#waffen-table th:nth-child(5),
+#waffen-table td:nth-child(5) {
+  width: auto;
+}
+
+/* Rüstungsübersicht */
+.ruestung-uebersicht,
+.ruestung-uebersicht th,
+.ruestung-uebersicht td {
+  font-family: 'Podkova', serif;
+  color: #111;
+}
+.ruestung-uebersicht th:nth-child(1),
+.ruestung-uebersicht td:nth-child(1) {
+  width: 40%;
+}
+.ruestung-uebersicht th:nth-child(2),
+.ruestung-uebersicht td:nth-child(2) {
+  width: 30%;
+}
+.ruestung-uebersicht th:nth-child(3),
+.ruestung-uebersicht td:nth-child(3) {
+  width: 30%;
+}
+
+/* Rüstungstabelle */
+#ruestung-table,
+#ruestung-table th,
+#ruestung-table td {
+  font-family: 'Podkova', serif;
+  color: #111;
+}
+#ruestung-table th:nth-child(1),
+#ruestung-table td:nth-child(1) {
+  text-align: left;
+  width: 25%;
+}
+#ruestung-table th:nth-child(2),
+#ruestung-table td:nth-child(2) {
+  width: 20%;
+}
+#ruestung-table th:nth-child(3),
+#ruestung-table td:nth-child(3),
+#ruestung-table th:nth-child(4),
+#ruestung-table td:nth-child(4) {
+  width: 40px;
+}
+#ruestung-table th:nth-child(5),
+#ruestung-table td:nth-child(5) {
+  width: auto;
+}
+#ruestung-table th:last-child,
+#ruestung-table td:last-child {
+  width: 30px;
+}
+
+/* Ausrüstung */
+#ausruestung-table,
+#ausruestung-table th,
+#ausruestung-table td {
+  font-family: 'Podkova', serif;
+  color: #111;
+}
+#ausruestung-table th:nth-child(1),
+#ausruestung-table td:nth-child(1) {
+  text-align: left;
+  width: 40%;
+}
+#ausruestung-table th:nth-child(2),
+#ausruestung-table td:nth-child(2),
+#ausruestung-table th:nth-child(3),
+#ausruestung-table td:nth-child(3) {
+  width: 60px;
+}
+#ausruestung-table th:nth-child(4),
+#ausruestung-table td:nth-child(4) {
+  width: auto;
+}
+#ausruestung-table th:last-child,
+#ausruestung-table td:last-child {
+  width: 30px;
+}
+
+/* Zauber & Gebete */
+#zauber-table,
+#zauber-table th,
+#zauber-table td {
+  font-family: 'Podkova', serif;
+  color: #111;
+}
+#zauber-table th:nth-child(1),
+#zauber-table td:nth-child(1) {
+  text-align: left;
+  width: 25%;
+}
+#zauber-table th:nth-child(2),
+#zauber-table td:nth-child(2),
+#zauber-table th:nth-child(3),
+#zauber-table td:nth-child(3),
+#zauber-table th:nth-child(4),
+#zauber-table td:nth-child(4) {
+  width: 60px;
+}
+#zauber-table th:nth-child(5),
+#zauber-table td:nth-child(5) {
+  width: 40px;
+}
+#zauber-table th:nth-child(6),
+#zauber-table td:nth-child(6) {
+  width: auto;
+}
+#zauber-table th:last-child,
+#zauber-table td:last-child {
+  width: 30px;
+}
+
+/* Korruption */
+#korruption-table,
+#korruption-table th,
+#korruption-table td {
+  font-family: 'Podkova', serif;
+  color: #111;
+}
+#korruption-table th,
+#korruption-table td {
+  width: 50%;
+}
+
+/* Mutationen */
+#mutationen-table,
+#mutationen-table th,
+#mutationen-table td {
+  font-family: 'Podkova', serif;
+  color: #111;
+}
+#mutationen-table th:nth-child(1),
+#mutationen-table td:nth-child(1) {
+  text-align: left;
+  width: 30%;
+}
+#mutationen-table th:nth-child(2),
+#mutationen-table td:nth-child(2) {
+  width: 30%;
+}
+#mutationen-table th:nth-child(3),
+#mutationen-table td:nth-child(3) {
+  width: auto;
+}
+#mutationen-table th:last-child,
+#mutationen-table td:last-child {
+  width: 30px;
+}
+
+/* Psychologie */
+#psychologie-table,
+#psychologie-table th,
+#psychologie-table td {
+  font-family: 'Podkova', serif;
+  color: #111;
+}
+#psychologie-table th:nth-child(1),
+#psychologie-table td:nth-child(1) {
+  text-align: left;
+  width: 40%;
+}
+#psychologie-table th:nth-child(2),
+#psychologie-table td:nth-child(2) {
+  width: auto;
+}
+#psychologie-table th:last-child,
+#psychologie-table td:last-child {
+  width: 30px;
+}
+
+/* Lebenspunkte */
+#lp-table,
+#lp-table th,
+#lp-table td {
+  font-family: 'Podkova', serif;
+  color: #111;
+}
+#lp-table th:nth-child(1),
+#lp-table td:nth-child(1) {
+  text-align: left;
+  width: 70%;
+}
+#lp-table th:nth-child(2),
+#lp-table td:nth-child(2) {
+  width: 30%;
+}
+
+/* Traglast */
+#traglast-table,
+#traglast-table th,
+#traglast-table td {
+  font-family: 'Podkova', serif;
+  color: #111;
+}
+#traglast-table th:nth-child(1),
+#traglast-table td:nth-child(1) {
+  text-align: left;
+  width: 70%;
+}
+#traglast-table th:nth-child(2),
+#traglast-table td:nth-child(2) {
+  width: 30%;
+}
+
+/* Vermögen */
+#vermoegen-table,
+#vermoegen-table th,
+#vermoegen-table td,
+#schulden-table,
+#schulden-table th,
+#schulden-table td,
+#nettovermoegen-block table,
+#nettovermoegen-block th,
+#nettovermoegen-block td {
+  font-family: 'Podkova', serif;
+  color: #111;
+}
+#vermoegen-table th:nth-child(1),
+#vermoegen-table td:nth-child(1),
+#schulden-table th:nth-child(1),
+#schulden-table td:nth-child(1),
+#nettovermoegen-block th:nth-child(1),
+#nettovermoegen-block td:nth-child(1) {
+  text-align: left;
+  width: 40%;
+}
+#vermoegen-table th:nth-child(n+2),
+#vermoegen-table td:nth-child(n+2),
+#schulden-table th:nth-child(n+2),
+#schulden-table td:nth-child(n+2),
+#nettovermoegen-block th:nth-child(n+2),
+#nettovermoegen-block td:nth-child(n+2) {
+  width: 60px;
+}
+
+/* Erfahrungstabelle */
+#exp-table,
+#exp-table th,
+#exp-table td {
+  font-family: 'Podkova', serif;
+  color: #111;
+}
+#exp-table th:nth-child(1),
+#exp-table td:nth-child(1) {
+  width: 60px;
+}
+#exp-table th:nth-child(2),
+#exp-table td:nth-child(2) {
+  text-align: left;
+  width: auto;
+}
+#exp-table th:last-child,
+#exp-table td:last-child {
+  width: 30px;
+}
+
+/* Erfahrung – einfache & volle Tabelle */
+#exp-simple table,
+#exp-simple th,
+#exp-simple td,
+#exp-full > table:first-of-type,
+#exp-full > table:first-of-type th,
+#exp-full > table:first-of-type td {
+  font-family: 'Podkova', serif;
+  color: #111;
+}
+#exp-simple th,
+#exp-simple td,
+#exp-full > table:first-of-type th,
+#exp-full > table:first-of-type td {
+  width: 33%;
+}
+#exp-simple th:first-child,
+#exp-simple td:first-child,
+#exp-full > table:first-of-type th:first-child,
+#exp-full > table:first-of-type td:first-child {
+  text-align: left;
+}
+
+/* Grunddaten Tabellen */
+#grunddaten table,
+#grunddaten th,
+#grunddaten td {
+  font-family: 'Podkova', serif;
+  color: #111;
+}
+#grunddaten td:first-child {
+  text-align: left;
+  width: 40%;
+  font-weight: 600;
+}
+#grunddaten td:last-child {
+  width: 60%;
 }
 
 /* Abstand zwischen Tabellen */
