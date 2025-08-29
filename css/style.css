@@ -252,7 +252,7 @@ td.delete-col {
 
 #grund-table th:nth-child(1),
 #grund-table td:nth-child(1) {
-  width: 40px;
+  width: 30px;
 }
 #grund-table th:nth-child(2),
 #grund-table td:nth-child(2) {
@@ -268,7 +268,7 @@ td.delete-col {
 #grupp-table td:nth-child(1),
 #grupp-table th:last-child,
 #grupp-table td:last-child {
-  width: 40px;
+  width: 30px;
 }
 #grupp-table th:nth-child(2),
 #grupp-table td:nth-child(2) {
@@ -287,7 +287,7 @@ td.delete-col {
 #talent-table td:nth-child(1),
 #talent-table th:last-child,
 #talent-table td:last-child {
-  width: 40px;
+  width: 30px;
 }
 
 /* Abstand zwischen Tabellen */
