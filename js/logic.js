@@ -836,8 +836,8 @@ function updateErfahrung() {
     document.querySelectorAll("#exp-table tr").forEach((row, idx) => {
       if (idx === 0) return;
       const val = parseInt(row.cells[0].querySelector("input").value) || 0;
-      if (val >= 0) akt += val;
-      else ausg += Math.abs(val);
+      akt += val;
+      if (val < 0) ausg += Math.abs(val);
     });
     document.getElementById("exp-full-akt").value = akt;
     document.getElementById("exp-full-ausg").value = ausg;
