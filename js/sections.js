@@ -91,7 +91,7 @@ const sections = [
           <td><input type="number" id="CH-steig"></td>
         </tr>
         <tr>
-          <td>Aktuell</td>
+          <td>&Sigma;</td>
           <td><input type="number" id="KG-akt" readonly></td>
           <td><input type="number" id="BF-akt" readonly></td>
           <td><input type="number" id="ST-akt" readonly></td>
@@ -120,7 +120,7 @@ const sections = [
           <th>At.</th>
           <th class="wsg">Wert</th>
           <th class="wsg">Steig.</th>
-          <th class="wsg">Gesamt</th>
+          <th class="wsg">&Sigma;</th>
         </tr>
         <!-- Reihenfolge fix nach Referenz -->
         ${[
@@ -158,8 +158,8 @@ const sections = [
           <th>At.</th>
           <th class="wsg">Wert</th>
           <th class="wsg">Steig.</th>
-          <th class="wsg">Gesamt</th>
-          <th>❌</th>
+          <th class="wsg">&Sigma;</th>
+          <th class="delete-col"></th>
         </tr>
       </table>
       <button class="add-row" onclick="addRow('grupp-table')">+ Neue Zeile</button>
@@ -177,7 +177,7 @@ const sections = [
           <th class="mark-col">✠</th>
           <th>Talent</th>
           <th>Notiz</th>
-          <th>❌</th>
+          <th class="delete-col"></th>
         </tr>
       </table>
       <button class="add-row" onclick="addRow('talent-table')">+ Neues Talent</button>
@@ -199,8 +199,8 @@ sections.push(
           <th class="text-left">Gruppe</th>
           <th>TP</th>
           <th>RW</th>
-          <th>Notizen</th>
-          <th>❌</th>
+          <th>Qualitäten</th>
+          <th class="delete-col"></th>
         </tr>
       </table>
       <button class="add-row" onclick="addRow('waffen-table')">+ Neue Waffe</button>
@@ -223,6 +223,7 @@ sections.push(
         <tr><td>Linkes Bein</td><td>80–89</td><td><input id="rp-lbein" readonly></td></tr>
         <tr><td>Rechtes Bein</td><td>90–100</td><td><input id="rp-rbein" readonly></td></tr>
       </table>
+      <div class="table-gap"></div>
 
       <!-- Dynamische Rüstungsteile -->
       <table class="full-width" id="ruestung-table">
@@ -231,8 +232,8 @@ sections.push(
           <th>Trefferzone</th>
           <th>RP</th>
           <th>TP</th>
-          <th>Notizen</th>
-          <th>❌</th>
+          <th>Qualitäten</th>
+          <th class="delete-col"></th>
         </tr>
       </table>
       <button class="add-row" onclick="addRow('ruestung-table')">+ Neue Rüstung</button>
@@ -251,7 +252,7 @@ sections.push(
           <th>Menge</th>
           <th>TP</th>
           <th>Notizen</th>
-          <th>❌</th>
+          <th class="delete-col"></th>
         </tr>
       </table>
       <button class="add-row" onclick="addRow('ausruestung-table')">+ Neue Ausrüstung</button>
@@ -272,7 +273,7 @@ sections.push(
           <th>Ziel</th>
           <th>⏳</th>
           <th>Effekt</th>
-          <th>❌</th>
+          <th class="delete-col"></th>
         </tr>
       </table>
       <button class="add-row" onclick="addRow('zauber-table')">+ Neuer Zauber</button>
@@ -298,7 +299,7 @@ sections.push(
           <th>Mutation</th>
           <th>Betroffen</th>
           <th>Notizen</th>
-          <th>❌</th>
+          <th class="delete-col"></th>
         </tr>
       </table>
       <button class="add-row" onclick="addRow('mutationen-table')">+ Mutation</button>
@@ -315,7 +316,7 @@ sections.push(
     title: "Psychologie",
     content: `
       <table class="full-width" id="psychologie-table">
-        <tr><th>Eintrag</th><th>Notizen</th><th>❌</th></tr>
+        <tr><th>Eintrag</th><th>Notizen</th><th class="delete-col"></th></tr>
       </table>
       <button class="add-row" onclick="addRow('psychologie-table')">+ Neuer Eintrag</button>
       <div class="section-divider"></div>
@@ -364,7 +365,7 @@ sections.push(
     content: `
       <h3>Vermögen</h3>
       <table class="full-width" id="vermoegen-table">
-        <tr><th></th><th>💰 GK</th><th>🥈 S</th><th>🥉 G</th></tr>
+        <tr><th></th><th><span class="coin gold"></span> GK</th><th><span class="coin silver"></span> S</th><th><span class="coin copper"></span> G</th></tr>
         <tr>
           <td>Betrag</td>
           <td><input type="number" id="verm-gk"></td>
@@ -375,18 +376,26 @@ sections.push(
 
       <h3>Schulden</h3>
       <table class="full-width" id="schulden-table">
-        <tr><th></th><th>💰 GK</th><th>🥈 S</th><th>🥉 G</th></tr>
+        <tr><th></th><th><span class="coin gold"></span> GK</th><th><span class="coin silver"></span> S</th><th><span class="coin copper"></span> G</th></tr>
         <tr>
           <td>Betrag</td>
-          <td><input type="number" id="schul-gk"></td>
-          <td><input type="number" id="schul-s"></td>
-          <td><input type="number" id="schul-g"></td>
+          <td><input type="number" id="schul-gk" max="0"></td>
+          <td><input type="number" id="schul-s" max="0"></td>
+          <td><input type="number" id="schul-g" max="0"></td>
         </tr>
       </table>
 
       <div id="nettovermoegen-block" style="margin-top:10px; display:none;">
         <h3>Nettosumme</h3>
-        <p id="nettovermoegen"></p>
+        <table class="full-width">
+          <tr><th></th><th><span class="coin gold"></span> GK</th><th><span class="coin silver"></span> S</th><th><span class="coin copper"></span> G</th></tr>
+          <tr>
+            <td>Netto</td>
+            <td><input type="number" id="netto-gk" readonly></td>
+            <td><input type="number" id="netto-s" readonly></td>
+            <td><input type="number" id="netto-g" readonly></td>
+          </tr>
+        </table>
       </div>
 
       <div class="section-divider"></div>
@@ -431,7 +440,7 @@ sections.push(
         </table>
 
         <table class="full-width" id="exp-table">
-          <tr><th>Wert</th><th>Kommentar</th><th>❌</th></tr>
+          <tr><th>Wert</th><th>Kommentar</th><th class="delete-col"></th></tr>
         </table>
         <button class="add-row" onclick="addRow('exp-table')">+ Eintrag</button>
       </div>
