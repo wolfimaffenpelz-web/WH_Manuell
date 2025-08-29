@@ -198,8 +198,28 @@ button.delete-row {
   text-align: left; /* Tabelle „Rüstung“ vertikal ausgerichtet */
 }
 
+/* Marker Styles */
+.attr-cross { background: #add8e6; font-weight: bold; }
+.attr-axes { background: #cd7f32; font-weight: bold; }
+.attr-skull { background: silver; font-weight: bold; }
+.attr-shield { background: gold; font-weight: bold; }
+
+.line-marked { background: #ddd; font-weight: bold; }
+
 .ruestung-uebersicht input {
   width: 100%;
+}
+
+/* Markerspaltendicke */
+th.mark-col, td.mark-col {
+  width: 24px;
+  text-align: center !important;
+}
+
+/* Auswahlpopup für Attributmarker */
+.marker-select button {
+  font-size: 24px;
+  margin: 0 5px;
 }
 
 
