@@ -270,6 +270,29 @@ function loadState() {
 
   updateAttributes();
   restoreMarkers();
+  ensureInitialRows();
+}
+
+// =========================
+// ➕ Dynamische Tabellen – Initiale Zeilen
+// =========================
+function ensureInitialRows() {
+  [
+    "grupp-table",
+    "talent-table",
+    "waffen-table",
+    "ruestung-table",
+    "ausruestung-table",
+    "zauber-table",
+    "mutationen-table",
+    "psychologie-table",
+    "exp-table"
+  ].forEach(id => {
+    const table = document.getElementById(id);
+    if (table && table.rows.length === 1) {
+      addRow(id);
+    }
+  });
 }
 
 // =========================
