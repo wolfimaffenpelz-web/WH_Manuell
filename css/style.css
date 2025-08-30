@@ -111,6 +111,41 @@ td.wsg {
   width: 60px;
 }
 
+/* Attribute-Marker über den Spielwerten */
+.marker-row .attr-marker {
+  display: block;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+/* Spaltenbreiten für Fähigkeiten- und Talenttabellen */
+#grund-table th:nth-child(2),
+#grund-table td:nth-child(2) {
+  width: 60px;
+}
+#grupp-table th:nth-child(2),
+#grupp-table td:nth-child(2) {
+  width: 50px;
+}
+#talent-table th:nth-child(1),
+#talent-table td:nth-child(1) {
+  width: 55%;
+  min-width: 30%;
+  max-width: 70%;
+}
+#talent-table th:nth-child(2),
+#talent-table td:nth-child(2) {
+  width: 45%;
+  min-width: 30%;
+  max-width: 70%;
+}
+#grund-table th:first-child,
+#grund-table td:first-child,
+#grupp-table th:first-child,
+#grupp-table td:first-child {
+  max-width: none;
+}
+
 td.text-left input,
 th.text-left input,
 td.text-left textarea,

@@ -368,6 +368,9 @@ function resetAttrMarker(th) {
   if (!hid) return;
   hid.value = "0";
   updateAttrHeader(th, 0);
+  const attr = th.dataset.input.replace('-mark','');
+  const icon = document.querySelector(`.marker-row .attr-marker[data-attr="${attr}"]`);
+  if (icon) icon.textContent = "";
 }
 
 function enforceAttributeExclusivity() {
@@ -409,6 +412,9 @@ function applyAttrMarker(th, val) {
 
   hid.value = String(val);
   updateAttrHeader(th, val);
+  const attr = th.dataset.input.replace('-mark','');
+  const icon = document.querySelector(`.marker-row .attr-marker[data-attr="${attr}"]`);
+  if (icon) icon.textContent = attrSymbols[val];
   saveState();
 }
 
@@ -462,6 +468,9 @@ function restoreMarkers() {
     const hid = th.querySelector('input[type="hidden"]');
     const val = parseInt(hid.value) || 0;
     updateAttrHeader(th, val);
+    const attr = th.dataset.input.replace('-mark','');
+    const icon = document.querySelector(`.marker-row .attr-marker[data-attr="${attr}"]`);
+    if (icon) icon.textContent = attrSymbols[val];
   });
   enforceAttributeExclusivity();
   document.querySelectorAll('[data-marker]').forEach(cell => {

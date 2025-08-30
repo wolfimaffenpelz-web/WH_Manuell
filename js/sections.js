@@ -59,6 +59,19 @@ const sections = [
           <th data-input="WK-mark">WK<input type="hidden" id="WK-mark" value="0"></th>
           <th data-input="CH-mark">CH<input type="hidden" id="CH-mark" value="0"></th>
         </tr>
+        <tr class="marker-row">
+          <td></td>
+          <td><span class="attr-marker" data-attr="KG"></span></td>
+          <td><span class="attr-marker" data-attr="BF"></span></td>
+          <td><span class="attr-marker" data-attr="ST"></span></td>
+          <td><span class="attr-marker" data-attr="WI"></span></td>
+          <td><span class="attr-marker" data-attr="I"></span></td>
+          <td><span class="attr-marker" data-attr="GW"></span></td>
+          <td><span class="attr-marker" data-attr="GS"></span></td>
+          <td><span class="attr-marker" data-attr="IN"></span></td>
+          <td><span class="attr-marker" data-attr="WK"></span></td>
+          <td><span class="attr-marker" data-attr="CH"></span></td>
+        </tr>
         <tr>
           <td>Anfang</td>
           <td><input type="number" id="KG-start"></td>
@@ -111,7 +124,7 @@ const sections = [
         <table class="full-width" id="grund-table">
         <tr>
           <th>Fähigkeit</th>
-          <th>At.</th>
+          <th class="wsg">At.</th>
           <th class="wsg">Wert</th>
           <th class="wsg">Steig.</th>
           <th class="wsg">&Sigma;</th>
@@ -128,7 +141,7 @@ const sections = [
           ].map(([name,att]) => `
           <tr>
             <td data-marker="grund-${name}"><span class="marker-icon"></span><span>${name}</span><input type="hidden" id="grund-${name}-mark" value="0"></td>
-            <td>${att}</td>
+            <td class="wsg">${att}</td>
             <td class="wsg"><input type="number" id="grund-${name}-wert" readonly></td>
             <td class="wsg"><input type="number" id="grund-${name}-steig"></td>
             <td class="wsg"><input type="number" id="grund-${name}-gesamt" readonly></td>
