@@ -181,11 +181,11 @@ th[data-input]::before {
 #grupp-table td:nth-child(5) {
   width: 60px;
 }
-#talent-table th:nth-child(1),
-#talent-table td:nth-child(1) {
-  width: 55%;
+#talent-table th:first-child,
+#talent-table td:first-child {
+  max-width: none;
   min-width: 30%;
-  max-width: 70%;
+  width: auto;
 }
 #talent-table th:nth-child(2),
 #talent-table td:nth-child(2) {
@@ -193,9 +193,9 @@ th[data-input]::before {
 }
 #talent-table th:nth-child(3),
 #talent-table td:nth-child(3) {
-  width: 45%;
+  max-width: none;
   min-width: 30%;
-  max-width: 70%;
+  width: 30%;
 }
 
 td.text-left input,
@@ -746,6 +746,11 @@ td.delete-col {
 .attr-shield { background: gold; font-weight: bold; }
 
 .line-marked { background: #ddd; font-weight: bold; }
+
+#talent-table tr.line-marked [data-marker] input[type="text"],
+#grupp-table tr.line-marked [data-marker] input[type="text"] {
+  background: transparent;
+}
 
 .ruestung-uebersicht input {
   width: 100%;
