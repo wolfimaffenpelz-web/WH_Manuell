@@ -153,7 +153,8 @@ th[data-input]::before {
   content: attr(data-icon);
   display: block;
   font-size: 20px;
-  line-height: 1.2;
+  line-height: 20px;
+  height: 20px;
 }
 
 /* Spaltenbreiten für Fähigkeiten- und Talenttabellen */

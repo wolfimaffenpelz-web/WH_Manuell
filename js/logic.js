@@ -511,6 +511,21 @@ document.addEventListener("click", e => {
     selectAttrMarker(th);
   }
 });
+
+document.addEventListener("input", e => {
+  const cell = e.target.closest('td[data-marker]');
+  if (!cell || !e.target.matches('input[type="text"]')) return;
+  if (e.target.value.trim() !== "") return;
+  const hid = cell.querySelector('input[type="hidden"]');
+  const icon = cell.querySelector('.marker-icon');
+  const row = cell.closest('tr');
+  if (hid && hid.value !== "0") {
+    hid.value = "0";
+    if (icon) icon.textContent = "";
+    if (row) row.classList.remove('line-marked');
+    saveState();
+  }
+});
 // =========================
 // 📊 Attribute Berechnungen
 // =========================
