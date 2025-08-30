@@ -734,24 +734,20 @@ td.delete-col {
   width: 100%;
 }
 
-/* Markerspaltendicke */
-th.mark-col, td.mark-col {
-  width: 17px;
-  text-align: center !important;
-  padding: 0;
+/* Popup für Attributmarker */
+.marker-select {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
 }
 
-.marker-row td {
-  padding: 0;
-
-}
-.attr-marker,
-.line-marker {
-  padding: 0;
+.marker-select button {
+  font-size: 24px;
+  margin: 3px;
 }
 
-.line-marker {
-  font-size: 90%;
+.marker-icon {
+  display: inline-block;
+  width: 1em;
 }
 
 /* Kompakte Spielwerte-Tabelle */
@@ -766,13 +762,6 @@ th.mark-col, td.mark-col {
   padding: 0;
   text-align: center;
 }
-/* Auswahlpopup für Attributmarker */
-.marker-select button {
-  font-size: 24px;
-  margin: 3 3px;
-}
-
-
 /* Slider für Erfahrungstoggle */
 .switch {
   position: relative;
