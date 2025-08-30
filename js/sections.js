@@ -46,19 +46,6 @@ const sections = [
     title: "Spielwerte",
     content: `
       <table class="full-width" id="attribute-table">
-        <tr class="marker-row">
-          <td></td>
-          <td><span class="attr-marker" data-attr="KG"></span></td>
-          <td><span class="attr-marker" data-attr="BF"></span></td>
-          <td><span class="attr-marker" data-attr="ST"></span></td>
-          <td><span class="attr-marker" data-attr="WI"></span></td>
-          <td><span class="attr-marker" data-attr="I"></span></td>
-          <td><span class="attr-marker" data-attr="GW"></span></td>
-          <td><span class="attr-marker" data-attr="GS"></span></td>
-          <td><span class="attr-marker" data-attr="IN"></span></td>
-          <td><span class="attr-marker" data-attr="WK"></span></td>
-          <td><span class="attr-marker" data-attr="CH"></span></td>
-        </tr>
         <tr class="attr-header">
           <th></th>
           <th data-input="KG-mark">KG<input type="hidden" id="KG-mark" value="0"></th>
