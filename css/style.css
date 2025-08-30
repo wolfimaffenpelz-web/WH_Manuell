@@ -601,18 +601,16 @@ td.delete-col {
   font-family: 'Podkova', serif;
   color: #111;
 }
-#vermoegen-table th:nth-child(1),
-#vermoegen-table td:nth-child(1),
-#nettovermoegen-block th:nth-child(1),
-#nettovermoegen-block td:nth-child(1) {
-  text-align: left;
-  width: 40%;
+#vermoegen-table,
+#nettovermoegen-block table {
+  margin: 0 auto;
 }
-#vermoegen-table th:nth-child(n+2),
-#vermoegen-table td:nth-child(n+2),
-#nettovermoegen-block th:nth-child(n+2),
-#nettovermoegen-block td:nth-child(n+2) {
-  width: 60px;
+#vermoegen-table th,
+#vermoegen-table td,
+#nettovermoegen-block th,
+#nettovermoegen-block td {
+  width: 5ch;
+  text-align: center;
 }
 
 #schulden-table,
@@ -636,7 +634,7 @@ td.delete-col {
 #spar-table td:nth-child(2),
 #spar-table th:nth-child(3),
 #spar-table td:nth-child(3) {
-  width: 60px;
+  width: 5ch;
 }
 #schulden-table th:nth-child(4),
 #schulden-table td:nth-child(4),

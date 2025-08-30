@@ -364,10 +364,9 @@ sections.push(
     title: "Vermögen & Schulden",
     content: `
       <h3>Münzbesitz</h3>
-      <table class="full-width" id="vermoegen-table">
-        <tr><th></th><th><span class="coin gold"></span> GK</th><th><span class="coin silver"></span> S</th><th><span class="coin copper"></span> G</th></tr>
+      <table id="vermoegen-table">
+        <tr><th><span class="coin gold"></span> GK</th><th><span class="coin silver"></span> S</th><th><span class="coin copper"></span> G</th></tr>
         <tr>
-          <td>Betrag</td>
           <td><input type="number" id="verm-gk"></td>
           <td><input type="number" id="verm-s"></td>
           <td><input type="number" id="verm-g"></td>
@@ -376,10 +375,9 @@ sections.push(
 
       <div id="nettovermoegen-block" style="margin-top:10px;">
         <h3>Nettovermögen</h3>
-        <table class="full-width">
-          <tr><th></th><th><span class="coin gold"></span> GK</th><th><span class="coin silver"></span> S</th><th><span class="coin copper"></span> G</th></tr>
+        <table>
+          <tr><th><span class="coin gold"></span> GK</th><th><span class="coin silver"></span> S</th><th><span class="coin copper"></span> G</th></tr>
           <tr>
-            <td>Netto</td>
             <td><input type="number" id="netto-gk" readonly></td>
             <td><input type="number" id="netto-s" readonly></td>
             <td><input type="number" id="netto-g" readonly></td>
