@@ -447,15 +447,21 @@ function selectAttrMarker(th) {
 function toggleLineMarker(cell) {
   const hid = cell.querySelector('input[type="hidden"]');
   if (!hid) return;
+  const row = cell.closest('tr');
+  const table = row ? row.closest('table') : null;
+  if (table && (table.id === 'grupp-table' || table.id === 'talent-table')) {
+    const nameInput = cell.querySelector('input[type="text"]');
+    if (!nameInput || nameInput.value.trim() === '') return;
+  }
   const icon = cell.querySelector('.marker-icon');
   if (hid.value === "1") {
     hid.value = "0";
     if (icon) icon.textContent = "";
-    cell.closest('tr').classList.remove('line-marked');
+    row.classList.remove('line-marked');
   } else {
     hid.value = "1";
     if (icon) icon.textContent = attrSymbols[1];
-    cell.closest('tr').classList.add('line-marked');
+    row.classList.add('line-marked');
   }
   saveState();
 }
@@ -470,12 +476,22 @@ function restoreMarkers() {
   document.querySelectorAll('[data-marker]').forEach(cell => {
     const hid = cell.querySelector('input[type="hidden"]');
     const icon = cell.querySelector('.marker-icon');
+    const row = cell.closest('tr');
+    const table = row ? row.closest('table') : null;
+    if (hid.value === "1") {
+      if (table && (table.id === 'grupp-table' || table.id === 'talent-table')) {
+        const nameInput = cell.querySelector('input[type="text"]');
+        if (!nameInput || nameInput.value.trim() === '') {
+          hid.value = "0";
+        }
+      }
+    }
     if (hid.value === "1") {
       if (icon) icon.textContent = attrSymbols[1];
-      cell.closest('tr').classList.add('line-marked');
+      row.classList.add('line-marked');
     } else {
       if (icon) icon.textContent = "";
-      cell.closest('tr').classList.remove('line-marked');
+      row.classList.remove('line-marked');
     }
   });
 }

@@ -747,9 +747,19 @@ td.delete-col {
 
 .line-marked { background: #ddd; font-weight: bold; }
 
-#talent-table tr.line-marked [data-marker] input[type="text"],
-#grupp-table tr.line-marked [data-marker] input[type="text"] {
+#grund-table tr.line-marked input,
+#grupp-table tr.line-marked input,
+#talent-table tr.line-marked input,
+#grund-table tr.line-marked select,
+#grupp-table tr.line-marked select,
+#talent-table tr.line-marked select,
+#grund-table tr.line-marked textarea,
+#grupp-table tr.line-marked textarea,
+#talent-table tr.line-marked textarea {
   background: transparent;
+  border: 1px solid #8B0000;
+  border-radius: 4px;
+  box-sizing: border-box;
 }
 
 .ruestung-uebersicht input {
