@@ -14,6 +14,10 @@ h1, h2, h3 {
   text-align: center;
 }
 
+:root {
+  --coin-col-width: 5ch;
+}
+
 /* Overlay Passwort: abgedunkelter Hintergrund bei Login */
 .overlay {
   position: fixed;
@@ -604,24 +608,12 @@ td.delete-col {
 #vermoegen-table,
 #nettovermoegen-block table {
   margin: 0 auto;
+  width: auto;
 }
 #vermoegen-table th,
 #vermoegen-table td,
 #nettovermoegen-block th,
-#nettovermoegen-block td {
-  width: 5ch;
-  text-align: center;
-}
-
-#schulden-table,
-#schulden-table th,
-#schulden-table td,
-#spar-table,
-#spar-table th,
-#spar-table td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
+#nettovermoegen-block td,
 #schulden-table th:nth-child(1),
 #schulden-table td:nth-child(1),
 #schulden-table th:nth-child(2),
@@ -634,7 +626,18 @@ td.delete-col {
 #spar-table td:nth-child(2),
 #spar-table th:nth-child(3),
 #spar-table td:nth-child(3) {
-  width: 5ch;
+  width: var(--coin-col-width);
+  text-align: center;
+}
+
+#schulden-table,
+#schulden-table th,
+#schulden-table td,
+#spar-table,
+#spar-table th,
+#spar-table td {
+  font-family: 'Podkova', serif;
+  color: #111;
 }
 #schulden-table th:nth-child(4),
 #schulden-table td:nth-child(4),
