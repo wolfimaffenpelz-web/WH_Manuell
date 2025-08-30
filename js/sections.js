@@ -363,7 +363,7 @@ sections.push(
     id: "vermoegen",
     title: "Vermögen & Schulden",
     content: `
-      <h3>Vermögen</h3>
+      <h3>Münzbesitz</h3>
       <table class="full-width" id="vermoegen-table">
         <tr><th></th><th><span class="coin gold"></span> GK</th><th><span class="coin silver"></span> S</th><th><span class="coin copper"></span> G</th></tr>
         <tr>
@@ -374,19 +374,8 @@ sections.push(
         </tr>
       </table>
 
-      <h3>Schulden</h3>
-      <table class="full-width" id="schulden-table">
-        <tr><th></th><th><span class="coin gold"></span> GK</th><th><span class="coin silver"></span> S</th><th><span class="coin copper"></span> G</th></tr>
-        <tr>
-          <td>Betrag</td>
-          <td><input type="number" id="schul-gk" max="0"></td>
-          <td><input type="number" id="schul-s" max="0"></td>
-          <td><input type="number" id="schul-g" max="0"></td>
-        </tr>
-      </table>
-
-      <div id="nettovermoegen-block" style="margin-top:10px; display:none;">
-        <h3>Nettosumme</h3>
+      <div id="nettovermoegen-block" style="margin-top:10px;">
+        <h3>Nettovermögen</h3>
         <table class="full-width">
           <tr><th></th><th><span class="coin gold"></span> GK</th><th><span class="coin silver"></span> S</th><th><span class="coin copper"></span> G</th></tr>
           <tr>
@@ -396,6 +385,33 @@ sections.push(
             <td><input type="number" id="netto-g" readonly></td>
           </tr>
         </table>
+      </div>
+
+      <h3 id="finanzen-toggle"><span id="finanzen-arrow">▶</span> Finanzen - erweitern</h3>
+      <div id="finanzen-extra" style="display:none;">
+        <h3>Schulden</h3>
+        <table class="full-width" id="schulden-table">
+          <tr>
+            <th><span class="coin gold"></span> GK</th>
+            <th><span class="coin silver"></span> S</th>
+            <th><span class="coin copper"></span> G</th>
+            <th>Notizen</th>
+            <th class="delete-col"></th>
+          </tr>
+        </table>
+        <button class="add-row" onclick="addRow('schulden-table')">+ Neue Zeile</button>
+
+        <h3>Sparvermögen</h3>
+        <table class="full-width" id="spar-table">
+          <tr>
+            <th><span class="coin gold"></span> GK</th>
+            <th><span class="coin silver"></span> S</th>
+            <th><span class="coin copper"></span> G</th>
+            <th>Notizen</th>
+            <th class="delete-col"></th>
+          </tr>
+        </table>
+        <button class="add-row" onclick="addRow('spar-table')">+ Neue Zeile</button>
       </div>
 
       <div class="section-divider"></div>

@@ -595,9 +595,6 @@ td.delete-col {
 #vermoegen-table,
 #vermoegen-table th,
 #vermoegen-table td,
-#schulden-table,
-#schulden-table th,
-#schulden-table td,
 #nettovermoegen-block table,
 #nettovermoegen-block th,
 #nettovermoegen-block td {
@@ -606,8 +603,6 @@ td.delete-col {
 }
 #vermoegen-table th:nth-child(1),
 #vermoegen-table td:nth-child(1),
-#schulden-table th:nth-child(1),
-#schulden-table td:nth-child(1),
 #nettovermoegen-block th:nth-child(1),
 #nettovermoegen-block td:nth-child(1) {
   text-align: left;
@@ -615,11 +610,50 @@ td.delete-col {
 }
 #vermoegen-table th:nth-child(n+2),
 #vermoegen-table td:nth-child(n+2),
-#schulden-table th:nth-child(n+2),
-#schulden-table td:nth-child(n+2),
 #nettovermoegen-block th:nth-child(n+2),
 #nettovermoegen-block td:nth-child(n+2) {
   width: 60px;
+}
+
+#schulden-table,
+#schulden-table th,
+#schulden-table td,
+#spar-table,
+#spar-table th,
+#spar-table td {
+  font-family: 'Podkova', serif;
+  color: #111;
+}
+#schulden-table th:nth-child(1),
+#schulden-table td:nth-child(1),
+#schulden-table th:nth-child(2),
+#schulden-table td:nth-child(2),
+#schulden-table th:nth-child(3),
+#schulden-table td:nth-child(3),
+#spar-table th:nth-child(1),
+#spar-table td:nth-child(1),
+#spar-table th:nth-child(2),
+#spar-table td:nth-child(2),
+#spar-table th:nth-child(3),
+#spar-table td:nth-child(3) {
+  width: 60px;
+}
+#schulden-table th:nth-child(4),
+#schulden-table td:nth-child(4),
+#spar-table th:nth-child(4),
+#spar-table td:nth-child(4) {
+  text-align: left;
+  width: auto;
+}
+#schulden-table th:nth-child(5),
+#schulden-table td:nth-child(5),
+#spar-table th:nth-child(5),
+#spar-table td:nth-child(5) {
+  width: 20px;
+  padding: 0;
+}
+#schulden-table input[type="number"] {
+  color: red;
 }
 
 /* Erfahrungstabelle */

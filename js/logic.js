@@ -192,6 +192,22 @@ function initGrunddatenToggle() {
   });
 }
 
+function initFinanzenToggle() {
+  const header = document.getElementById("finanzen-toggle");
+  const arrow = document.getElementById("finanzen-arrow");
+  const extra = document.getElementById("finanzen-extra");
+  if (!header || !arrow || !extra) return;
+  header.addEventListener("click", () => {
+    if (extra.style.display === "none") {
+      extra.style.display = "block";
+      arrow.textContent = "▼";
+    } else {
+      extra.style.display = "none";
+      arrow.textContent = "▶";
+    }
+  });
+}
+
 // =========================
 // 💾 Speicher- und Lade-Logik
 // =========================
@@ -258,6 +274,8 @@ function saveState() {
     "grupp-table",
     "talent-table",
     "waffen-table",
+    "schulden-table",
+    "spar-table",
     "ruestung-table",
     "ausruestung-table",
     "zauber-table",
@@ -291,6 +309,8 @@ function loadState() {
     "grupp-table",
     "talent-table",
     "waffen-table",
+    "schulden-table",
+    "spar-table",
     "ruestung-table",
     "ausruestung-table",
     "zauber-table",
@@ -314,6 +334,8 @@ function ensureInitialRows() {
     "grupp-table",
     "talent-table",
     "waffen-table",
+    "schulden-table",
+    "spar-table",
     "ruestung-table",
     "ausruestung-table",
     "zauber-table",
@@ -568,6 +590,26 @@ function addRow(tableId) {
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
+  else if (tableId === "schulden-table") {
+    // Dynamische Schuldenliste
+    row.innerHTML = `
+      <td><input type="number" max="0"></td>
+      <td><input type="number" max="0"></td>
+      <td><input type="number" max="0"></td>
+      <td><input type="text"></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateVermoegen();">❌</button></td>
+    `;
+  }
+  else if (tableId === "spar-table") {
+    // Dynamische Sparvermögenliste
+    row.innerHTML = `
+      <td><input type="number" min="0"></td>
+      <td><input type="number" min="0"></td>
+      <td><input type="number" min="0"></td>
+      <td><input type="text"></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateVermoegen();">❌</button></td>
+    `;
+  }
   else if (tableId === "ruestung-table") {
     // Rüstungsstücke
     row.innerHTML = `
@@ -645,6 +687,7 @@ function addRow(tableId) {
   }
   saveState();
   updateLebenspunkte(); // Lebenspunkte können von Talenten abhängen
+  updateVermoegen();
 }
 
 // =========================
@@ -790,32 +833,44 @@ function updateVermoegen() {
   const s  = parseInt(document.getElementById("verm-s").value) || 0;
   const g  = parseInt(document.getElementById("verm-g").value) || 0;
 
-  let sgk = parseInt(document.getElementById("schul-gk").value) || 0;
-  let ss  = parseInt(document.getElementById("schul-s").value) || 0;
-  let sg  = parseInt(document.getElementById("schul-g").value) || 0;
-
-  // nur negative Werte zulassen
-  if (sgk > 0) { sgk = -sgk; document.getElementById("schul-gk").value = sgk; }
-  if (ss > 0) { ss = -ss; document.getElementById("schul-s").value = ss; }
-  if (sg > 0) { sg = -sg; document.getElementById("schul-g").value = sg; }
-
-  // Normalisierung: 1 GK = 20 S, 1 S = 12 G
+  // Grundbetrag in Kupfer umrechnen
   let totalG = g + s*12 + gk*240;
-  let debtG = sg + ss*12 + sgk*240; // negative Summe
-  let netto = totalG + debtG;
 
-  const block = document.getElementById("nettovermoegen-block");
-  if (sgk || ss || sg) {
-    block.style.display = "block"; // Nettosumme anzeigen
-    const gkFinal = Math.trunc(netto/240);
-    const sFinal = Math.trunc((netto%240)/12);
-    const gFinal = netto % 12;
-    document.getElementById("netto-gk").value = gkFinal;
-    document.getElementById("netto-s").value = sFinal;
-    document.getElementById("netto-g").value = gFinal;
-  } else {
-    block.style.display = "none"; // keine Schulden
-  }
+  // Sparvermögen (nur positive Werte)
+  let sparG = 0;
+  document.querySelectorAll("#spar-table tr").forEach((row, idx) => {
+    if (idx === 0) return;
+    const inputs = row.querySelectorAll("input");
+    let sgk = parseInt(inputs[0].value) || 0;
+    let ss  = parseInt(inputs[1].value) || 0;
+    let sg  = parseInt(inputs[2].value) || 0;
+    if (sgk < 0) { sgk = Math.abs(sgk); inputs[0].value = sgk; }
+    if (ss < 0) { ss = Math.abs(ss); inputs[1].value = ss; }
+    if (sg < 0) { sg = Math.abs(sg); inputs[2].value = sg; }
+    sparG += sg + ss*12 + sgk*240;
+  });
+
+  // Schulden (nur negative Werte)
+  let debtG = 0;
+  document.querySelectorAll("#schulden-table tr").forEach((row, idx) => {
+    if (idx === 0) return;
+    const inputs = row.querySelectorAll("input");
+    let dgk = parseInt(inputs[0].value) || 0;
+    let ds  = parseInt(inputs[1].value) || 0;
+    let dg  = parseInt(inputs[2].value) || 0;
+    if (dgk > 0) { dgk = -dgk; inputs[0].value = dgk; }
+    if (ds > 0) { ds = -ds; inputs[1].value = ds; }
+    if (dg > 0) { dg = -dg; inputs[2].value = dg; }
+    debtG += dg + ds*12 + dgk*240; // negative Summe
+  });
+
+  const netto = totalG + sparG + debtG;
+  const gkFinal = Math.trunc(netto/240);
+  const sFinal  = Math.trunc((netto%240)/12);
+  const gFinal  = netto % 12;
+  document.getElementById("netto-gk").value = gkFinal;
+  document.getElementById("netto-s").value = sFinal;
+  document.getElementById("netto-g").value = gFinal;
 }
 
 // =========================
@@ -900,6 +955,7 @@ document.addEventListener("focusout", e => {
 function initLogic() {
   renderSections();
   initGrunddatenToggle();
+  initFinanzenToggle();
   initCharacterManagement();
 
   document.addEventListener("input", e => {
