@@ -432,10 +432,12 @@ function selectAttrMarker(th) {
   markerPopup = document.createElement('div');
   markerPopup.className = 'popup marker-select';
   markerPopup.innerHTML = `
-    <button class="icon-btn" data-val="1">${attrSymbols[1]}</button>
-    <button class="icon-btn" data-val="2">${attrSymbols[2]}</button>
-    <button class="icon-btn" data-val="3">${attrSymbols[3]}</button>
-    <button class="icon-btn" data-val="4">${attrSymbols[4]}</button>`;
+    <div class="marker-grid">
+      <button class="icon-btn" data-val="1">${attrSymbols[1]}</button>
+      <button class="icon-btn" data-val="2">${attrSymbols[2]}</button>
+      <button class="icon-btn" data-val="3">${attrSymbols[3]}</button>
+      <button class="icon-btn" data-val="4">${attrSymbols[4]}</button>
+    </div>`;
   document.body.appendChild(markerPopup);
 
   markerPopup.querySelectorAll('button').forEach(btn => {

@@ -117,15 +117,76 @@ td.wsg {
   font-size: 20px;
   line-height: 1.2;
 }
+.marker-row td,
+.marker-row th {
+  border: 0;
+}
+.marker-row td + td,
+.marker-row th + th {
+  border-left: 0;
+}
+
+/* Markericons links neben den Textfeldern */
+[data-marker] {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+[data-marker] .marker-icon {
+  width: 1.2em;
+  text-align: center;
+  font-size: 20px;
+}
+[data-marker] input[type="text"],
+[data-marker] span:not(.marker-icon) {
+  flex: 1;
+}
+[data-marker] input[type="text"] {
+  width: 100%;
+}
+
+.marker-select .marker-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+.marker-select .icon-btn {
+  border: none;
+}
 
 /* Spaltenbreiten für Fähigkeiten- und Talenttabellen */
+#grund-table,
+#grupp-table,
+#talent-table {
+  table-layout: auto;
+}
+#grund-table th:first-child,
+#grund-table td:first-child,
+#grupp-table th:first-child,
+#grupp-table td:first-child {
+  max-width: none;
+  min-width: 30%;
+}
 #grund-table th:nth-child(2),
-#grund-table td:nth-child(2) {
+#grund-table td:nth-child(2),
+#grund-table th:nth-child(3),
+#grund-table td:nth-child(3),
+#grund-table th:nth-child(4),
+#grund-table td:nth-child(4),
+#grund-table th:nth-child(5),
+#grund-table td:nth-child(5) {
   width: 60px;
 }
 #grupp-table th:nth-child(2),
 #grupp-table td:nth-child(2) {
-  width: 50px;
+  width: min-content;
+}
+#grupp-table th:nth-child(3),
+#grupp-table td:nth-child(3),
+#grupp-table th:nth-child(4),
+#grupp-table td:nth-child(4),
+#grupp-table th:nth-child(5),
+#grupp-table td:nth-child(5) {
+  width: 60px;
 }
 #talent-table th:nth-child(1),
 #talent-table td:nth-child(1) {
@@ -138,12 +199,6 @@ td.wsg {
   width: 45%;
   min-width: 30%;
   max-width: 70%;
-}
-#grund-table th:first-child,
-#grund-table td:first-child,
-#grupp-table th:first-child,
-#grupp-table td:first-child {
-  max-width: none;
 }
 
 td.text-left input,
@@ -319,76 +374,6 @@ td.delete-col {
   text-align: center;
   white-space: nowrap;
   font-weight: 600;
-}
-
-#grund-table,
-#grund-table th,
-#grund-table td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-#grund-table th:nth-child(1),
-#grund-table td:nth-child(1) {
-  width: 15px;
-  text-align: center;
-}
-#grund-table th:nth-child(2),
-#grund-table td:nth-child(2) {
-  text-align: left;
-  width: auto;
-}
-#grund-table th:nth-child(n+3),
-#grund-table td:nth-child(n+3) {
-  width: 40px;
-}
-
-#grupp-table,
-#grupp-table th,
-#grupp-table td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-#grupp-table th:nth-child(1),
-#grupp-table td:nth-child(1) {
-  width: 15px;
-  text-align: center;
-}
-
-}
-#grupp-table th:last-child,
-#grupp-table td:last-child {
-  text-align: left;
-  width: 15px;
-}
-
-#grupp-table th:nth-child(2),
-#grupp-table td:nth-child(2) {
-  text-align: left;
-  width: auto;
-}
-#grupp-table th:nth-child(3),
-#grupp-table td:nth-child(3) {
-  width: 60px;
-}
-#grupp-table th:nth-child(n+4):not(:last-child),
-#grupp-table td:nth-child(n+4):not(:last-child) {
-  width: 40px;
-}
-#talent-table,
-#talent-table th,
-#talent-table td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-#talent-table th:nth-child(1),
-#talent-table td:nth-child(1) {
-  width: 15px;
-}
-
-#talent-table th:last-child,
-#talent-table td:last-child {
- text-align: left;
-  width: 15px;
 }
 
 /* Waffen-Tabelle */
@@ -778,11 +763,6 @@ td.delete-col {
 .marker-select button {
   font-size: 24px;
   margin: 3px;
-}
-
-.marker-icon {
-  display: inline-block;
-  width: 1em;
 }
 
 /* Kompakte Spielwerte-Tabelle */

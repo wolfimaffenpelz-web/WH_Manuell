@@ -46,19 +46,6 @@ const sections = [
     title: "Spielwerte",
     content: `
       <table class="full-width" id="attribute-table">
-        <tr class="attr-header">
-          <th></th>
-          <th data-input="KG-mark">KG<input type="hidden" id="KG-mark" value="0"></th>
-          <th data-input="BF-mark">BF<input type="hidden" id="BF-mark" value="0"></th>
-          <th data-input="ST-mark">ST<input type="hidden" id="ST-mark" value="0"></th>
-          <th data-input="WI-mark">WI<input type="hidden" id="WI-mark" value="0"></th>
-          <th data-input="I-mark">I<input type="hidden" id="I-mark" value="0"></th>
-          <th data-input="GW-mark">GW<input type="hidden" id="GW-mark" value="0"></th>
-          <th data-input="GS-mark">GS<input type="hidden" id="GS-mark" value="0"></th>
-          <th data-input="IN-mark">IN<input type="hidden" id="IN-mark" value="0"></th>
-          <th data-input="WK-mark">WK<input type="hidden" id="WK-mark" value="0"></th>
-          <th data-input="CH-mark">CH<input type="hidden" id="CH-mark" value="0"></th>
-        </tr>
         <tr class="marker-row">
           <td></td>
           <td><span class="attr-marker" data-attr="KG"></span></td>
@@ -71,6 +58,19 @@ const sections = [
           <td><span class="attr-marker" data-attr="IN"></span></td>
           <td><span class="attr-marker" data-attr="WK"></span></td>
           <td><span class="attr-marker" data-attr="CH"></span></td>
+        </tr>
+        <tr class="attr-header">
+          <th></th>
+          <th data-input="KG-mark">KG<input type="hidden" id="KG-mark" value="0"></th>
+          <th data-input="BF-mark">BF<input type="hidden" id="BF-mark" value="0"></th>
+          <th data-input="ST-mark">ST<input type="hidden" id="ST-mark" value="0"></th>
+          <th data-input="WI-mark">WI<input type="hidden" id="WI-mark" value="0"></th>
+          <th data-input="I-mark">I<input type="hidden" id="I-mark" value="0"></th>
+          <th data-input="GW-mark">GW<input type="hidden" id="GW-mark" value="0"></th>
+          <th data-input="GS-mark">GS<input type="hidden" id="GS-mark" value="0"></th>
+          <th data-input="IN-mark">IN<input type="hidden" id="IN-mark" value="0"></th>
+          <th data-input="WK-mark">WK<input type="hidden" id="WK-mark" value="0"></th>
+          <th data-input="CH-mark">CH<input type="hidden" id="CH-mark" value="0"></th>
         </tr>
         <tr>
           <td>Anfang</td>
