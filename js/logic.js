@@ -588,6 +588,7 @@ function addRow(tableId) {
     // Zeile für Talente
     row.innerHTML = `
       <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><input type="text"></td>
+      <td class="wsg"><input type="number"></td>
       <td><input type="text"></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
@@ -710,7 +711,7 @@ function checkTalentEffects() {
   let hardy = false;
   document.querySelectorAll("#talent-table tr").forEach((row, idx) => {
     if (idx === 0) return; // Kopfzeile überspringen
-    const name = row.cells[1].querySelector("input").value.toLowerCase();
+    const name = row.cells[0].querySelector("input").value.toLowerCase();
     if (name.includes("robustheit") || name.includes("hardy")) {
       hardy = true; // Talent gefunden
     }

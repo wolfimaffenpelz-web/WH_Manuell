@@ -167,25 +167,17 @@ th[data-input]::before {
   max-width: none;
   min-width: 30%;
 }
-#grund-table th:nth-child(2),
 #grund-table td:nth-child(2),
-#grund-table th:nth-child(3),
 #grund-table td:nth-child(3),
-#grund-table th:nth-child(4),
 #grund-table td:nth-child(4),
-#grund-table th:nth-child(5),
 #grund-table td:nth-child(5) {
   width: 60px;
 }
-#grupp-table th:nth-child(2),
 #grupp-table td:nth-child(2) {
   width: min-content;
 }
-#grupp-table th:nth-child(3),
 #grupp-table td:nth-child(3),
-#grupp-table th:nth-child(4),
 #grupp-table td:nth-child(4),
-#grupp-table th:nth-child(5),
 #grupp-table td:nth-child(5) {
   width: 60px;
 }
@@ -197,6 +189,10 @@ th[data-input]::before {
 }
 #talent-table th:nth-child(2),
 #talent-table td:nth-child(2) {
+  width: 60px;
+}
+#talent-table th:nth-child(3),
+#talent-table td:nth-child(3) {
   width: 45%;
   min-width: 30%;
   max-width: 70%;

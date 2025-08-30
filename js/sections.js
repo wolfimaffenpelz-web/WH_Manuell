@@ -111,8 +111,7 @@ const sections = [
         <table class="full-width" id="grund-table">
         <tr>
           <th>Fähigkeit</th>
-          <th class="wsg">At.</th>
-          <th class="wsg">Wert</th>
+          <th class="wsg" colspan="2">Spielwert</th>
           <th class="wsg">Steig.</th>
           <th class="wsg">&Sigma;</th>
         </tr>
@@ -146,8 +145,7 @@ const sections = [
       <table class="full-width" id="grupp-table">
         <tr>
           <th>Fähigkeit</th>
-          <th>At.</th>
-          <th class="wsg">Wert</th>
+          <th colspan="2">Spielwert</th>
           <th class="wsg">Steig.</th>
           <th class="wsg">&Sigma;</th>
           <th class="delete-col"></th>
@@ -166,6 +164,7 @@ const sections = [
       <table class="full-width" id="talent-table">
         <tr>
           <th>Talent</th>
+          <th class="wsg">Lvl.</th>
           <th>Notiz</th>
           <th class="delete-col"></th>
         </tr>
