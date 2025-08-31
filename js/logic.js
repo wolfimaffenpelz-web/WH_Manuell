@@ -771,7 +771,7 @@ function checkTalentEffects() {
   let hardyLevel = 0;
   document.querySelectorAll("#talent-table tr").forEach((row, idx) => {
     if (idx === 0) return; // Kopfzeile überspringen
-    const nameInput = row.cells[0].querySelector("input");
+    const nameInput = row.cells[0].querySelector('input[type="text"]');
     if (!nameInput) return;
     const name = nameInput.value.toLowerCase().trim();
     const simRob = similarity(name, "robustheit");
