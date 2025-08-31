@@ -738,16 +738,48 @@ function addRow(tableId) {
 // =========================
 // ⭐ Talente Logik (inkl. Robustheit)
 // =========================
-// Ermittelt die Stufe des Talents "Robustheit"/"Hardy".
-// Gibt 0 zurück, wenn das Talent nicht vorhanden ist.
+// Ähnlichkeitsberechnung per Levenshtein-Distanz
+function levenshtein(a, b) {
+  const matrix = Array.from({ length: b.length + 1 }, (_, i) => [i]);
+  matrix[0] = Array.from({ length: a.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b[i - 1] === a[j - 1]) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j - 1] + 1
+        );
+      }
+    }
+  }
+  return matrix[b.length][a.length];
+}
+
+function similarity(a, b) {
+  const maxLen = Math.max(a.length, b.length);
+  if (maxLen === 0) return 1;
+  const distance = levenshtein(a, b);
+  return 1 - distance / maxLen;
+}
+
+// Ermittelt die Stufe des Talents "Robustheit"/"Hardy" (Ähnlichkeit > 90%).
+// Wenn das Talent existiert, zählt mindestens eine Stufe.
 function checkTalentEffects() {
   let hardyLevel = 0;
   document.querySelectorAll("#talent-table tr").forEach((row, idx) => {
     if (idx === 0) return; // Kopfzeile überspringen
-    const name = row.cells[0].querySelector("input").value.toLowerCase();
-    if (name.includes("robustheit") || name.includes("hardy")) {
+    const nameInput = row.cells[0].querySelector("input");
+    if (!nameInput) return;
+    const name = nameInput.value.toLowerCase().trim();
+    const simRob = similarity(name, "robustheit");
+    const simHardy = similarity(name, "hardy");
+    if (simRob >= 0.9 || simHardy >= 0.9) {
       const lvlInput = row.cells[1].querySelector("input");
-      const lvl = parseInt(lvlInput.value) || 0;
+      let lvl = parseInt(lvlInput.value);
+      if (isNaN(lvl) || lvl < 1) lvl = 1; // mindestens Stufe 1
       hardyLevel += lvl; // Stufen addieren (Talent kann mehrfach vorkommen)
     }
   });
@@ -772,9 +804,9 @@ function updateLebenspunkte() {
   document.getElementById("lp-stb").value = stb;
   document.getElementById("lp-wib").value = wib;
   document.getElementById("lp-wkb").value = wkb;
-  document.getElementById("lp-robustheit").value = robust;
+  document.getElementById("lp-robustheit").value = hardyLevel > 0 ? robust : "";
 
-  const gesamt = stb + wib + wkb + robust;
+  const gesamt = stb + wib + wkb + (hardyLevel > 0 ? robust : 0);
   document.getElementById("lp-gesamt").value = gesamt;
 }
 
