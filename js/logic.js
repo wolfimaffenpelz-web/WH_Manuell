@@ -738,16 +738,20 @@ function addRow(tableId) {
 // =========================
 // ⭐ Talente Logik (inkl. Robustheit)
 // =========================
+// Ermittelt die Stufe des Talents "Robustheit"/"Hardy".
+// Gibt 0 zurück, wenn das Talent nicht vorhanden ist.
 function checkTalentEffects() {
-  let hardy = false;
+  let hardyLevel = 0;
   document.querySelectorAll("#talent-table tr").forEach((row, idx) => {
     if (idx === 0) return; // Kopfzeile überspringen
     const name = row.cells[0].querySelector("input").value.toLowerCase();
     if (name.includes("robustheit") || name.includes("hardy")) {
-      hardy = true; // Talent gefunden
+      const lvlInput = row.cells[1].querySelector("input");
+      const lvl = parseInt(lvlInput.value) || 0;
+      hardyLevel += lvl; // Stufen addieren (Talent kann mehrfach vorkommen)
     }
   });
-  return hardy;
+  return hardyLevel;
 }
 // =========================
 // ❤️ Lebenspunkte Berechnung
@@ -762,8 +766,8 @@ function updateLebenspunkte() {
   const wib = Math.floor(WI/10);
   const wkb = Math.floor(WK/10) * 2;
 
-  const hardy = checkTalentEffects();
-  const robust = hardy ? wib : 0; // Robustheit addiert WI-Anteil
+  const hardyLevel = checkTalentEffects();
+  const robust = wib * hardyLevel; // Robustheit: WI-Bonus mal Talentstufe
 
   document.getElementById("lp-stb").value = stb;
   document.getElementById("lp-wib").value = wib;
