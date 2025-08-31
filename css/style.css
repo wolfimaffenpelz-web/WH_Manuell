@@ -111,6 +111,96 @@ td.wsg {
   width: 60px;
 }
 
+/* Markericons links neben den Textfeldern */
+[data-marker] {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+[data-marker] .marker-icon {
+  display: none;
+  width: 0;
+  text-align: center;
+  font-size: 1em;
+  line-height: 1;
+  height: 1em;
+}
+.line-marked [data-marker] .marker-icon {
+  display: inline-block;
+  width: 1em;
+}
+[data-marker] input[type="text"],
+[data-marker] span:not(.marker-icon) {
+  flex: 1;
+}
+[data-marker] input[type="text"] {
+  width: 100%;
+}
+
+.marker-select .marker-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+.marker-select .icon-btn {
+  border: none;
+}
+
+/* Attributmarken im Spaltenkopf */
+th[data-input] {
+  text-align: center;
+}
+th[data-input]::before {
+  content: attr(data-icon);
+  display: block;
+  font-size: 20px;
+  line-height: 20px;
+  height: 20px;
+}
+
+/* Spaltenbreiten für Fähigkeiten- und Talenttabellen */
+#grund-table,
+#grupp-table,
+#talent-table {
+  table-layout: auto;
+}
+#grund-table th:first-child,
+#grund-table td:first-child,
+#grupp-table th:first-child,
+#grupp-table td:first-child {
+  max-width: none;
+  min-width: 30%;
+}
+#grund-table td:nth-child(2),
+#grund-table td:nth-child(3),
+#grund-table td:nth-child(4),
+#grund-table td:nth-child(5) {
+  width: 60px;
+}
+#grupp-table td:nth-child(2) {
+  width: min-content;
+}
+#grupp-table td:nth-child(3),
+#grupp-table td:nth-child(4),
+#grupp-table td:nth-child(5) {
+  width: 60px;
+}
+#talent-table th:first-child,
+#talent-table td:first-child {
+  max-width: none;
+  min-width: 30%;
+  width: auto;
+}
+#talent-table th:nth-child(2),
+#talent-table td:nth-child(2) {
+  width: 60px;
+}
+#talent-table th:nth-child(3),
+#talent-table td:nth-child(3) {
+  max-width: none;
+  min-width: 30%;
+  width: 30%;
+}
+
 td.text-left input,
 th.text-left input,
 td.text-left textarea,
@@ -284,76 +374,6 @@ td.delete-col {
   text-align: center;
   white-space: nowrap;
   font-weight: 600;
-}
-
-#grund-table,
-#grund-table th,
-#grund-table td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-#grund-table th:nth-child(1),
-#grund-table td:nth-child(1) {
-  width: 15px;
-  text-align: center;
-}
-#grund-table th:nth-child(2),
-#grund-table td:nth-child(2) {
-  text-align: left;
-  width: auto;
-}
-#grund-table th:nth-child(n+3),
-#grund-table td:nth-child(n+3) {
-  width: 40px;
-}
-
-#grupp-table,
-#grupp-table th,
-#grupp-table td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-#grupp-table th:nth-child(1),
-#grupp-table td:nth-child(1) {
-  width: 15px;
-  text-align: center;
-}
-
-}
-#grupp-table th:last-child,
-#grupp-table td:last-child {
-  text-align: left;
-  width: 15px;
-}
-
-#grupp-table th:nth-child(2),
-#grupp-table td:nth-child(2) {
-  text-align: left;
-  width: auto;
-}
-#grupp-table th:nth-child(3),
-#grupp-table td:nth-child(3) {
-  width: 60px;
-}
-#grupp-table th:nth-child(n+4):not(:last-child),
-#grupp-table td:nth-child(n+4):not(:last-child) {
-  width: 40px;
-}
-#talent-table,
-#talent-table th,
-#talent-table td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-#talent-table th:nth-child(1),
-#talent-table td:nth-child(1) {
-  width: 15px;
-}
-
-#talent-table th:last-child,
-#talent-table td:last-child {
- text-align: left;
-  width: 15px;
 }
 
 /* Waffen-Tabelle */
@@ -730,28 +750,34 @@ td.delete-col {
 
 .line-marked { background: #ddd; font-weight: bold; }
 
+#grund-table tr.line-marked input,
+#grupp-table tr.line-marked input,
+#talent-table tr.line-marked input,
+#grund-table tr.line-marked select,
+#grupp-table tr.line-marked select,
+#talent-table tr.line-marked select,
+#grund-table tr.line-marked textarea,
+#grupp-table tr.line-marked textarea,
+#talent-table tr.line-marked textarea {
+  background: transparent;
+  border: 1px solid #8B0000;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
 .ruestung-uebersicht input {
   width: 100%;
 }
 
-/* Markerspaltendicke */
-th.mark-col, td.mark-col {
-  width: 17px;
-  text-align: center !important;
-  padding: 0;
+/* Popup für Attributmarker */
+.marker-select {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
 }
 
-.marker-row td {
-  padding: 0;
-
-}
-.attr-marker,
-.line-marker {
-  padding: 0;
-}
-
-.line-marker {
-  font-size: 90%;
+.marker-select button {
+  font-size: 24px;
+  margin: 3px;
 }
 
 /* Kompakte Spielwerte-Tabelle */
@@ -766,13 +792,6 @@ th.mark-col, td.mark-col {
   padding: 0;
   text-align: center;
 }
-/* Auswahlpopup für Attributmarker */
-.marker-select button {
-  font-size: 24px;
-  margin: 3 3px;
-}
-
-
 /* Slider für Erfahrungstoggle */
 .switch {
   position: relative;

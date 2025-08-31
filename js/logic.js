@@ -353,35 +353,30 @@ function ensureInitialRows() {
 // =========================
 // 🔘 Markierungen
 // =========================
-const attrSymbols = ["◯","✠","⚔","☠","🛡"];
+const attrSymbols = ["","✠","⚔","☠","🛡"];
 let markerPopup = null;
-function updateAttrHeader(el, val) {
-  const header = document.querySelector("#attribute-table .attr-header");
-  if (!header) return;
-  const idx = el.parentElement.cellIndex;
-  const th = header.cells[idx];
-  if (!th) return;
+function updateAttrHeader(th, val) {
   th.classList.remove("attr-cross","attr-axes","attr-skull","attr-shield");
+  th.dataset.icon = attrSymbols[val] || "";
   if (val === 1) th.classList.add("attr-cross");
   else if (val === 2) th.classList.add("attr-axes");
   else if (val === 3) th.classList.add("attr-skull");
   else if (val === 4) th.classList.add("attr-shield");
 }
 
-function resetAttrMarker(el) {
-  const hid = document.getElementById(el.dataset.input);
+function resetAttrMarker(th) {
+  const hid = th.querySelector('input[type="hidden"]');
   if (!hid) return;
   hid.value = "0";
-  el.textContent = attrSymbols[0];
-  updateAttrHeader(el, 0);
+  updateAttrHeader(th, 0);
 }
 
 function enforceAttributeExclusivity() {
   const groups = {1:[],2:[],3:[],4:[]};
-  document.querySelectorAll(".attr-marker").forEach(el => {
-    const hid = document.getElementById(el.dataset.input);
+  document.querySelectorAll('th[data-input]').forEach(th => {
+    const hid = th.querySelector('input[type="hidden"]');
     const val = parseInt(hid.value) || 0;
-    if (val > 0) groups[val].push(el);
+    if (val > 0) groups[val].push(th);
   });
   let changed = false;
   [2,3,4].forEach(v => {
@@ -394,90 +389,141 @@ function enforceAttributeExclusivity() {
   }
   if (changed) saveState();
 }
-function applyAttrMarker(el, val) {
-  const hid = document.getElementById(el.dataset.input);
+function applyAttrMarker(th, val) {
+  const hid = th.querySelector('input[type="hidden"]');
   if (!hid) return;
 
   if (val === 1) {
-    const count = Array.from(document.querySelectorAll('.attr-marker'))
-      .filter(m => document.getElementById(m.dataset.input).value === "1").length;
+    const count = Array.from(document.querySelectorAll('th[data-input]'))
+      .filter(m => m.querySelector('input[type="hidden"]').value === "1").length;
     if (count >= 3 && hid.value !== "1") {
       alert("Max 3 ✠ erlaubt.");
       return;
     }
   } else if (val >= 2) {
-    document.querySelectorAll('.attr-marker').forEach(m => {
-      if (m === el) return;
-      const mh = document.getElementById(m.dataset.input);
+    document.querySelectorAll('th[data-input]').forEach(m => {
+      if (m === th) return;
+      const mh = m.querySelector('input[type="hidden"]');
       if (mh.value === String(val)) resetAttrMarker(m);
     });
   }
 
   hid.value = String(val);
-  el.textContent = attrSymbols[val];
-  updateAttrHeader(el, val);
+  updateAttrHeader(th, val);
   saveState();
 }
-function selectAttrMarker(el) {
-  const hid = document.getElementById(el.dataset.input);
+
+function selectAttrMarker(th) {
+  const hid = th.querySelector('input[type="hidden"]');
   if (!hid) return;
+
+  if (hid.value !== "0") {
+    resetAttrMarker(th);
+    saveState();
+    return;
+  }
 
   if (markerPopup) markerPopup.remove();
   markerPopup = document.createElement('div');
   markerPopup.className = 'popup marker-select';
-  markerPopup.innerHTML = attrSymbols.map((s,i)=>`<button class="icon-btn" data-val="${i}">${s}</button>`).join('');
+  markerPopup.innerHTML = `
+    <div class="marker-grid">
+      <button class="icon-btn" data-val="1">${attrSymbols[1]}</button>
+      <button class="icon-btn" data-val="2">${attrSymbols[2]}</button>
+      <button class="icon-btn" data-val="3">${attrSymbols[3]}</button>
+      <button class="icon-btn" data-val="4">${attrSymbols[4]}</button>
+    </div>`;
   document.body.appendChild(markerPopup);
 
   markerPopup.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => {
       const val = parseInt(btn.dataset.val);
-      applyAttrMarker(el, val);
+      applyAttrMarker(th, val);
       markerPopup.remove();
       markerPopup = null;
     });
   });
 }
-function toggleLineMarker(el) {
-  const hid = el.nextElementSibling;
+function toggleLineMarker(cell) {
+  const hid = cell.querySelector('input[type="hidden"]');
   if (!hid) return;
+  const row = cell.closest('tr');
+  const table = row ? row.closest('table') : null;
+  if (table && (table.id === 'grupp-table' || table.id === 'talent-table')) {
+    const nameInput = cell.querySelector('input[type="text"]');
+    if (!nameInput || nameInput.value.trim() === '') return;
+  }
+  const icon = cell.querySelector('.marker-icon');
   if (hid.value === "1") {
     hid.value = "0";
-    el.textContent = attrSymbols[0];
-    el.closest('tr').classList.remove('line-marked');
+    if (icon) icon.textContent = "";
+    row.classList.remove('line-marked');
   } else {
     hid.value = "1";
-    el.textContent = attrSymbols[1];
-    el.closest('tr').classList.add('line-marked');
+    if (icon) icon.textContent = attrSymbols[1];
+    row.classList.add('line-marked');
   }
   saveState();
 }
 
 function restoreMarkers() {
-  document.querySelectorAll('.attr-marker').forEach(el => {
-    const hid = document.getElementById(el.dataset.input);
-    if (!hid) return;
+  document.querySelectorAll('th[data-input]').forEach(th => {
+    const hid = th.querySelector('input[type="hidden"]');
     const val = parseInt(hid.value) || 0;
-    el.textContent = attrSymbols[val];
-    updateAttrHeader(el, val);
+    updateAttrHeader(th, val);
   });
   enforceAttributeExclusivity();
-  document.querySelectorAll('.line-marker').forEach(el => {
-    const hid = el.nextElementSibling;
+  document.querySelectorAll('[data-marker]').forEach(cell => {
+    const hid = cell.querySelector('input[type="hidden"]');
+    const icon = cell.querySelector('.marker-icon');
+    const row = cell.closest('tr');
+    const table = row ? row.closest('table') : null;
     if (hid.value === "1") {
-      el.textContent = attrSymbols[1];
-      el.closest('tr').classList.add('line-marked');
+      if (table && (table.id === 'grupp-table' || table.id === 'talent-table')) {
+        const nameInput = cell.querySelector('input[type="text"]');
+        if (!nameInput || nameInput.value.trim() === '') {
+          hid.value = "0";
+        }
+      }
+    }
+    if (hid.value === "1") {
+      if (icon) icon.textContent = attrSymbols[1];
+      row.classList.add('line-marked');
     } else {
-      el.textContent = attrSymbols[0];
-      el.closest('tr').classList.remove('line-marked');
+      if (icon) icon.textContent = "";
+      row.classList.remove('line-marked');
     }
   });
 }
 
 document.addEventListener("click", e => {
-  if (e.target.classList.contains("attr-marker")) {
-    selectAttrMarker(e.target);
-  } else if (e.target.classList.contains("line-marker")) {
-    toggleLineMarker(e.target);
+  if (markerPopup && !markerPopup.contains(e.target)) {
+    markerPopup.remove();
+    markerPopup = null;
+  }
+  const cell = e.target.closest('[data-marker]');
+  if (cell) {
+    toggleLineMarker(cell);
+    return;
+  }
+  const th = e.target.closest('th[data-input]');
+  if (th) {
+    selectAttrMarker(th);
+  }
+});
+
+document.addEventListener("input", e => {
+  const cell = e.target.closest('td[data-marker]');
+  if (!cell || !e.target.matches('input[type="text"]')) return;
+  if (e.target.value.trim() !== "") return;
+  const hid = cell.querySelector('input[type="hidden"]');
+  const icon = cell.querySelector('.marker-icon');
+  const row = cell.closest('tr');
+  if (hid && hid.value !== "0") {
+    hid.value = "0";
+    if (icon) icon.textContent = "";
+    if (row) row.classList.remove('line-marked');
+    saveState();
   }
 });
 // =========================
@@ -510,13 +556,13 @@ function updateGrundfaehigkeiten() {
     const rows = document.querySelectorAll("#grund-table tr");
     rows.forEach((row, idx) => {
       if (idx === 0) return; // header
-      const attCell = row.cells[2];
+      const attCell = row.cells[1];
       if (!attCell) return;
       const att = attCell.textContent.trim();
       const attVal = parseInt(document.getElementById(att+"-akt").value) || 0;
-      const steig = parseInt(row.cells[4].querySelector("input").value) || 0; // individuelle Steigerung
-      row.cells[3].querySelector("input").value = attVal; // Basiswert
-      row.cells[5].querySelector("input").value = attVal + steig; // Gesamtwert
+      const steig = parseInt(row.cells[3].querySelector("input").value) || 0; // individuelle Steigerung
+      row.cells[2].querySelector("input").value = attVal; // Basiswert
+      row.cells[4].querySelector("input").value = attVal + steig; // Gesamtwert
     });
   }
 
@@ -527,10 +573,10 @@ function updateGruppierteFaehigkeiten() {
   const rows = document.querySelectorAll("#grupp-table tr");
   rows.forEach((row, idx) => {
     if (idx === 0) return;
-    const sel = row.cells[2]?.querySelector("select");
-    const base = row.cells[3]?.querySelector("input");
-    const steig = row.cells[4]?.querySelector("input");
-    const ges = row.cells[5]?.querySelector("input");
+    const sel = row.cells[1]?.querySelector("select");
+    const base = row.cells[2]?.querySelector("input");
+    const steig = row.cells[3]?.querySelector("input");
+    const ges = row.cells[4]?.querySelector("input");
     if (!sel || !base || !steig || !ges) return;
     const att = sel.value;
     const attVal = att ? (parseInt(document.getElementById(att + "-akt").value) || 0) : 0;
@@ -547,9 +593,8 @@ function addRow(tableId) {
   if (tableId === "grupp-table") {
     // Vorlage für gruppierte Fähigkeiten
     row.innerHTML = `
-      <td class="mark-col"><span class="line-marker">◯</span><input type="hidden" value="0"></td>
-      <td><input type="text"></td>
-        <td>
+      <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><input type="text"></td>
+      <td>
           <select required>
             <option value="" selected disabled>-</option>
             <option value="KG">KG</option><option value="BF">BF</option>
@@ -564,8 +609,8 @@ function addRow(tableId) {
       <td class="wsg"><input type="number" readonly></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
-    const sel = row.cells[2].querySelector("select");
-    const steig = row.cells[4].querySelector("input");
+    const sel = row.cells[1].querySelector("select");
+    const steig = row.cells[3].querySelector("input");
     sel.addEventListener("change", () => { updateGruppierteFaehigkeiten(); saveState(); });
     steig.addEventListener("input", () => { updateGruppierteFaehigkeiten(); saveState(); });
     updateGruppierteFaehigkeiten();
@@ -573,8 +618,8 @@ function addRow(tableId) {
   else if (tableId === "talent-table") {
     // Zeile für Talente
     row.innerHTML = `
-      <td class="mark-col"><span class="line-marker">◯</span><input type="hidden" value="0"></td>
-      <td><input type="text"></td>
+      <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><input type="text"></td>
+      <td class="wsg"><input type="number"></td>
       <td><input type="text"></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
@@ -697,7 +742,7 @@ function checkTalentEffects() {
   let hardy = false;
   document.querySelectorAll("#talent-table tr").forEach((row, idx) => {
     if (idx === 0) return; // Kopfzeile überspringen
-    const name = row.cells[1].querySelector("input").value.toLowerCase();
+    const name = row.cells[0].querySelector("input").value.toLowerCase();
     if (name.includes("robustheit") || name.includes("hardy")) {
       hardy = true; // Talent gefunden
     }

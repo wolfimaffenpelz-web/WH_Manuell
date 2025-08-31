@@ -46,23 +46,18 @@ const sections = [
     title: "Spielwerte",
     content: `
       <table class="full-width" id="attribute-table">
-        <tr class="marker-row">
-          <td></td>
-          <td><span class="attr-marker" data-input="KG-mark">◯</span><input type="hidden" id="KG-mark" value="0"></td>
-          <td><span class="attr-marker" data-input="BF-mark">◯</span><input type="hidden" id="BF-mark" value="0"></td>
-          <td><span class="attr-marker" data-input="ST-mark">◯</span><input type="hidden" id="ST-mark" value="0"></td>
-          <td><span class="attr-marker" data-input="WI-mark">◯</span><input type="hidden" id="WI-mark" value="0"></td>
-          <td><span class="attr-marker" data-input="I-mark">◯</span><input type="hidden" id="I-mark" value="0"></td>
-          <td><span class="attr-marker" data-input="GW-mark">◯</span><input type="hidden" id="GW-mark" value="0"></td>
-          <td><span class="attr-marker" data-input="GS-mark">◯</span><input type="hidden" id="GS-mark" value="0"></td>
-          <td><span class="attr-marker" data-input="IN-mark">◯</span><input type="hidden" id="IN-mark" value="0"></td>
-          <td><span class="attr-marker" data-input="WK-mark">◯</span><input type="hidden" id="WK-mark" value="0"></td>
-          <td><span class="attr-marker" data-input="CH-mark">◯</span><input type="hidden" id="CH-mark" value="0"></td>
-        </tr>
         <tr class="attr-header">
           <th></th>
-          <th>KG</th><th>BF</th><th>ST</th><th>WI</th>
-          <th>I</th><th>GW</th><th>GS</th><th>IN</th><th>WK</th><th>CH</th>
+          <th data-input="KG-mark">KG<input type="hidden" id="KG-mark" value="0"></th>
+          <th data-input="BF-mark">BF<input type="hidden" id="BF-mark" value="0"></th>
+          <th data-input="ST-mark">ST<input type="hidden" id="ST-mark" value="0"></th>
+          <th data-input="WI-mark">WI<input type="hidden" id="WI-mark" value="0"></th>
+          <th data-input="I-mark">I<input type="hidden" id="I-mark" value="0"></th>
+          <th data-input="GW-mark">GW<input type="hidden" id="GW-mark" value="0"></th>
+          <th data-input="GS-mark">GS<input type="hidden" id="GS-mark" value="0"></th>
+          <th data-input="IN-mark">IN<input type="hidden" id="IN-mark" value="0"></th>
+          <th data-input="WK-mark">WK<input type="hidden" id="WK-mark" value="0"></th>
+          <th data-input="CH-mark">CH<input type="hidden" id="CH-mark" value="0"></th>
         </tr>
         <tr>
           <td>Anfang</td>
@@ -115,10 +110,8 @@ const sections = [
       content: `
         <table class="full-width" id="grund-table">
         <tr>
-          <th class="mark-col">✠</th>
           <th>Fähigkeit</th>
-          <th>At.</th>
-          <th class="wsg">Wert</th>
+          <th class="wsg" colspan="2">Spielwert</th>
           <th class="wsg">Steig.</th>
           <th class="wsg">&Sigma;</th>
         </tr>
@@ -133,10 +126,8 @@ const sections = [
           ["Wahrnehmung","I"],["Zechen","WI"]
           ].map(([name,att]) => `
           <tr>
-            <td class="mark-col"><span class="line-marker" data-input="grund-${name}-mark">◯</span><input type="hidden" id="grund-${name}-mark" value="0"></td>
-
-            <td>${name}</td>
-            <td>${att}</td>
+            <td data-marker="grund-${name}"><span class="marker-icon"></span><span>${name}</span><input type="hidden" id="grund-${name}-mark" value="0"></td>
+            <td class="wsg">${att}</td>
             <td class="wsg"><input type="number" id="grund-${name}-wert" readonly></td>
             <td class="wsg"><input type="number" id="grund-${name}-steig"></td>
             <td class="wsg"><input type="number" id="grund-${name}-gesamt" readonly></td>
@@ -153,10 +144,8 @@ const sections = [
     content: `
       <table class="full-width" id="grupp-table">
         <tr>
-          <th class="mark-col">✠</th>
           <th>Fähigkeit</th>
-          <th>At.</th>
-          <th class="wsg">Wert</th>
+          <th colspan="2">Spielwert</th>
           <th class="wsg">Steig.</th>
           <th class="wsg">&Sigma;</th>
           <th class="delete-col"></th>
@@ -174,8 +163,8 @@ const sections = [
     content: `
       <table class="full-width" id="talent-table">
         <tr>
-          <th class="mark-col">✠</th>
           <th>Talent</th>
+          <th class="wsg">Lvl.</th>
           <th>Notiz</th>
           <th class="delete-col"></th>
         </tr>
