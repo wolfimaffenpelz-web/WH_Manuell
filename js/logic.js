@@ -4,6 +4,7 @@
 // 🔒 Passwortschutz
 // =========================
 function initPasswordProtection() {
+  applyTranslations();
   const overlay = document.getElementById("password-overlay"); // dunkler Hintergrund
   const input = document.getElementById("password-input");     // Eingabefeld für Passwort
   const button = document.getElementById("password-submit");   // OK-Button
@@ -22,7 +23,7 @@ function initPasswordProtection() {
       if (logoutBtn) logoutBtn.style.display = "inline-block";
       initLogic();
     } else {
-      alert("Falsches Passwort!");
+      alert(t('wrong_password'));
     }
   });
 
@@ -81,82 +82,97 @@ function initCharacterManagement() {
   const select = document.getElementById("character-select");
   const newBtn = document.getElementById("new-character"); // neuer Charakter
   const delBtn = document.getElementById("delete-character"); // löschen
-
-  // Beim ersten Aufruf einen Default-Charakter mit Dummywerten anlegen
-  let chars = JSON.parse(localStorage.getItem("characters") || "[]");
-  if (chars.length === 0) {
-    const defaultName = "Default";
-    saveCharacter(defaultName);
-    ensureInitialRows();
-    document.querySelectorAll("input, textarea, select").forEach(el => {
-      if (!el.id) return;
-      if (el.type === "checkbox" || el.type === "radio") {
-        el.checked = false;
-      } else if (el.type === "hidden") {
-        el.value = "0";
-      } else if (el.type === "number") {
-        el.value = "1";
-      } else {
-        el.value = "Dummy";
-      }
-    });
-    document.getElementById("char-name").value = "Günther";
-    document.getElementById("char-volk").value = "Mensch";
-    document.getElementById("char-geschlecht").value = "männlich";
-    document.getElementById("char-karriere").value = "Krieger";
-    document.getElementById("char-stufe").value = "1";
-    document.getElementById("char-weg").value = "Soldat";
-    document.getElementById("char-status").value = "Bronze - Stufe 1";
-    document.getElementById("char-alter").value = "25";
-    document.getElementById("char-groesse").value = "180";
-    document.getElementById("char-haare").value = "Braun";
-    document.getElementById("char-augen").value = "Blau";
-    document.getElementById("korruption-akt").value = "0"
-    saveState();   
-  }
+  const importBtn = document.getElementById("import-character");
+  const exportBtn = document.getElementById("export-character");
+  const importFile = document.getElementById("import-file");
 
   loadCharacterList();
+  if (!currentCharacter) {
+    ensureInitialRows();
+    updateAttributes();
+  }
 
   select.addEventListener("change", () => {
     currentCharacter = select.value; // Dropdown-Wahl
     loadState();
   });
 
+  // Neuer Charakter anlegen
   newBtn.addEventListener("click", () => {
-    const popup = document.createElement("div");
-    popup.className = "popup";
-    popup.innerHTML = `
-      <p>Charaktername:</p>
-      <input type="text" id="new-char-name">
-      <br>
-      <button id="new-char-ok">OK</button>
-      <button id="new-char-cancel">Abbrechen</button>
+    const overlay = document.createElement("div");
+    overlay.className = "overlay";
+    overlay.innerHTML = `
+      <div class="overlay-content">
+        <p>${t('character_name_prompt')}</p>
+        <input type="text" id="new-char-name">
+        <br>
+        <button id="new-char-ok">${t('ok')}</button>
+        <button id="new-char-cancel">${t('cancel')}</button>
+      </div>
     `;
-    document.body.appendChild(popup);
-    const input = document.getElementById("new-char-name");
+    document.body.appendChild(overlay);
+    const input = overlay.querySelector("#new-char-name");
     input.focus();
-    document.getElementById("new-char-ok").addEventListener("click", () => {
+
+    function close() { overlay.remove(); }
+
+    overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
+    overlay.querySelector("#new-char-cancel").addEventListener("click", close);
+
+    overlay.querySelector("#new-char-ok").addEventListener("click", () => {
       const newName = input.value.trim();
-      if (!newName) { alert("Name erforderlich"); return; }
+      if (!newName) { alert(t('name_required')); return; }
       saveCharacter(newName);
+      ensureInitialRows();
       saveState();
       loadCharacterList();
       select.value = newName;
       loadState();
-      popup.remove();
+      close();
     });
-    document.getElementById("new-char-cancel").addEventListener("click", () => popup.remove());
   });
 
+  // Charakter löschen
   delBtn.addEventListener("click", () => {
     if (!currentCharacter) return; // nichts zu löschen
-    const popup = confirm(`Charakter "${currentCharacter}" wirklich löschen?`);
-    if (popup) {
+    const overlay = document.createElement("div");
+    overlay.className = "overlay";
+    overlay.innerHTML = `
+      <div class="overlay-content">
+        <p>${t('delete_confirm')}</p>
+        <button id="del-yes">${t('yes')}</button>
+        <button id="del-no">${t('no')}</button>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    function close() { overlay.remove(); }
+
+    overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
+    overlay.querySelector("#del-no").addEventListener("click", close);
+
+    overlay.querySelector("#del-yes").addEventListener("click", () => {
       deleteCharacter(currentCharacter);
-      if (currentCharacter) loadState(); // anderen laden
-      else location.reload();
-    }
+      if (currentCharacter) {
+        loadState(); // anderen laden
+      } else {
+        document.querySelectorAll("input, textarea, select").forEach(el => {
+          if (el.type === "checkbox" || el.type === "radio") {
+            el.checked = false;
+          } else {
+            el.value = "";
+          }
+        });
+        ensureInitialRows();
+        updateAttributes();
+      }
+      close();
+    });
   });
+
+  importBtn.addEventListener("click", () => importFile.click());
+  importFile.addEventListener("change", (e) => { importCharacters(e.target.files); e.target.value = ""; });
+  exportBtn.addEventListener("click", exportCharacters);
 }
 
 // =========================
@@ -350,18 +366,67 @@ function ensureInitialRows() {
   });
 }
 
+// Aktuellen Charakter exportieren
+function exportCharacters() {
+  if (!currentCharacter) return;
+  saveState();
+  const state = JSON.parse(localStorage.getItem('state-' + currentCharacter) || '{}');
+  const data = { id: currentCharacter, state };
+  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${currentCharacter}.json`;
+  a.click();
+}
+
+// Charakter importieren und laden
+function importCharacters(files) {
+  const file = files[0];
+  if (!file) return;
+  saveState();
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.id && data.state) {
+        saveCharacter(data.id);
+        localStorage.setItem('state-' + data.id, JSON.stringify(data.state));
+        loadCharacterList();
+        currentCharacter = data.id;
+        document.getElementById('character-select').value = data.id;
+        loadState();
+      } else {
+        throw new Error('Invalid');
+      }
+    } catch (err) {
+      alert(t('import_failed'));
+    }
+  };
+  reader.readAsText(file);
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
+document.addEventListener('input', e => {
+  if (e.target.tagName === 'TEXTAREA') {
+    autoResize(e.target);
+  }
+});
+
 // =========================
 // 🔘 Markierungen
 // =========================
-const attrSymbols = ["","✠","⚔","☠","🛡"];
+const attrSymbols = ["","✠","☠","🛡"];
 let markerPopup = null;
 function updateAttrHeader(th, val) {
-  th.classList.remove("attr-cross","attr-axes","attr-skull","attr-shield");
+  th.classList.remove("attr-cross","attr-skull","attr-shield");
   th.dataset.icon = attrSymbols[val] || "";
   if (val === 1) th.classList.add("attr-cross");
-  else if (val === 2) th.classList.add("attr-axes");
-  else if (val === 3) th.classList.add("attr-skull");
-  else if (val === 4) th.classList.add("attr-shield");
+  else if (val === 2) th.classList.add("attr-skull");
+  else if (val === 3) th.classList.add("attr-shield");
 }
 
 function resetAttrMarker(th) {
@@ -372,14 +437,14 @@ function resetAttrMarker(th) {
 }
 
 function enforceAttributeExclusivity() {
-  const groups = {1:[],2:[],3:[],4:[]};
+  const groups = {1:[],2:[],3:[]};
   document.querySelectorAll('th[data-input]').forEach(th => {
     const hid = th.querySelector('input[type="hidden"]');
     const val = parseInt(hid.value) || 0;
     if (val > 0) groups[val].push(th);
   });
   let changed = false;
-  [2,3,4].forEach(v => {
+  [2,3].forEach(v => {
     const arr = groups[v];
     arr.slice(1).forEach(extra => { resetAttrMarker(extra); changed = true; });
   });
@@ -397,7 +462,7 @@ function applyAttrMarker(th, val) {
     const count = Array.from(document.querySelectorAll('th[data-input]'))
       .filter(m => m.querySelector('input[type="hidden"]').value === "1").length;
     if (count >= 3 && hid.value !== "1") {
-      alert("Max 3 ✠ erlaubt.");
+      alert(t('max_cross_warning'));
       return;
     }
   } else if (val >= 2) {
@@ -431,7 +496,6 @@ function selectAttrMarker(th) {
       <button class="icon-btn" data-val="1">${attrSymbols[1]}</button>
       <button class="icon-btn" data-val="2">${attrSymbols[2]}</button>
       <button class="icon-btn" data-val="3">${attrSymbols[3]}</button>
-      <button class="icon-btn" data-val="4">${attrSymbols[4]}</button>
     </div>`;
   document.body.appendChild(markerPopup);
 
@@ -450,8 +514,8 @@ function toggleLineMarker(cell) {
   const row = cell.closest('tr');
   const table = row ? row.closest('table') : null;
   if (table && (table.id === 'grupp-table' || table.id === 'talent-table')) {
-    const nameInput = cell.querySelector('input[type="text"]');
-    if (!nameInput || nameInput.value.trim() === '') return;
+    const nameField = cell.querySelector('input[type="text"], textarea');
+    if (!nameField || nameField.value.trim() === '') return;
   }
   const icon = cell.querySelector('.marker-icon');
   if (hid.value === "1") {
@@ -480,8 +544,8 @@ function restoreMarkers() {
     const table = row ? row.closest('table') : null;
     if (hid.value === "1") {
       if (table && (table.id === 'grupp-table' || table.id === 'talent-table')) {
-        const nameInput = cell.querySelector('input[type="text"]');
-        if (!nameInput || nameInput.value.trim() === '') {
+        const nameField = cell.querySelector('input[type="text"], textarea');
+        if (!nameField || nameField.value.trim() === '') {
           hid.value = "0";
         }
       }
@@ -514,7 +578,7 @@ document.addEventListener("click", e => {
 
 document.addEventListener("input", e => {
   const cell = e.target.closest('td[data-marker]');
-  if (!cell || !e.target.matches('input[type="text"]')) return;
+  if (!cell || !e.target.matches('input[type="text"], textarea')) return;
   if (e.target.value.trim() !== "") return;
   const hid = cell.querySelector('input[type="hidden"]');
   const icon = cell.querySelector('.marker-icon');
@@ -593,7 +657,7 @@ function addRow(tableId) {
   if (tableId === "grupp-table") {
     // Vorlage für gruppierte Fähigkeiten
     row.innerHTML = `
-      <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><input type="text"></td>
+      <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></td>
       <td>
           <select required>
             <option value="" selected disabled>-</option>
@@ -618,16 +682,16 @@ function addRow(tableId) {
   else if (tableId === "talent-table") {
     // Zeile für Talente
     row.innerHTML = `
-      <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><input type="text"></td>
+      <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></td>
       <td class="wsg"><input type="number"></td>
-      <td><input type="text"></td>
+      <td><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
   else if (tableId === "waffen-table") {
     // Waffenliste
     row.innerHTML = `
-      <td><input type="text"></td>
+      <td><textarea rows="1"></textarea></td>
       <td class="text-left"><input type="text"></td>
       <td><input type="number"></td>
       <td><input type="text"></td>
@@ -641,7 +705,7 @@ function addRow(tableId) {
       <td><input type="number" max="0"></td>
       <td><input type="number" max="0"></td>
       <td><input type="number" max="0"></td>
-      <td><input type="text"></td>
+      <td><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateVermoegen();">❌</button></td>
     `;
   }
@@ -651,14 +715,14 @@ function addRow(tableId) {
       <td><input type="number" min="0"></td>
       <td><input type="number" min="0"></td>
       <td><input type="number" min="0"></td>
-      <td><input type="text"></td>
+      <td><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateVermoegen();">❌</button></td>
     `;
   }
   else if (tableId === "ruestung-table") {
     // Rüstungsstücke
     row.innerHTML = `
-      <td><input type="text"></td>
+      <td><textarea rows="1"></textarea></td>
         <td>
           <select required>
             <option value="" selected disabled>-</option>
@@ -676,7 +740,7 @@ function addRow(tableId) {
   else if (tableId === "ausruestung-table") {
     // Allgemeine Ausrüstung
     row.innerHTML = `
-      <td><input type="text"></td>
+      <td><textarea rows="1"></textarea></td>
       <td><input type="number"></td>
       <td><input type="number"></td>
       <td><textarea></textarea></td>
@@ -686,7 +750,7 @@ function addRow(tableId) {
   else if (tableId === "zauber-table") {
     // Zauber oder Gebete
     row.innerHTML = `
-      <td><input type="text"></td>
+      <td><textarea rows="1"></textarea></td>
       <td><input type="number"></td>
       <td><input type="text"></td>
       <td><input type="text"></td>
@@ -698,7 +762,7 @@ function addRow(tableId) {
   else if (tableId === "mutationen-table") {
     // Mutationen mit Kategorie
     row.innerHTML = `
-      <td><input type="text"></td>
+      <td><textarea rows="1"></textarea></td>
       <td>
         <select required>
           <option value="" selected disabled>-</option>
@@ -713,7 +777,7 @@ function addRow(tableId) {
   else if (tableId === "psychologie-table") {
     // Einträge für psychologische Effekte
     row.innerHTML = `
-      <td><input type="text"></td>
+      <td><textarea rows="1"></textarea></td>
       <td><textarea></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
@@ -722,7 +786,7 @@ function addRow(tableId) {
     // Erfahrungspunkte-Modus "Voll"
     row.innerHTML = `
       <td><input type="number"></td>
-      <td><input type="text"></td>
+      <td><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateErfahrung(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
@@ -771,9 +835,9 @@ function checkTalentEffects() {
   let hardyLevel = 0;
   document.querySelectorAll("#talent-table tr").forEach((row, idx) => {
     if (idx === 0) return; // Kopfzeile überspringen
-    const nameInput = row.cells[0].querySelector('input[type="text"]');
-    if (!nameInput) return;
-    const name = nameInput.value.toLowerCase().trim();
+    const nameField = row.cells[0].querySelector('input[type="text"], textarea');
+    if (!nameField) return;
+    const name = nameField.value.toLowerCase().trim();
     const simRob = similarity(name, "robustheit");
     const simHardy = similarity(name, "hardy");
     if (simRob >= 0.9 || simHardy >= 0.9) {
@@ -973,6 +1037,8 @@ function updateErfahrung() {
     document.querySelectorAll("#exp-table tr").forEach((row, idx) => {
       if (idx === 0) return;
       const val = parseInt(row.cells[0].querySelector("input").value) || 0;
+      row.classList.toggle("negative", val < 0);
+      row.classList.toggle("positive", val > 0);
       akt += val;
       if (val < 0) {
         ausg += val;
@@ -985,7 +1051,7 @@ function updateErfahrung() {
     document.getElementById("exp-full-gesamt").value = gesamt;
 
     if (akt < 0 && !aktWarNegativ) {
-      alert("Warnung: Aktuell ist negativ!");
+      alert(t('current_negative_warning'));
       aktWarNegativ = true;
     } else if (akt >= 0 && aktWarNegativ) {
       aktWarNegativ = false;
@@ -1041,12 +1107,7 @@ function initLogic() {
 
   document.addEventListener("input", e => {
     if (e.target.matches("input, textarea, select")) {
-      if (e.target.closest("#talent-table")) {
-        updateLebenspunkte();
-        saveState();
-      } else {
-        updateAttributes();
-      }
+      updateAttributes();
     }
   });
 
@@ -1066,4 +1127,8 @@ function initLogic() {
   }
 
   loadState();
+  if (!currentCharacter) {
+    ensureInitialRows();
+    updateAttributes();
+  }
 }
