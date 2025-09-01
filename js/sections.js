@@ -6,7 +6,7 @@ const sections = [
   // 🧾 Grunddaten
   {
     id: "grunddaten",
-    title: "Grunddaten",
+    title: t('grunddaten'),
     content: `
       <div class="section-body">
         <div class="subsection">
@@ -43,7 +43,7 @@ const sections = [
   // 📊 Attribute (Spielwerte)
   {
     id: "attribute",
-    title: "Spielwerte",
+    title: t('attributes'),
     content: `
       <table class="full-width" id="attribute-table">
         <tr class="attr-header">
@@ -106,7 +106,7 @@ const sections = [
   // 📜 Grundfähigkeiten
   {
     id: "grundfaehigkeiten",
-    title: "Grundfähigkeiten",
+    title: t('grundskills'),
       content: `
         <table class="full-width" id="grund-table">
         <tr>
@@ -140,7 +140,7 @@ const sections = [
   // ⚔️ Gruppierte Fähigkeiten
   {
     id: "gruppfaehigkeiten",
-    title: "Gruppierte Fähigkeiten",
+    title: t('groupskills'),
     content: `
       <table class="full-width" id="grupp-table">
         <tr>
@@ -159,7 +159,7 @@ const sections = [
   // ⭐ Talente
   {
     id: "talente",
-    title: "Talente",
+    title: t('talents'),
     content: `
       <table class="full-width" id="talent-table">
         <tr>
@@ -180,7 +180,7 @@ sections.push(
   // 🗡️ Waffen
   {
     id: "waffen",
-    title: "Waffen",
+    title: t('weapons'),
     content: `
       <table class="full-width" id="waffen-table">
         <tr>
@@ -200,7 +200,7 @@ sections.push(
   // 🛡️ Rüstung
   {
     id: "ruestung",
-    title: "Rüstung",
+    title: t('armor'),
     content: `
       <!-- Übersicht RP pro Zone -->
       <table class="ruestung-uebersicht">
@@ -233,7 +233,7 @@ sections.push(
   // 🎒 Ausrüstung
   {
     id: "ausruestung",
-    title: "Ausrüstung",
+    title: t('equipment'),
     content: `
       <table class="full-width" id="ausruestung-table">
         <tr>
@@ -252,7 +252,7 @@ sections.push(
   // ✨ Zauber & Gebete
   {
     id: "zauber",
-    title: "Zauber & Gebete",
+    title: t('spells'),
     content: `
       <table class="full-width" id="zauber-table">
         <tr>
@@ -273,7 +273,7 @@ sections.push(
   // ☠️ Korruption + Mutationen
   {
     id: "korruption",
-    title: "Korruption & Mutationen",
+    title: t('corruption') + ' & ' + t('mutations'),
     content: `
       <table class="full-width" id="korruption-table">
         <tr><th>Max.</th><th>Aktuell</th></tr>
@@ -302,7 +302,7 @@ sections.push(
   // 🧠 Psychologie
   {
     id: "psychologie",
-    title: "Psychologie",
+    title: t('psychology'),
     content: `
       <table class="full-width" id="psychologie-table">
         <tr><th>Eintrag</th><th>Notizen</th><th class="delete-col"></th></tr>
@@ -315,7 +315,7 @@ sections.push(
   // ❤️ Lebenspunkte
   {
     id: "lebenspunkte",
-    title: "Lebenspunkte",
+    title: t('lebenspunkte'),
     content: `
       <table class="full-width" id="lp-table">
         <tr><th>Komponente</th><th>Wert</th></tr>
@@ -333,7 +333,7 @@ sections.push(
   // ⚖️ Traglast
   {
     id: "traglast",
-    title: "Traglast",
+    title: t('traglast')
     content: `
       <table class="full-width" id="traglast-table">
         <tr><th>Quelle</th><th>TP</th></tr>
@@ -350,7 +350,7 @@ sections.push(
   // 💰 Vermögen & Schulden
   {
     id: "vermoegen",
-    title: "Vermögen & Schulden",
+    title: t('wealth') + ' & ' + t('debts'),
     content: `
       <h3>Münzbesitz</h3>
       <table id="vermoegen-table">
@@ -408,7 +408,7 @@ sections.push(
   // ⭐ Erfahrung
   {
     id: "erfahrung",
-    title: "Erfahrung",
+    title: t('experience_full'),
     content: `
       <div style="text-align:center; margin-bottom:10px;">
         <label>Simpel</label>

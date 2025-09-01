@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Charakterbogen – Warhammer Fantasy</title>
+  <title data-i18n="title">Charakterbogen – Warhammer Fantasy</title>
 
   <!-- Fonts: Fraktur-Schrift für Überschriften, Podkova für Fließtext -->
   <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Podkova&display=swap" rel="stylesheet">
@@ -15,24 +15,28 @@
   <!-- Passwortschutz Overlay -->
   <div id="password-overlay" class="overlay">
     <div class="overlay-content">
-      <h2>🔒 Zugang</h2>
-      <p>Bitte Passwort eingeben:</p>
+      <h2>🔒 <span data-i18n="access"></span></h2>
+      <p data-i18n="password_prompt"></p>
       <input type="password" id="password-input" maxlength="20">
-      <button id="password-submit">OK</button>
+      <button id="password-submit" data-i18n="ok"></button>
     </div>
   </div>
 
-  <!-- Hauptcontainer mit Titel und optionalem Logout-Button -->
+  <!-- Hauptcontainer mit Titel -->
   <header>
-    <h1>Charakterbogen</h1>
-    <button id="logout" style="display:none">Logout</button><!-- Logout erscheint nach Authentifizierung -->
+    <h1 data-i18n="character_sheet"></h1>
   </header>
 
   <!-- Verwaltung zum Umschalten/Erstellen/Löschen von Charakteren -->
   <section id="character-management" class="character-management">
+    <label for="character-select" id="character-select-label" data-i18n="character_selection"></label>
     <select id="character-select"></select><!-- Dropdown mit vorhandenen Charakteren -->
-    <button id="new-character">➕ Neu</button><!-- legt basierend auf Char-Namen einen neuen Eintrag an -->
-    <button id="delete-character">🗑️ Löschen</button><!-- entfernt aktuellen Charakter -->
+    <button id="import-character">📥</button>
+    <button id="export-character">📤</button>
+    <button id="new-character">+</button><!-- legt basierend auf Char-Namen einen neuen Eintrag an -->
+    <button id="delete-character">❌</button><!-- entfernt aktuellen Charakter -->
+    <button id="logout" style="display:none">🚪</button><!-- Logout erscheint nach Authentifizierung -->
+    <input type="file" id="import-file" accept="application/json" style="display:none">
   </section>
 
   <main id="main-content">
@@ -43,7 +47,8 @@
     <p>⚔ Warhammer Fantasy Charakterbogen – Version 0.8.2</p><!-- einfache Fußzeile mit Version -->
   </footer>
 
-  <!-- Scripts: zunächst Struktur, dann Logik laden -->
+  <!-- Scripts: Übersetzungen, Struktur und Logik -->
+  <script src="js/translations.js"></script>
   <script src="js/sections.js"></script>
   <script src="js/logic.js"></script>
 </body>

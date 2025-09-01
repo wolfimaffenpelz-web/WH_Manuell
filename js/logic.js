@@ -4,6 +4,7 @@
 // 🔒 Passwortschutz
 // =========================
 function initPasswordProtection() {
+  applyTranslations();
   const overlay = document.getElementById("password-overlay"); // dunkler Hintergrund
   const input = document.getElementById("password-input");     // Eingabefeld für Passwort
   const button = document.getElementById("password-submit");   // OK-Button
@@ -22,7 +23,7 @@ function initPasswordProtection() {
       if (logoutBtn) logoutBtn.style.display = "inline-block";
       initLogic();
     } else {
-      alert("Falsches Passwort!");
+      alert(t('wrong_password'));
     }
   });
 
@@ -81,6 +82,9 @@ function initCharacterManagement() {
   const select = document.getElementById("character-select");
   const newBtn = document.getElementById("new-character"); // neuer Charakter
   const delBtn = document.getElementById("delete-character"); // löschen
+  const importBtn = document.getElementById("import-character");
+  const exportBtn = document.getElementById("export-character");
+  const importFile = document.getElementById("import-file");
 
   // Beim ersten Aufruf einen Default-Charakter mit Dummywerten anlegen
   let chars = JSON.parse(localStorage.getItem("characters") || "[]");
@@ -126,18 +130,18 @@ function initCharacterManagement() {
     const popup = document.createElement("div");
     popup.className = "popup";
     popup.innerHTML = `
-      <p>Charaktername:</p>
+      <p>${t('character_name_prompt')}</p>
       <input type="text" id="new-char-name">
       <br>
-      <button id="new-char-ok">OK</button>
-      <button id="new-char-cancel">Abbrechen</button>
+      <button id="new-char-ok">${t('ok')}</button>
+      <button id="new-char-cancel">${t('cancel')}</button>
     `;
     document.body.appendChild(popup);
     const input = document.getElementById("new-char-name");
     input.focus();
     document.getElementById("new-char-ok").addEventListener("click", () => {
       const newName = input.value.trim();
-      if (!newName) { alert("Name erforderlich"); return; }
+      if (!newName) { alert(t('name_required')); return; }
       saveCharacter(newName);
       saveState();
       loadCharacterList();
@@ -150,13 +154,17 @@ function initCharacterManagement() {
 
   delBtn.addEventListener("click", () => {
     if (!currentCharacter) return; // nichts zu löschen
-    const popup = confirm(`Charakter "${currentCharacter}" wirklich löschen?`);
+    const popup = confirm(t('delete_confirm'));
     if (popup) {
       deleteCharacter(currentCharacter);
       if (currentCharacter) loadState(); // anderen laden
       else location.reload();
     }
   });
+
+  importBtn.addEventListener("click", () => importFile.click());
+  importFile.addEventListener("change", (e) => { importCharacters(e.target.files); e.target.value = ""; });
+  exportBtn.addEventListener("click", exportCharacters);
 }
 
 // =========================
@@ -349,6 +357,56 @@ function ensureInitialRows() {
     }
   });
 }
+
+// Charakterdaten exportieren
+function exportCharacters() {
+  const chars = JSON.parse(localStorage.getItem('characters') || '[]');
+  const data = { characters: chars, states: {} };
+  chars.forEach(name => {
+    data.states[name] = JSON.parse(localStorage.getItem('state-' + name) || '{}');
+  });
+  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'characters.json';
+  a.click();
+}
+
+function importCharacters(files) {
+  const file = files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (Array.isArray(data.characters)) {
+        localStorage.setItem('characters', JSON.stringify(data.characters));
+        for (const name in data.states) {
+          localStorage.setItem('state-' + name, JSON.stringify(data.states[name]));
+        }
+        loadCharacterList();
+        if (data.characters.length > 0) {
+          currentCharacter = data.characters[0];
+          loadState();
+        }
+      }
+    } catch (err) {
+      alert(t('import_failed'));
+    }
+  };
+  reader.readAsText(file);
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
+document.addEventListener('input', e => {
+  if (e.target.tagName === 'TEXTAREA') {
+    autoResize(e.target);
+  }
+});
 
 // =========================
 // 🔘 Markierungen
@@ -593,7 +651,7 @@ function addRow(tableId) {
   if (tableId === "grupp-table") {
     // Vorlage für gruppierte Fähigkeiten
     row.innerHTML = `
-      <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><input type="text"></td>
+      <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></td>
       <td>
           <select required>
             <option value="" selected disabled>-</option>
@@ -618,16 +676,16 @@ function addRow(tableId) {
   else if (tableId === "talent-table") {
     // Zeile für Talente
     row.innerHTML = `
-      <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><input type="text"></td>
+      <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></td>
       <td class="wsg"><input type="number"></td>
-      <td><input type="text"></td>
+      <td><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
   else if (tableId === "waffen-table") {
     // Waffenliste
     row.innerHTML = `
-      <td><input type="text"></td>
+      <td><textarea rows="1"></textarea></td>
       <td class="text-left"><input type="text"></td>
       <td><input type="number"></td>
       <td><input type="text"></td>
@@ -641,7 +699,7 @@ function addRow(tableId) {
       <td><input type="number" max="0"></td>
       <td><input type="number" max="0"></td>
       <td><input type="number" max="0"></td>
-      <td><input type="text"></td>
+      <td><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateVermoegen();">❌</button></td>
     `;
   }
@@ -651,14 +709,14 @@ function addRow(tableId) {
       <td><input type="number" min="0"></td>
       <td><input type="number" min="0"></td>
       <td><input type="number" min="0"></td>
-      <td><input type="text"></td>
+      <td><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateVermoegen();">❌</button></td>
     `;
   }
   else if (tableId === "ruestung-table") {
     // Rüstungsstücke
     row.innerHTML = `
-      <td><input type="text"></td>
+      <td><textarea rows="1"></textarea></td>
         <td>
           <select required>
             <option value="" selected disabled>-</option>
@@ -676,7 +734,7 @@ function addRow(tableId) {
   else if (tableId === "ausruestung-table") {
     // Allgemeine Ausrüstung
     row.innerHTML = `
-      <td><input type="text"></td>
+      <td><textarea rows="1"></textarea></td>
       <td><input type="number"></td>
       <td><input type="number"></td>
       <td><textarea></textarea></td>
@@ -686,7 +744,7 @@ function addRow(tableId) {
   else if (tableId === "zauber-table") {
     // Zauber oder Gebete
     row.innerHTML = `
-      <td><input type="text"></td>
+      <td><textarea rows="1"></textarea></td>
       <td><input type="number"></td>
       <td><input type="text"></td>
       <td><input type="text"></td>
@@ -698,7 +756,7 @@ function addRow(tableId) {
   else if (tableId === "mutationen-table") {
     // Mutationen mit Kategorie
     row.innerHTML = `
-      <td><input type="text"></td>
+      <td><textarea rows="1"></textarea></td>
       <td>
         <select required>
           <option value="" selected disabled>-</option>
@@ -713,7 +771,7 @@ function addRow(tableId) {
   else if (tableId === "psychologie-table") {
     // Einträge für psychologische Effekte
     row.innerHTML = `
-      <td><input type="text"></td>
+      <td><textarea rows="1"></textarea></td>
       <td><textarea></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
@@ -722,7 +780,7 @@ function addRow(tableId) {
     // Erfahrungspunkte-Modus "Voll"
     row.innerHTML = `
       <td><input type="number"></td>
-      <td><input type="text"></td>
+      <td><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateErfahrung(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }

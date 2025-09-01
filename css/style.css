@@ -1,24 +1,102 @@
-/* Grundlegende Schriftarten und Basislayout */
+/* ================================================
+   Globale Variablen
+   ================================================ */
+:root {
+  --font-heading: 'UnifrakturMaguntia', cursive;
+  --font-main: 'Podkova', serif;
+  --color-bg: #FAF0E6;
+  --color-text: #111;
+  --color-field: #fff;
+  --color-highlight: #FFD700;
+  --font-size-base: 16px;
+  --row-height: 1.5em;
+  --coin-col-width: 5ch;
+}
+
+/* ================================================
+   Segmentübergreifende Styles
+   ================================================ */
 body {
-  font-family: 'Podkova', serif; /* Standard-Schrift für den Bogen */
+  font-family: var(--font-main);
   margin: 0;
   padding: 0;
-  background: #FAF0E6; /* Pergamentfarbe */
-  color: #111; /* dunkler Text */
-  overflow-x: hidden; /* horizontales Scrollen verhindern */
+  background: var(--color-bg);
+  color: var(--color-text);
+  overflow-x: hidden;
+  font-size: var(--font-size-base);
 }
 
 h1, h2, h3 {
-  font-family: 'UnifrakturMaguntia', cursive; /* gotische Überschrift */
+  font-family: var(--font-heading);
   margin: 10px 0;
   text-align: center;
 }
 
-:root {
-  --coin-col-width: 5ch;
+/* Tabellen und Zellen */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 5px 0;
+  table-layout: fixed;
+  word-wrap: break-word;
 }
 
-/* Overlay Passwort: abgedunkelter Hintergrund bei Login */
+table tr {
+  height: var(--row-height);
+}
+
+th, td {
+  border: 0;
+  padding: 2px;
+  text-align: center;
+  vertical-align: middle;
+  max-width: 120px;
+  overflow: hidden;
+}
+
+td:first-child,
+th:first-child {
+  text-align: left;
+  white-space: normal;
+  overflow: visible;
+}
+
+td:first-child input,
+th:first-child input,
+td:first-child textarea,
+th:first-child textarea {
+  text-align: left;
+}
+
+textarea {
+  width: 100%;
+  min-height: var(--row-height);
+  resize: none;
+  overflow: hidden;
+}
+
+/* Innere Linien */
+td + td,
+th + th {
+  border-left: 1px solid #000;
+}
+
+tr + tr td,
+tr + tr th {
+  border-top: 1px solid #000;
+}
+
+th { font-weight: bold; }
+
+td.text-left,
+th.text-left { text-align: left; }
+
+th.wsg,
+td.wsg { width: 60px; }
+
+/* ================================================
+   Overlay Passwort
+   ================================================ */
 .overlay {
   position: fixed;
   top: 0; left: 0;
@@ -31,9 +109,9 @@ h1, h2, h3 {
 }
 
 .overlay-content {
-  background: #fff;
+  background: var(--color-field);
   padding: 20px;
-  border-radius: 5px; /* abgerundete Kanten */
+  border-radius: 5px;
   text-align: center;
 }
 
@@ -43,7 +121,9 @@ h1, h2, h3 {
   width: 150px;
 }
 
-/* Charakter-Management oben auf der Seite */
+/* ================================================
+   Charakter-Management
+   ================================================ */
 .character-management {
   text-align: center;
   margin: 10px 0;
@@ -55,68 +135,15 @@ h1, h2, h3 {
   padding: 3px;
 }
 
-/* Tabellen allgemein: Layout für alle Tabellen im Bogen */
-table {
-  border-collapse: collapse;
-  width: 100%;
-  margin: 5px 0;
-  table-layout: fixed; /* feste Breite für Zellen */
-  word-wrap: break-word;
-}
-
-th, td {
-  border: 0; /* Zellen erhalten zunächst keinen Rahmen */
-  padding: 2px;
-  text-align: center;
-  vertical-align: middle;
-  max-width: 120px; /* verhindert zu breite Felder */
-  overflow: hidden;
-}
-
-/* Vertikale innere Linien: alle Zellen nach der ersten Spalte */
-td + td,
-th + th {
-  border-left: 1px solid #000;
-}
-
-/* Horizontale innere Linien: alle Zellen nach der ersten Zeile */
-tr + tr td,
-tr + tr th {
-  border-top: 1px solid #000;
-}
-
-th {
-  font-weight: bold;
-}
-
-td:first-child,
-th:first-child {
-  text-align: left;
-}
-
-td:first-child input,
-th:first-child input,
-td:first-child textarea,
-th:first-child textarea {
-  text-align: left;
-}
-
-td.text-left,
-th.text-left {
-  text-align: left;
-}
-
-th.wsg,
-td.wsg {
-  width: 60px;
-}
-
-/* Markericons links neben den Textfeldern */
+/* ================================================
+   Markericons
+   ================================================ */
 [data-marker] {
   display: flex;
   align-items: center;
   gap: 2px;
 }
+
 [data-marker] .marker-icon {
   display: none;
   width: 0;
@@ -125,15 +152,20 @@ td.wsg {
   line-height: 1;
   height: 1em;
 }
+
 .line-marked [data-marker] .marker-icon {
   display: inline-block;
   width: 1em;
 }
+
 [data-marker] input[type="text"],
-[data-marker] span:not(.marker-icon) {
+[data-marker] span:not(.marker-icon),
+[data-marker] textarea {
   flex: 1;
 }
-[data-marker] input[type="text"] {
+
+[data-marker] input[type="text"],
+[data-marker] textarea {
   width: 100%;
 }
 
@@ -141,14 +173,16 @@ td.wsg {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
 }
+
 .marker-select .icon-btn {
   border: none;
 }
 
-/* Attributmarken im Spaltenkopf */
-th[data-input] {
-  text-align: center;
-}
+/* ================================================
+   Attributmarken im Spaltenkopf
+   ================================================ */
+th[data-input] { text-align: center; }
+
 th[data-input]::before {
   content: attr(data-icon);
   display: block;
@@ -157,12 +191,13 @@ th[data-input]::before {
   height: 20px;
 }
 
-/* Spaltenbreiten für Fähigkeiten- und Talenttabellen */
+/* ================================================
+   Spaltenbreiten für Fähigkeiten- und Talenttabellen
+   ================================================ */
 #grund-table,
 #grupp-table,
-#talent-table {
-  table-layout: auto;
-}
+#talent-table { table-layout: auto; }
+
 #grund-table th:first-child,
 #grund-table td:first-child,
 #grupp-table th:first-child,
@@ -170,670 +205,35 @@ th[data-input]::before {
   max-width: none;
   min-width: 30%;
 }
+
 #grund-table td:nth-child(2),
 #grund-table td:nth-child(3),
 #grund-table td:nth-child(4),
 #grund-table td:nth-child(5) {
   width: 60px;
 }
-#grupp-table td:nth-child(2) {
-  width: min-content;
-}
+
+#grupp-table td:nth-child(2) { width: min-content; }
 #grupp-table td:nth-child(3),
 #grupp-table td:nth-child(4),
 #grupp-table td:nth-child(5) {
   width: 60px;
 }
+
 #talent-table th:first-child,
 #talent-table td:first-child {
   max-width: none;
   min-width: 30%;
   width: auto;
 }
+
 #talent-table th:nth-child(2),
 #talent-table td:nth-child(2) {
   width: 60px;
 }
+
 #talent-table th:nth-child(3),
 #talent-table td:nth-child(3) {
   max-width: none;
   min-width: 30%;
-  width: 30%;
-}
-
-td.text-left input,
-th.text-left input,
-td.text-left textarea,
-th.text-left textarea {
-  text-align: left;
-}
-
-/* 100% Tabellenbreite */
-.full-width {
-  width: 100%;
-}
-
-/* Eingabefelder: transparent, damit Tabellenlinien sichtbar bleiben */
-input[type="text"],
-input[type="number"],
-textarea {
-  width: 98%;
-  border: none;
-  background: #f8d7d7;
-  text-align: center;
-  font-family: inherit;
-  font-weight: bold;
-}
-
-textarea {
-  resize: vertical;
-  min-height: 20px;
-}
-
-#grupp-table select,
-#ruestung-table select,
-#mutationen-table select {
-  background: inherit;
-}
-
-#grupp-table select:invalid,
-#ruestung-table select:invalid,
-#mutationen-table select:invalid {
-  background: #eee;
-}
-
-input[readonly], .readonly {
-  background: #e6e6e6; /* grau für feste/berechnete Felder */
-  font-weight: bold;
-}
-
-/* Highlighting */
-th.active;
-tr.active {
-  outline: 2px solid darkred; /* visuelles Highlight der aktiven Zeile/Spalte */
-}
-
-/* Buttons für Zeilenverwaltung */
-button.add-row,
-button.delete-row {
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-button.add-row {
-  font-size: 16px;
-}
-
-button.delete-row {
-  font-size: 11px;
-  color: red;
-  padding: 0;
-}
-
-/* Segment-Trennung */
-.section-divider {
-  border-bottom: 3.5px solid #000;
-  width: 98%;
-  margin: 15px auto;
-}
-
-/* Popups (z.B. Löschen, Korruption) */
-.popup {
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  background: #fff;
-  padding: 4px;
-  border: 2px solid #000;
-  z-index: 1100;
-  text-align: center;
-}
-
-.popup button {
-  margin: 5px;
-  padding: 4px;
-}
-
-/* Farben für Werte */
-.negative {
-  color: red;
-}
-
-.positive {
-  color: green;
-}
-
-.readonly-red {
-  background: #f2d6d6; /* blasses rot für „Problemfelder“ */
-  font-weight: bold;
-}
-
-/* Icon Styling */
-.icon-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-}
-
-/* Rüstungsübersicht vertikal */
-/* Rüstungsübersicht Spaltenausrichtung */
-.ruestung-uebersicht th:nth-child(1),
-.ruestung-uebersicht td:nth-child(1) {
-  text-align: left;
-  white-space: nowrap;
-}
-.ruestung-uebersicht th:nth-child(2),
-.ruestung-uebersicht td:nth-child(2),
-.ruestung-uebersicht th:nth-child(3),
-.ruestung-uebersicht td:nth-child(3) {
-  text-align: center;
-  white-space: nowrap;
-}
-
-/* Löschspalte */
-th.delete-col,
-td.delete-col {
-  width: 20px;
-  padding: 0;
-}
-
-/* Münz-Icons */
-.coin {
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-  border-radius: 50%;
-  vertical-align: middle;
-}
-.coin.gold { background: #d4af37; }
-.coin.silver { background: #c0c0c0; }
-.coin.copper { background: #b87333; }
-
-/* Tabellenformatierungen */
-#attribute-table,
-#attribute-table th,
-#attribute-table td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-#attribute-table th:first-child,
-#attribute-table td:first-child {
-  text-align: left;
-  width: fit-content;
-  min-width: 80px;
-  white-space: nowrap;
-  font-weight: 500;
-  padding: 0 2px;
-}
-#attribute-table th:not(:first-child),
-#attribute-table td:not(:first-child) {
-  width: 3ch;
-  padding: 0 2px;
-  text-align: center;
-  white-space: nowrap;
-  font-weight: 600;
-}
-
-/* Waffen-Tabelle */
-#waffen-table,
-#waffen-table th,
-#waffen-table td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-#waffen-table th:nth-child(1),
-#waffen-table td:nth-child(1) {
-  text-align: left;
-  width: 25%;
-}
-#waffen-table th:nth-child(2),
-#waffen-table td:nth-child(2) {
-  text-align: left;
-  width: 20%;
-}
-#waffen-table th:nth-child(3),
-#waffen-table td:nth-child(3),
-#waffen-table th:nth-child(4),
-#waffen-table td:nth-child(4) {
-  width: 60px;
-}
-#waffen-table th:nth-child(5),
-#waffen-table td:nth-child(5) {
-  width: auto;
-}
-
-/* Rüstungsübersicht */
-.ruestung-uebersicht,
-.ruestung-uebersicht th,
-.ruestung-uebersicht td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-.ruestung-uebersicht th:nth-child(1),
-.ruestung-uebersicht td:nth-child(1) {
-  width: 40%;
-}
-.ruestung-uebersicht th:nth-child(2),
-.ruestung-uebersicht td:nth-child(2) {
-  width: 30%;
-}
-.ruestung-uebersicht th:nth-child(3),
-.ruestung-uebersicht td:nth-child(3) {
-  width: 30%;
-}
-
-/* Rüstungstabelle */
-#ruestung-table,
-#ruestung-table th,
-#ruestung-table td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-#ruestung-table th:nth-child(1),
-#ruestung-table td:nth-child(1) {
-  text-align: left;
-  width: 25%;
-}
-#ruestung-table th:nth-child(2),
-#ruestung-table td:nth-child(2) {
-  width: 20%;
-}
-#ruestung-table th:nth-child(3),
-#ruestung-table td:nth-child(3),
-#ruestung-table th:nth-child(4),
-#ruestung-table td:nth-child(4) {
-  width: 40px;
-}
-#ruestung-table th:nth-child(5),
-#ruestung-table td:nth-child(5) {
-  width: auto;
-}
-#ruestung-table th:last-child,
-#ruestung-table td:last-child {
- text-align: left;
-  width: 15px;
-}
-
-/* Ausrüstung */
-#ausruestung-table,
-#ausruestung-table th,
-#ausruestung-table td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-#ausruestung-table th:nth-child(1),
-#ausruestung-table td:nth-child(1) {
-  text-align: left;
-  width: 40%;
-}
-#ausruestung-table th:nth-child(2),
-#ausruestung-table td:nth-child(2),
-#ausruestung-table th:nth-child(3),
-#ausruestung-table td:nth-child(3) {
-  width: 60px;
-}
-#ausruestung-table th:nth-child(4),
-#ausruestung-table td:nth-child(4) {
-  width: auto;
-}
-#ausruestung-table th:last-child,
-#ausruestung-table td:last-child {
-  width: 15px;
-   text-align: left;
-}
-
-/* Zauber & Gebete */
-#zauber-table,
-#zauber-table th,
-#zauber-table td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-#zauber-table th:nth-child(4),
-#zauber-table td:nth-child(4) {
-  text-align: left;
-  width: auto;
-  min-width: 20px;
-}
-#zauber-table th:nth-child(1),
-#zauber-table td:nth-child(1),
-#zauber-table th:nth-child(6),
-#zauber-table td:nth-child(6),
- {
- text-align: left;
-  min-width: 30%; 
-  width: auto;
-}
-#zauber-table th:nth-child(5),
-#zauber-table td:nth-child(5),
-#zauber-table th:nth-child(3),
-#zauber-table td:nth-child(3),
-#zauber-table th:nth-child(2),
-#zauber-table td:nth-child(2) {
-  width: 20px;
-  text-align: center;
-}
-#zauber-table th:last-child,
-#zauber-table td:last-child {
-  width: 15px;
-   text-align: left;
-}
-
-/* Korruption */
-#korruption-table,
-#korruption-table th,
-#korruption-table td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-#korruption-table th,
-#korruption-table td {
-  width: auto;
-}
-
-/* Mutationen */
-#mutationen-table,
-#mutationen-table th,
-#mutationen-table td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-#mutationen-table th:nth-child(1),
-#mutationen-table td:nth-child(1) {
-  text-align: left;
-  width: 30%;
-}
-#mutationen-table th:nth-child(2),
-#mutationen-table td:nth-child(2) {
-  width: 40px;
-}
-#mutationen-table th:nth-child(3),
-#mutationen-table td:nth-child(3) {
-  width: auto;
-}
-#mutationen-table th:last-child,
-#mutationen-table td:last-child {
-  width: 15px;
-   text-align: left;
-}
-
-/* Psychologie */
-#psychologie-table,
-#psychologie-table th,
-#psychologie-table td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-#psychologie-table th:nth-child(1),
-#psychologie-table td:nth-child(1) {
-  text-align: left;
-  width: 40%;
-}
-#psychologie-table th:nth-child(2),
-#psychologie-table td:nth-child(2) {
-  width: auto;
-}
-#psychologie-table th:last-child,
-#psychologie-table td:last-child {
-  width: 15px;
-   text-align: left;
-}
-
-/* Lebenspunkte */
-#lp-table,
-#lp-table th,
-#lp-table td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-#lp-table th:nth-child(1),
-#lp-table td:nth-child(1) {
-  text-align: left;
-  width: 70%;
-}
-#lp-table th:nth-child(2),
-#lp-table td:nth-child(2) {
-  width: 30%;
-}
-
-/* Traglast */
-#traglast-table,
-#traglast-table th,
-#traglast-table td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-#traglast-table th:nth-child(1),
-#traglast-table td:nth-child(1) {
-  text-align: left;
-  width: 70%;
-}
-#traglast-table th:nth-child(2),
-#traglast-table td:nth-child(2) {
-  width: 30%;
-}
-
-/* Vermögen */
-#vermoegen-table,
-#vermoegen-table th,
-#vermoegen-table td,
-#nettovermoegen-block table,
-#nettovermoegen-block th,
-#nettovermoegen-block td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-#vermoegen-table,
-#nettovermoegen-block table {
-  margin: 0 auto;
-  width: auto;
-}
-#vermoegen-table th,
-#vermoegen-table td,
-#nettovermoegen-block th,
-#nettovermoegen-block td,
-#schulden-table th:nth-child(1),
-#schulden-table td:nth-child(1),
-#schulden-table th:nth-child(2),
-#schulden-table td:nth-child(2),
-#schulden-table th:nth-child(3),
-#schulden-table td:nth-child(3),
-#spar-table th:nth-child(1),
-#spar-table td:nth-child(1),
-#spar-table th:nth-child(2),
-#spar-table td:nth-child(2),
-#spar-table th:nth-child(3),
-#spar-table td:nth-child(3) {
-  width: var(--coin-col-width);
-  text-align: center;
-}
-
-#schulden-table,
-#schulden-table th,
-#schulden-table td,
-#spar-table,
-#spar-table th,
-#spar-table td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-#schulden-table th:nth-child(4),
-#schulden-table td:nth-child(4),
-#spar-table th:nth-child(4),
-#spar-table td:nth-child(4) {
-  text-align: left;
-  width: auto;
-}
-#schulden-table th:nth-child(5),
-#schulden-table td:nth-child(5),
-#spar-table th:nth-child(5),
-#spar-table td:nth-child(5) {
-  width: 20px;
-  padding: 0;
-}
-#schulden-table input[type="number"] {
-  color: red;
-}
-
-/* Erfahrungstabelle */
-#exp-table,
-#exp-table th,
-#exp-table td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-#exp-table th:nth-child(1),
-#exp-table td:nth-child(1) {
-  width: 60px;
-}
-#exp-table th:nth-child(2),
-#exp-table td:nth-child(2) {
-  text-align: left;
-  width: auto;
-}
-#exp-table th:last-child,
-#exp-table td:last-child {
-  width: 15px;
-}
-
-/* Erfahrung – einfache & volle Tabelle */
-#exp-simple table,
-#exp-simple th,
-#exp-simple td,
-#exp-full > table:first-of-type,
-#exp-full > table:first-of-type th,
-#exp-full > table:first-of-type td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-#exp-simple th,
-#exp-simple td,
-#exp-full > table:first-of-type th,
-#exp-full > table:first-of-type td {
-  width: 33%;
-}
-#exp-simple th:first-child,
-#exp-simple td:first-child,
-#exp-full > table:first-of-type th:first-child,
-#exp-full > table:first-of-type td:first-child {
-  text-align: left;
-}
-
-/* Grunddaten Tabellen */
-#grunddaten table,
-#grunddaten th,
-#grunddaten td {
-  font-family: 'Podkova', serif;
-  color: #111;
-}
-#grunddaten td:first-child {
-  text-align: left;
-  width: 40%;
-  font-weight: 600;
-}
-#grunddaten td:last-child {
-  width: 60%;
-}
-
-/* Abstand zwischen Tabellen */
-.table-gap {
-  height: 3em;
-}
-
-/* Marker Styles */
-.attr-cross { background: #add8e6; font-weight: bold; }
-.attr-axes { background: #cd7f32; font-weight: bold; }
-.attr-skull { background: silver; font-weight: bold; }
-.attr-shield { background: gold; font-weight: bold; }
-
-.line-marked { background: #ddd; font-weight: bold; }
-
-#grund-table tr.line-marked input,
-#grupp-table tr.line-marked input,
-#talent-table tr.line-marked input,
-#grund-table tr.line-marked select,
-#grupp-table tr.line-marked select,
-#talent-table tr.line-marked select,
-#grund-table tr.line-marked textarea,
-#grupp-table tr.line-marked textarea,
-#talent-table tr.line-marked textarea {
-  background: transparent;
-  border: 1px solid #8B0000;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-.ruestung-uebersicht input {
-  width: 100%;
-}
-
-/* Popup für Attributmarker */
-.marker-select {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-}
-
-.marker-select button {
-  font-size: 24px;
-  margin: 3px;
-}
-
-/* Kompakte Spielwerte-Tabelle */
-#attribute-table {
-  width: 100%;
-  table-layout: fixed;
-}
-
-#attribute-table input[type="number"] {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 0;
-  text-align: center;
-}
-/* Slider für Erfahrungstoggle */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 24px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: #ccc;
-  transition: .4s;
-  border-radius: 24px;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 20px;
-  width: 20px;
-  left: 2px;
-  bottom: 2px;
-  background: #fff;
-  transition: .4s;
-  border-radius: 50%;
-}
-
-.switch input:checked + .slider {
-  background: #2196F3;
-}
-
-.switch input:checked + .slider:before {
-  transform: translateX(26px);
 }
