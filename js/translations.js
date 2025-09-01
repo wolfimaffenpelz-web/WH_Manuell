@@ -18,6 +18,8 @@ const baseTranslations = {
   cancel: "Abbrechen",
   name_required: "Name erforderlich",
   delete_confirm: "Charakter wirklich löschen?",
+  yes: "Ja",
+  no: "Nein",
   // Sections
   grunddaten: "Grunddaten",
   attributes: "Spielwerte",

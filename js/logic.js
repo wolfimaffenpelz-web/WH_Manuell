@@ -97,37 +97,61 @@ function initCharacterManagement() {
     loadState();
   });
 
+  // Neuer Charakter anlegen
   newBtn.addEventListener("click", () => {
-    const popup = document.createElement("div");
-    popup.className = "popup";
-    popup.innerHTML = `
-      <p>${t('character_name_prompt')}</p>
-      <input type="text" id="new-char-name">
-      <br>
-      <button id="new-char-ok">${t('ok')}</button>
-      <button id="new-char-cancel">${t('cancel')}</button>
+    const overlay = document.createElement("div");
+    overlay.className = "overlay";
+    overlay.innerHTML = `
+      <div class="overlay-content">
+        <p>${t('character_name_prompt')}</p>
+        <input type="text" id="new-char-name">
+        <br>
+        <button id="new-char-ok">${t('ok')}</button>
+        <button id="new-char-cancel">${t('cancel')}</button>
+      </div>
     `;
-    document.body.appendChild(popup);
-    const input = document.getElementById("new-char-name");
+    document.body.appendChild(overlay);
+    const input = overlay.querySelector("#new-char-name");
     input.focus();
-      document.getElementById("new-char-ok").addEventListener("click", () => {
-        const newName = input.value.trim();
-        if (!newName) { alert(t('name_required')); return; }
-        saveCharacter(newName);
-        ensureInitialRows();
-        saveState();
-        loadCharacterList();
-        select.value = newName;
-        loadState();
-        popup.remove();
-      });
-    document.getElementById("new-char-cancel").addEventListener("click", () => popup.remove());
+
+    function close() { overlay.remove(); }
+
+    overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
+    overlay.querySelector("#new-char-cancel").addEventListener("click", close);
+
+    overlay.querySelector("#new-char-ok").addEventListener("click", () => {
+      const newName = input.value.trim();
+      if (!newName) { alert(t('name_required')); return; }
+      saveCharacter(newName);
+      ensureInitialRows();
+      saveState();
+      loadCharacterList();
+      select.value = newName;
+      loadState();
+      close();
+    });
   });
 
+  // Charakter löschen
   delBtn.addEventListener("click", () => {
     if (!currentCharacter) return; // nichts zu löschen
-    const popup = confirm(t('delete_confirm'));
-    if (popup) {
+    const overlay = document.createElement("div");
+    overlay.className = "overlay";
+    overlay.innerHTML = `
+      <div class="overlay-content">
+        <p>${t('delete_confirm')}</p>
+        <button id="del-yes">${t('yes')}</button>
+        <button id="del-no">${t('no')}</button>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    function close() { overlay.remove(); }
+
+    overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
+    overlay.querySelector("#del-no").addEventListener("click", close);
+
+    overlay.querySelector("#del-yes").addEventListener("click", () => {
       deleteCharacter(currentCharacter);
       if (currentCharacter) {
         loadState(); // anderen laden
@@ -142,7 +166,8 @@ function initCharacterManagement() {
         ensureInitialRows();
         updateAttributes();
       }
-    }
+      close();
+    });
   });
 
   importBtn.addEventListener("click", () => importFile.click());
@@ -341,41 +366,37 @@ function ensureInitialRows() {
   });
 }
 
-// Charakterdaten exportieren
+// Aktuellen Charakter exportieren
 function exportCharacters() {
-  const chars = JSON.parse(localStorage.getItem('characters') || '[]');
-  const data = { characters: chars, states: {} };
-  chars.forEach(name => {
-    data.states[name] = JSON.parse(localStorage.getItem('state-' + name) || '{}');
-  });
+  if (!currentCharacter) return;
+  saveState();
+  const state = JSON.parse(localStorage.getItem('state-' + currentCharacter) || '{}');
+  const data = { id: currentCharacter, state };
   const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'characters.json';
+  a.download = `${currentCharacter}.json`;
   a.click();
 }
 
+// Charakter importieren und laden
 function importCharacters(files) {
   const file = files[0];
   if (!file) return;
+  saveState();
   const reader = new FileReader();
   reader.onload = e => {
     try {
       const data = JSON.parse(e.target.result);
-      if (Array.isArray(data.characters)) {
-        localStorage.setItem('characters', JSON.stringify(data.characters));
-        for (const name in data.states) {
-          localStorage.setItem('state-' + name, JSON.stringify(data.states[name]));
-        }
+      if (data.id && data.state) {
+        saveCharacter(data.id);
+        localStorage.setItem('state-' + data.id, JSON.stringify(data.state));
         loadCharacterList();
-        if (data.characters.length > 0) {
-          currentCharacter = data.characters[0];
-    loadState();
-    if (!currentCharacter) {
-      ensureInitialRows();
-      updateAttributes();
-    }
-  }
+        currentCharacter = data.id;
+        document.getElementById('character-select').value = data.id;
+        loadState();
+      } else {
+        throw new Error('Invalid');
       }
     } catch (err) {
       alert(t('import_failed'));
