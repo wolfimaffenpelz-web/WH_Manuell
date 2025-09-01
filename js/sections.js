@@ -276,7 +276,7 @@ sections.push(
     title: t('corruption') + ' & ' + t('mutations'),
     content: `
       <table class="full-width" id="korruption-table">
-        <tr><th>Max.</th><th>Aktuell</th></tr>
+        <tr><th>${t('max')}</th><th>${t('current')}</th></tr>
         <tr>
           <td><input type="number" id="korruption-max" readonly></td>
           <td><input type="number" id="korruption-akt"></td>
@@ -291,7 +291,7 @@ sections.push(
           <th class="delete-col"></th>
         </tr>
       </table>
-      <button class="add-row" onclick="addRow('mutationen-table')">+ Mutation</button>
+      <button class="add-row" onclick="addRow('mutationen-table')">+ ${t('mutation')}</button>
       <div class="section-divider"></div>
     `
   }
@@ -352,7 +352,7 @@ sections.push(
     id: "vermoegen",
     title: t('wealth') + ' & ' + t('debts'),
     content: `
-      <h3>Münzbesitz</h3>
+      <h3>${t('coin_possession')}</h3>
       <table id="vermoegen-table">
         <tr><th><span class="coin gold"></span> GK</th><th><span class="coin silver"></span> S</th><th><span class="coin copper"></span> G</th></tr>
         <tr>
@@ -363,7 +363,7 @@ sections.push(
       </table>
 
       <div id="nettovermoegen-block" style="margin-top:10px;">
-        <h3>Nettovermögen</h3>
+        <h3>${t('net_worth')}</h3>
         <table>
           <tr><th><span class="coin gold"></span> GK</th><th><span class="coin silver"></span> S</th><th><span class="coin copper"></span> G</th></tr>
           <tr>
@@ -374,9 +374,9 @@ sections.push(
         </table>
       </div>
 
-      <h3 id="finanzen-toggle"><span id="finanzen-arrow">▶</span> Finanzen - erweitern</h3>
+      <h3 id="finanzen-toggle"><span id="finanzen-arrow">▶</span> ${t('finances_expand')}</h3>
       <div id="finanzen-extra" style="display:none;">
-        <h3>Schulden</h3>
+        <h3>${t('debts')}</h3>
         <table class="full-width" id="schulden-table">
           <tr>
             <th><span class="coin gold"></span> GK</th>
@@ -386,9 +386,9 @@ sections.push(
             <th class="delete-col"></th>
           </tr>
         </table>
-        <button class="add-row" onclick="addRow('schulden-table')">+ Neue Zeile</button>
+        <button class="add-row" onclick="addRow('schulden-table')">+ ${t('new_row')}</button>
 
-        <h3>Sparvermögen</h3>
+        <h3>${t('savings')}</h3>
         <table class="full-width" id="spar-table">
           <tr>
             <th><span class="coin gold"></span> GK</th>
@@ -398,7 +398,7 @@ sections.push(
             <th class="delete-col"></th>
           </tr>
         </table>
-        <button class="add-row" onclick="addRow('spar-table')">+ Neue Zeile</button>
+        <button class="add-row" onclick="addRow('spar-table')">+ ${t('new_row')}</button>
       </div>
 
       <div class="section-divider"></div>
@@ -411,18 +411,18 @@ sections.push(
     title: t('experience_full'),
     content: `
       <div style="text-align:center; margin-bottom:10px;">
-        <label>Simpel</label>
+        <label>${t('simple')}</label>
         <label class="switch">
           <input type="checkbox" id="exp-toggle">
           <span class="slider"></span>
         </label>
-        <label>Voll</label>
+        <label>${t('full')}</label>
       </div>
 
       <!-- Simpler Modus -->
       <div id="exp-simple">
         <table class="full-width">
-          <tr><th>Aktuell</th><th>Ausgegeben</th><th>Gesamt</th></tr>
+          <tr><th>${t('current')}</th><th>${t('spent')}</th><th>${t('total_col')}</th></tr>
           <tr>
             <td><input type="number" id="exp-simple-akt"></td>
             <td><input type="number" id="exp-simple-ausg"></td>
@@ -434,7 +434,7 @@ sections.push(
       <!-- Voller Modus -->
       <div id="exp-full" style="display:none;">
         <table class="full-width">
-          <tr><th>Aktuell</th><th>Ausgegeben</th><th>Gesamt</th></tr>
+          <tr><th>${t('current')}</th><th>${t('spent')}</th><th>${t('total_col')}</th></tr>
           <tr>
             <td><input type="number" id="exp-full-akt" readonly></td>
             <td><input type="number" id="exp-full-ausg" readonly></td>
@@ -443,9 +443,9 @@ sections.push(
         </table>
 
         <table class="full-width" id="exp-table">
-          <tr><th>Wert</th><th>Kommentar</th><th class="delete-col"></th></tr>
+          <tr><th>${t('value_col')}</th><th>${t('comment_col')}</th><th class="delete-col"></th></tr>
         </table>
-        <button class="add-row" onclick="addRow('exp-table')">+ Eintrag</button>
+        <button class="add-row" onclick="addRow('exp-table')">+ ${t('entry')}</button>
       </div>
       <div class="section-divider"></div>
     `

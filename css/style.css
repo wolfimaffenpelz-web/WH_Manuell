@@ -6,8 +6,15 @@
   --font-main: 'Podkova', serif;
   --color-bg: #FAF0E6;
   --color-text: #111;
-  --color-field: #fff;
+  --color-field: #f8d7d7;
+  --color-readonly: #e6e6e6;
   --color-highlight: #FFD700;
+  --color-positive: green;
+  --color-negative: darkred;
+  --color-attr-cross: #add8e6;
+  --color-attr-axes: #cd7f32;
+  --color-attr-skull: silver;
+  --color-attr-shield: gold;
   --font-size-base: 16px;
   --row-height: 1.5em;
   --coin-col-width: 5ch;
@@ -68,11 +75,27 @@ th:first-child textarea {
   text-align: left;
 }
 
+input[type="text"],
+input[type="number"],
 textarea {
-  width: 100%;
+  width: 98%;
+  border: none;
+  background: var(--color-field);
+  text-align: center;
+  font-family: inherit;
+  font-weight: bold;
+}
+
+textarea {
   min-height: var(--row-height);
   resize: none;
   overflow: hidden;
+}
+
+input[readonly],
+.readonly {
+  background: var(--color-readonly);
+  font-weight: bold;
 }
 
 /* Innere Linien */
@@ -178,6 +201,48 @@ td.wsg { width: 60px; }
   border: none;
 }
 
+/* Zeilen- und Spaltenmarkierungen */
+.line-marked { background: var(--color-highlight); font-weight: bold; }
+
+#grund-table tr.line-marked input,
+#grupp-table tr.line-marked input,
+#talent-table tr.line-marked input,
+#grund-table tr.line-marked select,
+#grupp-table tr.line-marked select,
+#talent-table tr.line-marked select,
+#grund-table tr.line-marked textarea,
+#grupp-table tr.line-marked textarea,
+#talent-table tr.line-marked textarea {
+  background: transparent;
+  border: 1px solid var(--color-negative);
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+th.active,
+td.active,
+tr.active {
+  outline: 2px solid var(--color-negative);
+}
+
+/* Münz-Icons */
+.coin {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+.coin.gold { background: #d4af37; }
+.coin.silver { background: #c0c0c0; }
+.coin.copper { background: #b87333; }
+
+/* Attribut-Highlights */
+.attr-cross { background: var(--color-attr-cross); font-weight: bold; }
+.attr-axes { background: var(--color-attr-axes); font-weight: bold; }
+.attr-skull { background: var(--color-attr-skull); font-weight: bold; }
+.attr-shield { background: var(--color-attr-shield); font-weight: bold; }
+
 /* ================================================
    Attributmarken im Spaltenkopf
    ================================================ */
@@ -237,3 +302,151 @@ th[data-input]::before {
   max-width: none;
   min-width: 30%;
 }
+
+/* ================================================
+   Schulden- und Spar-Tabellen
+   ================================================ */
+#schulden-table th:nth-child(1),
+#schulden-table td:nth-child(1),
+#schulden-table th:nth-child(2),
+#schulden-table td:nth-child(2),
+#schulden-table th:nth-child(3),
+#schulden-table td:nth-child(3),
+#spar-table th:nth-child(1),
+#spar-table td:nth-child(1),
+#spar-table th:nth-child(2),
+#spar-table td:nth-child(2),
+#spar-table th:nth-child(3),
+#spar-table td:nth-child(3) {
+  width: var(--coin-col-width);
+  text-align: center;
+}
+
+#schulden-table,
+#schulden-table th,
+#schulden-table td,
+#spar-table,
+#spar-table th,
+#spar-table td {
+  font-family: var(--font-main);
+  color: var(--color-text);
+}
+
+#schulden-table th:nth-child(4),
+#schulden-table td:nth-child(4),
+#spar-table th:nth-child(4),
+#spar-table td:nth-child(4) {
+  text-align: left;
+  width: auto;
+}
+
+#schulden-table th:nth-child(5),
+#schulden-table td:nth-child(5),
+#spar-table th:nth-child(5),
+#spar-table td:nth-child(5) {
+  width: 20px;
+  padding: 0;
+}
+
+#schulden-table input[type="number"] {
+  color: var(--color-negative);
+}
+
+/* ================================================
+   Erfahrungstabellen
+   ================================================ */
+#exp-table,
+#exp-table th,
+#exp-table td {
+  font-family: var(--font-main);
+  color: var(--color-text);
+}
+
+#exp-table th:nth-child(1),
+#exp-table td:nth-child(1) { width: 60px; }
+
+#exp-table th:nth-child(2),
+#exp-table td:nth-child(2) { text-align: left; width: auto; }
+
+#exp-table th:last-child,
+#exp-table td:last-child { width: 15px; }
+
+#exp-simple table,
+#exp-simple th,
+#exp-simple td,
+#exp-full > table:first-of-type,
+#exp-full > table:first-of-type th,
+#exp-full > table:first-of-type td {
+  font-family: var(--font-main);
+  color: var(--color-text);
+}
+
+#exp-simple th,
+#exp-simple td,
+#exp-full > table:first-of-type th,
+#exp-full > table:first-of-type td {
+  width: 33%;
+}
+
+#exp-simple th:first-child,
+#exp-simple td:first-child,
+#exp-full > table:first-of-type th:first-child,
+#exp-full > table:first-of-type td:first-child {
+  text-align: left;
+}
+
+#exp-table tr.positive,
+#exp-table tr.positive input,
+#exp-table tr.positive textarea {
+  color: var(--color-positive);
+}
+
+#exp-table tr.negative,
+#exp-table tr.negative input,
+#exp-table tr.negative textarea {
+  color: var(--color-negative);
+}
+
+/* ================================================
+   Toggle Switch
+   ================================================ */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #ccc;
+  transition: .4s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 2px;
+  bottom: 2px;
+  background: #fff;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+.switch input:checked + .slider { background: #2196F3; }
+
+.switch input:checked + .slider:before { transform: translateX(26px); }
