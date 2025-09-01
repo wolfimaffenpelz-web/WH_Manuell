@@ -86,40 +86,11 @@ function initCharacterManagement() {
   const exportBtn = document.getElementById("export-character");
   const importFile = document.getElementById("import-file");
 
-  // Beim ersten Aufruf einen Default-Charakter mit Dummywerten anlegen
-  let chars = JSON.parse(localStorage.getItem("characters") || "[]");
-  if (chars.length === 0) {
-    const defaultName = "Default";
-    saveCharacter(defaultName);
-    ensureInitialRows();
-    document.querySelectorAll("input, textarea, select").forEach(el => {
-      if (!el.id) return;
-      if (el.type === "checkbox" || el.type === "radio") {
-        el.checked = false;
-      } else if (el.type === "hidden") {
-        el.value = "0";
-      } else if (el.type === "number") {
-        el.value = "1";
-      } else {
-        el.value = "Dummy";
-      }
-    });
-    document.getElementById("char-name").value = "Günther";
-    document.getElementById("char-volk").value = "Mensch";
-    document.getElementById("char-geschlecht").value = "männlich";
-    document.getElementById("char-karriere").value = "Krieger";
-    document.getElementById("char-stufe").value = "1";
-    document.getElementById("char-weg").value = "Soldat";
-    document.getElementById("char-status").value = "Bronze - Stufe 1";
-    document.getElementById("char-alter").value = "25";
-    document.getElementById("char-groesse").value = "180";
-    document.getElementById("char-haare").value = "Braun";
-    document.getElementById("char-augen").value = "Blau";
-    document.getElementById("korruption-akt").value = "0"
-    saveState();   
-  }
-
   loadCharacterList();
+  if (!currentCharacter) {
+    ensureInitialRows();
+    updateAttributes();
+  }
 
   select.addEventListener("change", () => {
     currentCharacter = select.value; // Dropdown-Wahl
@@ -139,16 +110,17 @@ function initCharacterManagement() {
     document.body.appendChild(popup);
     const input = document.getElementById("new-char-name");
     input.focus();
-    document.getElementById("new-char-ok").addEventListener("click", () => {
-      const newName = input.value.trim();
-      if (!newName) { alert(t('name_required')); return; }
-      saveCharacter(newName);
-      saveState();
-      loadCharacterList();
-      select.value = newName;
-      loadState();
-      popup.remove();
-    });
+      document.getElementById("new-char-ok").addEventListener("click", () => {
+        const newName = input.value.trim();
+        if (!newName) { alert(t('name_required')); return; }
+        saveCharacter(newName);
+        ensureInitialRows();
+        saveState();
+        loadCharacterList();
+        select.value = newName;
+        loadState();
+        popup.remove();
+      });
     document.getElementById("new-char-cancel").addEventListener("click", () => popup.remove());
   });
 
@@ -157,8 +129,19 @@ function initCharacterManagement() {
     const popup = confirm(t('delete_confirm'));
     if (popup) {
       deleteCharacter(currentCharacter);
-      if (currentCharacter) loadState(); // anderen laden
-      else location.reload();
+      if (currentCharacter) {
+        loadState(); // anderen laden
+      } else {
+        document.querySelectorAll("input, textarea, select").forEach(el => {
+          if (el.type === "checkbox" || el.type === "radio") {
+            el.checked = false;
+          } else {
+            el.value = "";
+          }
+        });
+        ensureInitialRows();
+        updateAttributes();
+      }
     }
   });
 
@@ -387,8 +370,12 @@ function importCharacters(files) {
         loadCharacterList();
         if (data.characters.length > 0) {
           currentCharacter = data.characters[0];
-          loadState();
-        }
+    loadState();
+    if (!currentCharacter) {
+      ensureInitialRows();
+      updateAttributes();
+    }
+  }
       }
     } catch (err) {
       alert(t('import_failed'));
@@ -1119,4 +1106,8 @@ function initLogic() {
   }
 
   loadState();
+  if (!currentCharacter) {
+    ensureInitialRows();
+    updateAttributes();
+  }
 }
