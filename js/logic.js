@@ -496,8 +496,8 @@ function selectAttrMarker(th) {
     <div class="marker-grid">
       <button class="icon-btn" data-val="1">${attrSymbols[1]}</button>
       <button class="icon-btn" data-val="2">${attrSymbols[2]}</button>
-      <button class="icon-btn" data-val="3">${attrSymbols[3]}</button>
       <button class="icon-btn" data-val="4">${attrSymbols[4]}</button>
+      <button class="icon-btn" data-val="3">${attrSymbols[3]}</button>
     </div>`;
   const rect = th.getBoundingClientRect();
   markerPopup.style.left = `${window.scrollX + rect.left}px`;

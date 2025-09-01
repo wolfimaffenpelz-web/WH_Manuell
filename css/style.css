@@ -18,6 +18,7 @@
   --font-size-base: 16px;
   --row-height: 1.5em;
   --coin-col-width: 5ch;
+  --marker-popup-icon-size: 2em;
 }
 
 /* ================================================
@@ -211,6 +212,7 @@ td.wsg { width: 60px; }
   border: none;
   background: none;
   cursor: pointer;
+  font-size: var(--marker-popup-icon-size);
 }
 
 /* Zeilen- und Spaltenmarkierungen */
