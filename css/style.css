@@ -292,138 +292,184 @@ th[data-input]::before {
 }
 
 /* ================================================
+   Spaltenbreiten für Spielwertetabelle
+   ================================================ */
+#attribute-table {
+  table-layout: auto;
+  margin: 0;
+}
+
+#attribute-table th,
+#attribute-table td {
+  white-space: nowrap;
+  padding: 1px 2px;
+  max-width: none;
+  overflow: visible;
+}
+
+#attribute-table th:nth-child(1),
+#attribute-table td:nth-child(1) { width: 80px; }
+#attribute-table th:nth-child(2),
+#attribute-table td:nth-child(2) { width: 50px; }
+#attribute-table th:nth-child(3),
+#attribute-table td:nth-child(3) { width: 50px; }
+#attribute-table th:nth-child(4),
+#attribute-table td:nth-child(4) { width: 50px; }
+#attribute-table th:nth-child(5),
+#attribute-table td:nth-child(5) { width: 50px; }
+#attribute-table th:nth-child(6),
+#attribute-table td:nth-child(6) { width: 50px; }
+#attribute-table th:nth-child(7),
+#attribute-table td:nth-child(7) { width: 50px; }
+#attribute-table th:nth-child(8),
+#attribute-table td:nth-child(8) { width: 50px; }
+#attribute-table th:nth-child(9),
+#attribute-table td:nth-child(9) { width: 50px; }
+#attribute-table th:nth-child(10),
+#attribute-table td:nth-child(10) { width: 50px; }
+#attribute-table th:nth-child(11),
+#attribute-table td:nth-child(11) { width: 50px; }
+
+/* ================================================
    Spaltenbreiten für Fähigkeiten- und Talenttabellen
    ================================================ */
-#grund-table,
-#grupp-table,
-#talent-table { table-layout: auto; }
+#grund-table { table-layout: auto; }
+#grund-table th:nth-child(1),
+#grund-table td:nth-child(1) { max-width: none; min-width: 30%; }
+#grund-table th:nth-child(2),
+#grund-table td:nth-child(2) { width: 60px; }
+#grund-table th:nth-child(3),
+#grund-table td:nth-child(3) { width: 60px; }
+#grund-table th:nth-child(4),
+#grund-table td:nth-child(4) { width: 60px; }
+#grund-table th:nth-child(5),
+#grund-table td:nth-child(5) { width: 60px; }
 
-#grund-table th:first-child,
-#grund-table td:first-child,
-#grupp-table th:first-child,
-#grupp-table td:first-child {
-  max-width: none;
-  min-width: 30%;
-}
-
-#grund-table td:nth-child(2),
-#grund-table td:nth-child(3),
-#grund-table td:nth-child(4),
-#grund-table td:nth-child(5) {
-  width: 60px;
-}
-
+#grupp-table { table-layout: auto; }
+#grupp-table th:nth-child(1),
+#grupp-table td:nth-child(1) { max-width: none; min-width: 30%; }
+#grupp-table th:nth-child(2),
 #grupp-table td:nth-child(2) { width: min-content; }
-#grupp-table td:nth-child(3),
-#grupp-table td:nth-child(4),
-#grupp-table td:nth-child(5) {
-  width: 60px;
-}
+#grupp-table th:nth-child(3),
+#grupp-table td:nth-child(3) { width: 60px; }
+#grupp-table th:nth-child(4),
+#grupp-table td:nth-child(4) { width: 60px; }
+#grupp-table th:nth-child(5),
+#grupp-table td:nth-child(5) { width: 60px; }
+#grupp-table th:nth-child(6),
+#grupp-table td:nth-child(6) { width: 20px; padding: 0; }
 
-#talent-table th:first-child,
-#talent-table td:first-child {
-  max-width: none;
-  min-width: 30%;
-  width: auto;
-}
-
+#talent-table { table-layout: auto; }
+#talent-table th:nth-child(1),
+#talent-table td:nth-child(1) { max-width: none; min-width: 30%; width: auto; }
 #talent-table th:nth-child(2),
-#talent-table td:nth-child(2) {
-  width: 60px;
-}
-
+#talent-table td:nth-child(2) { width: 60px; }
 #talent-table th:nth-child(3),
-#talent-table td:nth-child(3) {
-  max-width: none;
-  min-width: 30%;
-}
+#talent-table td:nth-child(3) { max-width: none; min-width: 30%; }
+#talent-table th:nth-child(4),
+#talent-table td:nth-child(4) { width: 20px; padding: 0; }
 
 /* ================================================
    Waffen, Rüstung, Ausrüstung und weitere Tabellen
    ================================================ */
-#waffen-table th:first-child,
-#waffen-table td:first-child,
-#ruestung-table th:first-child,
-#ruestung-table td:first-child,
-#ausruestung-table th:first-child,
-#ausruestung-table td:first-child,
-#zauber-table th:first-child,
-#zauber-table td:first-child,
-#mutationen-table th:first-child,
-#mutationen-table td:first-child,
-#psychologie-table th:first-child,
-#psychologie-table td:first-child {
-  max-width: none;
-  width: auto;
-}
+#waffen-table th:nth-child(1),
+#waffen-table td:nth-child(1) { max-width: none; width: auto; }
+#waffen-table th:nth-child(2),
+#waffen-table td:nth-child(2) { max-width: none; width: auto; }
+#waffen-table th:nth-child(3),
+#waffen-table td:nth-child(3) { width: 60px; }
+#waffen-table th:nth-child(4),
+#waffen-table td:nth-child(4) { width: 60px; }
+#waffen-table th:nth-child(5),
+#waffen-table td:nth-child(5) { max-width: none; width: auto; }
+#waffen-table th:nth-child(6),
+#waffen-table td:nth-child(6) { width: 20px; padding: 0; }
 
-#waffen-table th:nth-child(3), #waffen-table td:nth-child(3),
-#waffen-table th:nth-child(4), #waffen-table td:nth-child(4),
-#ruestung-table th:nth-child(3), #ruestung-table td:nth-child(3),
-#ruestung-table th:nth-child(4), #ruestung-table td:nth-child(4),
-#ausruestung-table th:nth-child(2), #ausruestung-table td:nth-child(2),
-#ausruestung-table th:nth-child(3), #ausruestung-table td:nth-child(3),
-#zauber-table th:nth-child(2), #zauber-table td:nth-child(2),
-#zauber-table th:nth-child(3), #zauber-table td:nth-child(3),
-#zauber-table th:nth-child(4), #zauber-table td:nth-child(4),
-#zauber-table th:nth-child(5), #zauber-table td:nth-child(5) {
-  width: 60px;
-}
+#ruestung-table th:nth-child(1),
+#ruestung-table td:nth-child(1) { max-width: none; width: auto; }
+#ruestung-table th:nth-child(2),
+#ruestung-table td:nth-child(2) { max-width: none; width: auto; }
+#ruestung-table th:nth-child(3),
+#ruestung-table td:nth-child(3) { width: 60px; }
+#ruestung-table th:nth-child(4),
+#ruestung-table td:nth-child(4) { width: 60px; }
+#ruestung-table th:nth-child(5),
+#ruestung-table td:nth-child(5) { max-width: none; width: auto; }
+#ruestung-table th:nth-child(6),
+#ruestung-table td:nth-child(6) { width: 20px; padding: 0; }
 
-#waffen-table th:nth-child(5), #waffen-table td:nth-child(5),
-#ruestung-table th:nth-child(5), #ruestung-table td:nth-child(5),
-#ausruestung-table th:nth-child(4), #ausruestung-table td:nth-child(4),
-#zauber-table th:nth-child(6), #zauber-table td:nth-child(6),
-#mutationen-table th:nth-child(3), #mutationen-table td:nth-child(3),
-#psychologie-table th:nth-child(2), #psychologie-table td:nth-child(2) {
-  max-width: none;
-  width: auto;
-}
+#ausruestung-table th:nth-child(1),
+#ausruestung-table td:nth-child(1) { max-width: none; width: auto; }
+#ausruestung-table th:nth-child(2),
+#ausruestung-table td:nth-child(2) { width: 60px; }
+#ausruestung-table th:nth-child(3),
+#ausruestung-table td:nth-child(3) { width: 60px; }
+#ausruestung-table th:nth-child(4),
+#ausruestung-table td:nth-child(4) { max-width: none; width: auto; }
+#ausruestung-table th:nth-child(5),
+#ausruestung-table td:nth-child(5) { width: 20px; padding: 0; }
+
+#zauber-table th:nth-child(1),
+#zauber-table td:nth-child(1) { max-width: none; width: auto; }
+#zauber-table th:nth-child(2),
+#zauber-table td:nth-child(2) { width: 60px; }
+#zauber-table th:nth-child(3),
+#zauber-table td:nth-child(3) { width: 60px; }
+#zauber-table th:nth-child(4),
+#zauber-table td:nth-child(4) { width: 60px; }
+#zauber-table th:nth-child(5),
+#zauber-table td:nth-child(5) { width: 60px; }
+#zauber-table th:nth-child(6),
+#zauber-table td:nth-child(6) { max-width: none; width: auto; }
+#zauber-table th:nth-child(7),
+#zauber-table td:nth-child(7) { width: 20px; padding: 0; }
+
+#mutationen-table th:nth-child(1),
+#mutationen-table td:nth-child(1) { max-width: none; width: auto; }
+#mutationen-table th:nth-child(2),
+#mutationen-table td:nth-child(2) { width: 60px; }
+#mutationen-table th:nth-child(3),
+#mutationen-table td:nth-child(3) { max-width: none; width: auto; }
+#mutationen-table th:nth-child(4),
+#mutationen-table td:nth-child(4) { width: 20px; padding: 0; }
+
+#psychologie-table th:nth-child(1),
+#psychologie-table td:nth-child(1) { max-width: none; width: auto; }
+#psychologie-table th:nth-child(2),
+#psychologie-table td:nth-child(2) { max-width: none; width: auto; }
+#psychologie-table th:nth-child(3),
+#psychologie-table td:nth-child(3) { width: 20px; padding: 0; }
 
 /* ================================================
    Schulden- und Spar-Tabellen
    ================================================ */
+#schulden-table,
+#schulden-table th,
+#schulden-table td { font-family: var(--font-main); color: var(--color-text); }
 #schulden-table th:nth-child(1),
 #schulden-table td:nth-child(1),
 #schulden-table th:nth-child(2),
 #schulden-table td:nth-child(2),
 #schulden-table th:nth-child(3),
-#schulden-table td:nth-child(3),
+#schulden-table td:nth-child(3) { width: var(--coin-col-width); text-align: center; }
+#schulden-table th:nth-child(4),
+#schulden-table td:nth-child(4) { text-align: left; width: auto; }
+#schulden-table th:nth-child(5),
+#schulden-table td:nth-child(5) { width: 20px; padding: 0; }
+
+#spar-table,
+#spar-table th,
+#spar-table td { font-family: var(--font-main); color: var(--color-text); }
 #spar-table th:nth-child(1),
 #spar-table td:nth-child(1),
 #spar-table th:nth-child(2),
 #spar-table td:nth-child(2),
 #spar-table th:nth-child(3),
-#spar-table td:nth-child(3) {
-  width: var(--coin-col-width);
-  text-align: center;
-}
-
-#schulden-table,
-#schulden-table th,
-#schulden-table td,
-#spar-table,
-#spar-table th,
-#spar-table td {
-  font-family: var(--font-main);
-  color: var(--color-text);
-}
-
-#schulden-table th:nth-child(4),
-#schulden-table td:nth-child(4),
+#spar-table td:nth-child(3) { width: var(--coin-col-width); text-align: center; }
 #spar-table th:nth-child(4),
-#spar-table td:nth-child(4) {
-  text-align: left;
-  width: auto;
-}
-
-#schulden-table th:nth-child(5),
-#schulden-table td:nth-child(5),
+#spar-table td:nth-child(4) { text-align: left; width: auto; }
 #spar-table th:nth-child(5),
-#spar-table td:nth-child(5) {
-  width: 20px;
-  padding: 0;
-}
+#spar-table td:nth-child(5) { width: 20px; padding: 0; }
 
 #schulden-table input[type="number"] {
   color: var(--color-negative);
@@ -434,43 +480,29 @@ th[data-input]::before {
    ================================================ */
 #exp-table,
 #exp-table th,
-#exp-table td {
-  font-family: var(--font-main);
-  color: var(--color-text);
-}
-
+#exp-table td { font-family: var(--font-main); color: var(--color-text); }
 #exp-table th:nth-child(1),
 #exp-table td:nth-child(1) { width: 60px; }
-
 #exp-table th:nth-child(2),
 #exp-table td:nth-child(2) { text-align: left; width: auto; }
-
-#exp-table th:last-child,
-#exp-table td:last-child { width: 15px; }
+#exp-table th:nth-child(3),
+#exp-table td:nth-child(3) { width: 15px; }
 
 #exp-simple table,
 #exp-simple th,
-#exp-simple td,
+#exp-simple td { font-family: var(--font-main); color: var(--color-text); }
+#exp-simple th,
+#exp-simple td { width: 33%; }
+#exp-simple th:first-child,
+#exp-simple td:first-child { text-align: left; }
+
 #exp-full > table:first-of-type,
 #exp-full > table:first-of-type th,
-#exp-full > table:first-of-type td {
-  font-family: var(--font-main);
-  color: var(--color-text);
-}
-
-#exp-simple th,
-#exp-simple td,
+#exp-full > table:first-of-type td { font-family: var(--font-main); color: var(--color-text); }
 #exp-full > table:first-of-type th,
-#exp-full > table:first-of-type td {
-  width: 33%;
-}
-
-#exp-simple th:first-child,
-#exp-simple td:first-child,
+#exp-full > table:first-of-type td { width: 33%; }
 #exp-full > table:first-of-type th:first-child,
-#exp-full > table:first-of-type td:first-child {
-  text-align: left;
-}
+#exp-full > table:first-of-type td:first-child { text-align: left; }
 
 #exp-table tr.positive,
 #exp-table tr.positive input,
