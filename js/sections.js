@@ -333,7 +333,7 @@ sections.push(
   // ⚖️ Traglast
   {
     id: "traglast",
-    title: t('traglast')
+    title: t('traglast'),
     content: `
       <table class="full-width" id="traglast-table">
         <tr><th>Quelle</th><th>TP</th></tr>
