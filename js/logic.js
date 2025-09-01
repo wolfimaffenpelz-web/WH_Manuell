@@ -506,8 +506,8 @@ function toggleLineMarker(cell) {
   const row = cell.closest('tr');
   const table = row ? row.closest('table') : null;
   if (table && (table.id === 'grupp-table' || table.id === 'talent-table')) {
-    const nameInput = cell.querySelector('input[type="text"]');
-    if (!nameInput || nameInput.value.trim() === '') return;
+    const nameField = cell.querySelector('input[type="text"], textarea');
+    if (!nameField || nameField.value.trim() === '') return;
   }
   const icon = cell.querySelector('.marker-icon');
   if (hid.value === "1") {
@@ -536,8 +536,8 @@ function restoreMarkers() {
     const table = row ? row.closest('table') : null;
     if (hid.value === "1") {
       if (table && (table.id === 'grupp-table' || table.id === 'talent-table')) {
-        const nameInput = cell.querySelector('input[type="text"]');
-        if (!nameInput || nameInput.value.trim() === '') {
+        const nameField = cell.querySelector('input[type="text"], textarea');
+        if (!nameField || nameField.value.trim() === '') {
           hid.value = "0";
         }
       }
@@ -570,7 +570,7 @@ document.addEventListener("click", e => {
 
 document.addEventListener("input", e => {
   const cell = e.target.closest('td[data-marker]');
-  if (!cell || !e.target.matches('input[type="text"]')) return;
+  if (!cell || !e.target.matches('input[type="text"], textarea')) return;
   if (e.target.value.trim() !== "") return;
   const hid = cell.querySelector('input[type="hidden"]');
   const icon = cell.querySelector('.marker-icon');
@@ -827,9 +827,9 @@ function checkTalentEffects() {
   let hardyLevel = 0;
   document.querySelectorAll("#talent-table tr").forEach((row, idx) => {
     if (idx === 0) return; // Kopfzeile überspringen
-    const nameInput = row.cells[0].querySelector('input[type="text"]');
-    if (!nameInput) return;
-    const name = nameInput.value.toLowerCase().trim();
+    const nameField = row.cells[0].querySelector('input[type="text"], textarea');
+    if (!nameField) return;
+    const name = nameField.value.toLowerCase().trim();
     const simRob = similarity(name, "robustheit");
     const simHardy = similarity(name, "hardy");
     if (simRob >= 0.9 || simHardy >= 0.9) {
