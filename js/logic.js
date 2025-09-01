@@ -93,6 +93,7 @@ function initCharacterManagement() {
   }
 
   select.addEventListener("change", () => {
+    saveState();
     currentCharacter = select.value; // Dropdown-Wahl
     loadState();
   });
@@ -122,12 +123,11 @@ function initCharacterManagement() {
     overlay.querySelector("#new-char-ok").addEventListener("click", () => {
       const newName = input.value.trim();
       if (!newName) { alert(t('name_required')); return; }
-      saveCharacter(newName);
-      ensureInitialRows();
       saveState();
+      saveCharacter(newName);
+      resetCharacterSheet();
       loadCharacterList();
       select.value = newName;
-      loadState();
       close();
     });
   });
@@ -156,15 +156,7 @@ function initCharacterManagement() {
       if (currentCharacter) {
         loadState(); // anderen laden
       } else {
-        document.querySelectorAll("input, textarea, select").forEach(el => {
-          if (el.type === "checkbox" || el.type === "radio") {
-            el.checked = false;
-          } else {
-            el.value = "";
-          }
-        });
-        ensureInitialRows();
-        updateAttributes();
+        resetCharacterSheet();
       }
       close();
     });
@@ -364,6 +356,50 @@ function ensureInitialRows() {
       addRow(id);
     }
   });
+}
+
+function resetCharacterSheet() {
+  document.querySelectorAll("input, textarea, select").forEach(el => {
+    if (el.type === "checkbox" || el.type === "radio") {
+      el.checked = false;
+    } else {
+      el.value = "";
+    }
+  });
+
+  [
+    "grupp-table",
+    "talent-table",
+    "waffen-table",
+    "schulden-table",
+    "spar-table",
+    "ruestung-table",
+    "ausruestung-table",
+    "zauber-table",
+    "mutationen-table",
+    "psychologie-table",
+    "exp-table"
+  ].forEach(id => {
+    const table = document.getElementById(id);
+    if (table) {
+      while (table.rows.length > 1) {
+        table.deleteRow(1);
+      }
+    }
+  });
+
+  document.querySelectorAll(".marker-icon").forEach(icon => { icon.textContent = ""; });
+  document.querySelectorAll("tr.line-marked").forEach(row => row.classList.remove("line-marked"));
+  document.querySelectorAll('th[data-input]').forEach(th => {
+    const hid = th.querySelector('input[type="hidden"]');
+    if (hid) {
+      hid.value = "0";
+      updateAttrHeader(th, 0);
+    }
+  });
+
+  ensureInitialRows();
+  updateAttributes();
 }
 
 // Aktuellen Charakter exportieren
