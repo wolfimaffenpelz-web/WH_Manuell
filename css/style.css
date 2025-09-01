@@ -20,7 +20,7 @@
   --color-active-char-text: #fff;
   --font-active-char: var(--font-heading);
   --font-size-active-char: 1.2em;
-  --row-height: 1.5em;
+  --row-height: 1em;
   --coin-col-width: 5ch;
   --marker-popup-icon-size: 2em;
 }
@@ -48,7 +48,7 @@ h1, h2, h3 {
 table {
   border-collapse: collapse;
   width: 100%;
-  margin: 5px 0;
+  margin: 1px;
   table-layout: fixed;
   word-wrap: break-word;
 }
@@ -59,8 +59,8 @@ table tr {
 
 th, td {
   border: 0;
-  padding: 2px;
-  text-align: center;
+  padding: 1px;
+  text-align: left;
   vertical-align: middle;
   max-width: 120px;
   overflow: hidden;
@@ -310,14 +310,14 @@ th[data-input]::before {
 #grund-table td:nth-child(3),
 #grund-table td:nth-child(4),
 #grund-table td:nth-child(5) {
-  width: 60px;
+  width: 40px;
 }
 
 #grupp-table td:nth-child(2) { width: min-content; }
 #grupp-table td:nth-child(3),
 #grupp-table td:nth-child(4),
 #grupp-table td:nth-child(5) {
-  width: 60px;
+  width: 40px;
 }
 
 #talent-table th:first-child,
@@ -329,7 +329,7 @@ th[data-input]::before {
 
 #talent-table th:nth-child(2),
 #talent-table td:nth-child(2) {
-  width: 60px;
+  width: 40px;
 }
 
 #talent-table th:nth-child(3),
@@ -462,11 +462,15 @@ th[data-input]::before {
 #exp-simple td,
 #exp-full > table:first-of-type th,
 #exp-full > table:first-of-type td {
-  width: 33%;
+  width: auto;
+  width: fit-content;
+  max-width: 60px;
 }
 
 #exp-simple th:first-child,
 #exp-simple td:first-child,
+#exp-full > table:first-of-type th:last-child,
+#exp-full > table:first-of-type td:last-child,
 #exp-full > table:first-of-type th:first-child,
 #exp-full > table:first-of-type td:first-child {
   text-align: left;
