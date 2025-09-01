@@ -40,21 +40,23 @@ document.addEventListener("DOMContentLoaded", initPasswordProtection);
 // 📂 Multi-Charakter Verwaltung
 // =========================
 let currentCharacter = null;
+let characterList = [];
+
+function updateCharacterDisplay() {
+  const display = document.getElementById("current-character");
+  if (display) display.value = currentCharacter || "";
+}
 
 function loadCharacterList() {
-  const select = document.getElementById("character-select"); // Dropdown-Element
-  select.innerHTML = "";
-  const chars = JSON.parse(localStorage.getItem("characters") || "[]"); // gespeicherte Namen
-  chars.forEach(name => {
-    const opt = document.createElement("option");
-    opt.value = name;
-    opt.textContent = name;
-    select.appendChild(opt);
-  });
-  if (chars.length > 0) {
-    currentCharacter = chars[0]; // ersten Charakter vorauswählen
-    select.value = currentCharacter;
+  characterList = JSON.parse(localStorage.getItem("characters") || "[]");
+  if (characterList.length > 0) {
+    if (!currentCharacter || !characterList.includes(currentCharacter)) {
+      currentCharacter = characterList[0];
+    }
+  } else {
+    currentCharacter = null;
   }
+  updateCharacterDisplay();
 }
 
 function saveCharacter(name) {
@@ -79,12 +81,13 @@ function deleteCharacter(name) {
 }
 
 function initCharacterManagement() {
-  const select = document.getElementById("character-select");
+  const cycleBtn = document.getElementById("cycle-character");
   const newBtn = document.getElementById("new-character"); // neuer Charakter
   const delBtn = document.getElementById("delete-character"); // löschen
   const importBtn = document.getElementById("import-character");
   const exportBtn = document.getElementById("export-character");
   const importFile = document.getElementById("import-file");
+  const settingsBtn = document.getElementById("settings");
 
   loadCharacterList();
   if (!currentCharacter) {
@@ -92,11 +95,19 @@ function initCharacterManagement() {
     updateAttributes();
   }
 
-  select.addEventListener("change", () => {
-    saveState();
-    currentCharacter = select.value; // Dropdown-Wahl
-    loadState();
-  });
+  if (cycleBtn) {
+    cycleBtn.addEventListener("click", () => {
+      if (characterList.length === 0) return;
+      saveState();
+      const idx = characterList.indexOf(currentCharacter);
+      const nextIdx = (idx + 1) % characterList.length;
+      currentCharacter = characterList[nextIdx];
+      updateCharacterDisplay();
+      loadState();
+    });
+  }
+
+  if (settingsBtn) settingsBtn.title = t('settings');
 
   // Neuer Charakter anlegen
   newBtn.addEventListener("click", () => {
@@ -127,7 +138,6 @@ function initCharacterManagement() {
       saveCharacter(newName);
       resetCharacterSheet();
       loadCharacterList();
-      select.value = newName;
       close();
     });
   });
@@ -139,7 +149,7 @@ function initCharacterManagement() {
     overlay.className = "overlay";
     overlay.innerHTML = `
       <div class="overlay-content">
-        <p>${t('delete_confirm')}</p>
+        <p>${t('delete_confirm_prefix')}${currentCharacter}${t('delete_confirm_suffix')}</p>
         <button id="del-yes">${t('yes')}</button>
         <button id="del-no">${t('no')}</button>
       </div>
@@ -161,6 +171,23 @@ function initCharacterManagement() {
       close();
     });
   });
+
+  if (settingsBtn) {
+    settingsBtn.addEventListener("click", () => {
+      const overlay = document.createElement("div");
+      overlay.className = "overlay";
+      overlay.innerHTML = `
+        <div class="overlay-content">
+          <p>${t('settings_placeholder')}</p>
+          <button id="settings-close">${t('ok')}</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      function close() { overlay.remove(); }
+      overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
+      overlay.querySelector("#settings-close").addEventListener("click", close);
+    });
+  }
 
   importBtn.addEventListener("click", () => importFile.click());
   importFile.addEventListener("change", (e) => { importCharacters(e.target.files); e.target.value = ""; });
@@ -332,6 +359,7 @@ function loadState() {
   updateAttributes();
   restoreMarkers();
   ensureInitialRows();
+  updateCharacterDisplay();
 }
 
 // =========================
@@ -429,7 +457,7 @@ function importCharacters(files) {
         localStorage.setItem('state-' + data.id, JSON.stringify(data.state));
         loadCharacterList();
         currentCharacter = data.id;
-        document.getElementById('character-select').value = data.id;
+        updateCharacterDisplay();
         loadState();
       } else {
         throw new Error('Invalid');

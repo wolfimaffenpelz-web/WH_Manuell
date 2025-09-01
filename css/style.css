@@ -154,11 +154,28 @@ td.wsg { width: 60px; }
   text-align: center;
   margin: 10px 0;
 }
-
-.character-management select,
-.character-management button {
+.character-management .top-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+.character-management .top-row button {
   margin: 5px;
   padding: 3px;
+}
+.character-management .char-fields {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 5px;
+}
+.character-management .char-fields input {
+  width: 150px;
+  padding: 3px;
+}
+.bg-input {
+  background: var(--color-bg);
 }
 
 /* ================================================
