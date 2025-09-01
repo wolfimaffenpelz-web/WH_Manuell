@@ -24,6 +24,8 @@ const baseTranslations = {
   settings: "Einstellungen",
   yes: "Ja",
   no: "Nein",
+  active_character: "Aktiver Charakter:",
+  choose_character: "Charakter wählen",
   // Sections
   grunddaten: "Grunddaten",
   attributes: "Spielwerte",

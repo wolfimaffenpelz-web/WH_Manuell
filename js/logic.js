@@ -44,7 +44,7 @@ let characterList = [];
 
 function updateCharacterDisplay() {
   const display = document.getElementById("current-character");
-  if (display) display.value = currentCharacter || "";
+  if (display) display.textContent = `${t('active_character')} ${currentCharacter || ''}`;
 }
 
 function loadCharacterList() {
@@ -98,12 +98,32 @@ function initCharacterManagement() {
   if (cycleBtn) {
     cycleBtn.addEventListener("click", () => {
       if (characterList.length === 0) return;
-      saveState();
-      const idx = characterList.indexOf(currentCharacter);
-      const nextIdx = (idx + 1) % characterList.length;
-      currentCharacter = characterList[nextIdx];
-      updateCharacterDisplay();
-      loadState();
+      const overlay = document.createElement("div");
+      overlay.className = "overlay";
+      overlay.innerHTML = `
+        <div class="overlay-content">
+          <p>${t('choose_character')}</p>
+          <div id="char-list"></div>
+          <button id="char-cancel">${t('cancel')}</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      const list = overlay.querySelector('#char-list');
+      characterList.forEach(name => {
+        const btn = document.createElement('button');
+        btn.textContent = name;
+        btn.addEventListener('click', () => {
+          saveState();
+          currentCharacter = name;
+          updateCharacterDisplay();
+          loadState();
+          overlay.remove();
+        });
+        list.appendChild(btn);
+      });
+      function close() { overlay.remove(); }
+      overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+      overlay.querySelector('#char-cancel').addEventListener('click', close);
     });
   }
 

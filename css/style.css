@@ -16,6 +16,10 @@
   --color-attr-skull: silver;
   --color-attr-shield: gold;
   --font-size-base: 16px;
+  --color-active-char-bg: #333;
+  --color-active-char-text: #fff;
+  --font-active-char: var(--font-heading);
+  --font-size-active-char: 1.2em;
   --row-height: 1.5em;
   --coin-col-width: 5ch;
   --marker-popup-icon-size: 2em;
@@ -167,15 +171,14 @@ td.wsg { width: 60px; }
 .character-management .char-fields {
   display: flex;
   justify-content: center;
-  gap: 10px;
   margin-top: 5px;
 }
-.character-management .char-fields input {
-  width: 150px;
-  padding: 3px;
-}
-.bg-input {
-  background: var(--color-bg);
+.character-management .current-character-field {
+  padding: 3px 6px;
+  background: var(--color-active-char-bg);
+  color: var(--color-active-char-text);
+  font-family: var(--font-active-char);
+  font-size: var(--font-size-active-char);
 }
 
 /* ================================================
