@@ -7,4 +7,7 @@
 - Centralize adjustable properties like fonts, colors, and font sizes using CSS variables.
 - Ensure table rows and columns have explicit height/width definitions; allow wrap and dynamic height for `Name`, `Fähigkeit`, `Talent`, `Eintrag`, `Mutation`, `Notizen`, `Qualitäten`, and `Kommentar` columns.
 - Run available tests after changes.
+- Maintain calculation fields for values and keep debt entries automatically negative.
+- Keep delete columns consistently narrow across dynamic tables and let `Name`, `Qualitäten`, and `Notizen` columns expand.
+- Preserve attribute marker functionality with three crosses, one skull, and one shield.
 

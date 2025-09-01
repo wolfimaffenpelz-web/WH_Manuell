@@ -36,6 +36,7 @@ const baseTranslations = {
   debts: "Schulden",
   networth: "Nettosumme",
   spells: "Zauber & Gebete",
+  experience: "Erfahrung",
   experience_simple: "Erfahrung (Einfach)",
   experience_full: "Erfahrung (Voll)",
   simple: "Simpel",
@@ -96,6 +97,8 @@ const baseTranslations = {
   new_row: "Neue Zeile",
   mutation: "Mutation",
   savings: "Sparvermögen",
+  max_cross_warning: "Max 3 ✠ erlaubt.",
+  current_negative_warning: "Warnung: Aktuell ist negativ!",
   // Ability names
   "Anführen": "Anführen",
   "Athletik": "Athletik",

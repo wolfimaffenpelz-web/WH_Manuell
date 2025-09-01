@@ -408,7 +408,7 @@ sections.push(
   // ⭐ Erfahrung
   {
     id: "erfahrung",
-    title: t('experience_full'),
+    title: t('experience'),
     content: `
       <div style="text-align:center; margin-bottom:10px;">
         <label>${t('simple')}</label>

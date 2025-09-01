@@ -12,7 +12,6 @@
   --color-positive: green;
   --color-negative: darkred;
   --color-attr-cross: #add8e6;
-  --color-attr-axes: #cd7f32;
   --color-attr-skull: silver;
   --color-attr-shield: gold;
   --font-size-base: 16px;
@@ -117,6 +116,8 @@ th.text-left { text-align: left; }
 th.wsg,
 td.wsg { width: 60px; }
 
+.delete-col { width: 20px; padding: 0; }
+
 /* ================================================
    Overlay Passwort
    ================================================ */
@@ -194,7 +195,7 @@ td.wsg { width: 60px; }
 
 .marker-select .marker-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .marker-select .icon-btn {
@@ -239,7 +240,6 @@ tr.active {
 
 /* Attribut-Highlights */
 .attr-cross { background: var(--color-attr-cross); font-weight: bold; }
-.attr-axes { background: var(--color-attr-axes); font-weight: bold; }
 .attr-skull { background: var(--color-attr-skull); font-weight: bold; }
 .attr-shield { background: var(--color-attr-shield); font-weight: bold; }
 
@@ -301,6 +301,48 @@ th[data-input]::before {
 #talent-table td:nth-child(3) {
   max-width: none;
   min-width: 30%;
+}
+
+/* ================================================
+   Waffen, Rüstung, Ausrüstung und weitere Tabellen
+   ================================================ */
+#waffen-table th:first-child,
+#waffen-table td:first-child,
+#ruestung-table th:first-child,
+#ruestung-table td:first-child,
+#ausruestung-table th:first-child,
+#ausruestung-table td:first-child,
+#zauber-table th:first-child,
+#zauber-table td:first-child,
+#mutationen-table th:first-child,
+#mutationen-table td:first-child,
+#psychologie-table th:first-child,
+#psychologie-table td:first-child {
+  max-width: none;
+  width: auto;
+}
+
+#waffen-table th:nth-child(3), #waffen-table td:nth-child(3),
+#waffen-table th:nth-child(4), #waffen-table td:nth-child(4),
+#ruestung-table th:nth-child(3), #ruestung-table td:nth-child(3),
+#ruestung-table th:nth-child(4), #ruestung-table td:nth-child(4),
+#ausruestung-table th:nth-child(2), #ausruestung-table td:nth-child(2),
+#ausruestung-table th:nth-child(3), #ausruestung-table td:nth-child(3),
+#zauber-table th:nth-child(2), #zauber-table td:nth-child(2),
+#zauber-table th:nth-child(3), #zauber-table td:nth-child(3),
+#zauber-table th:nth-child(4), #zauber-table td:nth-child(4),
+#zauber-table th:nth-child(5), #zauber-table td:nth-child(5) {
+  width: 60px;
+}
+
+#waffen-table th:nth-child(5), #waffen-table td:nth-child(5),
+#ruestung-table th:nth-child(5), #ruestung-table td:nth-child(5),
+#ausruestung-table th:nth-child(4), #ausruestung-table td:nth-child(4),
+#zauber-table th:nth-child(6), #zauber-table td:nth-child(6),
+#mutationen-table th:nth-child(3), #mutationen-table td:nth-child(3),
+#psychologie-table th:nth-child(2), #psychologie-table td:nth-child(2) {
+  max-width: none;
+  width: auto;
 }
 
 /* ================================================

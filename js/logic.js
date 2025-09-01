@@ -411,15 +411,14 @@ document.addEventListener('input', e => {
 // =========================
 // 🔘 Markierungen
 // =========================
-const attrSymbols = ["","✠","⚔","☠","🛡"];
+const attrSymbols = ["","✠","☠","🛡"];
 let markerPopup = null;
 function updateAttrHeader(th, val) {
-  th.classList.remove("attr-cross","attr-axes","attr-skull","attr-shield");
+  th.classList.remove("attr-cross","attr-skull","attr-shield");
   th.dataset.icon = attrSymbols[val] || "";
   if (val === 1) th.classList.add("attr-cross");
-  else if (val === 2) th.classList.add("attr-axes");
-  else if (val === 3) th.classList.add("attr-skull");
-  else if (val === 4) th.classList.add("attr-shield");
+  else if (val === 2) th.classList.add("attr-skull");
+  else if (val === 3) th.classList.add("attr-shield");
 }
 
 function resetAttrMarker(th) {
@@ -430,14 +429,14 @@ function resetAttrMarker(th) {
 }
 
 function enforceAttributeExclusivity() {
-  const groups = {1:[],2:[],3:[],4:[]};
+  const groups = {1:[],2:[],3:[]};
   document.querySelectorAll('th[data-input]').forEach(th => {
     const hid = th.querySelector('input[type="hidden"]');
     const val = parseInt(hid.value) || 0;
     if (val > 0) groups[val].push(th);
   });
   let changed = false;
-  [2,3,4].forEach(v => {
+  [2,3].forEach(v => {
     const arr = groups[v];
     arr.slice(1).forEach(extra => { resetAttrMarker(extra); changed = true; });
   });
@@ -455,7 +454,7 @@ function applyAttrMarker(th, val) {
     const count = Array.from(document.querySelectorAll('th[data-input]'))
       .filter(m => m.querySelector('input[type="hidden"]').value === "1").length;
     if (count >= 3 && hid.value !== "1") {
-      alert("Max 3 ✠ erlaubt.");
+      alert(t('max_cross_warning'));
       return;
     }
   } else if (val >= 2) {
@@ -489,7 +488,6 @@ function selectAttrMarker(th) {
       <button class="icon-btn" data-val="1">${attrSymbols[1]}</button>
       <button class="icon-btn" data-val="2">${attrSymbols[2]}</button>
       <button class="icon-btn" data-val="3">${attrSymbols[3]}</button>
-      <button class="icon-btn" data-val="4">${attrSymbols[4]}</button>
     </div>`;
   document.body.appendChild(markerPopup);
 
@@ -1045,7 +1043,7 @@ function updateErfahrung() {
     document.getElementById("exp-full-gesamt").value = gesamt;
 
     if (akt < 0 && !aktWarNegativ) {
-      alert("Warnung: Aktuell ist negativ!");
+      alert(t('current_negative_warning'));
       aktWarNegativ = true;
     } else if (akt >= 0 && aktWarNegativ) {
       aktWarNegativ = false;
@@ -1101,12 +1099,7 @@ function initLogic() {
 
   document.addEventListener("input", e => {
     if (e.target.matches("input, textarea, select")) {
-      if (e.target.closest("#talent-table")) {
-        updateLebenspunkte();
-        saveState();
-      } else {
-        updateAttributes();
-      }
+      updateAttributes();
     }
   });
 
