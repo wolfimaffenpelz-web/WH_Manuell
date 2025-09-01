@@ -12,6 +12,7 @@
   --color-positive: green;
   --color-negative: darkred;
   --color-attr-cross: #add8e6;
+  --color-attr-axes: #cd7f32;
   --color-attr-skull: silver;
   --color-attr-shield: gold;
   --font-size-base: 16px;
@@ -240,6 +241,7 @@ tr.active {
 
 /* Attribut-Highlights */
 .attr-cross { background: var(--color-attr-cross); font-weight: bold; }
+.attr-axes { background: var(--color-attr-axes); font-weight: bold; }
 .attr-skull { background: var(--color-attr-skull); font-weight: bold; }
 .attr-shield { background: var(--color-attr-shield); font-weight: bold; }
 

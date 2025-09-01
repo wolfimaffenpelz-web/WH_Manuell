@@ -419,14 +419,15 @@ document.addEventListener('input', e => {
 // =========================
 // 🔘 Markierungen
 // =========================
-const attrSymbols = ["","✠","☠","🛡"];
+const attrSymbols = ["","✠","⚔","☠","🛡"];
 let markerPopup = null;
 function updateAttrHeader(th, val) {
-  th.classList.remove("attr-cross","attr-skull","attr-shield");
+  th.classList.remove("attr-cross","attr-axes","attr-skull","attr-shield");
   th.dataset.icon = attrSymbols[val] || "";
   if (val === 1) th.classList.add("attr-cross");
-  else if (val === 2) th.classList.add("attr-skull");
-  else if (val === 3) th.classList.add("attr-shield");
+  else if (val === 2) th.classList.add("attr-axes");
+  else if (val === 3) th.classList.add("attr-skull");
+  else if (val === 4) th.classList.add("attr-shield");
 }
 
 function resetAttrMarker(th) {
@@ -437,14 +438,14 @@ function resetAttrMarker(th) {
 }
 
 function enforceAttributeExclusivity() {
-  const groups = {1:[],2:[],3:[]};
+  const groups = {1:[],2:[],3:[],4:[]};
   document.querySelectorAll('th[data-input]').forEach(th => {
     const hid = th.querySelector('input[type="hidden"]');
     const val = parseInt(hid.value) || 0;
     if (val > 0) groups[val].push(th);
   });
   let changed = false;
-  [2,3].forEach(v => {
+  [2,3,4].forEach(v => {
     const arr = groups[v];
     arr.slice(1).forEach(extra => { resetAttrMarker(extra); changed = true; });
   });
@@ -465,7 +466,7 @@ function applyAttrMarker(th, val) {
       alert(t('max_cross_warning'));
       return;
     }
-  } else if (val >= 2) {
+  } else if ([2,3,4].includes(val)) {
     document.querySelectorAll('th[data-input]').forEach(m => {
       if (m === th) return;
       const mh = m.querySelector('input[type="hidden"]');
@@ -496,6 +497,7 @@ function selectAttrMarker(th) {
       <button class="icon-btn" data-val="1">${attrSymbols[1]}</button>
       <button class="icon-btn" data-val="2">${attrSymbols[2]}</button>
       <button class="icon-btn" data-val="3">${attrSymbols[3]}</button>
+      <button class="icon-btn" data-val="4">${attrSymbols[4]}</button>
     </div>`;
   document.body.appendChild(markerPopup);
 
