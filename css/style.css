@@ -302,33 +302,33 @@ th[data-input]::before {
 #attribute-table th,
 #attribute-table td {
   white-space: nowrap;
-  padding: 1px 2px;
+  padding: 1px 1px;
   max-width: none;
   overflow: visible;
 }
 
 #attribute-table th:nth-child(1),
-#attribute-table td:nth-child(1) { width: 80px; }
+#attribute-table td:nth-child(1) { width: auto; }
 #attribute-table th:nth-child(2),
-#attribute-table td:nth-child(2) { width: 50px; }
+#attribute-table td:nth-child(2) { width: 35px; }
 #attribute-table th:nth-child(3),
-#attribute-table td:nth-child(3) { width: 50px; }
+#attribute-table td:nth-child(3) { width: 35px; }
 #attribute-table th:nth-child(4),
-#attribute-table td:nth-child(4) { width: 50px; }
+#attribute-table td:nth-child(4) { width: 35px; }
 #attribute-table th:nth-child(5),
-#attribute-table td:nth-child(5) { width: 50px; }
+#attribute-table td:nth-child(5) { width: 35px; }
 #attribute-table th:nth-child(6),
-#attribute-table td:nth-child(6) { width: 50px; }
+#attribute-table td:nth-child(6) { width: 35px; }
 #attribute-table th:nth-child(7),
-#attribute-table td:nth-child(7) { width: 50px; }
+#attribute-table td:nth-child(7) { width: 35px; }
 #attribute-table th:nth-child(8),
-#attribute-table td:nth-child(8) { width: 50px; }
+#attribute-table td:nth-child(8) { width: 35px; }
 #attribute-table th:nth-child(9),
-#attribute-table td:nth-child(9) { width: 50px; }
+#attribute-table td:nth-child(9) { width: 35px; }
 #attribute-table th:nth-child(10),
-#attribute-table td:nth-child(10) { width: 50px; }
+#attribute-table td:nth-child(10) { width: 35px; }
 #attribute-table th:nth-child(11),
-#attribute-table td:nth-child(11) { width: 50px; }
+#attribute-table td:nth-child(11) { width: 35px; }
 
 /* ================================================
    Spaltenbreiten für Fähigkeiten- und Talenttabellen
@@ -337,13 +337,13 @@ th[data-input]::before {
 #grund-table th:nth-child(1),
 #grund-table td:nth-child(1) { max-width: none; min-width: 30%; }
 #grund-table th:nth-child(2),
-#grund-table td:nth-child(2) { width: 60px; }
+#grund-table td:nth-child(2) { width: 35x; }
 #grund-table th:nth-child(3),
-#grund-table td:nth-child(3) { width: 60px; }
+#grund-table td:nth-child(3) { width: 35px; }
 #grund-table th:nth-child(4),
-#grund-table td:nth-child(4) { width: 60px; }
+#grund-table td:nth-child(4) { width: 35px; }
 #grund-table th:nth-child(5),
-#grund-table td:nth-child(5) { width: 60px; }
+#grund-table td:nth-child(5) { width: 35px; }
 
 #grupp-table { table-layout: auto; }
 #grupp-table th:nth-child(1),
@@ -351,11 +351,11 @@ th[data-input]::before {
 #grupp-table th:nth-child(2),
 #grupp-table td:nth-child(2) { width: min-content; }
 #grupp-table th:nth-child(3),
-#grupp-table td:nth-child(3) { width: 60px; }
+#grupp-table td:nth-child(3) { width: 35px; }
 #grupp-table th:nth-child(4),
-#grupp-table td:nth-child(4) { width: 60px; }
+#grupp-table td:nth-child(4) { width: 35px; }
 #grupp-table th:nth-child(5),
-#grupp-table td:nth-child(5) { width: 60px; }
+#grupp-table td:nth-child(5) { width: 35px; }
 #grupp-table th:nth-child(6),
 #grupp-table td:nth-child(6) { width: 20px; padding: 0; }
 
@@ -363,7 +363,7 @@ th[data-input]::before {
 #talent-table th:nth-child(1),
 #talent-table td:nth-child(1) { max-width: none; min-width: 30%; width: auto; }
 #talent-table th:nth-child(2),
-#talent-table td:nth-child(2) { width: 60px; }
+#talent-table td:nth-child(2) { width: 35px; }
 #talent-table th:nth-child(3),
 #talent-table td:nth-child(3) { max-width: none; min-width: 30%; }
 #talent-table th:nth-child(4),
@@ -390,9 +390,9 @@ th[data-input]::before {
 #ruestung-table th:nth-child(2),
 #ruestung-table td:nth-child(2) { max-width: none; width: auto; }
 #ruestung-table th:nth-child(3),
-#ruestung-table td:nth-child(3) { width: 60px; }
+#ruestung-table td:nth-child(3) { width: 35px; }
 #ruestung-table th:nth-child(4),
-#ruestung-table td:nth-child(4) { width: 60px; }
+#ruestung-table td:nth-child(4) { width: 35px; }
 #ruestung-table th:nth-child(5),
 #ruestung-table td:nth-child(5) { max-width: none; width: auto; }
 #ruestung-table th:nth-child(6),
@@ -401,9 +401,9 @@ th[data-input]::before {
 #ausruestung-table th:nth-child(1),
 #ausruestung-table td:nth-child(1) { max-width: none; width: auto; }
 #ausruestung-table th:nth-child(2),
-#ausruestung-table td:nth-child(2) { width: 60px; }
+#ausruestung-table td:nth-child(2) { width: 35px; }
 #ausruestung-table th:nth-child(3),
-#ausruestung-table td:nth-child(3) { width: 60px; }
+#ausruestung-table td:nth-child(3) { width: 35px; }
 #ausruestung-table th:nth-child(4),
 #ausruestung-table td:nth-child(4) { max-width: none; width: auto; }
 #ausruestung-table th:nth-child(5),
