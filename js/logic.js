@@ -493,15 +493,16 @@ function selectAttrMarker(th) {
   markerPopup = document.createElement('div');
   markerPopup.className = 'marker-select';
   markerPopup.innerHTML = `
-    <div class="marker-grid">
+    <div class="marker-row">
       <button class="icon-btn" data-val="1">${attrSymbols[1]}</button>
       <button class="icon-btn" data-val="2">${attrSymbols[2]}</button>
-      <button class="icon-btn" data-val="4">${attrSymbols[4]}</button>
       <button class="icon-btn" data-val="3">${attrSymbols[3]}</button>
+      <button class="icon-btn" data-val="4">${attrSymbols[4]}</button>
     </div>`;
   const rect = th.getBoundingClientRect();
-  markerPopup.style.left = `${window.scrollX + rect.left}px`;
+  markerPopup.style.left = '50%';
   markerPopup.style.top = `${window.scrollY + rect.bottom}px`;
+  markerPopup.style.transform = 'translateX(-50%)';
   document.body.appendChild(markerPopup);
 
   markerPopup.querySelectorAll('button').forEach(btn => {

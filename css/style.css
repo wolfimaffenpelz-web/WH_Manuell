@@ -203,9 +203,10 @@ td.wsg { width: 60px; }
   z-index: 1000;
 }
 
-.marker-select .marker-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+.marker-select .marker-row {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
 }
 
 .marker-select .icon-btn {
