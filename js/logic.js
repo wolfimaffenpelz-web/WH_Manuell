@@ -258,38 +258,143 @@ function loadState() {
 // =========================
 // 🔘 Markierungen
 // =========================
-function toggleMarker(el) {
-  const hid = document.getElementById(el.dataset.input); // verborgenes Feld
+const attrSymbols = ["◯","✠","⚔","☠","🛡"]; // mögliche Markersymbole
+const attrCodes = ["KG","BF","ST","WI","I","GW","GS","IN","WK","CH"]; // Kürzel der Spielwerte
+let markerPopup = null;
+
+function updateAttrHeader(el, val) {
+  const header = document.querySelector("#attribute-table .attr-header");
+  if (!header) return;
+  const idx = el.parentElement.cellIndex;
+  const th = header.cells[idx];
+  if (!th) return;
+  th.classList.remove("attr-cross","attr-axes","attr-skull","attr-shield");
+  if (val === 1) th.classList.add("attr-cross");
+  else if (val === 2) th.classList.add("attr-axes");
+  else if (val === 3) th.classList.add("attr-skull");
+  else if (val === 4) th.classList.add("attr-shield");
+}
+
+function resetAttrMarker(el) {
+  const hid = document.getElementById(el.dataset.input);
+  if (!hid) return;
+  hid.value = "0";
+  el.textContent = attrSymbols[0];
+  updateAttrHeader(el, 0);
+}
+
+function enforceAttributeExclusivity() {
+  const groups = {1:[],2:[],3:[],4:[]};
+  document.querySelectorAll(".attr-marker").forEach(el => {
+    const hid = document.getElementById(el.dataset.input);
+    const val = parseInt(hid.value) || 0;
+    if (val > 0) groups[val].push(el);
+  });
+  let changed = false;
+  [2,3,4].forEach(v => {
+    const arr = groups[v];
+    arr.slice(1).forEach(extra => { resetAttrMarker(extra); changed = true; });
+  });
+  const crosses = groups[1];
+  if (crosses.length > 3) {
+    crosses.slice(3).forEach(extra => { resetAttrMarker(extra); changed = true; });
+  }
+  if (changed) saveState();
+}
+
+function applyAttrMarker(el, val) {
+  const hid = document.getElementById(el.dataset.input);
+  if (!hid) return;
+
+  if (val === 1) {
+    const count = Array.from(document.querySelectorAll('.attr-marker'))
+      .filter(m => document.getElementById(m.dataset.input).value === "1").length;
+    if (count >= 3 && hid.value !== "1") {
+      alert("Max 3 ✠ erlaubt.");
+      return;
+    }
+  } else if (val >= 2) {
+    document.querySelectorAll('.attr-marker').forEach(m => {
+      if (m === el) return;
+      const mh = document.getElementById(m.dataset.input);
+      if (mh.value === String(val)) resetAttrMarker(m);
+    });
+  }
+
+  hid.value = String(val);
+  el.textContent = attrSymbols[val];
+  updateAttrHeader(el, val);
+  saveState();
+}
+
+function selectAttrMarker(el) {
+  const hid = document.getElementById(el.dataset.input);
+  if (!hid) return;
+
+  if (markerPopup) markerPopup.remove();
+  markerPopup = document.createElement('div');
+  markerPopup.className = 'popup marker-select';
+  markerPopup.innerHTML = attrSymbols.map((s,i)=>`<button class="icon-btn" data-val="${i}">${s}</button>`).join('');
+  document.body.appendChild(markerPopup);
+
+  markerPopup.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = parseInt(btn.dataset.val);
+      applyAttrMarker(el, val);
+      markerPopup.remove();
+      markerPopup = null;
+    });
+  });
+}
+
+function toggleLineMarker(el) {
+  const hid = el.nextElementSibling;
   if (!hid) return;
   if (hid.value === "1") {
     hid.value = "0";
-    el.textContent = "◯"; // Marker entfernen
+    el.textContent = attrSymbols[0];
+    el.closest('tr').classList.remove('line-marked');
   } else {
     hid.value = "1";
-    el.textContent = "✚"; // Marker setzen
+    el.textContent = attrSymbols[1];
+    el.closest('tr').classList.add('line-marked');
   }
   saveState();
 }
 
 function restoreMarkers() {
-  document.querySelectorAll(".marker").forEach(el => {
+  document.querySelectorAll('.attr-marker').forEach(el => {
     const hid = document.getElementById(el.dataset.input);
     if (!hid) return;
-    el.textContent = hid.value === "1" ? "✚" : "◯"; // Status wiederherstellen
+    const val = parseInt(hid.value) || 0;
+    el.textContent = attrSymbols[val];
+    updateAttrHeader(el, val);
+  });
+  enforceAttributeExclusivity();
+  document.querySelectorAll('.line-marker').forEach(el => {
+    const hid = el.nextElementSibling;
+    if (hid.value === "1") {
+      el.textContent = attrSymbols[1];
+      el.closest('tr').classList.add('line-marked');
+    } else {
+      el.textContent = attrSymbols[0];
+      el.closest('tr').classList.remove('line-marked');
+    }
   });
 }
 
 document.addEventListener("click", e => {
-  if (e.target.classList.contains("marker")) {
-    toggleMarker(e.target);
+  if (e.target.classList.contains("attr-marker")) {
+    selectAttrMarker(e.target);
+  } else if (e.target.classList.contains("line-marker")) {
+    toggleLineMarker(e.target);
   }
 });
 // =========================
 // 📊 Attribute Berechnungen
 // =========================
 function updateAttributes() {
-  const attrs = ["KG","BF","ST","WI","I","GW","GS","IN","WK","CH"];
-  attrs.forEach(att => {
+  attrCodes.forEach(att => {
     const start = parseInt(document.getElementById(att+"-start").value) || 0; // Basiswert
     const steig = parseInt(document.getElementById(att+"-steig").value) || 0; // Steigerung
     const akt = start + steig;
@@ -310,18 +415,18 @@ function updateAttributes() {
 // 📜 Grundfähigkeiten Logik
 // =========================
 function updateGrundfaehigkeiten() {
-  const rows = document.querySelectorAll("#grund-table tr");
-  rows.forEach((row, idx) => {
-    if (idx === 0) return; // header
-    const attCell = row.cells[1];
-    if (!attCell) return;
-    const att = attCell.textContent.trim();
-    const attVal = parseInt(document.getElementById(att+"-akt").value) || 0;
-    const steig = parseInt(row.cells[3].querySelector("input").value) || 0; // individuelle Steigerung
-    row.cells[2].querySelector("input").value = attVal; // Basiswert
-    row.cells[4].querySelector("input").value = attVal + steig; // Gesamtwert
-  });
-}
+    const rows = document.querySelectorAll("#grund-table tr");
+    rows.forEach((row, idx) => {
+      if (idx === 0) return; // header
+      const attCell = row.cells[2];
+      if (!attCell) return;
+      const att = attCell.textContent.trim();
+      const attVal = parseInt(document.getElementById(att+"-akt").value) || 0;
+      const steig = parseInt(row.cells[4].querySelector("input").value) || 0; // individuelle Steigerung
+      row.cells[3].querySelector("input").value = attVal; // Basiswert
+      row.cells[5].querySelector("input").value = attVal + steig; // Gesamtwert
+    });
+  }
 
 // =========================
 // ⚔️ Gruppierte Fähigkeiten
@@ -333,7 +438,7 @@ function addRow(tableId) {
   if (tableId === "grupp-table") {
     // Vorlage für gruppierte Fähigkeiten
     row.innerHTML = `
-      <td>◯</td>
+      <td class="mark-col"><span class="line-marker">◯</span><input type="hidden" value="0"></td>
       <td><input type="text"></td>
       <td>
         <select>
@@ -354,7 +459,7 @@ function addRow(tableId) {
   else if (tableId === "talent-table") {
     // Zeile für Talente
     row.innerHTML = `
-      <td>◯</td>
+      <td class="mark-col"><span class="line-marker">◯</span><input type="hidden" value="0"></td>
       <td><input type="text"></td>
       <td><input type="text"></td>
       <td><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte();">❌</button></td>

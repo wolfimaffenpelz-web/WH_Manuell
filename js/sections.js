@@ -1,6 +1,8 @@
 // sections.js v0.8.2
 // Enthält die Struktur aller Segmente für den Charakterbogen
 
+const attrCodes = ["KG","BF","ST","WI","I","GW","GS","IN","WK","CH"]; // Kürzel der Spielwerte
+
 // Array mit allen Abschnittsdefinitionen
 const sections = [
   // 🧾 Grunddaten
@@ -46,62 +48,25 @@ const sections = [
     title: "Spielwerte",
     content: `
       <table class="full-width" id="attribute-table">
-        <tr>
-          <th></th>
-          <th>KG</th><th>BF</th><th>ST</th><th>WI</th>
-          <th>I</th><th>GW</th><th>GS</th><th>IN</th><th>WK</th><th>CH</th>
+        <tr class="marker-row">
+          <td></td>
+          ${attrCodes.map(code => `<td><span class="attr-marker icon-btn" data-input="${code}-mark">◯</span><input type="hidden" id="${code}-mark" value="0"></td>`).join("")}
         </tr>
-        <tr>
-          <td>Mark</td>
-          <td><span class="marker" data-input="KG-mark">◯</span><input type="hidden" id="KG-mark" value="0"></td>
-          <td><span class="marker" data-input="BF-mark">◯</span><input type="hidden" id="BF-mark" value="0"></td>
-          <td><span class="marker" data-input="ST-mark">◯</span><input type="hidden" id="ST-mark" value="0"></td>
-          <td><span class="marker" data-input="WI-mark">◯</span><input type="hidden" id="WI-mark" value="0"></td>
-          <td><span class="marker" data-input="I-mark">◯</span><input type="hidden" id="I-mark" value="0"></td>
-          <td><span class="marker" data-input="GW-mark">◯</span><input type="hidden" id="GW-mark" value="0"></td>
-          <td><span class="marker" data-input="GS-mark">◯</span><input type="hidden" id="GS-mark" value="0"></td>
-          <td><span class="marker" data-input="IN-mark">◯</span><input type="hidden" id="IN-mark" value="0"></td>
-          <td><span class="marker" data-input="WK-mark">◯</span><input type="hidden" id="WK-mark" value="0"></td>
-          <td><span class="marker" data-input="CH-mark">◯</span><input type="hidden" id="CH-mark" value="0"></td>
+        <tr class="attr-header">
+          <th></th>
+          ${attrCodes.map(code => `<th>${code}</th>`).join("")}
         </tr>
         <tr>
           <td>Anfang</td>
-          <td><input type="number" id="KG-start"></td>
-          <td><input type="number" id="BF-start"></td>
-          <td><input type="number" id="ST-start"></td>
-          <td><input type="number" id="WI-start"></td>
-          <td><input type="number" id="I-start"></td>
-          <td><input type="number" id="GW-start"></td>
-          <td><input type="number" id="GS-start"></td>
-          <td><input type="number" id="IN-start"></td>
-          <td><input type="number" id="WK-start"></td>
-          <td><input type="number" id="CH-start"></td>
+          ${attrCodes.map(code => `<td><input type="number" id="${code}-start"></td>`).join("")}
         </tr>
         <tr>
           <td>Steig.</td>
-          <td><input type="number" id="KG-steig"></td>
-          <td><input type="number" id="BF-steig"></td>
-          <td><input type="number" id="ST-steig"></td>
-          <td><input type="number" id="WI-steig"></td>
-          <td><input type="number" id="I-steig"></td>
-          <td><input type="number" id="GW-steig"></td>
-          <td><input type="number" id="GS-steig"></td>
-          <td><input type="number" id="IN-steig"></td>
-          <td><input type="number" id="WK-steig"></td>
-          <td><input type="number" id="CH-steig"></td>
+          ${attrCodes.map(code => `<td><input type="number" id="${code}-steig"></td>`).join("")}
         </tr>
         <tr>
           <td>Aktuell</td>
-          <td><input type="number" id="KG-akt" readonly></td>
-          <td><input type="number" id="BF-akt" readonly></td>
-          <td><input type="number" id="ST-akt" readonly></td>
-          <td><input type="number" id="WI-akt" readonly></td>
-          <td><input type="number" id="I-akt" readonly></td>
-          <td><input type="number" id="GW-akt" readonly></td>
-          <td><input type="number" id="GS-akt" readonly></td>
-          <td><input type="number" id="IN-akt" readonly></td>
-          <td><input type="number" id="WK-akt" readonly></td>
-          <td><input type="number" id="CH-akt" readonly></td>
+          ${attrCodes.map(code => `<td><input type="number" id="${code}-akt" readonly></td>`).join("")}
         </tr>
       </table>
       <div class="section-divider"></div>
@@ -112,9 +77,10 @@ const sections = [
   {
     id: "grundfaehigkeiten",
     title: "Grundfähigkeiten",
-    content: `
-      <table class="full-width" id="grund-table">
+      content: `
+        <table class="full-width" id="grund-table">
         <tr>
+          <th class="mark-col">✠</th>
           <th>Fähigkeit</th>
           <th>At.</th>
           <th class="wsg">Wert</th>
@@ -130,18 +96,19 @@ const sections = [
           ["Nahkampf (Standard)","KG"],["Navigation","I"],["Reiten","GW"],["Rudern","ST"],
           ["Schleichen","GW"],["Tiere bezirzen","WK"],["Überleben","IN"],["Unterhalten","CH"],
           ["Wahrnehmung","I"],["Zechen","WI"]
-        ].map(([name,att]) => `
+          ].map(([name,att]) => `
           <tr>
+            <td class="mark-col"><span class="line-marker" data-input="grund-${name}-mark">◯</span><input type="hidden" id="grund-${name}-mark" value="0"></td>
             <td>${name}</td>
             <td>${att}</td>
             <td class="wsg"><input type="number" id="grund-${name}-wert" readonly></td>
             <td class="wsg"><input type="number" id="grund-${name}-steig"></td>
             <td class="wsg"><input type="number" id="grund-${name}-gesamt" readonly></td>
           </tr>`).join("")}
-      </table>
-      <div class="section-divider"></div>
-    `
-  },
+        </table>
+        <div class="section-divider"></div>
+      `
+    },
 
   // ⚔️ Gruppierte Fähigkeiten
   {
@@ -150,7 +117,7 @@ const sections = [
     content: `
       <table class="full-width" id="grupp-table">
         <tr>
-          <th>Mark</th>
+          <th class="mark-col">✠</th>
           <th>Fähigkeit</th>
           <th>At.</th>
           <th class="wsg">Wert</th>
@@ -171,7 +138,7 @@ const sections = [
     content: `
       <table class="full-width" id="talent-table">
         <tr>
-          <th>Mark</th>
+          <th class="mark-col">✠</th>
           <th>Talent</th>
           <th>Notiz</th>
           <th>❌</th>
