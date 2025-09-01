@@ -16,6 +16,10 @@
   --color-attr-skull: silver;
   --color-attr-shield: gold;
   --font-size-base: 16px;
+  --color-active-char-bg: #333;
+  --color-active-char-text: #fff;
+  --font-active-char: var(--font-heading);
+  --font-size-active-char: 1.2em;
   --row-height: 1.5em;
   --coin-col-width: 5ch;
   --marker-popup-icon-size: 2em;
@@ -154,11 +158,27 @@ td.wsg { width: 60px; }
   text-align: center;
   margin: 10px 0;
 }
-
-.character-management select,
-.character-management button {
+.character-management .top-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+.character-management .top-row button {
   margin: 5px;
   padding: 3px;
+}
+.character-management .char-fields {
+  display: flex;
+  justify-content: center;
+  margin-top: 5px;
+}
+.character-management .current-character-field {
+  padding: 3px 6px;
+  background: var(--color-active-char-bg);
+  color: var(--color-active-char-text);
+  font-family: var(--font-active-char);
+  font-size: var(--font-size-active-char);
 }
 
 /* ================================================

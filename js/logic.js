@@ -40,21 +40,23 @@ document.addEventListener("DOMContentLoaded", initPasswordProtection);
 // 📂 Multi-Charakter Verwaltung
 // =========================
 let currentCharacter = null;
+let characterList = [];
+
+function updateCharacterDisplay() {
+  const display = document.getElementById("current-character");
+  if (display) display.textContent = `${t('active_character')} ${currentCharacter || ''}`;
+}
 
 function loadCharacterList() {
-  const select = document.getElementById("character-select"); // Dropdown-Element
-  select.innerHTML = "";
-  const chars = JSON.parse(localStorage.getItem("characters") || "[]"); // gespeicherte Namen
-  chars.forEach(name => {
-    const opt = document.createElement("option");
-    opt.value = name;
-    opt.textContent = name;
-    select.appendChild(opt);
-  });
-  if (chars.length > 0) {
-    currentCharacter = chars[0]; // ersten Charakter vorauswählen
-    select.value = currentCharacter;
+  characterList = JSON.parse(localStorage.getItem("characters") || "[]");
+  if (characterList.length > 0) {
+    if (!currentCharacter || !characterList.includes(currentCharacter)) {
+      currentCharacter = characterList[0];
+    }
+  } else {
+    currentCharacter = null;
   }
+  updateCharacterDisplay();
 }
 
 function saveCharacter(name) {
@@ -79,12 +81,13 @@ function deleteCharacter(name) {
 }
 
 function initCharacterManagement() {
-  const select = document.getElementById("character-select");
+  const cycleBtn = document.getElementById("cycle-character");
   const newBtn = document.getElementById("new-character"); // neuer Charakter
   const delBtn = document.getElementById("delete-character"); // löschen
   const importBtn = document.getElementById("import-character");
   const exportBtn = document.getElementById("export-character");
   const importFile = document.getElementById("import-file");
+  const settingsBtn = document.getElementById("settings");
 
   loadCharacterList();
   if (!currentCharacter) {
@@ -92,10 +95,39 @@ function initCharacterManagement() {
     updateAttributes();
   }
 
-  select.addEventListener("change", () => {
-    currentCharacter = select.value; // Dropdown-Wahl
-    loadState();
-  });
+  if (cycleBtn) {
+    cycleBtn.addEventListener("click", () => {
+      if (characterList.length === 0) return;
+      const overlay = document.createElement("div");
+      overlay.className = "overlay";
+      overlay.innerHTML = `
+        <div class="overlay-content">
+          <p>${t('choose_character')}</p>
+          <div id="char-list"></div>
+          <button id="char-cancel">${t('cancel')}</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      const list = overlay.querySelector('#char-list');
+      characterList.forEach(name => {
+        const btn = document.createElement('button');
+        btn.textContent = name;
+        btn.addEventListener('click', () => {
+          saveState();
+          currentCharacter = name;
+          updateCharacterDisplay();
+          loadState();
+          overlay.remove();
+        });
+        list.appendChild(btn);
+      });
+      function close() { overlay.remove(); }
+      overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+      overlay.querySelector('#char-cancel').addEventListener('click', close);
+    });
+  }
+
+  if (settingsBtn) settingsBtn.title = t('settings');
 
   // Neuer Charakter anlegen
   newBtn.addEventListener("click", () => {
@@ -122,12 +154,10 @@ function initCharacterManagement() {
     overlay.querySelector("#new-char-ok").addEventListener("click", () => {
       const newName = input.value.trim();
       if (!newName) { alert(t('name_required')); return; }
-      saveCharacter(newName);
-      ensureInitialRows();
       saveState();
+      saveCharacter(newName);
+      resetCharacterSheet();
       loadCharacterList();
-      select.value = newName;
-      loadState();
       close();
     });
   });
@@ -139,7 +169,7 @@ function initCharacterManagement() {
     overlay.className = "overlay";
     overlay.innerHTML = `
       <div class="overlay-content">
-        <p>${t('delete_confirm')}</p>
+        <p>${t('delete_confirm_prefix')}${currentCharacter}${t('delete_confirm_suffix')}</p>
         <button id="del-yes">${t('yes')}</button>
         <button id="del-no">${t('no')}</button>
       </div>
@@ -156,19 +186,28 @@ function initCharacterManagement() {
       if (currentCharacter) {
         loadState(); // anderen laden
       } else {
-        document.querySelectorAll("input, textarea, select").forEach(el => {
-          if (el.type === "checkbox" || el.type === "radio") {
-            el.checked = false;
-          } else {
-            el.value = "";
-          }
-        });
-        ensureInitialRows();
-        updateAttributes();
+        resetCharacterSheet();
       }
       close();
     });
   });
+
+  if (settingsBtn) {
+    settingsBtn.addEventListener("click", () => {
+      const overlay = document.createElement("div");
+      overlay.className = "overlay";
+      overlay.innerHTML = `
+        <div class="overlay-content">
+          <p>${t('settings_placeholder')}</p>
+          <button id="settings-close">${t('ok')}</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      function close() { overlay.remove(); }
+      overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
+      overlay.querySelector("#settings-close").addEventListener("click", close);
+    });
+  }
 
   importBtn.addEventListener("click", () => importFile.click());
   importFile.addEventListener("change", (e) => { importCharacters(e.target.files); e.target.value = ""; });
@@ -340,6 +379,7 @@ function loadState() {
   updateAttributes();
   restoreMarkers();
   ensureInitialRows();
+  updateCharacterDisplay();
 }
 
 // =========================
@@ -364,6 +404,50 @@ function ensureInitialRows() {
       addRow(id);
     }
   });
+}
+
+function resetCharacterSheet() {
+  document.querySelectorAll("input, textarea, select").forEach(el => {
+    if (el.type === "checkbox" || el.type === "radio") {
+      el.checked = false;
+    } else {
+      el.value = "";
+    }
+  });
+
+  [
+    "grupp-table",
+    "talent-table",
+    "waffen-table",
+    "schulden-table",
+    "spar-table",
+    "ruestung-table",
+    "ausruestung-table",
+    "zauber-table",
+    "mutationen-table",
+    "psychologie-table",
+    "exp-table"
+  ].forEach(id => {
+    const table = document.getElementById(id);
+    if (table) {
+      while (table.rows.length > 1) {
+        table.deleteRow(1);
+      }
+    }
+  });
+
+  document.querySelectorAll(".marker-icon").forEach(icon => { icon.textContent = ""; });
+  document.querySelectorAll("tr.line-marked").forEach(row => row.classList.remove("line-marked"));
+  document.querySelectorAll('th[data-input]').forEach(th => {
+    const hid = th.querySelector('input[type="hidden"]');
+    if (hid) {
+      hid.value = "0";
+      updateAttrHeader(th, 0);
+    }
+  });
+
+  ensureInitialRows();
+  updateAttributes();
 }
 
 // Aktuellen Charakter exportieren
@@ -393,7 +477,7 @@ function importCharacters(files) {
         localStorage.setItem('state-' + data.id, JSON.stringify(data.state));
         loadCharacterList();
         currentCharacter = data.id;
-        document.getElementById('character-select').value = data.id;
+        updateCharacterDisplay();
         loadState();
       } else {
         throw new Error('Invalid');
