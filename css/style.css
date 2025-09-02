@@ -306,33 +306,33 @@ th[data-input]::before {
 #attribute-table th,
 #attribute-table td {
   white-space: nowrap;
-  padding: 1px 2px;
-  max-width: none;
+  padding: 1px;
+  max-width: 100%;
   overflow: hidden;
 }
 
 #attribute-table th:nth-child(1),
 #attribute-table td:nth-child(1) { width: 80px; }
 #attribute-table th:nth-child(2),
-#attribute-table td:nth-child(2) { width: 35px; }
+#attribute-table td:nth-child(2) { width: auto; }
 #attribute-table th:nth-child(3),
-#attribute-table td:nth-child(3) { width: 35px; }
+#attribute-table td:nth-child(3) { width: auto; }
 #attribute-table th:nth-child(4),
-#attribute-table td:nth-child(4) { width: 35px; }
+#attribute-table td:nth-child(4) { width: auto; }
 #attribute-table th:nth-child(5),
-#attribute-table td:nth-child(5) { width: 35px; }
+#attribute-table td:nth-child(5) { width: auto; }
 #attribute-table th:nth-child(6),
-#attribute-table td:nth-child(6) { width: 35px; }
+#attribute-table td:nth-child(6) { width: auto; }
 #attribute-table th:nth-child(7),
-#attribute-table td:nth-child(7) { width: 35px; }
+#attribute-table td:nth-child(7) { width: auto; }
 #attribute-table th:nth-child(8),
-#attribute-table td:nth-child(8) { width: 35px; }
+#attribute-table td:nth-child(8) { width: auto; }
 #attribute-table th:nth-child(9),
-#attribute-table td:nth-child(9) { width: 35px; }
+#attribute-table td:nth-child(9) { width: auto; }
 #attribute-table th:nth-child(10),
-#attribute-table td:nth-child(10) { width: 35px; }
+#attribute-table td:nth-child(10) { width: auto; }
 #attribute-table th:nth-child(11),
-#attribute-table td:nth-child(11) { width: 35px; }
+#attribute-table td:nth-child(11) { width: auto; }
 
 /* ================================================
    Spaltenbreiten für Fähigkeiten- und Talenttabellen
