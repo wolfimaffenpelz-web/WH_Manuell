@@ -19,6 +19,9 @@
   --font-size-base: 16px;
   --color-active-char-bg: #333;
   --color-active-char-text: #fff;
+  --color-table-line: #000;
+  --color-divider: #000;
+  --icon-size: 1.3em;
   --font-active-char: var(--font-heading);
   --font-size-active-char: 1.2em;
   --row-height: 1.5em;
@@ -123,12 +126,12 @@ input[readonly],
 /* Innere Linien */
 td + td,
 th + th {
-  border-left: 1px solid #000;
+  border-left: 1px solid var(--color-table-line);
 }
 
 tr + tr td,
 tr + tr th {
-  border-top: 1px solid #000;
+  border-top: 1px solid var(--color-table-line);
 }
 
 th { font-weight: bold; }
@@ -163,7 +166,7 @@ td.wsg { width: 35px; }
 
 /* Segment-Trennung */
 .section-divider {
-  border-bottom: 3.5px solid #000;
+  border-bottom: 3.5px solid var(--color-divider);
   width: 98%;
   margin: 25px auto;
 }
@@ -231,7 +234,7 @@ td.wsg { width: 35px; }
 }
 .character-management .top-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
   align-items: center;
 }
@@ -240,7 +243,7 @@ td.wsg { width: 35px; }
   padding: 3px;
   background: none;
   border: none;
-  font-size: 1.3em;
+  font-size: var(--icon-size);
 }
 .character-management .top-row h2 {
   margin: 5px;
@@ -296,7 +299,7 @@ td.wsg { width: 35px; }
 .marker-select {
   position: absolute;
   background: var(--color-bg);
-  border: 1px solid #000;
+  border: 1px solid var(--color-table-line);
   padding: 4px;
   z-index: 1000;
 }

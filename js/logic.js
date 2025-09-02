@@ -43,7 +43,21 @@ function applySavedSettings() {
   Object.entries(fonts).forEach(([k, v]) => {
     document.documentElement.style.setProperty(k, v);
   });
+  adjustTopRowIcons();
 }
+
+function adjustTopRowIcons() {
+  const container = document.querySelector('.character-management .top-row');
+  if (!container) return;
+  let size = 1.3;
+  document.documentElement.style.setProperty('--icon-size', size + 'em');
+  const maxWidth = container.clientWidth;
+  while (container.scrollWidth > maxWidth && size > 0.5) {
+    size -= 0.05;
+    document.documentElement.style.setProperty('--icon-size', size + 'em');
+  }
+}
+window.addEventListener('resize', adjustTopRowIcons);
 
 function rgbToHex(rgb) {
   const str = rgb.trim();
@@ -235,6 +249,7 @@ function openColorSettings() {
     <div class="overlay-content">
       <button id="open-colors-bg">${t('colors_group_bg_text')}</button>
       <button id="open-colors-mark">${t('colors_group_markings')}</button>
+      <button id="open-colors-lines">${t('colors_group_lines')}</button>
       <div class="popup-buttons">
         <button id="color-cancel">${t('cancel')}</button>
       </div>
@@ -246,30 +261,42 @@ function openColorSettings() {
   overlay.querySelector('#color-cancel').addEventListener('click', close);
   overlay.querySelector('#open-colors-bg').addEventListener('click', () => { close(); openColorGroup('bg'); });
   overlay.querySelector('#open-colors-mark').addEventListener('click', () => { close(); openColorGroup('mark'); });
+  overlay.querySelector('#open-colors-lines').addEventListener('click', () => { close(); openColorGroup('lines'); });
 }
 
 function openColorGroup(group) {
   const overlay = document.createElement('div');
   overlay.className = 'overlay';
-  const groupVars = group === 'bg'
-    ? {
-        "--color-bg": "color_bg",
-        "--color-text": "color_text",
-        "--color-field": "color_field",
-        "--color-readonly": "color_readonly",
-        "--color-positive": "color_positive",
-        "--color-negative": "color_negative",
-        "--color-active-char-bg": "color_active_char_bg",
-        "--color-active-char-text": "color_active_char_text"
-      }
-    : {
-        "--color-highlight": "color_highlight",
-        "--color-attr-cross": "color_attr_cross",
-        "--color-attr-axes": "color_attr_axes",
-        "--color-attr-skull": "color_attr_skull",
-        "--color-attr-shield": "color_attr_shield",
-        "--color-active-cell": "color_active_cell"
-      };
+  let groupVars, titleKey;
+  if (group === 'bg') {
+    groupVars = {
+      "--color-bg": "color_bg",
+      "--color-text": "color_text",
+      "--color-field": "color_field",
+      "--color-readonly": "color_readonly",
+      "--color-positive": "color_positive",
+      "--color-negative": "color_negative",
+      "--color-active-char-bg": "color_active_char_bg",
+      "--color-active-char-text": "color_active_char_text"
+    };
+    titleKey = 'colors_group_bg_text';
+  } else if (group === 'mark') {
+    groupVars = {
+      "--color-highlight": "color_highlight",
+      "--color-attr-cross": "color_attr_cross",
+      "--color-attr-axes": "color_attr_axes",
+      "--color-attr-skull": "color_attr_skull",
+      "--color-attr-shield": "color_attr_shield",
+      "--color-active-cell": "color_active_cell"
+    };
+    titleKey = 'colors_group_markings';
+  } else {
+    groupVars = {
+      "--color-table-line": "color_table_lines",
+      "--color-divider": "color_section_divider"
+    };
+    titleKey = 'colors_group_lines';
+  }
   const styles = getComputedStyle(document.documentElement);
   let fields = "";
   Object.entries(groupVars).forEach(([varName, key]) => {
@@ -278,7 +305,7 @@ function openColorGroup(group) {
   });
   overlay.innerHTML = `
     <div class="overlay-content scrollable">
-      <h2>${group === 'bg' ? t('colors_group_bg_text') : t('colors_group_markings')}</h2>
+      <h2>${t(titleKey)}</h2>
       ${fields}
       <div class="popup-buttons">
         <button id="group-accept">${t('accept')}</button>
@@ -352,6 +379,7 @@ function openFontSettings() {
     });
     localStorage.setItem("font-settings", JSON.stringify(saved));
     close();
+    adjustTopRowIcons();
   });
 }
 
