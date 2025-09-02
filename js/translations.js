@@ -80,6 +80,7 @@ const baseTranslations = {
   effect: "Effekt",
   zone: "Trefferzone",
   zone_short: "Zone",
+  weapon_group: "Gattung",
   range: "Trefferbereich",
   sum_rp: "Summe RP",
   max: "Max.",
