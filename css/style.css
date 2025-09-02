@@ -299,7 +299,7 @@ th[data-input]::before {
    Spaltenbreiten für Spielwertetabelle
    ================================================ */
 #attribute-table {
-  table-layout: auto;
+  table-layout: fixed;
   margin: 0;
 }
 
@@ -308,7 +308,7 @@ th[data-input]::before {
   white-space: nowrap;
   padding: 1px 2px;
   max-width: none;
-  overflow: visible;
+  overflow: hidden;
 }
 
 #attribute-table th:nth-child(1),
@@ -337,7 +337,7 @@ th[data-input]::before {
 /* ================================================
    Spaltenbreiten für Fähigkeiten- und Talenttabellen
    ================================================ */
-#grund-table { table-layout: auto; }
+#grund-table { table-layout: fixed; }
 #grund-table th:nth-child(1),
 #grund-table td:nth-child(1) { max-width: none; min-width: 30%; }
 #grund-table th:nth-child(2),
@@ -349,7 +349,7 @@ th[data-input]::before {
 #grund-table th:nth-child(5),
 #grund-table td:nth-child(5) { width: 35px; }
 
-#grupp-table { table-layout: auto; }
+#grupp-table { table-layout: fixed; }
 #grupp-table th:nth-child(1),
 #grupp-table td:nth-child(1) { max-width: none; min-width: 30%; }
 #grupp-table th:nth-child(2),
@@ -363,7 +363,7 @@ th[data-input]::before {
 #grupp-table th:nth-child(6),
 #grupp-table td:nth-child(6) { width: 20px; padding: 0; }
 
-#talent-table { table-layout: auto; }
+#talent-table { table-layout: fixed; }
 #talent-table th:nth-child(1),
 #talent-table td:nth-child(1) { max-width: none; min-width: 30%; width: auto; }
 #talent-table th:nth-child(2),
@@ -437,7 +437,7 @@ th[data-input]::before {
 #mutationen-table th:nth-child(4),
 #mutationen-table td:nth-child(4) { width: 20px; padding: 0; }
 
-#korruption-table { width: 100%; max-width: 100px; margin: 0 auto; }
+#korruption-table { width: 100%; max-width: 140px; margin: 0 auto; }
 #korruption-table th:nth-child(1),
 #korruption-table td:nth-child(1),
 #korruption-table th:nth-child(2),
@@ -491,10 +491,10 @@ th[data-input]::before {
 #vermoegen-table td,
 #nettovermoegen-block table,
 #nettovermoegen-block th,
-#nettovermoegen-block td { font-family: var(--font-main); color: var(--color-text); }
+#nettovermoegen-block td { font-family: var(--font-main); color: var(--color-text); text-align: center; }
 
 #vermoegen-table,
-#nettovermoegen-block table { width: auto; margin: 0 auto; }
+#nettovermoegen-block table { width: auto; margin: 0 auto; text-align: center; }
 
 #vermoegen-table th:nth-child(1),
 #vermoegen-table td:nth-child(1),
@@ -537,6 +537,8 @@ th[data-input]::before {
 #exp-full > table:first-of-type td { width: 33%; }
 #exp-full > table:first-of-type th:first-child,
 #exp-full > table:first-of-type td:first-child { text-align: left; }
+#exp-full > table:first-of-type th:last-child,
+#exp-full > table:first-of-type td:last-child { text-align: left; }
 
 #exp-table tr.positive,
 #exp-table tr.positive input,
