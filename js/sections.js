@@ -230,34 +230,34 @@ sections.push(
       <div class="armor-visual">
         <img src="img/silhouette.svg" alt="${t('silhouette_alt')}" class="silhouette">
         <div class="zone-box zone-head">
-          <span>${t('head')}</span>
-          <span>01–09</span>
-          <div class="zone-rp"><img src="img/shield.svg" alt="${t('shield_alt')}" class="shield-icon"><span id="rp-box-kopf">0</span></div>
+          <span class="zone-range">01–09</span>
+          <div class="zone-rp" id="rp-box-kopf">0</div>
+          <span class="zone-label">${t('head')}</span>
         </div>
         <div class="zone-box zone-left-arm">
-          <span>${t('left_arm')}</span>
-          <span>10–24</span>
-          <div class="zone-rp"><img src="img/shield.svg" alt="${t('shield_alt')}" class="shield-icon"><span id="rp-box-larm">0</span></div>
+          <span class="zone-range">10–24</span>
+          <div class="zone-rp" id="rp-box-larm">0</div>
+          <span class="zone-label">${t('left_arm')}</span>
         </div>
         <div class="zone-box zone-right-arm">
-          <span>${t('right_arm')}</span>
-          <span>25–44</span>
-          <div class="zone-rp"><img src="img/shield.svg" alt="${t('shield_alt')}" class="shield-icon"><span id="rp-box-rarm">0</span></div>
+          <span class="zone-range">25–44</span>
+          <div class="zone-rp" id="rp-box-rarm">0</div>
+          <span class="zone-label">${t('right_arm')}</span>
         </div>
         <div class="zone-box zone-chest">
-          <span>${t('chest')}</span>
-          <span>45–79</span>
-          <div class="zone-rp"><img src="img/shield.svg" alt="${t('shield_alt')}" class="shield-icon"><span id="rp-box-brust">0</span></div>
+          <span class="zone-range">45–79</span>
+          <div class="zone-rp" id="rp-box-brust">0</div>
+          <span class="zone-label">${t('chest')}</span>
         </div>
         <div class="zone-box zone-left-leg">
-          <span>${t('left_leg')}</span>
-          <span>80–89</span>
-          <div class="zone-rp"><img src="img/shield.svg" alt="${t('shield_alt')}" class="shield-icon"><span id="rp-box-lbein">0</span></div>
+          <span class="zone-range">80–89</span>
+          <div class="zone-rp" id="rp-box-lbein">0</div>
+          <span class="zone-label">${t('left_leg')}</span>
         </div>
         <div class="zone-box zone-right-leg">
-          <span>${t('right_leg')}</span>
-          <span>90–100</span>
-          <div class="zone-rp"><img src="img/shield.svg" alt="${t('shield_alt')}" class="shield-icon"><span id="rp-box-rbein">0</span></div>
+          <span class="zone-range">90–100</span>
+          <div class="zone-rp" id="rp-box-rbein">0</div>
+          <span class="zone-label">${t('right_leg')}</span>
         </div>
       </div>
 
