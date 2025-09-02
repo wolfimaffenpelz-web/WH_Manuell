@@ -126,7 +126,7 @@ th.text-left { text-align: left; }
 th.wsg,
 td.wsg { width: 35px; }
 
-.delete-col { width: 20px; padding: 0; }
+.delete-col { width: 20px; padding: 0; border-color: transparent; text-align: left }
 
 /* ================================================
    Overlay Passwort
@@ -299,45 +299,45 @@ th[data-input]::before {
    Spaltenbreiten für Spielwertetabelle
    ================================================ */
 #attribute-table {
-  table-layout: auto;
+  table-layout: fixed;
   margin: 0;
 }
 
 #attribute-table th,
 #attribute-table td {
   white-space: nowrap;
-  padding: 1px 2px;
-  max-width: none;
-  overflow: visible;
+  padding: 1px;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 #attribute-table th:nth-child(1),
 #attribute-table td:nth-child(1) { width: 80px; }
 #attribute-table th:nth-child(2),
-#attribute-table td:nth-child(2) { width: 35px; }
+#attribute-table td:nth-child(2) { width: auto; }
 #attribute-table th:nth-child(3),
-#attribute-table td:nth-child(3) { width: 35px; }
+#attribute-table td:nth-child(3) { width: auto; }
 #attribute-table th:nth-child(4),
-#attribute-table td:nth-child(4) { width: 35px; }
+#attribute-table td:nth-child(4) { width: auto; }
 #attribute-table th:nth-child(5),
-#attribute-table td:nth-child(5) { width: 35px; }
+#attribute-table td:nth-child(5) { width: auto; }
 #attribute-table th:nth-child(6),
-#attribute-table td:nth-child(6) { width: 35px; }
+#attribute-table td:nth-child(6) { width: auto; }
 #attribute-table th:nth-child(7),
-#attribute-table td:nth-child(7) { width: 35px; }
+#attribute-table td:nth-child(7) { width: auto; }
 #attribute-table th:nth-child(8),
-#attribute-table td:nth-child(8) { width: 35px; }
+#attribute-table td:nth-child(8) { width: auto; }
 #attribute-table th:nth-child(9),
-#attribute-table td:nth-child(9) { width: 35px; }
+#attribute-table td:nth-child(9) { width: auto; }
 #attribute-table th:nth-child(10),
-#attribute-table td:nth-child(10) { width: 35px; }
+#attribute-table td:nth-child(10) { width: auto; }
 #attribute-table th:nth-child(11),
-#attribute-table td:nth-child(11) { width: 35px; }
+#attribute-table td:nth-child(11) { width: auto; }
 
 /* ================================================
    Spaltenbreiten für Fähigkeiten- und Talenttabellen
    ================================================ */
-#grund-table { table-layout: auto; }
+#grund-table { table-layout: auto; width: 100%; }
 #grund-table th:nth-child(1),
 #grund-table td:nth-child(1) { max-width: none; min-width: 30%; }
 #grund-table th:nth-child(2),
@@ -349,21 +349,21 @@ th[data-input]::before {
 #grund-table th:nth-child(5),
 #grund-table td:nth-child(5) { width: 35px; }
 
-#grupp-table { table-layout: auto; }
+#grupp-table { table-layout: auto; width: 100%; }
 #grupp-table th:nth-child(1),
 #grupp-table td:nth-child(1) { max-width: none; min-width: 30%; }
 #grupp-table th:nth-child(2),
-#grupp-table td:nth-child(2) { width: fit-content; min-width: 50px; }
+#grupp-table td:nth-child(2) { width: fit-content; min-width: 30px; }
 #grupp-table th:nth-child(3),
-#grupp-table td:nth-child(3) { width: 35px; }
+#grupp-table td:nth-child(3) { width: auto; }
 #grupp-table th:nth-child(4),
-#grupp-table td:nth-child(4) { width: 35px; }
+#grupp-table td:nth-child(4) { width: auto; }
 #grupp-table th:nth-child(5),
-#grupp-table td:nth-child(5) { width: 35px; }
+#grupp-table td:nth-child(5) { width: auto; }
 #grupp-table th:nth-child(6),
 #grupp-table td:nth-child(6) { width: 20px; padding: 0; }
 
-#talent-table { table-layout: auto; }
+#talent-table { table-layout: auto; width: 100%; }
 #talent-table th:nth-child(1),
 #talent-table td:nth-child(1) { max-width: none; min-width: 30%; width: auto; }
 #talent-table th:nth-child(2),
@@ -437,7 +437,7 @@ th[data-input]::before {
 #mutationen-table th:nth-child(4),
 #mutationen-table td:nth-child(4) { width: 20px; padding: 0; }
 
-#korruption-table { width: 100%; max-width: 100px; margin: 0 auto; }
+#korruption-table { width: 100%; max-width: 140px; margin: 0 auto; }
 #korruption-table th:nth-child(1),
 #korruption-table td:nth-child(1),
 #korruption-table th:nth-child(2),
@@ -491,10 +491,10 @@ th[data-input]::before {
 #vermoegen-table td,
 #nettovermoegen-block table,
 #nettovermoegen-block th,
-#nettovermoegen-block td { font-family: var(--font-main); color: var(--color-text); }
+#nettovermoegen-block td { font-family: var(--font-main); color: var(--color-text); text-align: center; }
 
 #vermoegen-table,
-#nettovermoegen-block table { width: auto; margin: 0 auto; }
+#nettovermoegen-block table { width: auto; margin: 0 auto; text-align: center; }
 
 #vermoegen-table th:nth-child(1),
 #vermoegen-table td:nth-child(1),
@@ -537,6 +537,8 @@ th[data-input]::before {
 #exp-full > table:first-of-type td { width: 33%; }
 #exp-full > table:first-of-type th:first-child,
 #exp-full > table:first-of-type td:first-child { text-align: left; }
+#exp-full > table:first-of-type th:last-child,
+#exp-full > table:first-of-type td:last-child { text-align: left; }
 
 #exp-table tr.positive,
 #exp-table tr.positive input,
