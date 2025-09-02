@@ -117,7 +117,7 @@ const baseTranslations = {
   right_arm_short: "R. Arm",
   left_leg_short: "L. Bein",
   right_leg_short: "R. Bein",
-  chest_short: "Brust",
+  chest_short: "Körper",
   belly_short: "Bauch",
   body: "Körper",
   mind: "Geist",
