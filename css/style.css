@@ -468,7 +468,7 @@ th[data-input]::before {
 #schulden-table th:nth-child(2),
 #schulden-table td:nth-child(2),
 #schulden-table th:nth-child(3),
-#schulden-table td:nth-child(3) { width: var(--coin-col-width); text-align: center; }
+#schulden-table td:nth-child(3) { width: var(--coin-col-width); text-align: center; overflow: hidden; }
 #schulden-table th:nth-child(4),
 #schulden-table td:nth-child(4) { text-align: left; width: auto; }
 #schulden-table th:nth-child(5),
@@ -482,7 +482,7 @@ th[data-input]::before {
 #spar-table th:nth-child(2),
 #spar-table td:nth-child(2),
 #spar-table th:nth-child(3),
-#spar-table td:nth-child(3) { width: var(--coin-col-width); text-align: center; }
+#spar-table td:nth-child(3) { width: var(--coin-col-width); text-align: center; overflow: hidden; }
 #spar-table th:nth-child(4),
 #spar-table td:nth-child(4) { text-align: left; width: auto; }
 #spar-table th:nth-child(5),
@@ -498,10 +498,10 @@ th[data-input]::before {
 #vermoegen-table td,
 #nettovermoegen-block table,
 #nettovermoegen-block th,
-#nettovermoegen-block td { font-family: var(--font-main); color: var(--color-text); text-align: center; }
+#nettovermoegen-block td { font-family: var(--font-main); color: var(--color-text); text-align: center; overflow: hidden; }
 
 #vermoegen-table,
-#nettovermoegen-block table { width: auto; margin: 0 auto; text-align: center; }
+#nettovermoegen-block table { width: auto; margin: 0 auto; text-align: center; overflow: hidden; }
 
 #vermoegen-table th:nth-child(1),
 #vermoegen-table td:nth-child(1),
@@ -514,7 +514,7 @@ th[data-input]::before {
 #nettovermoegen-block th:nth-child(2),
 #nettovermoegen-block td:nth-child(2),
 #nettovermoegen-block th:nth-child(3),
-#nettovermoegen-block td:nth-child(3) { width: 40px; text-align: center; }
+#nettovermoegen-block td:nth-child(3) { width: 40px; text-align: center; overflow: hidden; }
 
 /* ================================================
    Erfahrungstabellen
@@ -543,7 +543,7 @@ th[data-input]::before {
 #exp-full > table:first-of-type th,
 #exp-full > table:first-of-type td { width: 33%; }
 #exp-full > table:first-of-type th:first-child,
-#exp-full > table:first-of-type td:first-child { text-align: left; }
+#exp-full > table:first-of-type td:first-child { text-align: left; overflow: hidden; }
 #exp-full > table:first-of-type th:last-child,
 #exp-full > table:first-of-type td:last-child { text-align: left; }
 
