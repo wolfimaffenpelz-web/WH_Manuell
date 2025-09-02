@@ -35,8 +35,8 @@ const sections = [
             <tr><td>Augen</td><td><input type="text" id="char-augen"></td></tr>
           </table>
         </div>
-        <div class="section-divider"></div>
       </div>
+      <div class="section-divider"></div>
     `
   },
 
@@ -103,6 +103,33 @@ const sections = [
     `
   },
 
+  // ⚖️ Schicksal & Zähigkeit
+  {
+    id: "schicksalzaehigkeit",
+    title: `<span id="schicksalzaehigkeit-arrow">▶</span> ${t('fate_resilience')}`,
+    content: `
+      <div class="section-body">
+        <div class="dual-table-wrapper">
+          <div>
+            <h3>${t('fate')}</h3>
+            <table class="value-table">
+              <tr><td>${t('fate')}</td><td><input type="number" id="fate-value" class="small-field" max="99" min="0"></td></tr>
+              <tr><td>${t('luck')}</td><td><input type="number" id="luck-current" class="small-field" max="99" min="0"><span class="slash">/</span><input type="number" id="luck-max" class="small-field" max="99" min="0"></td></tr>
+            </table>
+          </div>
+          <div>
+            <h3>${t('resilience')}</h3>
+            <table class="value-table">
+              <tr><td>${t('resilience')}</td><td><input type="number" id="resilience-value" class="small-field" max="99" min="0"></td></tr>
+              <tr><td>${t('resolve')}</td><td><input type="number" id="resolve-current" class="small-field" max="99" min="0"><span class="slash">/</span><input type="number" id="resolve-max" class="small-field" max="99" min="0"></td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="section-divider"></div>
+    `
+  },
+
   // 📜 Grundfähigkeiten
   {
     id: "grundfaehigkeiten",
@@ -151,7 +178,6 @@ const sections = [
           <th class="delete-col"></th>
         </tr>
       </table>
-      <button class="add-row" onclick="addRow('grupp-table')">+ Neue Zeile</button>
       <div class="section-divider"></div>
     `
   },
@@ -169,7 +195,6 @@ const sections = [
           <th class="delete-col"></th>
         </tr>
       </table>
-      <button class="add-row" onclick="addRow('talent-table')">+ Neues Talent</button>
       <div class="section-divider"></div>
     `
   },
@@ -192,7 +217,6 @@ sections.push(
           <th class="delete-col"></th>
         </tr>
       </table>
-      <button class="add-row" onclick="addRow('waffen-table')">+ Neue Waffe</button>
       <div class="section-divider"></div>
     `
   },
@@ -225,7 +249,6 @@ sections.push(
           <th class="delete-col"></th>
         </tr>
       </table>
-      <button class="add-row" onclick="addRow('ruestung-table')">+ Neue Rüstung</button>
       <div class="section-divider"></div>
     `
   },
@@ -244,7 +267,6 @@ sections.push(
           <th class="delete-col"></th>
         </tr>
       </table>
-      <button class="add-row" onclick="addRow('ausruestung-table')">+ Neue Ausrüstung</button>
       <div class="section-divider"></div>
     `
   },
@@ -265,7 +287,6 @@ sections.push(
           <th class="delete-col"></th>
         </tr>
       </table>
-      <button class="add-row" onclick="addRow('zauber-table')">+ Neuer Zauber</button>
       <div class="section-divider"></div>
     `
   },
@@ -291,7 +312,6 @@ sections.push(
           <th class="delete-col"></th>
         </tr>
       </table>
-      <button class="add-row" onclick="addRow('mutationen-table')">+ ${t('mutation')}</button>
       <div class="section-divider"></div>
     `
   }
@@ -307,7 +327,6 @@ sections.push(
       <table class="full-width" id="psychologie-table">
         <tr><th>Eintrag</th><th class="text-left">${t('notes')}</th><th class="delete-col"></th></tr>
       </table>
-      <button class="add-row" onclick="addRow('psychologie-table')">+ Neuer Eintrag</button>
       <div class="section-divider"></div>
     `
   },
@@ -387,7 +406,6 @@ sections.push(
             <th class="delete-col"></th>
           </tr>
         </table>
-        <button class="add-row" onclick="addRow('schulden-table')">+ ${t('new_row')}</button>
 
         <h3>${t('savings')}</h3>
         <table class="full-width" id="spar-table">
@@ -399,7 +417,6 @@ sections.push(
             <th class="delete-col"></th>
           </tr>
         </table>
-        <button class="add-row" onclick="addRow('spar-table')">+ ${t('new_row')}</button>
       </div>
 
       <div class="section-divider"></div>
@@ -446,8 +463,7 @@ sections.push(
         <table class="full-width" id="exp-table">
           <tr><th>${t('value_col')}</th><th>${t('comment_col')}</th><th class="delete-col"></th></tr>
         </table>
-        <button class="add-row" onclick="addRow('exp-table')">+ ${t('entry')}</button>
-      </div>
+          </div>
       <div class="section-divider"></div>
     `
   }

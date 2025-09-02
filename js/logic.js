@@ -397,14 +397,14 @@ function renderSections() {
   });
 }
 
-function initGrunddatenToggle() {
-  const section = document.getElementById("grunddaten");
+function initSectionToggle(sectionId, arrowId, storageKey) {
+  const section = document.getElementById(sectionId);
   if (!section) return;
   const body = section.querySelector(".section-body");
   const header = section.querySelector("h2");
-  const arrow = header?.querySelector("#grunddaten-arrow");
+  const arrow = header?.querySelector(`#${arrowId}`);
   if (!body || !header || !arrow) return;
-  const collapsed = localStorage.getItem("grunddaten-collapsed") === "true";
+  const collapsed = localStorage.getItem(storageKey) === "true";
   if (collapsed) {
     body.style.display = "none";
     arrow.textContent = "▶";
@@ -413,13 +413,13 @@ function initGrunddatenToggle() {
   }
   header.addEventListener("click", () => {
     if (body.style.display === "none") {
-      body.style.display = "block"; // Abschnitt öffnen
+      body.style.display = "block";
       arrow.textContent = "▼";
-      localStorage.setItem("grunddaten-collapsed", "false");
+      localStorage.setItem(storageKey, "false");
     } else {
-      body.style.display = "none"; // Abschnitt schließen
+      body.style.display = "none";
       arrow.textContent = "▶";
-      localStorage.setItem("grunddaten-collapsed", "true");
+      localStorage.setItem(storageKey, "true");
     }
   });
 }
@@ -577,8 +577,11 @@ function ensureInitialRows() {
     "exp-table"
   ].forEach(id => {
     const table = document.getElementById(id);
-    if (table && table.rows.length === 1) {
-      addRow(id);
+    if (table) {
+      if (table.rows.length === 1) {
+        addRow(id);
+      }
+      autoAddRow(id);
     }
   });
 }
@@ -917,6 +920,33 @@ function updateGruppierteFaehigkeiten() {
   });
 }
 
+function autoAddRow(tableId) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  const rows = Array.from(table.rows).slice(1); // ohne Kopfzeile
+  if (rows.length === 0) {
+    addRow(tableId);
+    return;
+  }
+  const lastRow = rows[rows.length - 1];
+  const lastInput = lastRow.cells[0]?.querySelector('input:not([type="hidden"]), textarea, select');
+  if (lastInput && lastInput.value.trim() !== '') {
+    addRow(tableId);
+  }
+  let emptyCount = 0;
+  for (let i = rows.length - 1; i >= 0; i--) {
+    const inp = rows[i].cells[0]?.querySelector('input:not([type="hidden"]), textarea, select');
+    if (inp && inp.value.trim() === '') {
+      emptyCount++;
+      if (emptyCount > 1) {
+        table.deleteRow(i + 1); // +1 für Kopfzeile
+      }
+    } else {
+      break;
+    }
+  }
+}
+
 function addRow(tableId) {
   const table = document.getElementById(tableId); // Ziel-Tabelle
   const row = table.insertRow(-1); // neue Zeile am Ende
@@ -938,7 +968,7 @@ function addRow(tableId) {
       <td class="wsg"><input type="number" readonly></td>
       <td class="wsg"><input type="number"></td>
       <td class="wsg"><input type="number" readonly></td>
-      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('grupp-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
     const sel = row.cells[1].querySelector("select");
     const steig = row.cells[3].querySelector("input");
@@ -952,7 +982,7 @@ function addRow(tableId) {
       <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></td>
       <td class="wsg"><input type="number"></td>
       <td class="text-left"><textarea rows="1"></textarea></td>
-      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('talent-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
   else if (tableId === "waffen-table") {
@@ -963,7 +993,7 @@ function addRow(tableId) {
       <td><input type="number"></td>
       <td><input type="text"></td>
       <td class="text-left"><textarea></textarea></td>
-      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('waffen-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
   else if (tableId === "schulden-table") {
@@ -973,7 +1003,7 @@ function addRow(tableId) {
       <td><input type="number" max="0"></td>
       <td><input type="number" max="0"></td>
       <td><textarea rows="1"></textarea></td>
-      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateVermoegen();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('schulden-table'); saveState(); updateVermoegen();">❌</button></td>
     `;
   }
   else if (tableId === "spar-table") {
@@ -983,7 +1013,7 @@ function addRow(tableId) {
       <td><input type="number" min="0"></td>
       <td><input type="number" min="0"></td>
       <td><textarea rows="1"></textarea></td>
-      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateVermoegen();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('spar-table'); saveState(); updateVermoegen();">❌</button></td>
     `;
   }
   else if (tableId === "ruestung-table") {
@@ -1004,7 +1034,7 @@ function addRow(tableId) {
       <td><input type="number"></td>
       <td><input type="number"></td>
       <td class="text-left"><textarea rows="1"></textarea></td>
-      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten(); updateRuestung(); updateTraglast();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('ruestung-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten(); updateRuestung(); updateTraglast();">❌</button></td>
     `;
   }
   else if (tableId === "ausruestung-table") {
@@ -1014,7 +1044,7 @@ function addRow(tableId) {
       <td><input type="number"></td>
       <td><input type="number"></td>
       <td class="text-left"><textarea></textarea></td>
-      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('ausruestung-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
   else if (tableId === "zauber-table") {
@@ -1026,7 +1056,7 @@ function addRow(tableId) {
       <td><input type="text"></td>
       <td><input type="text"></td>
       <td class="text-left"><textarea></textarea></td>
-      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('zauber-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
   else if (tableId === "mutationen-table") {
@@ -1041,7 +1071,7 @@ function addRow(tableId) {
         </select>
       </td>
       <td class="text-left"><textarea></textarea></td>
-      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('mutationen-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
   else if (tableId === "psychologie-table") {
@@ -1049,7 +1079,7 @@ function addRow(tableId) {
     row.innerHTML = `
       <td><textarea rows="1"></textarea></td>
       <td class="text-left"><textarea></textarea></td>
-      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('psychologie-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
   else if (tableId === "exp-table") {
@@ -1057,8 +1087,13 @@ function addRow(tableId) {
     row.innerHTML = `
       <td><input type="number"></td>
       <td><textarea rows="1"></textarea></td>
-      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateErfahrung(); updateGruppierteFaehigkeiten();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('exp-table'); saveState(); updateLebenspunkte(); updateErfahrung(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
+  }
+
+  const first = row.cells[0]?.querySelector('input:not([type="hidden"]), textarea, select');
+  if (first) {
+    first.addEventListener('input', () => { autoAddRow(tableId); saveState(); });
   }
 
   if (tableId === "exp-table") {
@@ -1371,7 +1406,8 @@ document.addEventListener("focusout", e => {
 // =========================
 function initLogic() {
   renderSections();
-  initGrunddatenToggle();
+  initSectionToggle('grunddaten','grunddaten-arrow','grunddaten-collapsed');
+  initSectionToggle('schicksalzaehigkeit','schicksalzaehigkeit-arrow','schicksalzaehigkeit-collapsed');
   initFinanzenToggle();
   initCharacterManagement();
 
