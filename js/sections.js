@@ -6,7 +6,7 @@ const sections = [
   // 🧾 Grunddaten
   {
     id: "grunddaten",
-    title: t('grunddaten'),
+    title: `<span id="grunddaten-arrow">▶</span> ${t('grunddaten')}`,
     content: `
       <div class="section-body">
         <div class="subsection">
@@ -165,7 +165,7 @@ const sections = [
         <tr>
           <th>Talent</th>
           <th class="wsg">Lvl.</th>
-          <th>Notiz</th>
+          <th class="text-left">${t('note')}</th>
           <th class="delete-col"></th>
         </tr>
       </table>
@@ -185,10 +185,10 @@ sections.push(
       <table class="full-width" id="waffen-table">
         <tr>
           <th>Name</th>
-          <th class="text-left">Gruppe</th>
+          <th class="text-left">${t('zone_short')}</th>
           <th>TP</th>
           <th>RW</th>
-          <th>Qualitäten</th>
+          <th class="text-left">${t('qualities')}</th>
           <th class="delete-col"></th>
         </tr>
       </table>
@@ -218,10 +218,10 @@ sections.push(
       <table class="full-width" id="ruestung-table">
         <tr>
           <th>Name</th>
-          <th>Trefferzone</th>
+          <th>${t('zone_short')}</th>
           <th>RP</th>
           <th>TP</th>
-          <th>Qualitäten</th>
+          <th class="text-left">${t('qualities')}</th>
           <th class="delete-col"></th>
         </tr>
       </table>
@@ -240,7 +240,7 @@ sections.push(
           <th>Name</th>
           <th>Menge</th>
           <th>TP</th>
-          <th>Notizen</th>
+          <th class="text-left">${t('notes')}</th>
           <th class="delete-col"></th>
         </tr>
       </table>
@@ -261,7 +261,7 @@ sections.push(
           <th>RW</th>
           <th>Ziel</th>
           <th>⏳</th>
-          <th>Effekt</th>
+          <th class="text-left">${t('effect')}</th>
           <th class="delete-col"></th>
         </tr>
       </table>
@@ -275,7 +275,7 @@ sections.push(
     id: "korruption",
     title: t('corruption') + ' & ' + t('mutations'),
     content: `
-      <table class="full-width" id="korruption-table">
+      <table id="korruption-table">
         <tr><th>${t('max')}</th><th>${t('current')}</th></tr>
         <tr>
           <td><input type="number" id="korruption-max" readonly></td>
@@ -286,8 +286,8 @@ sections.push(
       <table class="full-width" id="mutationen-table">
         <tr>
           <th>Mutation</th>
-          <th>Betroffen</th>
-          <th>Notizen</th>
+          <th>${t('affects')}</th>
+          <th class="text-left">${t('notes')}</th>
           <th class="delete-col"></th>
         </tr>
       </table>
@@ -305,7 +305,7 @@ sections.push(
     title: t('psychology'),
     content: `
       <table class="full-width" id="psychologie-table">
-        <tr><th>Eintrag</th><th>Notizen</th><th class="delete-col"></th></tr>
+        <tr><th>Eintrag</th><th class="text-left">${t('notes')}</th><th class="delete-col"></th></tr>
       </table>
       <button class="add-row" onclick="addRow('psychologie-table')">+ Neuer Eintrag</button>
       <div class="section-divider"></div>
@@ -324,6 +324,7 @@ sections.push(
         <tr><td>2× WK-Bonus</td><td><input type="number" id="lp-wkb" readonly></td></tr>
         <tr><td>Robustheit*</td><td><input type="number" id="lp-robustheit" readonly></td></tr>
         <tr><td>Gesamt-LP</td><td><input type="number" id="lp-gesamt" readonly></td></tr>
+        <tr><td>${t('current_lp')}</td><td><input type="number" id="lp-aktuell" min="0" max="99"></td></tr>
       </table>
       <p>* Automatisch durch Talent "Robustheit" / "Hardy"</p>
       <div class="section-divider"></div>
