@@ -824,16 +824,18 @@ function addRow(tableId) {
         <td>
           <select required>
             <option value="" selected disabled>-</option>
-            <option>${t('head_short')}</option><option>${t('left_arm_short')}</option>
-            <option>${t('right_arm_short')}</option><option>${t('left_leg_short')}</option>
-            <option>${t('right_leg_short')}</option><option>${t('chest_short')}</option>
-            <option>${t('belly_short')}</option><option>${t('whole_body_short')}</option>
+            <option value="Kopf">${t('head_short')}</option>
+            <option value="Linker Arm">${t('left_arm_short')}</option>
+            <option value="Rechter Arm">${t('right_arm_short')}</option>
+            <option value="Linkes Bein">${t('left_leg_short')}</option>
+            <option value="Rechtes Bein">${t('right_leg_short')}</option>
+            <option value="Brust">${t('chest_short')}</option>
           </select>
         </td>
       <td><input type="number"></td>
       <td><input type="number"></td>
       <td class="text-left"><textarea rows="1"></textarea></td>
-      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten(); updateRuestung(); updateTraglast();">❌</button></td>
     `;
   }
   else if (tableId === "ausruestung-table") {

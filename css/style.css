@@ -107,6 +107,12 @@ textarea {
   overflow: hidden;
 }
 
+#mutationen-table select,
+#ruestung-table select,
+#grupp-table select {
+  background: var(--color-bg);
+}
+
 input[readonly],
 .readonly {
   background: var(--color-readonly);
