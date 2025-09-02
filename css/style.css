@@ -394,7 +394,7 @@ th[data-input]::before {
 #grupp-table th:nth-child(5),
 #grupp-table td:nth-child(5) { width: auto; }
 #grupp-table th:nth-child(6),
-#grupp-table td:nth-child(6) { width: 20px; padding: 0; }
+#grupp-table td:nth-child(6) { width: 16px; padding: 0; }
 
 #talent-table { table-layout: auto; width: 100%; }
 #talent-table th:nth-child(1),
@@ -404,7 +404,7 @@ th[data-input]::before {
 #talent-table th:nth-child(3),
 #talent-table td:nth-child(3) { max-width: none; min-width: 30%; text-align: left; }
 #talent-table th:nth-child(4),
-#talent-table td:nth-child(4) { width: 20px; padding: 0; }
+#talent-table td:nth-child(4) { width: 16px; padding: 0; }
 
 /* ================================================
    Waffen, Rüstung, Ausrüstung und weitere Tabellen
@@ -420,20 +420,20 @@ th[data-input]::before {
 #waffen-table th:nth-child(5),
 #waffen-table td:nth-child(5) { max-width: none; width: auto; text-align: left; }
 #waffen-table th:nth-child(6),
-#waffen-table td:nth-child(6) { width: 20px; padding: 0; }
+#waffen-table td:nth-child(6) { width: 16px; padding: 0; }
 
 #ruestung-table th:nth-child(1),
 #ruestung-table td:nth-child(1) { max-width: none; width: auto; }
 #ruestung-table th:nth-child(2),
-#ruestung-table td:nth-child(2) { width: fit-content; }
+#ruestung-table td:nth-child(2) { width: auto; }
 #ruestung-table th:nth-child(3),
-#ruestung-table td:nth-child(3) { width: 60px; }
+#ruestung-table td:nth-child(3) { width: 35px; }
 #ruestung-table th:nth-child(4),
-#ruestung-table td:nth-child(4) { width: 60px; }
+#ruestung-table td:nth-child(4) { width: 35px; }
 #ruestung-table th:nth-child(5),
 #ruestung-table td:nth-child(5) { max-width: none; width: auto; text-align: left; }
 #ruestung-table th:nth-child(6),
-#ruestung-table td:nth-child(6) { width: 20px; padding: 0; }
+#ruestung-table td:nth-child(6) { width: 16px; padding: 0; }
 
 #ausruestung-table th:nth-child(1),
 #ausruestung-table td:nth-child(1) { max-width: none; width: auto; }
@@ -459,7 +459,7 @@ th[data-input]::before {
 #zauber-table th:nth-child(6),
 #zauber-table td:nth-child(6) { max-width: none; width: auto; text-align: left; }
 #zauber-table th:nth-child(7),
-#zauber-table td:nth-child(7) { width: 20px; padding: 0; }
+#zauber-table td:nth-child(7) { width: 16px; padding: 0; }
 
 #mutationen-table th:nth-child(1),
 #mutationen-table td:nth-child(1) { max-width: none; width: auto; }
@@ -468,7 +468,7 @@ th[data-input]::before {
 #mutationen-table th:nth-child(3),
 #mutationen-table td:nth-child(3) { max-width: none; width: auto; text-align: left; }
 #mutationen-table th:nth-child(4),
-#mutationen-table td:nth-child(4) { width: 20px; padding: 0; }
+#mutationen-table td:nth-child(4) { width: 16px; padding: 0; }
 
 #korruption-table { width: 100%; max-width: 140px; margin: 0 auto; }
 #korruption-table th:nth-child(1),
@@ -481,7 +481,7 @@ th[data-input]::before {
 #psychologie-table th:nth-child(2),
 #psychologie-table td:nth-child(2) { max-width: none; width: auto; text-align: left; }
 #psychologie-table th:nth-child(3),
-#psychologie-table td:nth-child(3) { width: 20px; padding: 0; }
+#psychologie-table td:nth-child(3) { width: 16px; padding: 0; }
 
 /* ================================================
    Schulden- und Spar-Tabellen
@@ -498,7 +498,7 @@ th[data-input]::before {
 #schulden-table th:nth-child(4),
 #schulden-table td:nth-child(4) { text-align: left; width: auto; }
 #schulden-table th:nth-child(5),
-#schulden-table td:nth-child(5) { width: 20px; padding: 0; }
+#schulden-table td:nth-child(5) { width: 16px; padding: 0; }
 
 #spar-table,
 #spar-table th,
@@ -512,7 +512,7 @@ th[data-input]::before {
 #spar-table th:nth-child(4),
 #spar-table td:nth-child(4) { text-align: left; width: auto; }
 #spar-table th:nth-child(5),
-#spar-table td:nth-child(5) { width: 20px; padding: 0; }
+#spar-table td:nth-child(5) { width: 16px; padding: 0; }
 
 #schulden-table input[type="number"] {
   color: var(--color-negative);
