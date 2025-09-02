@@ -233,15 +233,23 @@ function initGrunddatenToggle() {
   if (!section) return;
   const body = section.querySelector(".section-body");
   const header = section.querySelector("h2");
-  if (!body || !header) return;
+  const arrow = header?.querySelector("#grunddaten-arrow");
+  if (!body || !header || !arrow) return;
   const collapsed = localStorage.getItem("grunddaten-collapsed") === "true";
-  if (collapsed) body.style.display = "none";
+  if (collapsed) {
+    body.style.display = "none";
+    arrow.textContent = "▶";
+  } else {
+    arrow.textContent = "▼";
+  }
   header.addEventListener("click", () => {
     if (body.style.display === "none") {
       body.style.display = "block"; // Abschnitt öffnen
+      arrow.textContent = "▼";
       localStorage.setItem("grunddaten-collapsed", "false");
     } else {
       body.style.display = "none"; // Abschnitt schließen
+      arrow.textContent = "▶";
       localStorage.setItem("grunddaten-collapsed", "true");
     }
   });
@@ -774,7 +782,7 @@ function addRow(tableId) {
     row.innerHTML = `
       <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></td>
       <td class="wsg"><input type="number"></td>
-      <td><textarea rows="1"></textarea></td>
+      <td class="text-left"><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
@@ -785,7 +793,7 @@ function addRow(tableId) {
       <td class="text-left"><input type="text"></td>
       <td><input type="number"></td>
       <td><input type="text"></td>
-      <td><textarea></textarea></td>
+      <td class="text-left"><textarea></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
@@ -816,14 +824,15 @@ function addRow(tableId) {
         <td>
           <select required>
             <option value="" selected disabled>-</option>
-            <option>Kopf</option><option>Linker Arm</option>
-            <option>Rechter Arm</option><option>Linkes Bein</option>
-            <option>Rechtes Bein</option><option>Brust</option>
+            <option>${t('head_short')}</option><option>${t('left_arm_short')}</option>
+            <option>${t('right_arm_short')}</option><option>${t('left_leg_short')}</option>
+            <option>${t('right_leg_short')}</option><option>${t('chest_short')}</option>
+            <option>${t('belly_short')}</option><option>${t('whole_body_short')}</option>
           </select>
         </td>
       <td><input type="number"></td>
       <td><input type="number"></td>
-      <td><textarea></textarea></td>
+      <td class="text-left"><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
@@ -833,7 +842,7 @@ function addRow(tableId) {
       <td><textarea rows="1"></textarea></td>
       <td><input type="number"></td>
       <td><input type="number"></td>
-      <td><textarea></textarea></td>
+      <td class="text-left"><textarea></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
@@ -845,7 +854,7 @@ function addRow(tableId) {
       <td><input type="text"></td>
       <td><input type="text"></td>
       <td><input type="text"></td>
-      <td><textarea></textarea></td>
+      <td class="text-left"><textarea></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
@@ -856,11 +865,11 @@ function addRow(tableId) {
       <td>
         <select required>
           <option value="" selected disabled>-</option>
-          <option>Körper</option>
-          <option>Geist</option>
+          <option>${t('body')}</option>
+          <option>${t('mind')}</option>
         </select>
       </td>
-      <td><textarea></textarea></td>
+      <td class="text-left"><textarea></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
@@ -868,7 +877,7 @@ function addRow(tableId) {
     // Einträge für psychologische Effekte
     row.innerHTML = `
       <td><textarea rows="1"></textarea></td>
-      <td><textarea></textarea></td>
+      <td class="text-left"><textarea></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
