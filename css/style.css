@@ -672,3 +672,25 @@ th[data-input]::before {
 .switch input:checked + .slider { background: #2196F3; }
 
 .switch input:checked + .slider:before { transform: translateX(26px); }
+
+/* ================================================
+   Schicksal & Zähigkeit
+   ================================================ */
+.dual-table-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.value-table {
+  width: auto;
+}
+
+.small-field {
+  width: 3ch;
+}
+
+.slash {
+  padding: 0 4px;
+}

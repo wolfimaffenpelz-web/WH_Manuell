@@ -58,6 +58,7 @@ const baseTranslations = {
   // Sections
   grunddaten: "Grunddaten",
   attributes: "Spielwerte",
+  fate_resilience: "Schicksal & Zähigkeit",
   grundskills: "Grundfähigkeiten",
   groupskills: "Gruppierte Fähigkeiten",
   talents: "Talente",
@@ -100,6 +101,10 @@ const baseTranslations = {
   note: "Notiz",
   notes: "Notizen",
   group: "Gruppe",
+  fate: "Schicksal",
+  luck: "Glück",
+  resilience: "Zähigkeit",
+  resolve: "Mut",
   tp: "TP",
   rw: "RW",
   qualities: "Qualitäten",
