@@ -35,13 +35,13 @@ const sections = [
             <tr><td>Augen</td><td><input type="text" id="char-augen"></td></tr>
           </table>
         </div>
-        <div class="section-divider"></div>
       </div>
     `
   },
 
   // 📊 Attribute (Spielwerte)
   {
+    <div class="section-divider"></div>
     id: "attribute",
     title: t('attributes'),
     content: `
