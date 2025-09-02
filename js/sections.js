@@ -226,15 +226,50 @@ sections.push(
     id: "ruestung",
     title: t('armor'),
     content: `
+      <!-- Rüstungsvisualisierung -->
+      <div class="armor-visual">
+        <img src="img/silhouette.svg" alt="${t('silhouette_alt')}" class="silhouette">
+        <div class="zone-box zone-head">
+          <span>${t('head')}</span>
+          <span>01–09</span>
+          <div class="zone-rp"><img src="img/shield.svg" alt="${t('shield_alt')}" class="shield-icon"><span id="rp-box-kopf">0</span></div>
+        </div>
+        <div class="zone-box zone-left-arm">
+          <span>${t('left_arm')}</span>
+          <span>10–24</span>
+          <div class="zone-rp"><img src="img/shield.svg" alt="${t('shield_alt')}" class="shield-icon"><span id="rp-box-larm">0</span></div>
+        </div>
+        <div class="zone-box zone-right-arm">
+          <span>${t('right_arm')}</span>
+          <span>25–44</span>
+          <div class="zone-rp"><img src="img/shield.svg" alt="${t('shield_alt')}" class="shield-icon"><span id="rp-box-rarm">0</span></div>
+        </div>
+        <div class="zone-box zone-chest">
+          <span>${t('chest')}</span>
+          <span>45–79</span>
+          <div class="zone-rp"><img src="img/shield.svg" alt="${t('shield_alt')}" class="shield-icon"><span id="rp-box-brust">0</span></div>
+        </div>
+        <div class="zone-box zone-left-leg">
+          <span>${t('left_leg')}</span>
+          <span>80–89</span>
+          <div class="zone-rp"><img src="img/shield.svg" alt="${t('shield_alt')}" class="shield-icon"><span id="rp-box-lbein">0</span></div>
+        </div>
+        <div class="zone-box zone-right-leg">
+          <span>${t('right_leg')}</span>
+          <span>90–100</span>
+          <div class="zone-rp"><img src="img/shield.svg" alt="${t('shield_alt')}" class="shield-icon"><span id="rp-box-rbein">0</span></div>
+        </div>
+      </div>
+
       <!-- Übersicht RP pro Zone -->
       <table class="ruestung-uebersicht">
-        <tr><th>Trefferzone</th><th>Trefferbereich</th><th>Summe RP</th></tr>
-        <tr><td>Kopf</td><td>01–09</td><td><input type="number" id="rp-kopf" readonly></td></tr>
-        <tr><td>Linker Arm</td><td>10–24</td><td><input type="number" id="rp-larm" readonly></td></tr>
-        <tr><td>Rechter Arm</td><td>25–44</td><td><input type="number" id="rp-rarm" readonly></td></tr>
-        <tr><td>Brust</td><td>45–79</td><td><input type="number" id="rp-brust" readonly></td></tr>
-        <tr><td>Linkes Bein</td><td>80–89</td><td><input type="number" id="rp-lbein" readonly></td></tr>
-        <tr><td>Rechtes Bein</td><td>90–100</td><td><input type="number" id="rp-rbein" readonly></td></tr>
+        <tr><th>${t('zone')}</th><th>${t('range')}</th><th>${t('sum_rp')}</th></tr>
+        <tr><td>${t('head')}</td><td>01–09</td><td><input type="number" id="rp-kopf" readonly></td></tr>
+        <tr><td>${t('left_arm')}</td><td>10–24</td><td><input type="number" id="rp-larm" readonly></td></tr>
+        <tr><td>${t('right_arm')}</td><td>25–44</td><td><input type="number" id="rp-rarm" readonly></td></tr>
+        <tr><td>${t('chest')}</td><td>45–79</td><td><input type="number" id="rp-brust" readonly></td></tr>
+        <tr><td>${t('left_leg')}</td><td>80–89</td><td><input type="number" id="rp-lbein" readonly></td></tr>
+        <tr><td>${t('right_leg')}</td><td>90–100</td><td><input type="number" id="rp-rbein" readonly></td></tr>
       </table>
       <div class="table-gap"></div>
 

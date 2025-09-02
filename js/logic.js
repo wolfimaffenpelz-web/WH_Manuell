@@ -1226,6 +1226,13 @@ function updateRuestung() {
   document.getElementById("rp-brust").value = zones["Brust"] || 0;
   document.getElementById("rp-lbein").value = zones["Linkes Bein"] || 0;
   document.getElementById("rp-rbein").value = zones["Rechtes Bein"] || 0;
+
+  document.getElementById("rp-box-kopf").textContent = zones["Kopf"] || 0;
+  document.getElementById("rp-box-larm").textContent = zones["Linker Arm"] || 0;
+  document.getElementById("rp-box-rarm").textContent = zones["Rechter Arm"] || 0;
+  document.getElementById("rp-box-brust").textContent = zones["Brust"] || 0;
+  document.getElementById("rp-box-lbein").textContent = zones["Linkes Bein"] || 0;
+  document.getElementById("rp-box-rbein").textContent = zones["Rechtes Bein"] || 0;
 }
 
 // =========================
