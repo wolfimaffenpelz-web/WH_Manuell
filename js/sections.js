@@ -238,7 +238,7 @@ sections.push(
       <table class="full-width" id="ausruestung-table">
         <tr>
           <th>Name</th>
-          <th>Menge</th>
+          <th>Anz.</th>
           <th>TP</th>
           <th>Notizen</th>
           <th class="delete-col"></th>
@@ -286,7 +286,7 @@ sections.push(
       <table class="full-width" id="mutationen-table">
         <tr>
           <th>Mutation</th>
-          <th>Betroffen</th>
+          <th>betrifft</th>
           <th>Notizen</th>
           <th class="delete-col"></th>
         </tr>
