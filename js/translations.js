@@ -119,7 +119,6 @@ const baseTranslations = {
   right_leg_short: "R. Bein",
   chest_short: "Brust",
   belly_short: "Bauch",
-  whole_body_short: "Ganzkörper",
   body: "Körper",
   mind: "Geist",
   // Ability names
