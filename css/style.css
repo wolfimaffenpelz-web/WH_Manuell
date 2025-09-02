@@ -126,7 +126,14 @@ th.text-left { text-align: left; }
 th.wsg,
 td.wsg { width: 35px; }
 
-.delete-col { width: 20px; padding: 0; border-color: transparent; text-align: left }
+.delete-col { width: 16px; padding: 0; text-align: left; border: none;  background: none; font-size: 11px; color: red; }
+
+/* Segment-Trennung */
+.section-divider {
+  border-bottom: 3.5px solid #000;
+  width: 98%;
+  margin: 25px auto;
+}
 
 /* ================================================
    Overlay Passwort
