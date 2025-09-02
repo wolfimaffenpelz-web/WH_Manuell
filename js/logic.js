@@ -5,6 +5,7 @@
 // =========================
 function initPasswordProtection() {
   applyTranslations();
+  applySavedSettings();
   const overlay = document.getElementById("password-overlay"); // dunkler Hintergrund
   const input = document.getElementById("password-input");     // Eingabefeld für Passwort
   const button = document.getElementById("password-submit");   // OK-Button
@@ -41,6 +42,25 @@ document.addEventListener("DOMContentLoaded", initPasswordProtection);
 // =========================
 let currentCharacter = null;
 let characterList = [];
+
+function applySavedSettings() {
+  const colors = JSON.parse(localStorage.getItem("color-settings") || "{}");
+  Object.entries(colors).forEach(([k, v]) => {
+    document.documentElement.style.setProperty(k, v);
+  });
+  const fonts = JSON.parse(localStorage.getItem("font-settings") || "{}");
+  Object.entries(fonts).forEach(([k, v]) => {
+    document.documentElement.style.setProperty(k, v);
+  });
+}
+
+function rgbToHex(rgb) {
+  const str = rgb.trim();
+  if (str.startsWith("#")) return str;
+  const res = str.match(/\d+/g);
+  if (!res) return "#000000";
+  return "#" + res.map(x => parseInt(x).toString(16).padStart(2, "0")).join("");
+}
 
 function updateCharacterDisplay() {
   const display = document.getElementById("current-character");
@@ -198,20 +218,122 @@ function initCharacterManagement() {
       overlay.className = "overlay";
       overlay.innerHTML = `
         <div class="overlay-content">
-          <p>${t('settings_placeholder')}</p>
-          <button id="settings-close">${t('ok')}</button>
+          <button id="open-colors">🎨 ${t('colors')}</button>
+          <button id="open-fonts">🅵 ${t('fonts')}</button>
+          <button id="settings-close">${t('cancel')}</button>
         </div>
       `;
       document.body.appendChild(overlay);
       function close() { overlay.remove(); }
       overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
       overlay.querySelector("#settings-close").addEventListener("click", close);
+      overlay.querySelector("#open-colors").addEventListener("click", () => { close(); openColorSettings(); });
+      overlay.querySelector("#open-fonts").addEventListener("click", () => { close(); openFontSettings(); });
     });
   }
 
   importBtn.addEventListener("click", () => importFile.click());
   importFile.addEventListener("change", (e) => { importCharacters(e.target.files); e.target.value = ""; });
   exportBtn.addEventListener("click", exportCharacters);
+}
+
+function openColorSettings() {
+  const overlay = document.createElement("div");
+  overlay.className = "overlay";
+  const colorVars = {
+    "--color-bg": "color_bg",
+    "--color-text": "color_text",
+    "--color-field": "color_field",
+    "--color-readonly": "color_readonly",
+    "--color-highlight": "color_highlight",
+    "--color-positive": "color_positive",
+    "--color-negative": "color_negative",
+    "--color-attr-cross": "color_attr_cross",
+    "--color-attr-axes": "color_attr_axes",
+    "--color-attr-skull": "color_attr_skull",
+    "--color-attr-shield": "color_attr_shield",
+    "--color-active-char-bg": "color_active_char_bg",
+    "--color-active-char-text": "color_active_char_text"
+  };
+  const styles = getComputedStyle(document.documentElement);
+  let fields = "";
+  Object.entries(colorVars).forEach(([varName, key]) => {
+    const val = rgbToHex(styles.getPropertyValue(varName).trim());
+    fields += `<div><label>${t(key)}</label><input type="color" data-var="${varName}" value="${val}"></div>`;
+  });
+  overlay.innerHTML = `
+    <div class="overlay-content">
+      <h2>${t('colors')}</h2>
+      ${fields}
+      <button id="color-accept">${t('accept')}</button>
+      <button id="color-cancel">${t('cancel')}</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  function close() { overlay.remove(); }
+  overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
+  overlay.querySelector("#color-cancel").addEventListener("click", close);
+  overlay.querySelector("#color-accept").addEventListener("click", () => {
+    const inputs = overlay.querySelectorAll("input[type='color']");
+    const saved = {};
+    inputs.forEach(inp => {
+      document.documentElement.style.setProperty(inp.dataset.var, inp.value);
+      saved[inp.dataset.var] = inp.value;
+    });
+    localStorage.setItem("color-settings", JSON.stringify(saved));
+    close();
+  });
+}
+
+function openFontSettings() {
+  const overlay = document.createElement("div");
+  overlay.className = "overlay";
+  const fontVars = {
+    "--font-heading": "font_heading",
+    "--font-main": "font_main",
+    "--font-active-char": "font_active_char"
+  };
+  const fontOptions = [
+    { name: "UnifrakturMaguntia", stack: "'UnifrakturMaguntia', cursive" },
+    { name: "Podkova", stack: "'Podkova', serif" },
+    { name: "Arial", stack: "Arial, sans-serif" },
+    { name: "Times New Roman", stack: "'Times New Roman', serif" },
+    { name: "Courier New", stack: "'Courier New', monospace" }
+  ];
+  const styles = getComputedStyle(document.documentElement);
+  let fields = "";
+  Object.entries(fontVars).forEach(([varName, key]) => {
+    const current = styles.getPropertyValue(varName).trim();
+    const options = fontOptions.map(f => `<option value="${f.stack}" ${current === f.stack ? 'selected' : ''} style="font-family:${f.stack};">${f.name}</option>`).join('');
+    fields += `<div><label>${t(key)}</label><select data-var="${varName}">${options}</select><span class="font-preview" style="font-family:${current}">${t('sample')}</span></div>`;
+  });
+  overlay.innerHTML = `
+    <div class="overlay-content">
+      <h2>${t('fonts')}</h2>
+      ${fields}
+      <button id="font-accept">${t('accept')}</button>
+      <button id="font-cancel">${t('cancel')}</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  function close() { overlay.remove(); }
+  overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
+  overlay.querySelector("#font-cancel").addEventListener("click", close);
+  overlay.querySelectorAll("select").forEach(sel => {
+    sel.addEventListener("change", () => {
+      sel.nextElementSibling.style.fontFamily = sel.value;
+    });
+  });
+  overlay.querySelector("#font-accept").addEventListener("click", () => {
+    const selects = overlay.querySelectorAll("select");
+    const saved = {};
+    selects.forEach(sel => {
+      document.documentElement.style.setProperty(sel.dataset.var, sel.value);
+      saved[sel.dataset.var] = sel.value;
+    });
+    localStorage.setItem("font-settings", JSON.stringify(saved));
+    close();
+  });
 }
 
 // =========================
