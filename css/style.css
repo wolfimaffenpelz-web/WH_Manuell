@@ -20,7 +20,7 @@
   --color-active-char-text: #fff;
   --font-active-char: var(--font-heading);
   --font-size-active-char: 1.2em;
-  --row-height: 1.5em;
+  --row-height: auto;
   --coin-col-width: 5ch;
   --marker-popup-icon-size: 2em;
 }
@@ -48,7 +48,8 @@ h1, h2, h3 {
 table {
   border-collapse: collapse;
   width: 100%;
-  margin: 5px 0;
+  margin: 0;
+  padding: 3%; 
   table-layout: fixed;
   word-wrap: break-word;
 }
@@ -308,27 +309,27 @@ th[data-input]::before {
 }
 
 #attribute-table th:nth-child(1),
-#attribute-table td:nth-child(1) { width: auto; }
+#attribute-table td:nth-child(1) { width: auto; field-sizing: 98%; }
 #attribute-table th:nth-child(2),
-#attribute-table td:nth-child(2) { width: 35px; }
+#attribute-table td:nth-child(2) { width: 35px; field-sizing: 98% }
 #attribute-table th:nth-child(3),
-#attribute-table td:nth-child(3) { width: 35px; }
+#attribute-table td:nth-child(3) { width: 35px; field-sizing: 98% }
 #attribute-table th:nth-child(4),
-#attribute-table td:nth-child(4) { width: 35px; }
+#attribute-table td:nth-child(4) { width: 35px; field-sizing: 98% }
 #attribute-table th:nth-child(5),
-#attribute-table td:nth-child(5) { width: 35px; }
+#attribute-table td:nth-child(5) { width: 35px; field-sizing: 98% }
 #attribute-table th:nth-child(6),
-#attribute-table td:nth-child(6) { width: 35px; }
+#attribute-table td:nth-child(6) { width: 35px; field-sizing: 98% }
 #attribute-table th:nth-child(7),
-#attribute-table td:nth-child(7) { width: 35px; }
+#attribute-table td:nth-child(7) { width: 35px; field-sizing: 98% }
 #attribute-table th:nth-child(8),
-#attribute-table td:nth-child(8) { width: 35px; }
+#attribute-table td:nth-child(8) { width: 35px; field-sizing: 98% }
 #attribute-table th:nth-child(9),
-#attribute-table td:nth-child(9) { width: 35px; }
+#attribute-table td:nth-child(9) { width: 35px; field-sizing: 98% }
 #attribute-table th:nth-child(10),
-#attribute-table td:nth-child(10) { width: 35px; }
+#attribute-table td:nth-child(10) { width: 35px; field-sizing: 98% }
 #attribute-table th:nth-child(11),
-#attribute-table td:nth-child(11) { width: 35px; }
+#attribute-table td:nth-child(11) { width: 35px; field-sizing: 98% }
 
 /* ================================================
    Spaltenbreiten für Fähigkeiten- und Talenttabellen
@@ -349,7 +350,7 @@ th[data-input]::before {
 #grupp-table th:nth-child(1),
 #grupp-table td:nth-child(1) { max-width: none; min-width: 30%; }
 #grupp-table th:nth-child(2),
-#grupp-table td:nth-child(2) { width: min-content; }
+#grupp-table td:nth-child(2) { width: fit-content; }
 #grupp-table th:nth-child(3),
 #grupp-table td:nth-child(3) { width: 35px; }
 #grupp-table th:nth-child(4),
@@ -394,7 +395,7 @@ th[data-input]::before {
 #ruestung-table th:nth-child(4),
 #ruestung-table td:nth-child(4) { width: 35px; }
 #ruestung-table th:nth-child(5),
-#ruestung-table td:nth-child(5) { max-width: none; width: auto; }
+#ruestung-table td:nth-child(5) { max-width: none; width: auto; text-align: left; }
 #ruestung-table th:nth-child(6),
 #ruestung-table td:nth-child(6) { width: 20px; padding: 0; }
 
@@ -405,38 +406,54 @@ th[data-input]::before {
 #ausruestung-table th:nth-child(3),
 #ausruestung-table td:nth-child(3) { width: 35px; }
 #ausruestung-table th:nth-child(4),
-#ausruestung-table td:nth-child(4) { max-width: none; width: auto; }
+#ausruestung-table td:nth-child(4) { max-width: none; width: auto; text-align: left; }
 #ausruestung-table th:nth-child(5),
 #ausruestung-table td:nth-child(5) { width: 20px; padding: 0; }
 
 #zauber-table th:nth-child(1),
 #zauber-table td:nth-child(1) { max-width: none; width: auto; }
 #zauber-table th:nth-child(2),
-#zauber-table td:nth-child(2) { width: 60px; }
+#zauber-table td:nth-child(2) { width: 35px; }
 #zauber-table th:nth-child(3),
-#zauber-table td:nth-child(3) { width: 60px; }
+#zauber-table td:nth-child(3) { width: 35px; }
 #zauber-table th:nth-child(4),
 #zauber-table td:nth-child(4) { width: 60px; }
 #zauber-table th:nth-child(5),
-#zauber-table td:nth-child(5) { width: 60px; }
+#zauber-table td:nth-child(5) { width: 35px; }
 #zauber-table th:nth-child(6),
-#zauber-table td:nth-child(6) { max-width: none; width: auto; }
+#zauber-table td:nth-child(6) { max-width: none; width: auto; text-align: left; }
 #zauber-table th:nth-child(7),
 #zauber-table td:nth-child(7) { width: 20px; padding: 0; }
+
+
+/* Korruption Tabelle */
+#korruption-table {
+  table-layout: auto;
+  margin: 0;
+}
+#korruption-table th,
+#korruption-table td {
+  width: 100px; /* Oder eine andere gewünschte Breite */
+  margin: 0 auto; /* Schiebt die Tabelle horizontal in die Mitte */
+} 
+#korruption-table th:nth-child(1),
+#korruption-table td:nth-child(1),
+#korruption-table th:nth-child(2),
+#korruption-table td:nth-child(2) { width: 50px; }
 
 #mutationen-table th:nth-child(1),
 #mutationen-table td:nth-child(1) { max-width: none; width: auto; }
 #mutationen-table th:nth-child(2),
 #mutationen-table td:nth-child(2) { width: 60px; }
 #mutationen-table th:nth-child(3),
-#mutationen-table td:nth-child(3) { max-width: none; width: auto; }
+#mutationen-table td:nth-child(3) { max-width: none; width: auto; text-align: left; }
 #mutationen-table th:nth-child(4),
 #mutationen-table td:nth-child(4) { width: 20px; padding: 0; }
 
 #psychologie-table th:nth-child(1),
 #psychologie-table td:nth-child(1) { max-width: none; width: auto; }
 #psychologie-table th:nth-child(2),
-#psychologie-table td:nth-child(2) { max-width: none; width: auto; }
+#psychologie-table td:nth-child(2) { max-width: none; width: auto; text:align: left; }
 #psychologie-table th:nth-child(3),
 #psychologie-table td:nth-child(3) { width: 20px; padding: 0; }
 
@@ -494,7 +511,7 @@ th[data-input]::before {
 #exp-simple th,
 #exp-simple td { width: 33%; }
 #exp-simple th:first-child,
-#exp-simple td:first-child { text-align: left; }
+#exp-simple td:first-child { text-align: center; }
 
 #exp-full > table:first-of-type,
 #exp-full > table:first-of-type th,
@@ -502,7 +519,9 @@ th[data-input]::before {
 #exp-full > table:first-of-type th,
 #exp-full > table:first-of-type td { width: 33%; }
 #exp-full > table:first-of-type th:first-child,
-#exp-full > table:first-of-type td:first-child { text-align: left; }
+#exp-full > table:first-of-type td:first-child  { text-align: center; }
+#exp-full > table:first-of-type th:last-child,
+#exp-full > table:first-of-type td:last-child { text-align: left; }
 
 #exp-table tr.positive,
 #exp-table tr.positive input,
