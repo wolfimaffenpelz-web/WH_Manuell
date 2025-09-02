@@ -29,9 +29,9 @@
   --delete-col-width: 16px;
   --delete-icon-size: 11px;
   --marker-popup-icon-size: 2em;
-  --armor-visual-width: 200px;
-  --silhouette-width: 120px;
-  --armor-box-size: 60px;
+    --armor-visual-width: 200px;
+    --silhouette-width: 120px;
+    --armor-box-size: 24px;
 }
 
 /* ================================================
@@ -403,10 +403,10 @@ tr.active {
   font-size: 16px;
 }
 
-.zone-head { top: calc(-70px + var(--armor-box-size)); left: calc(50% - 2 * var(--armor-box-size)); }
-.zone-left-arm { top: calc(120px - var(--armor-box-size) / 2); right: calc(-70px + var(--armor-box-size) / 2); }
-.zone-right-arm { top: calc(120px - var(--armor-box-size) / 2); left: calc(-70px + var(--armor-box-size) / 2); }
-.zone-chest { top: calc(120px - var(--armor-box-size)); left: calc(-70px + var(--armor-box-size) / 2); }
+.zone-head { top: calc(-70px + var(--armor-box-size)); right: calc(50% - 2 * var(--armor-box-size)); }
+.zone-left-arm { top: calc(120px - var(--armor-box-size)); right: calc(-70px + var(--armor-box-size)); }
+.zone-right-arm { top: calc(120px - var(--armor-box-size)); left: calc(-70px + var(--armor-box-size)); }
+.zone-chest { top: calc(120px - 2.5 * var(--armor-box-size)); left: calc(-70px + var(--armor-box-size)); }
 .zone-left-leg { top: calc(260px - var(--armor-box-size)); right: calc(-1 * var(--armor-box-size) / 2); }
 .zone-right-leg { top: calc(260px - var(--armor-box-size)); left: calc(-1 * var(--armor-box-size) / 2); }
 
