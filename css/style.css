@@ -126,7 +126,7 @@ th.text-left { text-align: left; }
 th.wsg,
 td.wsg { width: 35px; }
 
-.delete-col { width: 20px; padding: 0; }
+.delete-col { width: 20px; padding: 0; border-color: transparent; text-align: left }
 
 /* ================================================
    Overlay Passwort
@@ -337,7 +337,7 @@ th[data-input]::before {
 /* ================================================
    Spaltenbreiten für Fähigkeiten- und Talenttabellen
    ================================================ */
-#grund-table { table-layout: fixed; }
+#grund-table { table-layout: auto; width: 100%; }
 #grund-table th:nth-child(1),
 #grund-table td:nth-child(1) { max-width: none; min-width: 30%; }
 #grund-table th:nth-child(2),
@@ -349,21 +349,21 @@ th[data-input]::before {
 #grund-table th:nth-child(5),
 #grund-table td:nth-child(5) { width: 35px; }
 
-#grupp-table { table-layout: fixed; }
+#grupp-table { table-layout: auto; width: 100%; }
 #grupp-table th:nth-child(1),
 #grupp-table td:nth-child(1) { max-width: none; min-width: 30%; }
 #grupp-table th:nth-child(2),
-#grupp-table td:nth-child(2) { width: fit-content; min-width: 50px; }
+#grupp-table td:nth-child(2) { width: fit-content; min-width: 30px; }
 #grupp-table th:nth-child(3),
-#grupp-table td:nth-child(3) { width: 35px; }
+#grupp-table td:nth-child(3) { width: auto; }
 #grupp-table th:nth-child(4),
-#grupp-table td:nth-child(4) { width: 35px; }
+#grupp-table td:nth-child(4) { width: auto; }
 #grupp-table th:nth-child(5),
-#grupp-table td:nth-child(5) { width: 35px; }
+#grupp-table td:nth-child(5) { width: auto; }
 #grupp-table th:nth-child(6),
 #grupp-table td:nth-child(6) { width: 20px; padding: 0; }
 
-#talent-table { table-layout: fixed; }
+#talent-table { table-layout: auto; width: 100%; }
 #talent-table th:nth-child(1),
 #talent-table td:nth-child(1) { max-width: none; min-width: 30%; width: auto; }
 #talent-table th:nth-child(2),
