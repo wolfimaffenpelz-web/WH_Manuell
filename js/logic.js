@@ -830,7 +830,6 @@ function addRow(tableId) {
             <option value="Linkes Bein">${t('left_leg_short')}</option>
             <option value="Rechtes Bein">${t('right_leg_short')}</option>
             <option value="Brust">${t('chest_short')}</option>
-            <option value="Bauch">${t('belly_short')}</option>
           </select>
         </td>
       <td><input type="number"></td>
