@@ -30,14 +30,13 @@
   <!-- Verwaltung zum Umschalten/Erstellen/Löschen von Charakteren -->
   <section id="character-management" class="character-management">
     <div class="top-row">
-      <label id="character-select-label" data-i18n="character_selection"></label>
+      <h2 id="character-select-label" data-i18n="character_selection"></h2>
       <button id="cycle-character">⇄</button><!-- wechselt durch vorhandene Charaktere -->
+      <button id="new-character">✠</button><!-- legt basierend auf Char-Namen einen neuen Eintrag an -->
+      <button id="delete-character">❌</button><!-- entfernt aktuellen Charakter -->
       <button id="import-character">📥</button>
       <button id="export-character">📤</button>
-      <button id="new-character">✱</button><!-- legt basierend auf Char-Namen einen neuen Eintrag an -->
-      <button id="delete-character">❌</button><!-- entfernt aktuellen Charakter -->
       <button id="settings">⚙️</button><!-- öffnet Einstellungen -->
-      <button id="logout" style="display:none">🚪</button><!-- Logout erscheint nach Authentifizierung -->
       <input type="file" id="import-file" accept="application/json" style="display:none">
     </div>
     <div class="char-fields">

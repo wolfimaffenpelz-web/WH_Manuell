@@ -15,9 +15,13 @@
   --color-attr-axes: #cd7f32;
   --color-attr-skull: silver;
   --color-attr-shield: gold;
+  --color-active-cell: var(--color-negative);
   --font-size-base: 16px;
   --color-active-char-bg: #333;
   --color-active-char-text: #fff;
+  --color-table-line: #000;
+  --color-divider: #000;
+  --icon-size: 1.3em;
   --font-active-char: var(--font-heading);
   --font-size-active-char: 1.2em;
   --row-height: 1.5em;
@@ -122,12 +126,12 @@ input[readonly],
 /* Innere Linien */
 td + td,
 th + th {
-  border-left: 1px solid #000;
+  border-left: 1px solid var(--color-table-line);
 }
 
 tr + tr td,
 tr + tr th {
-  border-top: 1px solid #000;
+  border-top: 1px solid var(--color-table-line);
 }
 
 th { font-weight: bold; }
@@ -162,7 +166,7 @@ td.wsg { width: 35px; }
 
 /* Segment-Trennung */
 .section-divider {
-  border-bottom: 3.5px solid #000;
+  border-bottom: 3.5px solid var(--color-divider);
   width: 98%;
   margin: 25px auto;
 }
@@ -194,6 +198,33 @@ td.wsg { width: 35px; }
   width: 150px;
 }
 
+.overlay-content.scrollable {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.overlay-content .setting-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.overlay-content .setting-row label {
+  flex: 1;
+  margin-right: 0.5em;
+  text-align: left;
+}
+
+.overlay-content .setting-row input[type="color"],
+.overlay-content .setting-row select {
+  flex: 1;
+  width: 100%;
+}
+
+.overlay-content .popup-buttons {
+  margin-top: 10px;
+}
+
 /* ================================================
    Charakter-Management
    ================================================ */
@@ -203,13 +234,20 @@ td.wsg { width: 35px; }
 }
 .character-management .top-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
   align-items: center;
 }
 .character-management .top-row button {
   margin: 5px;
   padding: 3px;
+  background: none;
+  border: none;
+  font-size: var(--icon-size);
+}
+.character-management .top-row h2 {
+  margin: 5px;
+  font-size: 1.5em;
 }
 .character-management .char-fields {
   display: flex;
@@ -261,7 +299,7 @@ td.wsg { width: 35px; }
 .marker-select {
   position: absolute;
   background: var(--color-bg);
-  border: 1px solid #000;
+  border: 1px solid var(--color-table-line);
   padding: 4px;
   z-index: 1000;
 }
@@ -300,7 +338,7 @@ td.wsg { width: 35px; }
 th.active,
 td.active,
 tr.active {
-  outline: 2px solid var(--color-negative);
+  outline: 2px solid var(--color-active-cell);
 }
 
 /* Münz-Icons */
