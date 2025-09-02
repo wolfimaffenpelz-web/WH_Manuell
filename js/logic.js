@@ -9,11 +9,9 @@ function initPasswordProtection() {
   const overlay = document.getElementById("password-overlay"); // dunkler Hintergrund
   const input = document.getElementById("password-input");     // Eingabefeld für Passwort
   const button = document.getElementById("password-submit");   // OK-Button
-  const logoutBtn = document.getElementById("logout");         // Logout-Button
 
   if (localStorage.getItem("auth") === "true") {
     overlay.style.display = "none"; // sofort anzeigen, wenn bereits authentifiziert
-    if (logoutBtn) logoutBtn.style.display = "inline-block";
     initLogic(); // Hauptlogik starten
   }
 
@@ -21,19 +19,12 @@ function initPasswordProtection() {
     if (input.value === "1234") {
       overlay.style.display = "none";          // Overlay ausblenden
       localStorage.setItem("auth", "true");    // Flag setzen
-      if (logoutBtn) logoutBtn.style.display = "inline-block";
       initLogic();
     } else {
       alert(t('wrong_password'));
     }
   });
 
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => {
-      localStorage.removeItem("auth"); // Auth-Flag löschen
-      location.reload();               // Seite neu laden
-    });
-  }
 }
 document.addEventListener("DOMContentLoaded", initPasswordProtection);
 
@@ -240,47 +231,73 @@ function initCharacterManagement() {
 function openColorSettings() {
   const overlay = document.createElement("div");
   overlay.className = "overlay";
-  const colorVars = {
-    "--color-bg": "color_bg",
-    "--color-text": "color_text",
-    "--color-field": "color_field",
-    "--color-readonly": "color_readonly",
-    "--color-highlight": "color_highlight",
-    "--color-positive": "color_positive",
-    "--color-negative": "color_negative",
-    "--color-attr-cross": "color_attr_cross",
-    "--color-attr-axes": "color_attr_axes",
-    "--color-attr-skull": "color_attr_skull",
-    "--color-attr-shield": "color_attr_shield",
-    "--color-active-char-bg": "color_active_char_bg",
-    "--color-active-char-text": "color_active_char_text"
-  };
-  const styles = getComputedStyle(document.documentElement);
-  let fields = "";
-  Object.entries(colorVars).forEach(([varName, key]) => {
-    const val = rgbToHex(styles.getPropertyValue(varName).trim());
-    fields += `<div><label>${t(key)}</label><input type="color" data-var="${varName}" value="${val}"></div>`;
-  });
   overlay.innerHTML = `
     <div class="overlay-content">
-      <h2>${t('colors')}</h2>
-      ${fields}
-      <button id="color-accept">${t('accept')}</button>
-      <button id="color-cancel">${t('cancel')}</button>
+      <button id="open-colors-bg">${t('colors_group_bg_text')}</button>
+      <button id="open-colors-mark">${t('colors_group_markings')}</button>
+      <div class="popup-buttons">
+        <button id="color-cancel">${t('cancel')}</button>
+      </div>
     </div>
   `;
   document.body.appendChild(overlay);
   function close() { overlay.remove(); }
   overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
-  overlay.querySelector("#color-cancel").addEventListener("click", close);
-  overlay.querySelector("#color-accept").addEventListener("click", () => {
+  overlay.querySelector('#color-cancel').addEventListener('click', close);
+  overlay.querySelector('#open-colors-bg').addEventListener('click', () => { close(); openColorGroup('bg'); });
+  overlay.querySelector('#open-colors-mark').addEventListener('click', () => { close(); openColorGroup('mark'); });
+}
+
+function openColorGroup(group) {
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  const groupVars = group === 'bg'
+    ? {
+        "--color-bg": "color_bg",
+        "--color-text": "color_text",
+        "--color-field": "color_field",
+        "--color-readonly": "color_readonly",
+        "--color-positive": "color_positive",
+        "--color-negative": "color_negative",
+        "--color-active-char-bg": "color_active_char_bg",
+        "--color-active-char-text": "color_active_char_text"
+      }
+    : {
+        "--color-highlight": "color_highlight",
+        "--color-attr-cross": "color_attr_cross",
+        "--color-attr-axes": "color_attr_axes",
+        "--color-attr-skull": "color_attr_skull",
+        "--color-attr-shield": "color_attr_shield",
+        "--color-active-cell": "color_active_cell"
+      };
+  const styles = getComputedStyle(document.documentElement);
+  let fields = "";
+  Object.entries(groupVars).forEach(([varName, key]) => {
+    const val = rgbToHex(styles.getPropertyValue(varName).trim());
+    fields += `<div class="setting-row"><label>${t(key)}</label> <input type="color" data-var="${varName}" value="${val}"></div>`;
+  });
+  overlay.innerHTML = `
+    <div class="overlay-content scrollable">
+      <h2>${group === 'bg' ? t('colors_group_bg_text') : t('colors_group_markings')}</h2>
+      ${fields}
+      <div class="popup-buttons">
+        <button id="group-accept">${t('accept')}</button>
+        <button id="group-cancel">${t('cancel')}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  function close() { overlay.remove(); }
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  overlay.querySelector('#group-cancel').addEventListener('click', close);
+  overlay.querySelector('#group-accept').addEventListener('click', () => {
     const inputs = overlay.querySelectorAll("input[type='color']");
-    const saved = {};
+    const saved = JSON.parse(localStorage.getItem('color-settings') || '{}');
     inputs.forEach(inp => {
       document.documentElement.style.setProperty(inp.dataset.var, inp.value);
       saved[inp.dataset.var] = inp.value;
     });
-    localStorage.setItem("color-settings", JSON.stringify(saved));
+    localStorage.setItem('color-settings', JSON.stringify(saved));
     close();
   });
 }
@@ -305,14 +322,16 @@ function openFontSettings() {
   Object.entries(fontVars).forEach(([varName, key]) => {
     const current = styles.getPropertyValue(varName).trim();
     const options = fontOptions.map(f => `<option value="${f.stack}" ${current === f.stack ? 'selected' : ''} style="font-family:${f.stack};">${f.name}</option>`).join('');
-    fields += `<div><label>${t(key)}</label><select data-var="${varName}">${options}</select><span class="font-preview" style="font-family:${current}">${t('sample')}</span></div>`;
+    fields += `<div class="setting-row"><label>${t(key)}</label> <select data-var="${varName}">${options}</select><span class="font-preview" style="font-family:${current}; margin-left:0.5em">${t('sample')}</span></div>`;
   });
   overlay.innerHTML = `
     <div class="overlay-content">
       <h2>${t('fonts')}</h2>
       ${fields}
-      <button id="font-accept">${t('accept')}</button>
-      <button id="font-cancel">${t('cancel')}</button>
+      <div class="popup-buttons">
+        <button id="font-accept">${t('accept')}</button>
+        <button id="font-cancel">${t('cancel')}</button>
+      </div>
     </div>
   `;
   document.body.appendChild(overlay);

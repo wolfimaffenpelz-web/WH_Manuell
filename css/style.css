@@ -15,6 +15,7 @@
   --color-attr-axes: #cd7f32;
   --color-attr-skull: silver;
   --color-attr-shield: gold;
+  --color-active-cell: var(--color-negative);
   --font-size-base: 16px;
   --color-active-char-bg: #333;
   --color-active-char-text: #fff;
@@ -194,6 +195,33 @@ td.wsg { width: 35px; }
   width: 150px;
 }
 
+.overlay-content.scrollable {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.overlay-content .setting-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.overlay-content .setting-row label {
+  flex: 1;
+  margin-right: 0.5em;
+  text-align: left;
+}
+
+.overlay-content .setting-row input[type="color"],
+.overlay-content .setting-row select {
+  flex: 1;
+  width: 100%;
+}
+
+.overlay-content .popup-buttons {
+  margin-top: 10px;
+}
+
 /* ================================================
    Charakter-Management
    ================================================ */
@@ -307,7 +335,7 @@ td.wsg { width: 35px; }
 th.active,
 td.active,
 tr.active {
-  outline: 2px solid var(--color-negative);
+  outline: 2px solid var(--color-active-cell);
 }
 
 /* Münz-Icons */
