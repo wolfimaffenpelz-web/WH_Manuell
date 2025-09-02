@@ -185,7 +185,7 @@ sections.push(
       <table class="full-width" id="waffen-table">
         <tr>
           <th>Name</th>
-          <th class="text-left">${t('zone_short')}</th>
+          <th class="text-left">${t('weapon_group')}</th>
           <th>TP</th>
           <th>RW</th>
           <th class="text-left">${t('qualities')}</th>
