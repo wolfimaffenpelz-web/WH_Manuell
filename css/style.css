@@ -21,7 +21,7 @@
   --font-active-char: var(--font-heading);
   --font-size-active-char: 1.2em;
   --row-height: 1.5em;
-  --coin-col-width: 40px;
+  --coin-col-width: 60px;
   --delete-col-width: 16px;
   --delete-icon-size: 11px;
   --marker-popup-icon-size: 2em;
@@ -540,7 +540,7 @@ th[data-input]::before {
 #nettovermoegen-block th:nth-child(2),
 #nettovermoegen-block td:nth-child(2),
 #nettovermoegen-block th:nth-child(3),
-#nettovermoegen-block td:nth-child(3) { width: 40px; text-align: center; overflow: hidden; }
+#nettovermoegen-block td:nth-child(3) { width: var(--coin-col-width); text-align: center; overflow: hidden; }
 
 /* ================================================
    Erfahrungstabellen
