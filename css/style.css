@@ -21,7 +21,9 @@
   --font-active-char: var(--font-heading);
   --font-size-active-char: 1.2em;
   --row-height: 1.5em;
-    --coin-col-width: 40px;
+  --coin-col-width: 40px;
+  --delete-col-width: 16px;
+  --delete-icon-size: 11px;
   --marker-popup-icon-size: 2em;
 }
 
@@ -51,6 +53,10 @@ table {
   margin: 5px 0;
   table-layout: fixed;
   word-wrap: break-word;
+}
+
+.full-width {
+  width: 100%;
 }
 
 table tr {
@@ -126,7 +132,27 @@ th.text-left { text-align: left; }
 th.wsg,
 td.wsg { width: 35px; }
 
-.delete-col { width: 16px; padding: 0; text-align: left; border: none;  background: none; font-size: 11px; color: red; }
+.delete-col {
+  width: var(--delete-col-width);
+  padding: 0;
+  text-align: left;
+  border: none;
+  background: none;
+}
+
+.delete-row {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: red;
+  font-size: var(--delete-icon-size);
+  line-height: 1;
+  cursor: pointer;
+}
 
 /* Segment-Trennung */
 .section-divider {
