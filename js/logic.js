@@ -929,13 +929,13 @@ function autoAddRow(tableId) {
     return;
   }
   const lastRow = rows[rows.length - 1];
-  const lastInput = lastRow.cells[0]?.querySelector('input, textarea, select');
+  const lastInput = lastRow.cells[0]?.querySelector('input:not([type="hidden"]), textarea, select');
   if (lastInput && lastInput.value.trim() !== '') {
     addRow(tableId);
   }
   let emptyCount = 0;
   for (let i = rows.length - 1; i >= 0; i--) {
-    const inp = rows[i].cells[0]?.querySelector('input, textarea, select');
+    const inp = rows[i].cells[0]?.querySelector('input:not([type="hidden"]), textarea, select');
     if (inp && inp.value.trim() === '') {
       emptyCount++;
       if (emptyCount > 1) {
@@ -1091,7 +1091,7 @@ function addRow(tableId) {
     `;
   }
 
-  const first = row.cells[0]?.querySelector('input, textarea, select');
+  const first = row.cells[0]?.querySelector('input:not([type="hidden"]), textarea, select');
   if (first) {
     first.addEventListener('input', () => { autoAddRow(tableId); saveState(); });
   }

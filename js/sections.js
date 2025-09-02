@@ -35,8 +35,8 @@ const sections = [
             <tr><td>Augen</td><td><input type="text" id="char-augen"></td></tr>
           </table>
         </div>
-        <div class="section-divider"></div>
       </div>
+      <div class="section-divider"></div>
     `
   },
 
@@ -125,8 +125,8 @@ const sections = [
             </table>
           </div>
         </div>
-        <div class="section-divider"></div>
       </div>
+      <div class="section-divider"></div>
     `
   },
 
