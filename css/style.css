@@ -403,12 +403,30 @@ tr.active {
   font-size: 16px;
 }
 
-.zone-head { top: calc(-70px + var(--armor-box-size)); right: calc(50% - 2 * var(--armor-box-size)); }
-.zone-left-arm { top: calc(120px - var(--armor-box-size)); right: calc(-70px + var(--armor-box-size)); }
-.zone-right-arm { top: calc(120px - var(--armor-box-size)); left: calc(-70px + var(--armor-box-size)); }
-.zone-chest { top: calc(120px - 2.5 * var(--armor-box-size)); left: calc(-70px + var(--armor-box-size)); }
-.zone-left-leg { top: calc(260px - var(--armor-box-size)); right: calc(-1 * var(--armor-box-size) / 2); }
-.zone-right-leg { top: calc(260px - var(--armor-box-size)); left: calc(-1 * var(--armor-box-size) / 2); }
+.zone-head {
+  top: calc(-70px + 2.5 * var(--armor-box-size));
+  right: calc(50% - 1.5 * var(--armor-box-size));
+}
+.zone-left-arm {
+  top: calc(120px - 3 * var(--armor-box-size));
+  right: calc(-70px + 4 * var(--armor-box-size));
+}
+.zone-right-arm {
+  top: calc(120px - 2 * var(--armor-box-size));
+  left: calc(-70px + 3 * var(--armor-box-size));
+}
+.zone-chest {
+  top: calc(120px - 4.5 * var(--armor-box-size));
+  left: calc(-70px + 3.5 * var(--armor-box-size));
+}
+.zone-left-leg {
+  top: calc(260px - 2 * var(--armor-box-size));
+  right: calc(0.5 * var(--armor-box-size));
+}
+.zone-right-leg {
+  top: calc(260px - 3 * var(--armor-box-size));
+  left: 0;
+}
 
 /* ================================================
    Attributmarken im Spaltenkopf
