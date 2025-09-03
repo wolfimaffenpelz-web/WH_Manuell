@@ -35,6 +35,16 @@ const sections = [
             <tr><td>Augen</td><td><input type="text" id="char-augen"></td></tr>
           </table>
         </div>
+        <div class="subsection">
+          <h3>${t('movement')}</h3>
+          <table class="full-width">
+            <tr>
+              <td>${t('movement')}</td><td><input type="number" id="char-bewegung" class="small-field" max="99"></td>
+              <td>${t('walk')}</td><td><input type="number" id="char-gehen" class="small-field" max="99"></td>
+              <td>${t('run')}</td><td><input type="number" id="char-rennen" class="small-field" max="99"></td>
+            </tr>
+          </table>
+        </div>
       </div>
       <div class="section-divider"></div>
     `
@@ -217,6 +227,7 @@ sections.push(
           <th class="delete-col"></th>
         </tr>
       </table>
+      <div class="table-footnote">* ${t('mark_to_equip')}</div>
       <div class="section-divider"></div>
     `
   },
@@ -288,6 +299,7 @@ sections.push(
           <th class="delete-col"></th>
         </tr>
       </table>
+      <div class="table-footnote">* ${t('mark_to_equip')}</div>
       <div class="section-divider"></div>
     `
   },
@@ -306,6 +318,7 @@ sections.push(
           <th class="delete-col"></th>
         </tr>
       </table>
+      <div class="table-footnote">* ${t('mark_to_equip')}</div>
       <div class="section-divider"></div>
     `
   },
