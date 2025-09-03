@@ -1029,6 +1029,7 @@ function addRow(tableId) {
             <option value="Linkes Bein">${t('left_leg_short')}</option>
             <option value="Rechtes Bein">${t('right_leg_short')}</option>
             <option value="Brust">${t('chest_short')}</option>
+            <option value="Schild">${t('shield_short')}</option>
           </select>
         </td>
       <td><input type="number"></td>
@@ -1209,7 +1210,8 @@ function updateRuestung() {
     "Rechter Arm": 0,
     "Brust": 0,
     "Linkes Bein": 0,
-    "Rechtes Bein": 0
+    "Rechtes Bein": 0,
+    "Schild": 0
   }; // Sammeln der besten Rüstungswerte pro Zone
 
   document.querySelectorAll("#ruestung-table tr").forEach((row, idx) => {
@@ -1233,6 +1235,8 @@ function updateRuestung() {
   document.getElementById("rp-box-brust").textContent = zones["Brust"] || 0;
   document.getElementById("rp-box-lbein").textContent = zones["Linkes Bein"] || 0;
   document.getElementById("rp-box-rbein").textContent = zones["Rechtes Bein"] || 0;
+  const gesamt = Object.values(zones).reduce((sum, val) => sum + val, 0);
+  document.getElementById("rp-box-schild").textContent = gesamt;
 }
 
 // =========================

@@ -259,6 +259,10 @@ sections.push(
           <div class="zone-rp" id="rp-box-rbein">0</div>
           <span class="zone-label">${t('right_leg')}</span>
         </div>
+        <div class="shield-display">
+          <img src="img/shield.svg" alt="${t('shield_alt')}" class="shield">
+          <div class="shield-rp" id="rp-box-schild">0</div>
+        </div>
       </div>
 
       <!-- Übersicht RP pro Zone -->
