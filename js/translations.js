@@ -145,6 +145,7 @@ const baseTranslations = {
   net_worth: "Nettovermögen",
   finances_expand: "Finanzen - erweitern",
   new_row: "Neue Zeile",
+  mark_to_equip: "Zeile markieren zum Ausrüsten",
   mutation: "Mutation",
   savings: "Sparvermögen",
   max_cross_warning: "Max 3 ✠ erlaubt.",

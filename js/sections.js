@@ -227,6 +227,7 @@ sections.push(
           <th class="delete-col"></th>
         </tr>
       </table>
+      <div class="table-footnote">* ${t('mark_to_equip')}</div>
       <div class="section-divider"></div>
     `
   },
@@ -298,6 +299,7 @@ sections.push(
           <th class="delete-col"></th>
         </tr>
       </table>
+      <div class="table-footnote">* ${t('mark_to_equip')}</div>
       <div class="section-divider"></div>
     `
   },
@@ -316,6 +318,7 @@ sections.push(
           <th class="delete-col"></th>
         </tr>
       </table>
+      <div class="table-footnote">* ${t('mark_to_equip')}</div>
       <div class="section-divider"></div>
     `
   },

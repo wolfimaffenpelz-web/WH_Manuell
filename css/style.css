@@ -33,6 +33,7 @@
     --silhouette-width: 192px;
     --shield-width: calc(var(--silhouette-width) * 0.7);
     --armor-box-size: 24px;
+  --font-size-footnote: 0.8em;
 }
 
 /* ================================================
@@ -65,6 +66,11 @@ table {
 
 .full-width {
   width: 100%;
+}
+
+.table-footnote {
+  font-size: var(--font-size-footnote);
+  text-align: left;
 }
 
 table tr {
@@ -322,21 +328,37 @@ td.wsg { width: 35px; }
 }
 
 /* Zeilen- und Spaltenmarkierungen */
-.line-marked { background: var(--color-highlight); font-weight: bold; }
+.line-marked {
+  background: var(--color-highlight);
+  color: var(--color-bg);
+  font-family: var(--font-heading);
+  font-weight: bold;
+}
 
 #grund-table tr.line-marked input,
 #grupp-table tr.line-marked input,
 #talent-table tr.line-marked input,
+#waffen-table tr.line-marked input,
+#ruestung-table tr.line-marked input,
+#ausruestung-table tr.line-marked input,
 #grund-table tr.line-marked select,
 #grupp-table tr.line-marked select,
 #talent-table tr.line-marked select,
+#waffen-table tr.line-marked select,
+#ruestung-table tr.line-marked select,
+#ausruestung-table tr.line-marked select,
 #grund-table tr.line-marked textarea,
 #grupp-table tr.line-marked textarea,
-#talent-table tr.line-marked textarea {
+#talent-table tr.line-marked textarea,
+#waffen-table tr.line-marked textarea,
+#ruestung-table tr.line-marked textarea,
+#ausruestung-table tr.line-marked textarea {
   background: transparent;
   border: 1px solid var(--color-negative);
   border-radius: 4px;
   box-sizing: border-box;
+  color: inherit;
+  font-family: inherit;
 }
 
 th.active,
