@@ -358,7 +358,7 @@ td.wsg { width: 35px; }
   border-radius: 4px;
   box-sizing: border-box;
   color: inherit;
-  font-family: inherit;
+  font-family: var(--font-main);
 }
 
 th.active,
