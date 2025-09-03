@@ -29,6 +29,9 @@
   --delete-col-width: 16px;
   --delete-icon-size: 11px;
   --marker-popup-icon-size: 2em;
+    --armor-visual-width: 200px;
+    --silhouette-width: 120px;
+    --armor-box-size: 24px;
 }
 
 /* ================================================
@@ -358,6 +361,72 @@ tr.active {
 .attr-axes { background: var(--color-attr-axes); font-weight: bold; }
 .attr-skull { background: var(--color-attr-skull); font-weight: bold; }
 .attr-shield { background: var(--color-attr-shield); font-weight: bold; }
+
+/* ================================================
+   Rüstungsanzeige
+   ================================================ */
+.armor-visual {
+  position: relative;
+  width: var(--armor-visual-width);
+  height: 330px;
+  margin: 0 auto 20px;
+}
+
+.armor-visual .silhouette {
+  width: var(--silhouette-width);
+  display: block;
+  margin: 0 auto;
+}
+
+.zone-box {
+  position: absolute;
+  width: var(--armor-box-size);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.zone-range,
+.zone-label {
+  font-size: 0.7em;
+}
+
+.zone-rp {
+  width: var(--armor-box-size);
+  height: var(--armor-box-size);
+  background: var(--color-field);
+  border: 1px solid var(--color-table-line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.zone-head {
+  top: calc(-70px + 2.5 * var(--armor-box-size));
+  right: calc(50% - 1.5 * var(--armor-box-size));
+}
+.zone-left-arm {
+  top: calc(120px - 3 * var(--armor-box-size));
+  right: calc(-70px + 4 * var(--armor-box-size));
+}
+.zone-right-arm {
+  top: calc(120px - 2 * var(--armor-box-size));
+  left: calc(-70px + 3 * var(--armor-box-size));
+}
+.zone-chest {
+  top: calc(120px - 4.5 * var(--armor-box-size));
+  left: calc(-70px + 3.5 * var(--armor-box-size));
+}
+.zone-left-leg {
+  top: calc(260px - 2 * var(--armor-box-size));
+  right: calc(0.5 * var(--armor-box-size));
+}
+.zone-right-leg {
+  top: calc(260px - 3 * var(--armor-box-size));
+  left: 0;
+}
 
 /* ================================================
    Attributmarken im Spaltenkopf
