@@ -35,6 +35,16 @@ const sections = [
             <tr><td>Augen</td><td><input type="text" id="char-augen"></td></tr>
           </table>
         </div>
+        <div class="subsection">
+          <h3>${t('movement')}</h3>
+          <table class="full-width">
+            <tr>
+              <td>${t('movement')}</td><td><input type="number" id="char-bewegung" class="small-field" max="99"></td>
+              <td>${t('walk')}</td><td><input type="number" id="char-gehen" class="small-field" max="99"></td>
+              <td>${t('run')}</td><td><input type="number" id="char-rennen" class="small-field" max="99"></td>
+            </tr>
+          </table>
+        </div>
       </div>
       <div class="section-divider"></div>
     `
@@ -212,6 +222,7 @@ sections.push(
           <th>Name</th>
           <th class="text-left">${t('weapon_group')}</th>
           <th>TP</th>
+          <th class="equip-col">☑</th>
           <th>RW</th>
           <th class="text-left">${t('qualities')}</th>
           <th class="delete-col"></th>
@@ -284,6 +295,7 @@ sections.push(
           <th>${t('zone_short')}</th>
           <th>RP</th>
           <th>TP</th>
+          <th class="equip-col">☑</th>
           <th class="text-left">${t('qualities')}</th>
           <th class="delete-col"></th>
         </tr>
@@ -302,6 +314,7 @@ sections.push(
           <th>Name</th>
           <th>Menge</th>
           <th>TP</th>
+          <th class="equip-col">☑</th>
           <th class="text-left">${t('notes')}</th>
           <th class="delete-col"></th>
         </tr>

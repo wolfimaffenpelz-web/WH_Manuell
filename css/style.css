@@ -27,10 +27,12 @@
   --row-height: 1.5em;
   --coin-col-width: 60px;
   --delete-col-width: 16px;
+  --equip-col-width: 24px;
   --delete-icon-size: 11px;
   --marker-popup-icon-size: 2em;
     --armor-visual-width: 320px;
     --silhouette-width: 192px;
+    --shield-width: calc(var(--silhouette-width) * 0.7);
     --armor-box-size: 24px;
 }
 
@@ -151,6 +153,11 @@ td.wsg { width: 35px; }
   text-align: left;
   border: none;
   background: none;
+}
+
+.equip-col {
+  width: var(--equip-col-width);
+  text-align: center;
 }
 
 .delete-row {
@@ -389,7 +396,8 @@ tr.active {
 
 .zone-range,
 .zone-label {
-  font-size: 0.7em;
+  font-size: var(--font-size-base);
+  font-family: var(--font-main);
 }
 
 .zone-rp {
@@ -432,7 +440,7 @@ tr.active {
   position: absolute;
   left: 50%;
   bottom: 0;
-  width: var(--silhouette-width);
+  width: var(--shield-width);
   transform: translateX(-50%);
 }
 

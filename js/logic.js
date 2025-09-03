@@ -340,6 +340,11 @@ function openFontSettings() {
   const fontOptions = [
     { name: "UnifrakturMaguntia", stack: "'UnifrakturMaguntia', cursive" },
     { name: "Podkova", stack: "'Podkova', serif" },
+    { name: "Black Chancery", stack: "'Black Chancery', cursive" },
+    { name: "Deutsch Gothic", stack: "'Deutsch Gothic', cursive" },
+    { name: "Cloister Black", stack: "'Cloister Black', cursive" },
+    { name: "Old English Text MT", stack: "'Old English Text MT', serif" },
+    { name: "Kingthings Petrock", stack: "'Kingthings Petrock', cursive" },
     { name: "Arial", stack: "Arial, sans-serif" },
     { name: "Times New Roman", stack: "'Times New Roman', serif" },
     { name: "Courier New", stack: "'Courier New', monospace" }
@@ -991,10 +996,15 @@ function addRow(tableId) {
       <td><textarea rows="1"></textarea></td>
       <td class="text-left"><input type="text"></td>
       <td><input type="number"></td>
+      <td class="equip-col"><input type="checkbox"></td>
       <td><input type="text"></td>
       <td class="text-left"><textarea></textarea></td>
-      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('waffen-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('waffen-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten(); updateTraglast();">❌</button></td>
     `;
+    row.querySelectorAll("input, textarea").forEach(el => {
+      const evt = el.type === "checkbox" ? "change" : "input";
+      el.addEventListener(evt, () => { updateTraglast(); saveState(); });
+    });
   }
   else if (tableId === "schulden-table") {
     // Dynamische Schuldenliste
@@ -1034,9 +1044,14 @@ function addRow(tableId) {
         </td>
       <td><input type="number"></td>
       <td><input type="number"></td>
+      <td class="equip-col"><input type="checkbox"></td>
       <td class="text-left"><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('ruestung-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten(); updateRuestung(); updateTraglast();">❌</button></td>
     `;
+    row.querySelectorAll("input, textarea, select").forEach(el => {
+      const evt = el.type === "checkbox" ? "change" : "input";
+      el.addEventListener(evt, () => { updateRuestung(); updateTraglast(); saveState(); });
+    });
   }
   else if (tableId === "ausruestung-table") {
     // Allgemeine Ausrüstung
@@ -1044,9 +1059,14 @@ function addRow(tableId) {
       <td><textarea rows="1"></textarea></td>
       <td><input type="number"></td>
       <td><input type="number"></td>
+      <td class="equip-col"><input type="checkbox"></td>
       <td class="text-left"><textarea></textarea></td>
-      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('ausruestung-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('ausruestung-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten(); updateTraglast();">❌</button></td>
     `;
+    row.querySelectorAll("input, textarea").forEach(el => {
+      const evt = el.type === "checkbox" ? "change" : "input";
+      el.addEventListener(evt, () => { updateTraglast(); saveState(); });
+    });
   }
   else if (tableId === "zauber-table") {
     // Zauber oder Gebete
@@ -1094,7 +1114,7 @@ function addRow(tableId) {
 
   const first = row.cells[0]?.querySelector('input:not([type="hidden"]), textarea, select');
   if (first) {
-    first.addEventListener('input', () => { autoAddRow(tableId); saveState(); });
+    first.addEventListener('input', () => { autoAddRow(tableId); saveState(); updateRuestung(); updateTraglast(); });
   }
 
   if (tableId === "exp-table") {
@@ -1219,7 +1239,8 @@ function updateRuestung() {
     const zoneSel = row.cells[1].querySelector("select");
     const zone = zoneSel ? zoneSel.value : "";
     const rp = parseInt(row.cells[2].querySelector("input").value) || 0;
-    if (zones.hasOwnProperty(zone)) zones[zone] += rp; // Werte je Zone addieren
+    const eq = row.cells[4].querySelector("input[type='checkbox']")?.checked;
+    if (eq && zones.hasOwnProperty(zone)) zones[zone] += rp; // Werte je Zone addieren
   });
 
   document.getElementById("rp-kopf").value = zones["Kopf"] || 0;
@@ -1252,13 +1273,17 @@ function updateTraglast() {
   // Gewicht der Waffen aufsummieren
   document.querySelectorAll("#waffen-table tr").forEach((row, idx) => {
     if (idx === 0) return;
-    waffenTP += parseInt(row.cells[2].querySelector("input").value) || 0;
+    const tp = parseInt(row.cells[2].querySelector("input").value) || 0;
+    const eq = row.cells[3].querySelector("input[type='checkbox']")?.checked;
+    waffenTP += Math.max(0, tp - (eq ? 1 : 0));
   });
 
   // Gewicht der Rüstungsteile
   document.querySelectorAll("#ruestung-table tr").forEach((row, idx) => {
     if (idx === 0) return;
-    ruestungTP += parseInt(row.cells[3].querySelector("input").value) || 0;
+    const tp = parseInt(row.cells[3].querySelector("input").value) || 0;
+    const eq = row.cells[4].querySelector("input[type='checkbox']")?.checked;
+    ruestungTP += Math.max(0, tp - (eq ? 1 : 0));
   });
 
   // Ausrüstung: Menge * Tragpunkte
@@ -1266,7 +1291,9 @@ function updateTraglast() {
     if (idx === 0) return;
     const menge = parseInt(row.cells[1].querySelector("input").value) || 0;
     const tp = parseInt(row.cells[2].querySelector("input").value) || 0;
-    ausrTP += menge * tp;
+    const eq = row.cells[3].querySelector("input[type='checkbox']")?.checked;
+    const weight = menge * tp;
+    ausrTP += Math.max(0, weight - (eq ? 1 : 0));
   });
 
   const gesamt = waffenTP + ruestungTP + ausrTP;
