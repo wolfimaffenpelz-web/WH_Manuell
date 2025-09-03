@@ -27,7 +27,6 @@
   --row-height: 1.5em;
   --coin-col-width: 60px;
   --delete-col-width: 16px;
-  --equip-col-width: 24px;
   --delete-icon-size: 11px;
   --marker-popup-icon-size: 2em;
     --armor-visual-width: 320px;
@@ -153,11 +152,6 @@ td.wsg { width: 35px; }
   text-align: left;
   border: none;
   background: none;
-}
-
-.equip-col {
-  width: var(--equip-col-width);
-  text-align: center;
 }
 
 .delete-row {

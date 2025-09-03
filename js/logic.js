@@ -788,7 +788,7 @@ function toggleLineMarker(cell) {
   if (!hid) return;
   const row = cell.closest('tr');
   const table = row ? row.closest('table') : null;
-  if (table && (table.id === 'grupp-table' || table.id === 'talent-table')) {
+  if (table && ['grupp-table','talent-table','waffen-table','ruestung-table','ausruestung-table'].includes(table.id)) {
     const nameField = cell.querySelector('input[type="text"], textarea');
     if (!nameField || nameField.value.trim() === '') return;
   }
@@ -803,6 +803,10 @@ function toggleLineMarker(cell) {
     row.classList.add('line-marked');
   }
   saveState();
+  if (table && (table.id === 'waffen-table' || table.id === 'ruestung-table' || table.id === 'ausruestung-table')) {
+    if (table.id === 'ruestung-table') updateRuestung();
+    updateTraglast();
+  }
 }
 
 function restoreMarkers() {
@@ -833,6 +837,8 @@ function restoreMarkers() {
       row.classList.remove('line-marked');
     }
   });
+  updateRuestung();
+  updateTraglast();
 }
 
 document.addEventListener("click", e => {
@@ -993,17 +999,15 @@ function addRow(tableId) {
   else if (tableId === "waffen-table") {
     // Waffenliste
     row.innerHTML = `
-      <td><textarea rows="1"></textarea></td>
+      <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></td>
       <td class="text-left"><input type="text"></td>
       <td><input type="number"></td>
-      <td class="equip-col"><input type="checkbox"></td>
       <td><input type="text"></td>
       <td class="text-left"><textarea></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('waffen-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten(); updateTraglast();">❌</button></td>
     `;
     row.querySelectorAll("input, textarea").forEach(el => {
-      const evt = el.type === "checkbox" ? "change" : "input";
-      el.addEventListener(evt, () => { updateTraglast(); saveState(); });
+      el.addEventListener('input', () => { updateTraglast(); saveState(); });
     });
   }
   else if (tableId === "schulden-table") {
@@ -1029,7 +1033,7 @@ function addRow(tableId) {
   else if (tableId === "ruestung-table") {
     // Rüstungsstücke
     row.innerHTML = `
-      <td><textarea rows="1"></textarea></td>
+      <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></td>
         <td>
           <select required>
             <option value="" selected disabled>-</option>
@@ -1044,28 +1048,24 @@ function addRow(tableId) {
         </td>
       <td><input type="number"></td>
       <td><input type="number"></td>
-      <td class="equip-col"><input type="checkbox"></td>
       <td class="text-left"><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('ruestung-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten(); updateRuestung(); updateTraglast();">❌</button></td>
     `;
     row.querySelectorAll("input, textarea, select").forEach(el => {
-      const evt = el.type === "checkbox" ? "change" : "input";
-      el.addEventListener(evt, () => { updateRuestung(); updateTraglast(); saveState(); });
+      el.addEventListener('input', () => { updateRuestung(); updateTraglast(); saveState(); });
     });
   }
   else if (tableId === "ausruestung-table") {
     // Allgemeine Ausrüstung
     row.innerHTML = `
-      <td><textarea rows="1"></textarea></td>
+      <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></td>
       <td><input type="number"></td>
       <td><input type="number"></td>
-      <td class="equip-col"><input type="checkbox"></td>
       <td class="text-left"><textarea></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('ausruestung-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten(); updateTraglast();">❌</button></td>
     `;
     row.querySelectorAll("input, textarea").forEach(el => {
-      const evt = el.type === "checkbox" ? "change" : "input";
-      el.addEventListener(evt, () => { updateTraglast(); saveState(); });
+      el.addEventListener('input', () => { updateTraglast(); saveState(); });
     });
   }
   else if (tableId === "zauber-table") {
@@ -1239,7 +1239,7 @@ function updateRuestung() {
     const zoneSel = row.cells[1].querySelector("select");
     const zone = zoneSel ? zoneSel.value : "";
     const rp = parseInt(row.cells[2].querySelector("input").value) || 0;
-    const eq = row.cells[4].querySelector("input[type='checkbox']")?.checked;
+    const eq = row.cells[0].querySelector("input[type='hidden']")?.value === "1";
     if (eq && zones.hasOwnProperty(zone)) zones[zone] += rp; // Werte je Zone addieren
   });
 
@@ -1274,7 +1274,7 @@ function updateTraglast() {
   document.querySelectorAll("#waffen-table tr").forEach((row, idx) => {
     if (idx === 0) return;
     const tp = parseInt(row.cells[2].querySelector("input").value) || 0;
-    const eq = row.cells[3].querySelector("input[type='checkbox']")?.checked;
+    const eq = row.cells[0].querySelector("input[type='hidden']")?.value === "1";
     waffenTP += Math.max(0, tp - (eq ? 1 : 0));
   });
 
@@ -1282,7 +1282,7 @@ function updateTraglast() {
   document.querySelectorAll("#ruestung-table tr").forEach((row, idx) => {
     if (idx === 0) return;
     const tp = parseInt(row.cells[3].querySelector("input").value) || 0;
-    const eq = row.cells[4].querySelector("input[type='checkbox']")?.checked;
+    const eq = row.cells[0].querySelector("input[type='hidden']")?.value === "1";
     ruestungTP += Math.max(0, tp - (eq ? 1 : 0));
   });
 
@@ -1291,7 +1291,7 @@ function updateTraglast() {
     if (idx === 0) return;
     const menge = parseInt(row.cells[1].querySelector("input").value) || 0;
     const tp = parseInt(row.cells[2].querySelector("input").value) || 0;
-    const eq = row.cells[3].querySelector("input[type='checkbox']")?.checked;
+    const eq = row.cells[0].querySelector("input[type='hidden']")?.value === "1";
     const weight = menge * tp;
     ausrTP += Math.max(0, weight - (eq ? 1 : 0));
   });

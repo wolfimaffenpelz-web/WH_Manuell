@@ -222,7 +222,6 @@ sections.push(
           <th>Name</th>
           <th class="text-left">${t('weapon_group')}</th>
           <th>TP</th>
-          <th class="equip-col">☑</th>
           <th>RW</th>
           <th class="text-left">${t('qualities')}</th>
           <th class="delete-col"></th>
@@ -295,7 +294,6 @@ sections.push(
           <th>${t('zone_short')}</th>
           <th>RP</th>
           <th>TP</th>
-          <th class="equip-col">☑</th>
           <th class="text-left">${t('qualities')}</th>
           <th class="delete-col"></th>
         </tr>
@@ -314,7 +312,6 @@ sections.push(
           <th>Name</th>
           <th>Menge</th>
           <th>TP</th>
-          <th class="equip-col">☑</th>
           <th class="text-left">${t('notes')}</th>
           <th class="delete-col"></th>
         </tr>
