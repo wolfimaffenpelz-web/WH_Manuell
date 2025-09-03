@@ -330,7 +330,7 @@ td.wsg { width: 35px; }
 /* Zeilen- und Spaltenmarkierungen */
 .line-marked {
   background: var(--color-highlight);
-  color: var(--color-bg);
+  color: var(--color-text);
   font-family: var(--font-heading);
   font-weight: bold;
 }
