@@ -8,7 +8,7 @@
   --color-text: #111;
   --color-field: #f8d7d7;
   --color-readonly: #e6e6e6;
-  --color-highlight: #FFD700;
+  --color-highlight: #9E9E9E;
   --color-positive: green;
   --color-negative: darkred;
   --color-attr-cross: #add8e6;
@@ -331,7 +331,7 @@ td.wsg { width: 35px; }
 .line-marked {
   background: var(--color-highlight);
   color: var(--color-text);
-  font-family: var(--font-heading);
+  font-family: var(--font-main);
   font-weight: bold;
 }
 
