@@ -170,8 +170,9 @@ tr + tr th {
 
 .sin-table {
   width: fit-content;
-  margin: 0 auto;
-  border: 1px solid var(--color-table-line);
+  margin: 10px auto; 
+  font-weight: bold;
+  border: 2px solid var(--color-table-line);
 }
 
 .sin-table td {
@@ -657,7 +658,7 @@ th[data-input]::before {
 #ausruestung-table th:nth-child(1),
 #ausruestung-table td:nth-child(1) { max-width: none; width: auto; }
 #ausruestung-table th:nth-child(2),
-#ausruestung-table td:nth-child(2) { width: fit-content; min-width: 35px; }
+#ausruestung-table td:nth-child(2) { width: fit-content; min-width: 35px; max-width: 60px }
 #ausruestung-table th:nth-child(3),
 #ausruestung-table td:nth-child(3) { width: 35px; }
 #ausruestung-table th:nth-child(4),
@@ -696,11 +697,9 @@ th[data-input]::before {
 #korruption-table td:nth-child(2) { width: 50%; text-align: center }
 
 #psychologie-table th:nth-child(1),
-#psychologie-table td:nth-child(1) { max-width: none; width: auto; }
+#psychologie-table td:nth-child(1) { max-width: none; width: 50%; }
 #psychologie-table th:nth-child(2),
 #psychologie-table td:nth-child(2) { max-width: none; width: auto; text-align: left; }
-#psychologie-table th:nth-child(3),
-#psychologie-table td:nth-child(3) { width: 16px; padding: 0; }
 
 /* Linksbündige Textareas */
 #talent-table td:nth-child(3) textarea,
