@@ -103,6 +103,19 @@ th:first-child textarea {
 }
 
 input[type="text"],
+textarea {
+  width: 97%;
+  margin: 0 auto;
+  border: none;
+  background: var(--color-field);
+  text-align: left;
+  font-family: inherit;
+  font-weight: bold;
+  height: var(--row-height);
+  line-height: var(--row-height);
+  vertical-align: middle;
+}
+
 input[type="number"],
 textarea {
   width: 97%;
