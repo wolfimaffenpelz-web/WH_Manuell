@@ -637,6 +637,9 @@ th[data-input]::before {
 #ruestung-table th:nth-child(6),
 #ruestung-table td:nth-child(6) { width: 16px; padding: 0; }
 
+.ruestung-uebersicht,
+.ruestung-uebersicht + .table-gap { display: none; }
+
 #ausruestung-table th:nth-child(1),
 #ausruestung-table td:nth-child(1) { max-width: none; width: auto; }
 #ausruestung-table th:nth-child(2),
@@ -684,6 +687,16 @@ th[data-input]::before {
 #psychologie-table td:nth-child(2) { max-width: none; width: auto; text-align: left; }
 #psychologie-table th:nth-child(3),
 #psychologie-table td:nth-child(3) { width: 16px; padding: 0; }
+
+/* Linksbündige Textareas */
+#talent-table td:nth-child(3) textarea,
+#waffen-table td:nth-child(5) textarea,
+#ruestung-table td:nth-child(5) textarea,
+#ausruestung-table td:nth-child(4) textarea,
+#zauber-table td:nth-child(6) textarea,
+#mutationen-table td:nth-child(3) textarea,
+#psychologie-table td:nth-child(2) textarea,
+#exp-table td:nth-child(2) textarea { text-align: left; }
 
 /* ================================================
    Schulden- und Spar-Tabellen
@@ -852,6 +865,10 @@ th[data-input]::before {
 .tiny-field {
   width: 2ch;
 }
+
+/* Bewegungstabelle ohne Umbruch */
+.movement-table { width: auto; table-layout: auto; }
+.movement-table td { white-space: nowrap; }
 
 .slash {
   padding: 0 4px;
