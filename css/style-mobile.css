@@ -22,6 +22,8 @@
   --color-table-line: #000;
   --color-divider: #000;
   --icon-size: 1.3em;
+  --char-icon-size: 80px;
+  --char-icon-gap: 10px;
   --font-active-char: var(--font-heading);
   --font-size-active-char: 1.2em;
   --row-height: 1.5em;
@@ -144,6 +146,20 @@ tr + tr th {
   border-top: 1px solid var(--color-table-line);
 }
 
+/* spezielle Tabellen */
+.movement-table td + td,
+.movement-table th + th,
+.movement-table tr + tr td,
+.movement-table tr + tr th {
+  border-left: none;
+  border-top: none;
+}
+
+.sin-table {
+  width: auto;
+  margin: 0 auto;
+}
+
 th { font-weight: bold; }
 
 td.text-left,
@@ -243,22 +259,28 @@ td.wsg { width: 35px; }
   margin: 10px 0;
 }
 .character-management .top-row {
-  display: flex;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: repeat(3, var(--char-icon-size));
   justify-content: center;
-  align-items: center;
+  gap: var(--char-icon-gap);
 }
 .character-management .top-row button {
-  margin: 5px;
-  padding: 3px;
-  background: none;
+  width: var(--char-icon-size);
+  height: var(--char-icon-size);
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-bg);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
   border: none;
-  font-size: var(--icon-size);
 }
-.character-management .top-row h2 {
-  margin: 5px;
-  font-size: 1.5em;
-}
+#cycle-character { background-image: url('../img/select_char.png'); }
+#new-character { background-image: url('../img/create_char.png'); }
+#delete-character { background-image: url('../img/delete_char.png'); }
+#import-character { background-image: url('../img/import_char.png'); }
+#export-character { background-image: url('../img/export_char.png'); }
+#settings { background-image: url('../img/customizing.png'); }
 .character-management .char-fields {
   display: flex;
   justify-content: center;
@@ -804,6 +826,10 @@ th[data-input]::before {
 
 .small-field {
   width: 3ch;
+}
+
+.tiny-field {
+  width: 2ch;
 }
 
 .slash {

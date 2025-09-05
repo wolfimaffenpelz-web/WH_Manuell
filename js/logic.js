@@ -43,21 +43,8 @@ function applySavedSettings() {
   Object.entries(fonts).forEach(([k, v]) => {
     document.documentElement.style.setProperty(k, v);
   });
-  adjustTopRowIcons();
 }
 
-function adjustTopRowIcons() {
-  const container = document.querySelector('.character-management .top-row');
-  if (!container) return;
-  let size = 1.3;
-  document.documentElement.style.setProperty('--icon-size', size + 'em');
-  const maxWidth = container.clientWidth;
-  while (container.scrollWidth > maxWidth && size > 0.5) {
-    size -= 0.05;
-    document.documentElement.style.setProperty('--icon-size', size + 'em');
-  }
-}
-window.addEventListener('resize', adjustTopRowIcons);
 
 function rgbToHex(rgb) {
   const str = rgb.trim();
@@ -384,7 +371,6 @@ function openFontSettings() {
     });
     localStorage.setItem("font-settings", JSON.stringify(saved));
     close();
-    adjustTopRowIcons();
   });
 }
 
