@@ -429,7 +429,7 @@ tr.active {
 
 .zone-head {
   top: calc(-76px + 2.5 * var(--armor-box-size));
-  left: calc(50% - 5.4 * var(--armor-box-size));
+  left: calc(50% - 5.9 * var(--armor-box-size));
 }
 .zone-left-arm {
   top: calc(149px - 3 * var(--armor-box-size));
@@ -437,10 +437,10 @@ tr.active {
 }
 .zone-right-arm {
   top: calc(149px - 3 * var(--armor-box-size));
-  left: calc(50% - 5.4 * var(--armor-box-size));
+  left: calc(50% - 5.9 * var(--armor-box-size));
 }
 .zone-chest {
-  top: calc(200px - 2 * var(--armor-box-size));
+  top: calc(230px - 2 * var(--armor-box-size));
   right: calc(-54px + 4 * var(--armor-box-size));
 }
 .zone-left-leg {
@@ -449,7 +449,7 @@ tr.active {
 }
 .zone-right-leg {
   top: calc(373px - 2 * var(--armor-box-size));
-  left: calc(50% - 5.4 * var(--armor-box-size));
+  left: calc(50% - 5.9 * var(--armor-box-size));
 }
 
 .shield-display {
