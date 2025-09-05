@@ -26,7 +26,7 @@
   --char-icon-gap: 10px;
   --font-active-char: var(--font-heading);
   --font-size-active-char: 1.2em;
-  --row-height: 1.5em;
+  --row-height: 1em;
   --coin-col-width: 60px;
   --delete-col-width: 16px;
   --delete-icon-size: 11px;
@@ -109,7 +109,7 @@ textarea {
   margin: 0 auto;
   border: none;
   background: var(--color-field);
-  text-align: center;
+  text-align: left;
   font-family: inherit;
   font-weight: bold;
   height: var(--row-height);
