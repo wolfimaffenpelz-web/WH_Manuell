@@ -404,7 +404,21 @@ td.wsg { width: 35px; }
 }
 
 th.active,
-td.active,
+td.active {
+  border-left: 2px solid var(--color-active-cell);
+  border-right: 2px solid var(--color-active-cell);
+}
+
+tr:first-child th.active,
+tr:first-child td.active {
+  border-top: 2px solid var(--color-active-cell);
+}
+
+tr:last-child th.active,
+tr:last-child td.active {
+  border-bottom: 2px solid var(--color-active-cell);
+}
+
 tr.active {
   outline: 2px solid var(--color-active-cell);
 }
