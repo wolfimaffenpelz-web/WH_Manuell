@@ -444,7 +444,7 @@ tr.active {
   right: calc(-54px + 4 * var(--armor-box-size));
 }
 .zone-left-leg {
-  top: calc(387px - 2 * var(--armor-box-size));
+  top: calc(373px - 2 * var(--armor-box-size));
   right: calc(-54px + 4 * var(--armor-box-size));
 }
 .zone-right-leg {
