@@ -4,12 +4,15 @@ self.addEventListener("install", e => {
     caches.open("charakterbogen-cache").then(cache => {
       return cache.addAll([
         "/",              // Root
-        "/index.html",     // Hauptdokument
-        "/css/style.css",  // Styles
-        "/js/sections.js", // Struktur
+        "/index.html",         // Hauptdokument
+        "/css/style-mobile.css",  // Styles Mobile
+        "/css/style-desktop.css", // Styles Desktop
+        "/js/sections.js",     // Struktur
         "/js/translations.js", // Übersetzungen
-        "/js/logic.js",    // Logik
-        "/manifest.json"   // PWA Manifest
+        "/js/logic.js",        // Logik
+        "/manifest.json",      // PWA Manifest
+        "/img/appicon.png",    // App-Icon
+        "/img/splash.png"      // Splashscreen
       ]);
     })
   );

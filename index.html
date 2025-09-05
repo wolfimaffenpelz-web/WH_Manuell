@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title data-i18n="title">Charakterbogen – Warhammer Fantasy</title>
 
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="img/appicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="img/appicon.png">
+  <link rel="apple-touch-startup-image" href="img/splash.png">
+  <meta name="theme-color" content="#111">
+
   <!-- Fonts: Fraktur-Schrift für Überschriften, Podkova für Fließtext -->
   <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Podkova&display=swap" rel="stylesheet">
   <link href="https://fonts.cdnfonts.com/css/black-chancery" rel="stylesheet">
@@ -61,5 +67,12 @@
   <script src="js/translations.js"></script>
   <script src="js/sections.js"></script>
   <script src="js/logic.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js');
+      });
+    }
+  </script>
 </body>
 </html>
