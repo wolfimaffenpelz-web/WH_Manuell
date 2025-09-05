@@ -156,14 +156,22 @@ tr + tr th {
 }
 
 .sin-table {
-  width: auto;
+  width: fit-content;
   margin: 0 auto;
+  border: 1px solid var(--color-table-line);
+}
+
+.sin-table td {
+  width: var(--coin-col-width);
 }
 
 th { font-weight: bold; }
 
 td.text-left,
 th.text-left { text-align: left; }
+
+td.text-center,
+th.text-center { text-align: center; }
 
 th.wsg,
 td.wsg { width: 35px; }
