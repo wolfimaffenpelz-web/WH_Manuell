@@ -31,7 +31,7 @@
   --marker-popup-icon-size: 2em;
     --armor-visual-width: 320px;
     --silhouette-width: 192px;
-    --shield-width: calc(var(--silhouette-width) * 0.7);
+    --shield-width: calc(var(--silhouette-width) * 0.55);
     --armor-box-size: 24px;
   --font-size-footnote: 0.8em;
 }
@@ -470,7 +470,7 @@ tr.active {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 32px;
+  font-size: 16px;
   font-weight: bold;
 }
 
