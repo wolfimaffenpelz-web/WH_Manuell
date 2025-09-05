@@ -37,7 +37,7 @@ const sections = [
         </div>
         <div class="subsection">
           <h3>${t('movement')}</h3>
-          <table class="full-width">
+          <table class="full-width movement-table">
             <tr>
               <td>${t('movement')}</td><td><input type="number" id="char-bewegung" class="small-field" max="99"></td>
               <td>${t('walk')}</td><td><input type="number" id="char-gehen" class="small-field" max="99"></td>
@@ -339,6 +339,9 @@ sections.push(
           <th class="text-left">${t('effect')}</th>
           <th class="delete-col"></th>
         </tr>
+      </table>
+      <table class="sin-table" id="sin-table">
+        <tr><td>${t('sin')}</td><td><input type="number" id="sin-value" class="tiny-field"></td></tr>
       </table>
       <div class="section-divider"></div>
     `

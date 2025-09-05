@@ -7,11 +7,13 @@ const baseTranslations = {
   password_prompt: "Bitte Passwort eingeben:",
   ok: "OK",
   character_sheet: "Charakterbogen",
-  character_selection: "Charakterwahl",
   new: "Neu",
   delete: "Löschen",
   import: "Import",
   export: "Export",
+  select_char: "Charakter auswählen",
+  create_char: "Charakter erstellen",
+  delete_char: "Charakter entfernen",
   wrong_password: "Falsches Passwort!",
   import_failed: "Import fehlgeschlagen",
   character_name_prompt: "Charaktername:",
@@ -129,6 +131,7 @@ const baseTranslations = {
   component: "Komponente",
   value_col: "Wert",
   comment_col: "Kommentar",
+  sin: "Sünde",
   st_bonus: "ST-Bonus",
   wi_bonus: "WI-Bonus",
   wk_bonus: "2× WK-Bonus",
@@ -222,6 +225,12 @@ function applyTranslations() {
     const key = el.getAttribute('data-i18n');
     if (translations[currentLang][key]) {
       el.textContent = translations[currentLang][key];
+    }
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const key = el.getAttribute('data-i18n-title');
+    if (translations[currentLang][key]) {
+      el.title = translations[currentLang][key];
     }
   });
 }
