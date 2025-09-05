@@ -11,7 +11,7 @@ const sections = [
       <div class="section-body">
         <div class="subsection">
           <h3>Identität</h3>
-          <table class="full-width">
+          <table class="full-width two-col-table">
             <tr><td>Name</td><td><input type="text" id="char-name"></td></tr>
             <tr><td>Volk</td><td><input type="text" id="char-volk"></td></tr>
             <tr><td>Geschlecht</td><td><input type="text" id="char-geschlecht"></td></tr>
@@ -19,7 +19,7 @@ const sections = [
         </div>
         <div class="subsection">
           <h3>Karriere</h3>
-          <table class="full-width">
+          <table class="full-width two-col-table">
             <tr><td>Karriere</td><td><input type="text" id="char-karriere"></td></tr>
             <tr><td>Karrierestufe</td><td><input type="text" id="char-stufe"></td></tr>
             <tr><td>Karriereweg</td><td><input type="text" id="char-weg"></td></tr>
@@ -28,7 +28,7 @@ const sections = [
         </div>
         <div class="subsection">
           <h3>Erscheinung</h3>
-          <table class="full-width">
+          <table class="full-width two-col-table">
             <tr><td>Alter</td><td><input type="text" id="char-alter"></td></tr>
             <tr><td>Körpergröße</td><td><input type="text" id="char-groesse"></td></tr>
             <tr><td>Haare</td><td><input type="text" id="char-haare"></td></tr>

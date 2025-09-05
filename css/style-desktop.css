@@ -160,6 +160,11 @@ tr + tr th {
 }
 
 /* spezielle Tabellen */
+.two-col-table td,
+.two-col-table th {
+  width: 50%;
+}
+
 .movement-table td + td,
 .movement-table th + th,
 .movement-table tr + tr td,
