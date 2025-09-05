@@ -289,6 +289,7 @@ sections.push(
       <div class="table-gap"></div>
 
       <!-- Dynamische Rüstungsteile -->
+      <h3>Rüstungsteile</h3>
       <table class="full-width" id="ruestung-table">
         <tr>
           <th>Name</th>
@@ -348,6 +349,7 @@ sections.push(
     id: "korruption",
     title: t('corruption') + ' & ' + t('mutations'),
     content: `
+      <h3>Korruptionspunkte</h3>
       <table id="korruption-table">
         <tr><th>${t('max')}</th><th>${t('current')}</th></tr>
         <tr>
@@ -355,7 +357,7 @@ sections.push(
           <td><input type="number" id="korruption-akt"></td>
         </tr>
       </table>
-
+     <h3>Vorhandene Mutationen</h3>
       <table class="full-width" id="mutationen-table">
         <tr>
           <th>Mutation</th>
@@ -511,7 +513,7 @@ sections.push(
             <td><input type="number" id="exp-full-gesamt" readonly></td>
           </tr>
         </table>
-
+       <h3>Erfahrungsänderungen erfassen</h3>
         <table class="full-width" id="exp-table">
           <tr><th>${t('value_col')}</th><th>${t('comment_col')}</th><th class="delete-col"></th></tr>
         </table>
