@@ -455,7 +455,7 @@ tr.active {
 .shield-display {
   position: absolute;
   left: 50%;
-  bottom: 20px;
+  bottom: 70px;
   width: var(--shield-width);
   transform: translateX(-50%);
 }
@@ -470,7 +470,7 @@ tr.active {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 16px;
+  font-size: 20px;
   font-weight: bold;
 }
 
