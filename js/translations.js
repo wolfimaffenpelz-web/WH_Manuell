@@ -161,7 +161,7 @@ const baseTranslations = {
   head: "Kopf",
   left_arm: "Linker Arm",
   right_arm: "Rechter Arm",
-  chest: "Brust",
+  chest: "Körper",
   left_leg: "Linkes Bein",
   right_leg: "Rechtes Bein",
   shield: "Schild",
