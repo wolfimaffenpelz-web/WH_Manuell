@@ -37,11 +37,11 @@ const sections = [
         </div>
         <div class="subsection">
           <h3>${t('movement')}</h3>
-          <table class="full-width movement-table">
+          <table class="movement-table">
             <tr>
-              <td>${t('movement')}</td><td><input type="number" id="char-bewegung" class="small-field" max="99"></td>
-              <td>${t('walk')}</td><td><input type="number" id="char-gehen" class="small-field" max="99"></td>
-              <td>${t('run')}</td><td><input type="number" id="char-rennen" class="small-field" max="99"></td>
+              <td>${t('movement')}</td><td><input type="number" id="char-bewegung" class="tiny-field" max="99" step="1"></td>
+              <td>${t('walk')}</td><td><input type="number" id="char-gehen" class="tiny-field" max="99" step="1"></td>
+              <td>${t('run')}</td><td><input type="number" id="char-rennen" class="tiny-field" max="99" step="1"></td>
             </tr>
           </table>
         </div>
@@ -431,9 +431,9 @@ sections.push(
     content: `
       <h3>${t('coin_possession')}</h3>
       <table id="vermoegen-table">
-        <tr><th class="text-center"><span class="coin gold"></span> GK</th><th><span class="coin silver"></span> S</th><th><span class="coin copper"></span> G</th></tr>
+        <tr><th><span class="coin gold"></span> GK</th><th><span class="coin silver"></span> S</th><th><span class="coin copper"></span> G</th></tr>
         <tr>
-          <td class="text-center"><input type="number" id="verm-gk"></td>
+          <td><input type="number" id="verm-gk"></td>
           <td><input type="number" id="verm-s"></td>
           <td><input type="number" id="verm-g"></td>
         </tr>
@@ -442,9 +442,9 @@ sections.push(
       <div id="nettovermoegen-block" style="margin-top:10px;">
         <h3>${t('net_worth')}</h3>
         <table>
-          <tr><th class="text-center"><span class="coin gold"></span> GK</th><th><span class="coin silver"></span> S</th><th><span class="coin copper"></span> G</th></tr>
+          <tr><th><span class="coin gold"></span> GK</th><th><span class="coin silver"></span> S</th><th><span class="coin copper"></span> G</th></tr>
           <tr>
-            <td class="text-center"><input type="number" id="netto-gk" readonly></td>
+            <td><input type="number" id="netto-gk" readonly></td>
             <td><input type="number" id="netto-s" readonly></td>
             <td><input type="number" id="netto-g" readonly></td>
           </tr>
@@ -456,7 +456,7 @@ sections.push(
         <h3>${t('debts')}</h3>
         <table class="full-width" id="schulden-table">
           <tr>
-            <th class="text-center"><span class="coin gold"></span> GK</th>
+            <th><span class="coin gold"></span> GK</th>
             <th><span class="coin silver"></span> S</th>
             <th><span class="coin copper"></span> G</th>
             <th class="text-left">Notizen</th>
@@ -467,7 +467,7 @@ sections.push(
         <h3>${t('savings')}</h3>
         <table class="full-width" id="spar-table">
           <tr>
-            <th class="text-center"><span class="coin gold"></span> GK</th>
+            <th><span class="coin gold"></span> GK</th>
             <th><span class="coin silver"></span> S</th>
             <th><span class="coin copper"></span> G</th>
             <th class="text-left">Notizen</th>

@@ -999,7 +999,7 @@ function addRow(tableId) {
   else if (tableId === "schulden-table") {
     // Dynamische Schuldenliste
     row.innerHTML = `
-      <td class="text-center"><input type="number" max="0"></td>
+      <td><input type="number" max="0"></td>
       <td><input type="number" max="0"></td>
       <td><input type="number" max="0"></td>
       <td class="text-left"><textarea rows="1"></textarea></td>
@@ -1009,7 +1009,7 @@ function addRow(tableId) {
   else if (tableId === "spar-table") {
     // Dynamische Sparvermögenliste
     row.innerHTML = `
-      <td class="text-center"><input type="number" min="0"></td>
+      <td><input type="number" min="0"></td>
       <td><input type="number" min="0"></td>
       <td><input type="number" min="0"></td>
       <td class="text-left"><textarea rows="1"></textarea></td>
