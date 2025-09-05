@@ -392,7 +392,7 @@ tr.active {
   position: relative;
   width: var(--armor-visual-width);
   height: 650px;
-  margin: 0 auto 20px;
+  margin: 0 auto 5px;
 }
 
 .armor-visual .silhouette {
@@ -437,19 +437,19 @@ tr.active {
 }
 .zone-right-arm {
   top: calc(163px - 2 * var(--armor-box-size));
-  left: calc(-69px + 3 * var(--armor-box-size));
+  left: calc(50% - 2.4 * var(--armor-box-size));
 }
 .zone-chest {
-  top: calc(127px - 4.5 * var(--armor-box-size));
-  left: calc(-62px + 3.5 * var(--armor-box-size));
+  top: calc(250px - 2 * var(--armor-box-size));
+  right: calc(-54px + 4 * var(--armor-box-size));
 }
 .zone-left-leg {
   top: calc(387px - 2 * var(--armor-box-size));
-  right: calc(0.8 * var(--armor-box-size));
+  right: calc(-54px + 4 * var(--armor-box-size));
 }
 .zone-right-leg {
   top: calc(373px - 3 * var(--armor-box-size));
-  left: 0;
+  right: calc(50% - 2.4 * var(--armor-box-size));
 }
 
 .shield-display {
@@ -547,11 +547,11 @@ th[data-input]::before {
 #grupp-table th:nth-child(2),
 #grupp-table td:nth-child(2) { width: fit-content; min-width: 30px; }
 #grupp-table th:nth-child(3),
-#grupp-table td:nth-child(3) { width: auto; }
+#grupp-table td:nth-child(3) { width: auto; max-width: 40px; }
 #grupp-table th:nth-child(4),
-#grupp-table td:nth-child(4) { width: auto; }
+#grupp-table td:nth-child(4) { width: auto; max-width: 40px;}
 #grupp-table th:nth-child(5),
-#grupp-table td:nth-child(5) { width: auto; }
+#grupp-table td:nth-child(5) { width: auto; max-width: 40px;}
 #grupp-table th:nth-child(6),
 #grupp-table td:nth-child(6) { width: 16px; padding: 0; }
 
@@ -559,7 +559,7 @@ th[data-input]::before {
 #talent-table th:nth-child(1),
 #talent-table td:nth-child(1) { max-width: none; min-width: 30%; width: auto; }
 #talent-table th:nth-child(2),
-#talent-table td:nth-child(2) { width: fit-content; min-width: 35px; }
+#talent-table td:nth-child(2) { width: fit-content; min-width: 35px; max-width: 45px; }
 #talent-table th:nth-child(3),
 #talent-table td:nth-child(3) { max-width: none; min-width: 30%; text-align: left; }
 #talent-table th:nth-child(4),
@@ -633,7 +633,7 @@ th[data-input]::before {
 #korruption-table th:nth-child(1),
 #korruption-table td:nth-child(1),
 #korruption-table th:nth-child(2),
-#korruption-table td:nth-child(2) { width: 50%; }
+#korruption-table td:nth-child(2) { width: 50%; text-align: center }
 
 #psychologie-table th:nth-child(1),
 #psychologie-table td:nth-child(1) { max-width: none; width: auto; }
