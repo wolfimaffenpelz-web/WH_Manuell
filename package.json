@@ -1,0 +1,16 @@
+{
+  "name": "wh_manuell",
+  "version": "1.0.0",
+  "description": "Static Warhammer manual app",
+  "scripts": {
+    "start": "lite-server",
+    "lint": "eslint js",
+    "build": "rollup -c",
+    "test": "echo \"No tests specified\""
+  },
+  "devDependencies": {
+    "lite-server": "^2.6.1",
+    "eslint": "^8.0.0",
+    "rollup": "^3.0.0"
+  }
+}
