@@ -391,7 +391,7 @@ tr.active {
 .armor-visual {
   position: relative;
   width: var(--armor-visual-width);
-  height: 650px;
+  height: 600px;
   margin: 0 auto;
 }
 
@@ -455,7 +455,7 @@ tr.active {
 .shield-display {
   position: absolute;
   left: 50%;
-  bottom: 70px;
+  bottom: 20px;
   width: var(--shield-width);
   transform: translateX(-50%);
 }
