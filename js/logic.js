@@ -999,20 +999,20 @@ function addRow(tableId) {
   else if (tableId === "schulden-table") {
     // Dynamische Schuldenliste
     row.innerHTML = `
+      <td class="text-center"><input type="number" max="0"></td>
       <td><input type="number" max="0"></td>
       <td><input type="number" max="0"></td>
-      <td><input type="number" max="0"></td>
-      <td><textarea rows="1"></textarea></td>
+      <td class="text-left"><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('schulden-table'); saveState(); updateVermoegen();">❌</button></td>
     `;
   }
   else if (tableId === "spar-table") {
     // Dynamische Sparvermögenliste
     row.innerHTML = `
+      <td class="text-center"><input type="number" min="0"></td>
       <td><input type="number" min="0"></td>
       <td><input type="number" min="0"></td>
-      <td><input type="number" min="0"></td>
-      <td><textarea rows="1"></textarea></td>
+      <td class="text-left"><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('spar-table'); saveState(); updateVermoegen();">❌</button></td>
     `;
   }
@@ -1093,7 +1093,7 @@ function addRow(tableId) {
     // Erfahrungspunkte-Modus "Voll"
     row.innerHTML = `
       <td><input type="number"></td>
-      <td><textarea rows="1"></textarea></td>
+      <td class="text-left"><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('exp-table'); saveState(); updateLebenspunkte(); updateErfahrung(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
