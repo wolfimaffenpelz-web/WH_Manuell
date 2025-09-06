@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="css/style-desktop.css" media="(min-width: 1200px)">
 </head>
 <body>
+  <div id="splash-screen"></div>
   <!-- Passwortschutz Overlay -->
   <div id="password-overlay" class="overlay">
     <div class="overlay-content">
@@ -68,11 +69,13 @@
   <script src="js/sections.js"></script>
   <script src="js/logic.js"></script>
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
+    window.addEventListener('load', () => {
+      const splash = document.getElementById('splash-screen');
+      if (splash) splash.style.display = 'none';
+      if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/service-worker.js');
-      });
-    }
+      }
+    });
   </script>
 </body>
 </html>
