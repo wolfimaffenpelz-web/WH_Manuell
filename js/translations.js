@@ -119,7 +119,7 @@ const baseTranslations = {
   effect: "Effekt",
   zone: "Trefferzone",
   zone_short: "Zone",
-  weapon_group: "Gattung",
+  weapon_group: "Gruppe",
   range: "Trefferbereich",
   walk: "Gehen",
   run: "Rennen",
