@@ -73,7 +73,30 @@
       const splash = document.getElementById('splash-screen');
       if (splash) splash.style.display = 'none';
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/service-worker.js');
+        navigator.serviceWorker.register('/service-worker.js').then(reg => {
+          const promptUser = worker => {
+            if (confirm(t('update_available'))) {
+              worker.postMessage({ type: 'SKIP_WAITING' });
+            }
+          };
+
+          if (reg.waiting) {
+            promptUser(reg.waiting);
+          }
+
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                promptUser(newWorker);
+              }
+            });
+          });
+
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            window.location.reload();
+          });
+        });
       }
     });
   </script>
