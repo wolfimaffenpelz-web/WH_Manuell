@@ -111,6 +111,7 @@ const baseTranslations = {
   resolve: "Mut",
   tp: "TP",
   rw: "RW",
+  damage: "Schaden",
   qualities: "Qualitäten",
   quantity: "Menge",
   target: "Ziel",

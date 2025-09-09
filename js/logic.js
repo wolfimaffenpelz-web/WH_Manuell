@@ -788,6 +788,7 @@ function toggleLineMarker(cell) {
     if (icon) icon.textContent = attrSymbols[1];
     row.classList.add('line-marked');
   }
+  row.querySelectorAll('textarea').forEach(autoResize);
   saveState();
   if (table && (table.id === 'waffen-table' || table.id === 'ruestung-table' || table.id === 'ausruestung-table')) {
     if (table.id === 'ruestung-table') updateRuestung();
@@ -822,6 +823,7 @@ function restoreMarkers() {
       if (icon) icon.textContent = "";
       row.classList.remove('line-marked');
     }
+    row.querySelectorAll('textarea').forEach(autoResize);
   });
   updateRuestung();
   updateTraglast();
@@ -988,6 +990,7 @@ function addRow(tableId) {
       <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></td>
       <td class="text-left"><input type="text"></td>
       <td><input type="number"></td>
+      <td><input type="text"></td>
       <td><input type="text"></td>
       <td class="text-left"><textarea></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('waffen-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten(); updateTraglast();">❌</button></td>
@@ -1242,8 +1245,7 @@ function updateRuestung() {
   document.getElementById("rp-box-brust").textContent = zones["Brust"] || 0;
   document.getElementById("rp-box-lbein").textContent = zones["Linkes Bein"] || 0;
   document.getElementById("rp-box-rbein").textContent = zones["Rechtes Bein"] || 0;
-  const gesamt = Object.values(zones).reduce((sum, val) => sum + val, 0);
-  document.getElementById("rp-box-schild").textContent = gesamt;
+  document.getElementById("rp-box-schild").textContent = zones["Schild"] || 0;
 }
 
 // =========================
