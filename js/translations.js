@@ -24,6 +24,7 @@ const baseTranslations = {
   delete_confirm_suffix: " wirklich löschen?",
   settings_placeholder: "Einstellungen folgen später.",
   settings: "Einstellungen",
+  update_available: "Neue Version verfügbar – jetzt aktualisieren?",
   yes: "Ja",
   no: "Nein",
   active_character: "Aktiver Charakter:",
