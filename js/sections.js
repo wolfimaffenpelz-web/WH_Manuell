@@ -223,6 +223,7 @@ sections.push(
           <th class="text-left">${t('weapon_group')}</th>
           <th>TP</th>
           <th>RW</th>
+          <th>${t('damage')}</th>
           <th class="text-left">${t('qualities')}</th>
           <th class="delete-col"></th>
         </tr>
