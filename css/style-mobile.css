@@ -105,8 +105,8 @@ th:first-child textarea {
 
 input[type="text"],
 textarea {
-  width: 97%;
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
   border: none;
   background: var(--color-field);
   text-align: left;
@@ -119,8 +119,8 @@ textarea {
 
 input[type="number"],
 textarea {
-  width: 97%;
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
   border: none;
   background: var(--color-field);
   text-align: center;
@@ -646,17 +646,20 @@ th[data-input]::before {
 #waffen-table th:nth-child(1),
 #waffen-table td:nth-child(1) { max-width: none; width: auto; }
 #waffen-table th:nth-child(2),
-#waffen-table td:nth-child(2) { width: fit-content; }
+#waffen-table td:nth-child(2) { width: 55px; }
 #waffen-table th:nth-child(3),
 #waffen-table td:nth-child(3) { width: 35px; }
 #waffen-table th:nth-child(4),
 #waffen-table td:nth-child(4) { width: 35px; }
 #waffen-table th:nth-child(5),
-#waffen-table td:nth-child(5) { width: 35px; }
+#waffen-table td:nth-child(5) { width: 60px; white-space: nowrap; }
 #waffen-table th:nth-child(6),
 #waffen-table td:nth-child(6) { max-width: none; width: auto; text-align: left; }
 #waffen-table th:nth-child(7),
 #waffen-table td:nth-child(7) { width: 16px; padding: 0; }
+
+#waffen-table th,
+#waffen-table td { padding: 2px 1px; }
 
 #ruestung-table th:nth-child(1),
 #ruestung-table td:nth-child(1) { max-width: none; width: auto; }
