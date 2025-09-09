@@ -92,6 +92,41 @@ function deleteCharacter(name) {
   loadCharacterList();
 }
 
+// Öffnet Eingabe zur Erstellung eines neuen Charakters
+function promptNewCharacter(mandatory = false) {
+  const overlay = document.createElement("div");
+  overlay.className = "overlay";
+  overlay.innerHTML = `
+    <div class="overlay-content">
+      <p>${mandatory ? t('no_character_prompt') : t('character_name_prompt')}</p>
+      <input type="text" id="new-char-name">
+      <br>
+      <button id="new-char-ok">${t('ok')}</button>
+      ${mandatory ? '' : `<button id="new-char-cancel">${t('cancel')}</button>`}
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const input = overlay.querySelector("#new-char-name");
+  input.focus();
+
+  function close() { overlay.remove(); }
+
+  if (!mandatory) {
+    overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
+    overlay.querySelector("#new-char-cancel").addEventListener("click", close);
+  }
+
+  overlay.querySelector("#new-char-ok").addEventListener("click", () => {
+    const newName = input.value.trim();
+    if (!newName) { alert(t('name_required')); return; }
+    saveState();
+    saveCharacter(newName);
+    resetCharacterSheet();
+    loadCharacterList();
+    close();
+  });
+}
+
 function initCharacterManagement() {
   const cycleBtn = document.getElementById("cycle-character");
   const newBtn = document.getElementById("new-character"); // neuer Charakter
@@ -102,6 +137,9 @@ function initCharacterManagement() {
   const settingsBtn = document.getElementById("settings");
 
   loadCharacterList();
+  if (characterList.length === 0) {
+    promptNewCharacter(true);
+  }
   if (!currentCharacter) {
     ensureInitialRows();
     updateAttributes();
@@ -143,35 +181,7 @@ function initCharacterManagement() {
 
   // Neuer Charakter anlegen
   newBtn.addEventListener("click", () => {
-    const overlay = document.createElement("div");
-    overlay.className = "overlay";
-    overlay.innerHTML = `
-      <div class="overlay-content">
-        <p>${t('character_name_prompt')}</p>
-        <input type="text" id="new-char-name">
-        <br>
-        <button id="new-char-ok">${t('ok')}</button>
-        <button id="new-char-cancel">${t('cancel')}</button>
-      </div>
-    `;
-    document.body.appendChild(overlay);
-    const input = overlay.querySelector("#new-char-name");
-    input.focus();
-
-    function close() { overlay.remove(); }
-
-    overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
-    overlay.querySelector("#new-char-cancel").addEventListener("click", close);
-
-    overlay.querySelector("#new-char-ok").addEventListener("click", () => {
-      const newName = input.value.trim();
-      if (!newName) { alert(t('name_required')); return; }
-      saveState();
-      saveCharacter(newName);
-      resetCharacterSheet();
-      loadCharacterList();
-      close();
-    });
+    promptNewCharacter();
   });
 
   // Charakter löschen
