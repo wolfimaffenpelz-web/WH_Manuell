@@ -92,6 +92,21 @@ function deleteCharacter(name) {
   loadCharacterList();
 }
 
+function killCharacter() {
+  document
+    .querySelectorAll('#main-content input, #main-content textarea, #main-content select, #main-content button')
+    .forEach(el => {
+      if (el.tagName === 'BUTTON' || el.tagName === 'SELECT') {
+        el.disabled = true;
+      } else if (el.type === 'checkbox' || el.type === 'radio') {
+        el.disabled = true;
+      } else {
+        el.setAttribute('readonly', true);
+      }
+      el.classList.add('readonly');
+    });
+}
+
 // Öffnet Eingabe zur Erstellung eines neuen Charakters
 function promptNewCharacter(preserveValues = false) {
   const overlay = document.createElement("div");
@@ -196,8 +211,9 @@ function initCharacterManagement() {
     overlay.innerHTML = `
       <div class="overlay-content">
         <p>${t('delete_confirm_prefix')}${currentCharacter}${t('delete_confirm_suffix')}</p>
-        <button id="del-yes">${t('yes')}</button>
-        <button id="del-no">${t('no')}</button>
+        <button id="del-kill">${t('kill_char')}</button>
+        <button id="del-yes">${t('delete_char')}</button>
+        <button id="del-no">${t('cancel')}</button>
       </div>
     `;
     document.body.appendChild(overlay);
@@ -206,6 +222,10 @@ function initCharacterManagement() {
 
     overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
     overlay.querySelector("#del-no").addEventListener("click", close);
+    overlay.querySelector("#del-kill").addEventListener("click", () => {
+      killCharacter();
+      close();
+    });
 
     overlay.querySelector("#del-yes").addEventListener("click", () => {
       deleteCharacter(currentCharacter);
