@@ -223,18 +223,54 @@ function initCharacterManagement() {
     overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
     overlay.querySelector("#del-no").addEventListener("click", close);
     overlay.querySelector("#del-kill").addEventListener("click", () => {
-      killCharacter();
-      close();
+      const confirmOverlay = document.createElement("div");
+      confirmOverlay.className = "overlay";
+      confirmOverlay.innerHTML = `
+        <div class="overlay-content">
+          <p>${t('kill_confirm')}</p>
+          <button id="kill-yes">${t('yes')}</button>
+          <button id="kill-no">${t('no')}</button>
+        </div>
+      `;
+      document.body.appendChild(confirmOverlay);
+
+      function closeConfirm() { confirmOverlay.remove(); }
+
+      confirmOverlay.addEventListener("click", e => { if (e.target === confirmOverlay) closeConfirm(); });
+      confirmOverlay.querySelector("#kill-no").addEventListener("click", closeConfirm);
+      confirmOverlay.querySelector("#kill-yes").addEventListener("click", () => {
+        killCharacter();
+        closeConfirm();
+        close();
+      });
     });
 
     overlay.querySelector("#del-yes").addEventListener("click", () => {
-      deleteCharacter(currentCharacter);
-      if (currentCharacter) {
-        loadState(); // anderen laden
-      } else {
-        resetCharacterSheet();
-      }
-      close();
+      const confirmOverlay = document.createElement("div");
+      confirmOverlay.className = "overlay";
+      confirmOverlay.innerHTML = `
+        <div class="overlay-content">
+          <p>${t('delete_confirm')}</p>
+          <button id="confirm-del-yes">${t('yes')}</button>
+          <button id="confirm-del-no">${t('no')}</button>
+        </div>
+      `;
+      document.body.appendChild(confirmOverlay);
+
+      function closeConfirm() { confirmOverlay.remove(); }
+
+      confirmOverlay.addEventListener("click", e => { if (e.target === confirmOverlay) closeConfirm(); });
+      confirmOverlay.querySelector("#confirm-del-no").addEventListener("click", closeConfirm);
+      confirmOverlay.querySelector("#confirm-del-yes").addEventListener("click", () => {
+        deleteCharacter(currentCharacter);
+        if (currentCharacter) {
+          loadState(); // anderen laden
+        } else {
+          resetCharacterSheet();
+        }
+        closeConfirm();
+        close();
+      });
     });
   });
 

@@ -21,6 +21,7 @@ const baseTranslations = {
   cancel: "Abbrechen",
   name_required: "Name erforderlich",
   delete_confirm: "Charakter wirklich löschen?",
+  kill_confirm: "Charakter wirklich töten?",
   delete_confirm_prefix: "Charakter ",
   delete_confirm_suffix: " töten oder löschen?",
   settings_placeholder: "Einstellungen folgen später.",
