@@ -93,16 +93,16 @@ function deleteCharacter(name) {
 }
 
 // Öffnet Eingabe zur Erstellung eines neuen Charakters
-function promptNewCharacter(mandatory = false) {
+function promptNewCharacter(preserveValues = false) {
   const overlay = document.createElement("div");
   overlay.className = "overlay";
   overlay.innerHTML = `
     <div class="overlay-content">
-      <p>${mandatory ? t('no_character_prompt') : t('character_name_prompt')}</p>
+      <p>${t('character_name_prompt')}</p>
       <input type="text" id="new-char-name">
       <br>
       <button id="new-char-ok">${t('ok')}</button>
-      ${mandatory ? '' : `<button id="new-char-cancel">${t('cancel')}</button>`}
+      <button id="new-char-cancel">${t('cancel')}</button>
     </div>
   `;
   document.body.appendChild(overlay);
@@ -111,17 +111,20 @@ function promptNewCharacter(mandatory = false) {
 
   function close() { overlay.remove(); }
 
-  if (!mandatory) {
-    overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
-    overlay.querySelector("#new-char-cancel").addEventListener("click", close);
-  }
+  overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
+  overlay.querySelector("#new-char-cancel").addEventListener("click", close);
 
   overlay.querySelector("#new-char-ok").addEventListener("click", () => {
     const newName = input.value.trim();
     if (!newName) { alert(t('name_required')); return; }
-    saveState();
-    saveCharacter(newName);
-    resetCharacterSheet();
+    if (preserveValues) {
+      saveCharacter(newName);
+      saveState();
+    } else {
+      saveState();
+      saveCharacter(newName);
+      resetCharacterSheet();
+    }
     loadCharacterList();
     close();
   });
@@ -137,9 +140,6 @@ function initCharacterManagement() {
   const settingsBtn = document.getElementById("settings");
 
   loadCharacterList();
-  if (characterList.length === 0) {
-    promptNewCharacter(true);
-  }
   if (!currentCharacter) {
     ensureInitialRows();
     updateAttributes();
@@ -181,7 +181,11 @@ function initCharacterManagement() {
 
   // Neuer Charakter anlegen
   newBtn.addEventListener("click", () => {
-    promptNewCharacter();
+    if (currentCharacter) {
+      promptNewCharacter();
+    } else {
+      promptNewCharacter(true);
+    }
   });
 
   // Charakter löschen
