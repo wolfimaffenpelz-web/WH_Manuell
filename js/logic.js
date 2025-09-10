@@ -93,7 +93,7 @@ function deleteCharacter(name) {
 }
 
 // Öffnet Eingabe zur Erstellung eines neuen Charakters
-function promptNewCharacter(mandatory = false) {
+function promptNewCharacter(mandatory = false, preserveValues = false) {
   const overlay = document.createElement("div");
   overlay.className = "overlay";
   overlay.innerHTML = `
@@ -119,9 +119,14 @@ function promptNewCharacter(mandatory = false) {
   overlay.querySelector("#new-char-ok").addEventListener("click", () => {
     const newName = input.value.trim();
     if (!newName) { alert(t('name_required')); return; }
-    saveState();
-    saveCharacter(newName);
-    resetCharacterSheet();
+    if (preserveValues) {
+      saveCharacter(newName);
+      saveState();
+    } else {
+      saveState();
+      saveCharacter(newName);
+      resetCharacterSheet();
+    }
     loadCharacterList();
     close();
   });
@@ -181,7 +186,11 @@ function initCharacterManagement() {
 
   // Neuer Charakter anlegen
   newBtn.addEventListener("click", () => {
-    promptNewCharacter();
+    if (currentCharacter) {
+      promptNewCharacter();
+    } else {
+      promptNewCharacter(false, true);
+    }
   });
 
   // Charakter löschen
