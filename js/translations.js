@@ -17,7 +17,6 @@ const baseTranslations = {
   wrong_password: "Falsches Passwort!",
   import_failed: "Import fehlgeschlagen",
   character_name_prompt: "Charaktername:",
-  no_character_prompt: "Kein Charakter vorhanden. Bitte neuen Charakter anlegen:",
   cancel: "Abbrechen",
   name_required: "Name erforderlich",
   delete_confirm: "Charakter wirklich löschen?",
