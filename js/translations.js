@@ -60,6 +60,14 @@ const baseTranslations = {
   font_main: "Schriftart Text",
   font_active_char: "Schriftart Aktiver Charakter",
   sample: "Beispiel",
+  // Game Deck
+  game_deck_roll_button: "W100 würfeln",
+  game_deck_result_label: "Ergebnis",
+  game_deck_no_result: "Noch kein Wurf",
+  game_deck_slider_label: "Modifikator",
+  game_deck_slider_value_label: "Aktueller Wert",
+  game_deck_dropdown_label: "Kategorie",
+  game_deck_total_label: "Gesamtwert",
   // Sections
   grunddaten: "Grunddaten",
   attributes: "Spielwerte",
