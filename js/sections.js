@@ -48,6 +48,18 @@ const sections = [
     `
   },
 
+  // 🎲 Game Deck Segment
+  {
+    id: "gamedeck",
+    title: t('game_deck'),
+    content: `
+      <div class="game-deck-host">
+        <div id="game-deck-root" aria-live="polite"></div>
+      </div>
+      <div class="section-divider"></div>
+    `
+  },
+
   // 📊 Attribute (Spielwerte)
   {
     id: "attribute",

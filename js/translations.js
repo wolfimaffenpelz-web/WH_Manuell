@@ -69,6 +69,7 @@ const baseTranslations = {
   game_deck_dropdown_label: "Kategorie",
   game_deck_total_label: "Gesamtwert",
   // Sections
+  game_deck: "Game Deck",
   grunddaten: "Grunddaten",
   attributes: "Spielwerte",
   fate_resilience: "Schicksal & Zähigkeit",

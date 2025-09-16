@@ -34,6 +34,57 @@ document.addEventListener("DOMContentLoaded", initPasswordProtection);
 let currentCharacter = null;
 let characterList = [];
 
+let gameDeckReactRoot = null;
+
+function disposeGameDeck() {
+  if (gameDeckReactRoot && typeof gameDeckReactRoot.unmount === "function") {
+    gameDeckReactRoot.unmount();
+  }
+  gameDeckReactRoot = null;
+}
+
+function hasGameDeckSupport() {
+  return (
+    typeof window !== "undefined" &&
+    window.React &&
+    window.ReactDOM &&
+    typeof window.ReactDOM.createRoot === "function" &&
+    window.GameDeck
+  );
+}
+
+function sumInputValues(selector) {
+  return Array.from(document.querySelectorAll(selector)).reduce((total, input) => {
+    const value = parseInt(input.value, 10);
+    return total + (Number.isNaN(value) ? 0 : value);
+  }, 0);
+}
+
+function calculateGameDeckTotals() {
+  return {
+    attributes: sumInputValues("#attribute-table tr:last-child input"),
+    grundskills: sumInputValues("#grund-table tr td:nth-child(5) input"),
+    groupskills: sumInputValues("#grupp-table tr td:nth-child(5) input"),
+  };
+}
+
+function renderGameDeckComponent() {
+  if (!hasGameDeckSupport()) {
+    return;
+  }
+  const container = document.getElementById("game-deck-root");
+  if (!container) {
+    disposeGameDeck();
+    return;
+  }
+  if (!gameDeckReactRoot) {
+    gameDeckReactRoot = window.ReactDOM.createRoot(container);
+  }
+  const totals = calculateGameDeckTotals();
+  const element = window.React.createElement(window.GameDeck, { categoryTotals: totals });
+  gameDeckReactRoot.render(element);
+}
+
 function applySavedSettings() {
   const colors = JSON.parse(localStorage.getItem("color-settings") || "{}");
   Object.entries(colors).forEach(([k, v]) => {
@@ -449,6 +500,7 @@ function openFontSettings() {
 // =========================
 function renderSections() {
   const main = document.getElementById("main-content");
+  disposeGameDeck();
   main.innerHTML = ""; // vorherige Inhalte entfernen
   sections.forEach(sec => {
     const sectionEl = document.createElement("section");
@@ -966,6 +1018,7 @@ function updateAttributes() {
   updateTraglast();
   updateVermoegen();
   updateErfahrung();
+  renderGameDeckComponent();
   saveState();
 }
 
@@ -1004,6 +1057,7 @@ function updateGruppierteFaehigkeiten() {
     const steigVal = parseInt(steig.value) || 0;
     ges.value = att ? attVal + steigVal : steigVal;
   });
+  renderGameDeckComponent();
 }
 
 function autoAddRow(tableId) {
@@ -1519,6 +1573,7 @@ document.addEventListener("focusout", e => {
 // =========================
 function initLogic() {
   renderSections();
+  renderGameDeckComponent();
   initSectionToggles();
   initFinanzenToggle();
   initCharacterManagement();
