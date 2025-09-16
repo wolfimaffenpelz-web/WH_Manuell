@@ -453,36 +453,53 @@ function renderSections() {
   sections.forEach(sec => {
     const sectionEl = document.createElement("section");
     sectionEl.id = sec.id; // ID für spätere Referenz
-    sectionEl.innerHTML = `<h2>${sec.title}</h2>${sec.content}`;
+    const header = document.createElement("h2");
+    header.innerHTML = `<span id="${sec.id}-arrow" class="section-arrow">▼</span> ${sec.title}`;
+    sectionEl.appendChild(header);
+    const body = document.createElement("div");
+    body.className = "section-body";
+    body.innerHTML = sec.content;
+    sectionEl.appendChild(body);
     main.appendChild(sectionEl); // anhängen
   });
 }
 
-function initSectionToggle(sectionId, arrowId, storageKey) {
+function initSectionToggle(sectionId) {
   const section = document.getElementById(sectionId);
   if (!section) return;
   const body = section.querySelector(".section-body");
   const header = section.querySelector("h2");
-  const arrow = header?.querySelector(`#${arrowId}`);
+  const arrow = header?.querySelector(`#${sectionId}-arrow`);
   if (!body || !header || !arrow) return;
+  const storageKey = `${sectionId}-collapsed`;
   const collapsed = localStorage.getItem(storageKey) === "true";
   if (collapsed) {
     body.style.display = "none";
     arrow.textContent = "▶";
+    section.classList.add("collapsed");
   } else {
+    body.style.display = "block";
     arrow.textContent = "▼";
+    section.classList.remove("collapsed");
   }
   header.addEventListener("click", () => {
-    if (body.style.display === "none") {
+    const isCollapsed = body.style.display === "none";
+    if (isCollapsed) {
       body.style.display = "block";
       arrow.textContent = "▼";
+      section.classList.remove("collapsed");
       localStorage.setItem(storageKey, "false");
     } else {
       body.style.display = "none";
       arrow.textContent = "▶";
+      section.classList.add("collapsed");
       localStorage.setItem(storageKey, "true");
     }
   });
+}
+
+function initSectionToggles() {
+  sections.forEach(sec => initSectionToggle(sec.id));
 }
 
 function initFinanzenToggle() {
@@ -1502,8 +1519,7 @@ document.addEventListener("focusout", e => {
 // =========================
 function initLogic() {
   renderSections();
-  initSectionToggle('grunddaten','grunddaten-arrow','grunddaten-collapsed');
-  initSectionToggle('schicksalzaehigkeit','schicksalzaehigkeit-arrow','schicksalzaehigkeit-collapsed');
+  initSectionToggles();
   initFinanzenToggle();
   initCharacterManagement();
 
