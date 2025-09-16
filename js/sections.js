@@ -6,45 +6,43 @@ const sections = [
   // 🧾 Grunddaten
   {
     id: "grunddaten",
-    title: `<span id="grunddaten-arrow">▶</span> ${t('grunddaten')}`,
+    title: t('grunddaten'),
     content: `
-      <div class="section-body">
-        <div class="subsection">
-          <h3>Identität</h3>
-          <table class="full-width two-col-table">
-            <tr><td>Name</td><td><input type="text" id="char-name"></td></tr>
-            <tr><td>Volk</td><td><input type="text" id="char-volk"></td></tr>
-            <tr><td>Geschlecht</td><td><input type="text" id="char-geschlecht"></td></tr>
-          </table>
-        </div>
-        <div class="subsection">
-          <h3>Karriere</h3>
-          <table class="full-width two-col-table">
-            <tr><td>Karriere</td><td><input type="text" id="char-karriere"></td></tr>
-            <tr><td>Karrierestufe</td><td><input type="text" id="char-stufe"></td></tr>
-            <tr><td>Karriereweg</td><td><input type="text" id="char-weg"></td></tr>
-            <tr><td>Status</td><td><input type="text" id="char-status"></td></tr>
-          </table>
-        </div>
-        <div class="subsection">
-          <h3>Erscheinung</h3>
-          <table class="full-width two-col-table">
-            <tr><td>Alter</td><td><input type="text" id="char-alter"></td></tr>
-            <tr><td>Körpergröße</td><td><input type="text" id="char-groesse"></td></tr>
-            <tr><td>Haare</td><td><input type="text" id="char-haare"></td></tr>
-            <tr><td>Augen</td><td><input type="text" id="char-augen"></td></tr>
-          </table>
-        </div>
-        <div class="subsection">
-          <h3>${t('movement')}</h3>
-          <table class="movement-table">
-            <tr>
-              <td>${t('movement')}</td><td><input type="number" id="char-bewegung" class="tiny-field" max="99" step="1"></td>
-              <td>${t('walk')}</td><td><input type="number" id="char-gehen" class="tiny-field" max="99" step="1"></td>
-              <td>${t('run')}</td><td><input type="number" id="char-rennen" class="tiny-field" max="99" step="1"></td>
-            </tr>
-          </table>
-        </div>
+      <div class="subsection">
+        <h3>Identität</h3>
+        <table class="full-width two-col-table">
+          <tr><td>Name</td><td><input type="text" id="char-name"></td></tr>
+          <tr><td>Volk</td><td><input type="text" id="char-volk"></td></tr>
+          <tr><td>Geschlecht</td><td><input type="text" id="char-geschlecht"></td></tr>
+        </table>
+      </div>
+      <div class="subsection">
+        <h3>Karriere</h3>
+        <table class="full-width two-col-table">
+          <tr><td>Karriere</td><td><input type="text" id="char-karriere"></td></tr>
+          <tr><td>Karrierestufe</td><td><input type="text" id="char-stufe"></td></tr>
+          <tr><td>Karriereweg</td><td><input type="text" id="char-weg"></td></tr>
+          <tr><td>Status</td><td><input type="text" id="char-status"></td></tr>
+        </table>
+      </div>
+      <div class="subsection">
+        <h3>Erscheinung</h3>
+        <table class="full-width two-col-table">
+          <tr><td>Alter</td><td><input type="text" id="char-alter"></td></tr>
+          <tr><td>Körpergröße</td><td><input type="text" id="char-groesse"></td></tr>
+          <tr><td>Haare</td><td><input type="text" id="char-haare"></td></tr>
+          <tr><td>Augen</td><td><input type="text" id="char-augen"></td></tr>
+        </table>
+      </div>
+      <div class="subsection">
+        <h3>${t('movement')}</h3>
+        <table class="movement-table">
+          <tr>
+            <td>${t('movement')}</td><td><input type="number" id="char-bewegung" class="tiny-field" max="99" step="1"></td>
+            <td>${t('walk')}</td><td><input type="number" id="char-gehen" class="tiny-field" max="99" step="1"></td>
+            <td>${t('run')}</td><td><input type="number" id="char-rennen" class="tiny-field" max="99" step="1"></td>
+          </tr>
+        </table>
       </div>
       <div class="section-divider"></div>
     `
@@ -116,24 +114,22 @@ const sections = [
   // ⚖️ Schicksal & Zähigkeit
   {
     id: "schicksalzaehigkeit",
-    title: `<span id="schicksalzaehigkeit-arrow">▶</span> ${t('fate_resilience')}`,
+    title: t('fate_resilience'),
     content: `
-      <div class="section-body">
-        <div class="dual-table-wrapper">
-          <div>
-            <h3>${t('fate')}</h3>
-            <table class="value-table">
-              <tr><td>${t('fate')}</td><td><input type="number" id="fate-value" class="small-field" max="99" min="0"></td></tr>
-              <tr><td>${t('luck')}</td><td><input type="number" id="luck-current" class="small-field" max="99" min="0"><span class="slash">/</span><input type="number" id="luck-max" class="small-field" max="99" min="0"></td></tr>
-            </table>
-          </div>
-          <div>
-            <h3>${t('resilience')}</h3>
-            <table class="value-table">
-              <tr><td>${t('resilience')}</td><td><input type="number" id="resilience-value" class="small-field" max="99" min="0"></td></tr>
-              <tr><td>${t('resolve')}</td><td><input type="number" id="resolve-current" class="small-field" max="99" min="0"><span class="slash">/</span><input type="number" id="resolve-max" class="small-field" max="99" min="0"></td></tr>
-            </table>
-          </div>
+      <div class="dual-table-wrapper">
+        <div>
+          <h3>${t('fate')}</h3>
+          <table class="value-table">
+            <tr><td>${t('fate')}</td><td><input type="number" id="fate-value" class="small-field" max="99" min="0"></td></tr>
+            <tr><td>${t('luck')}</td><td><input type="number" id="luck-current" class="small-field" max="99" min="0"><span class="slash">/</span><input type="number" id="luck-max" class="small-field" max="99" min="0"></td></tr>
+          </table>
+        </div>
+        <div>
+          <h3>${t('resilience')}</h3>
+          <table class="value-table">
+            <tr><td>${t('resilience')}</td><td><input type="number" id="resilience-value" class="small-field" max="99" min="0"></td></tr>
+            <tr><td>${t('resolve')}</td><td><input type="number" id="resolve-current" class="small-field" max="99" min="0"><span class="slash">/</span><input type="number" id="resolve-max" class="small-field" max="99" min="0"></td></tr>
+          </table>
         </div>
       </div>
       <div class="section-divider"></div>
