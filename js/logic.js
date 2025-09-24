@@ -69,11 +69,16 @@ function getTableCell(row, index) {
 function collectAttributeOptions() {
   const table = document.getElementById("attribute-table");
   if (!table) return [];
-  const headerRow = table.rows[0];
-  const startRow = table.rows[1];
-  const increaseRow = table.rows[2];
-  const totalRow = table.rows[3];
+
+  const rows = Array.from(table.rows);
+  if (rows.length === 0) return [];
+
+  const headerRow = rows[0];
   if (!headerRow) return [];
+
+  const startRow = rows[1] || null;
+  const increaseRow = rows[2] || null;
+  const totalRow = rows[rows.length - 1] || null;
 
   const baseLabel = t("game_deck_attribute_base_label");
   const increaseLabel = t("game_deck_attribute_increase_label");
@@ -129,9 +134,13 @@ function collectGrundskillOptions() {
       const label = nameSpan ? nameSpan.textContent.trim() : "";
       if (!label) return null;
 
-      const baseCell = getTableCell(row, 2);
-      const increaseCell = getTableCell(row, 3);
-      const totalCell = getTableCell(row, 4);
+      const totalCellIndex = row.cells.length - 1;
+      const increaseCellIndex = row.cells.length - 2;
+      const baseCellIndex = row.cells.length - 3;
+
+      const baseCell = getTableCell(row, baseCellIndex);
+      const increaseCell = getTableCell(row, increaseCellIndex);
+      const totalCell = getTableCell(row, totalCellIndex);
 
       const baseInput = baseCell ? baseCell.querySelector("input") : null;
       const increaseInput = increaseCell ? increaseCell.querySelector("input") : null;
@@ -172,9 +181,13 @@ function collectGroupskillOptions() {
       const label = nameField ? nameField.value.trim() : "";
       if (!label) return null;
 
-      const baseCell = getTableCell(row, 2);
-      const increaseCell = getTableCell(row, 3);
-      const totalCell = getTableCell(row, 4);
+      const totalCellIndex = row.cells.length - 2;
+      const increaseCellIndex = row.cells.length - 3;
+      const baseCellIndex = row.cells.length - 4;
+
+      const baseCell = getTableCell(row, baseCellIndex);
+      const increaseCell = getTableCell(row, increaseCellIndex);
+      const totalCell = getTableCell(row, totalCellIndex);
 
       const baseInput = baseCell ? baseCell.querySelector("input") : null;
       const increaseInput = increaseCell ? increaseCell.querySelector("input") : null;

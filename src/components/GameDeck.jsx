@@ -336,13 +336,16 @@
         group.options.forEach((option, optionIndex) => {
           if (!option) return;
           const optionId =
-            typeof option.id === "string" && option.id.length > 0
-              ? option.id
+            option && option.id != null && String(option.id).length > 0
+              ? String(option.id)
               : `group-${groupIndex}-option-${optionIndex}`;
           aggregated.push({
             ...option,
             id: optionId,
-            groupId: group.id || `group-${groupIndex}`,
+            groupId:
+              group && group.id != null && String(group.id).length > 0
+                ? String(group.id)
+                : `group-${groupIndex}`,
             groupLabel,
           });
         });
@@ -460,8 +463,11 @@
     const selectedOption = flatOptions.find(option => option.id === selectedOptionId) || null;
     const hasSelection = Boolean(selectedOption);
 
+    const rawModifierDisplay = formatModifier(sliderValue);
+    const modifierBonus = sliderValue + 20;
+    const modifierBonusDisplay = formatModifier(modifierBonus);
     const targetValue = hasSelection ? toNumber(selectedOption.value) : 0;
-    const modifierDisplay = formatModifier(sliderValue);
+    const adjustedTargetValue = hasSelection ? targetValue + modifierBonus : 0;
     const diceDisplay = diceValue == null ? t("game_deck_no_result") : String(diceValue);
 
     const diceDisplayClassName = [
@@ -484,8 +490,8 @@
             const children = group.options.map((option, optionIndex) => {
               if (!option) return null;
               const value =
-                typeof option.id === "string" && option.id.length > 0
-                  ? option.id
+                option && option.id != null && String(option.id).length > 0
+                  ? String(option.id)
                   : `group-${groupIndex}-option-${optionIndex}`;
               return h(
                 "option",
@@ -497,10 +503,14 @@
               );
             }).filter(Boolean);
             if (children.length === 0) return null;
+            const optgroupKey =
+              group && group.id != null && String(group.id).length > 0
+                ? String(group.id)
+                : group.label || `group-${groupIndex}`;
             return h(
               "optgroup",
               {
-                key: group.id || group.label || `group-${groupIndex}`,
+                key: optgroupKey,
                 label: group.label || t("game_deck_dropdown_label"),
               },
               children
@@ -533,9 +543,14 @@
       ? t("game_deck_no_target")
       : t("game_deck_no_options");
 
-    const modifiedRoll = diceValue == null ? null : diceValue + sliderValue;
-    const modifiedRollDisplay = modifiedRoll == null ? t("game_deck_no_result") : String(modifiedRoll);
-    const successLevels = diceValue == null || !hasSelection ? null : Math.floor((targetValue - modifiedRoll) / 10);
+    const adjustedTargetDisplay = hasSelection
+      ? String(adjustedTargetValue)
+      : hasOptions
+      ? t("game_deck_no_target")
+      : t("game_deck_no_options");
+
+    const successLevels =
+      diceValue == null || !hasSelection ? null : Math.floor((adjustedTargetValue - diceValue) / 10);
     const successValueDisplay = successLevels == null ? "–" : successLevels > 0 ? `+${successLevels}` : String(successLevels);
     const successValueClassName = [
       "game-deck__stat-value",
@@ -547,11 +562,11 @@
       if (!hasOptions) return t("game_deck_no_options");
       if (!hasSelection) return t("game_deck_no_selection");
       if (diceValue == null) return t("game_deck_no_comparison");
-      return `${t("game_deck_modified_result_label")}: ${modifiedRollDisplay} · ${t("game_deck_target_value_label")}: ${targetValueDisplay}`;
+      return `${t("game_deck_result_label")}: ${diceDisplay} · ${t("game_deck_adjusted_target_label")}: ${adjustedTargetDisplay} · ${t("game_deck_modifier_bonus_label")}: ${modifierBonusDisplay}`;
     })();
 
     const isDouble = typeof diceValue === "number" && diceValue > 0 && diceValue < 100 && diceValue % 11 === 0;
-    const isSuccessfulRoll = hasSelection && diceValue != null ? modifiedRoll <= targetValue : false;
+    const isSuccessfulRoll = hasSelection && diceValue != null ? diceValue <= adjustedTargetValue : false;
     const criticalInfo = (() => {
       if (diceValue == null) {
         return { message: t("game_deck_critical_pending"), tone: "" };
@@ -588,8 +603,12 @@
     if (diceValue != null) {
       criticalSubtextParts.push(`${t("game_deck_result_label")}: ${diceValue}`);
     }
+    if (hasSelection) {
+      criticalSubtextParts.push(`${t("game_deck_adjusted_target_label")}: ${adjustedTargetDisplay}`);
+      criticalSubtextParts.push(`${t("game_deck_modifier_bonus_label")}: ${modifierBonusDisplay}`);
+    }
     if (sliderValue !== 0) {
-      criticalSubtextParts.push(`${t("game_deck_slider_label")}: ${modifierDisplay}`);
+      criticalSubtextParts.push(`${t("game_deck_slider_label")}: ${rawModifierDisplay}`);
     }
     const criticalSubtext = criticalSubtextParts.length > 0 ? criticalSubtextParts.join(" · ") : null;
 
@@ -654,10 +673,10 @@
               htmlFor: sliderInputId,
               className: "game-deck__slider-value",
               "aria-live": "polite",
-              "aria-label": `${t("game_deck_slider_value_label")}: ${modifierDisplay}`,
-              title: `${t("game_deck_slider_value_label")}: ${modifierDisplay}`,
+              "aria-label": `${t("game_deck_slider_value_label")}: ${rawModifierDisplay}`,
+              title: `${t("game_deck_slider_value_label")}: ${rawModifierDisplay}`,
             },
-            modifierDisplay
+            rawModifierDisplay
           )
         ),
         h(
@@ -672,7 +691,7 @@
             value: sliderValue,
             onChange: handleSliderChange,
             style: sliderCustomProperties,
-            "aria-valuetext": modifierDisplay,
+            "aria-valuetext": rawModifierDisplay,
             "aria-labelledby": `${sliderLabelId} ${sliderValueId}`,
           })
         )

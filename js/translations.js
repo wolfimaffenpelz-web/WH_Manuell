@@ -72,6 +72,8 @@ const baseTranslations = {
   game_deck_no_comparison: "Noch kein Vergleich",
   game_deck_target_value_label: "Zielwert",
   game_deck_modified_result_label: "Modifiziertes Ergebnis",
+  game_deck_adjusted_target_label: "Modifizierter Zielwert",
+  game_deck_modifier_bonus_label: "Anpassung (+20)",
   game_deck_no_selection: "Keine Auswahl",
   game_deck_no_target: "Kein Zielwert",
   game_deck_no_options: "Keine Werte verfügbar",
