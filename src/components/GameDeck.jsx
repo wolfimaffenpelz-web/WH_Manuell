@@ -463,11 +463,10 @@
     const selectedOption = flatOptions.find(option => option.id === selectedOptionId) || null;
     const hasSelection = Boolean(selectedOption);
 
-    const rawModifierDisplay = formatModifier(sliderValue);
-    const modifierBonus = sliderValue + 20;
-    const modifierBonusDisplay = formatModifier(modifierBonus);
+    const modifierValue = sliderValue;
+    const modifierDisplay = formatModifier(modifierValue);
     const targetValue = hasSelection ? toNumber(selectedOption.value) : 0;
-    const adjustedTargetValue = hasSelection ? targetValue + modifierBonus : 0;
+    const modifiedRoll = diceValue == null ? null : diceValue + modifierValue;
     const diceDisplay = diceValue == null ? t("game_deck_no_result") : String(diceValue);
 
     const diceDisplayClassName = [
@@ -543,14 +542,11 @@
       ? t("game_deck_no_target")
       : t("game_deck_no_options");
 
-    const adjustedTargetDisplay = hasSelection
-      ? String(adjustedTargetValue)
-      : hasOptions
-      ? t("game_deck_no_target")
-      : t("game_deck_no_options");
+    const modifiedRollDisplay =
+      modifiedRoll == null ? t("game_deck_no_comparison") : String(modifiedRoll);
 
     const successLevels =
-      diceValue == null || !hasSelection ? null : Math.floor((adjustedTargetValue - diceValue) / 10);
+      modifiedRoll == null || !hasSelection ? null : Math.trunc((targetValue - modifiedRoll) / 10);
     const successValueDisplay = successLevels == null ? "–" : successLevels > 0 ? `+${successLevels}` : String(successLevels);
     const successValueClassName = [
       "game-deck__stat-value",
@@ -562,11 +558,16 @@
       if (!hasOptions) return t("game_deck_no_options");
       if (!hasSelection) return t("game_deck_no_selection");
       if (diceValue == null) return t("game_deck_no_comparison");
-      return `${t("game_deck_result_label")}: ${diceDisplay} · ${t("game_deck_adjusted_target_label")}: ${adjustedTargetDisplay} · ${t("game_deck_modifier_bonus_label")}: ${modifierBonusDisplay}`;
+      return [
+        `${t("game_deck_result_label")}: ${diceDisplay}`,
+        `${t("game_deck_slider_label")}: ${modifierDisplay}`,
+        `${t("game_deck_modified_result_label")}: ${modifiedRollDisplay}`,
+        `${t("game_deck_target_value_label")}: ${targetValueDisplay}`,
+      ].join(" · ");
     })();
 
     const isDouble = typeof diceValue === "number" && diceValue > 0 && diceValue < 100 && diceValue % 11 === 0;
-    const isSuccessfulRoll = hasSelection && diceValue != null ? diceValue <= adjustedTargetValue : false;
+    const isSuccessfulRoll = hasSelection && modifiedRoll != null ? modifiedRoll <= targetValue : false;
     const criticalInfo = (() => {
       if (diceValue == null) {
         return { message: t("game_deck_critical_pending"), tone: "" };
@@ -603,12 +604,14 @@
     if (diceValue != null) {
       criticalSubtextParts.push(`${t("game_deck_result_label")}: ${diceValue}`);
     }
-    if (hasSelection) {
-      criticalSubtextParts.push(`${t("game_deck_adjusted_target_label")}: ${adjustedTargetDisplay}`);
-      criticalSubtextParts.push(`${t("game_deck_modifier_bonus_label")}: ${modifierBonusDisplay}`);
+    if (modifiedRoll != null) {
+      criticalSubtextParts.push(`${t("game_deck_modified_result_label")}: ${modifiedRollDisplay}`);
     }
-    if (sliderValue !== 0) {
-      criticalSubtextParts.push(`${t("game_deck_slider_label")}: ${rawModifierDisplay}`);
+    if (hasSelection) {
+      criticalSubtextParts.push(`${t("game_deck_target_value_label")}: ${targetValueDisplay}`);
+    }
+    if (modifierValue !== 0) {
+      criticalSubtextParts.push(`${t("game_deck_slider_label")}: ${modifierDisplay}`);
     }
     const criticalSubtext = criticalSubtextParts.length > 0 ? criticalSubtextParts.join(" · ") : null;
 
@@ -673,10 +676,10 @@
               htmlFor: sliderInputId,
               className: "game-deck__slider-value",
               "aria-live": "polite",
-              "aria-label": `${t("game_deck_slider_value_label")}: ${rawModifierDisplay}`,
-              title: `${t("game_deck_slider_value_label")}: ${rawModifierDisplay}`,
+              "aria-label": `${t("game_deck_slider_value_label")}: ${modifierDisplay}`,
+              title: `${t("game_deck_slider_value_label")}: ${modifierDisplay}`,
             },
-            rawModifierDisplay
+            modifierDisplay
           )
         ),
         h(
@@ -691,7 +694,7 @@
             value: sliderValue,
             onChange: handleSliderChange,
             style: sliderCustomProperties,
-            "aria-valuetext": rawModifierDisplay,
+            "aria-valuetext": modifierDisplay,
             "aria-labelledby": `${sliderLabelId} ${sliderValueId}`,
           })
         )
