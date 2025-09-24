@@ -466,7 +466,7 @@
     const modifierValue = sliderValue;
     const modifierDisplay = formatModifier(modifierValue);
     const targetValue = hasSelection ? toNumber(selectedOption.value) : 0;
-    const modifiedRoll = diceValue == null ? null : diceValue + modifierValue;
+    const adjustedTargetValue = hasSelection ? targetValue + modifierValue : null;
     const diceDisplay = diceValue == null ? t("game_deck_no_result") : String(diceValue);
 
     const diceDisplayClassName = [
@@ -542,11 +542,19 @@
       ? t("game_deck_no_target")
       : t("game_deck_no_options");
 
-    const modifiedRollDisplay =
-      modifiedRoll == null ? t("game_deck_no_comparison") : String(modifiedRoll);
+    const adjustedTargetDisplay =
+      adjustedTargetValue == null
+        ? hasSelection
+          ? t("game_deck_no_comparison")
+          : hasOptions
+          ? t("game_deck_no_selection")
+          : t("game_deck_no_options")
+        : String(adjustedTargetValue);
 
     const successLevels =
-      modifiedRoll == null || !hasSelection ? null : Math.trunc((targetValue - modifiedRoll) / 10);
+      diceValue == null || adjustedTargetValue == null
+        ? null
+        : Math.trunc((adjustedTargetValue - diceValue) / 10);
     const successValueDisplay = successLevels == null ? "–" : successLevels > 0 ? `+${successLevels}` : String(successLevels);
     const successValueClassName = [
       "game-deck__stat-value",
@@ -558,16 +566,20 @@
       if (!hasOptions) return t("game_deck_no_options");
       if (!hasSelection) return t("game_deck_no_selection");
       if (diceValue == null) return t("game_deck_no_comparison");
-      return [
+      const parts = [
         `${t("game_deck_result_label")}: ${diceDisplay}`,
-        `${t("game_deck_slider_label")}: ${modifierDisplay}`,
-        `${t("game_deck_modified_result_label")}: ${modifiedRollDisplay}`,
         `${t("game_deck_target_value_label")}: ${targetValueDisplay}`,
-      ].join(" · ");
+        `${t("game_deck_slider_label")}: ${modifierDisplay}`,
+      ];
+      if (modifierValue !== 0 && adjustedTargetValue != null) {
+        parts.push(`${t("game_deck_adjusted_target_label")}: ${adjustedTargetDisplay}`);
+      }
+      return parts.join(" · ");
     })();
 
     const isDouble = typeof diceValue === "number" && diceValue > 0 && diceValue < 100 && diceValue % 11 === 0;
-    const isSuccessfulRoll = hasSelection && modifiedRoll != null ? modifiedRoll <= targetValue : false;
+    const isSuccessfulRoll =
+      diceValue != null && adjustedTargetValue != null ? diceValue <= adjustedTargetValue : false;
     const criticalInfo = (() => {
       if (diceValue == null) {
         return { message: t("game_deck_critical_pending"), tone: "" };
@@ -604,11 +616,11 @@
     if (diceValue != null) {
       criticalSubtextParts.push(`${t("game_deck_result_label")}: ${diceValue}`);
     }
-    if (modifiedRoll != null) {
-      criticalSubtextParts.push(`${t("game_deck_modified_result_label")}: ${modifiedRollDisplay}`);
-    }
     if (hasSelection) {
       criticalSubtextParts.push(`${t("game_deck_target_value_label")}: ${targetValueDisplay}`);
+    }
+    if (modifierValue !== 0 && adjustedTargetValue != null) {
+      criticalSubtextParts.push(`${t("game_deck_adjusted_target_label")}: ${adjustedTargetDisplay}`);
     }
     if (modifierValue !== 0) {
       criticalSubtextParts.push(`${t("game_deck_slider_label")}: ${modifierDisplay}`);
