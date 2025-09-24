@@ -635,6 +635,7 @@ function loadState() {
   restoreMarkers();
   ensureInitialRows();
   updateCharacterDisplay();
+  updateExperienceView();
 }
 
 // =========================
@@ -1439,6 +1440,23 @@ function updateVermoegen() {
 // =========================
 // ⭐ Erfahrung
 // =========================
+function updateExperienceView() {
+  const toggle = document.getElementById("exp-toggle");
+  const simpleBlock = document.getElementById("exp-simple");
+  const fullBlock = document.getElementById("exp-full");
+  if (!toggle || !simpleBlock || !fullBlock) return;
+
+  if (toggle.checked) {
+    simpleBlock.style.display = "none";
+    fullBlock.style.display = "block";
+  } else {
+    simpleBlock.style.display = "block";
+    fullBlock.style.display = "none";
+  }
+
+  updateErfahrung();
+}
+
 let aktWarNegativ = false;
 function updateErfahrung() {
   const toggle = document.getElementById("exp-toggle");
@@ -1532,19 +1550,13 @@ function initLogic() {
   const toggle = document.getElementById("exp-toggle");
   if (toggle) {
     toggle.addEventListener("change", () => {
-      if (!toggle.checked) {
-        document.getElementById("exp-simple").style.display = "block";
-        document.getElementById("exp-full").style.display = "none";
-      } else {
-        document.getElementById("exp-simple").style.display = "none";
-        document.getElementById("exp-full").style.display = "block";
-      }
-      updateErfahrung();
+      updateExperienceView();
       saveState();
     });
   }
 
   loadState();
+  updateExperienceView();
   if (!currentCharacter) {
     ensureInitialRows();
     updateAttributes();
