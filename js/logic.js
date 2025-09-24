@@ -53,19 +53,182 @@ function hasGameDeckSupport() {
   );
 }
 
-function sumInputValues(selector) {
-  return Array.from(document.querySelectorAll(selector)).reduce((total, input) => {
-    const value = parseInt(input.value, 10);
-    return total + (Number.isNaN(value) ? 0 : value);
-  }, 0);
+function getNumericInputValue(input) {
+  if (!input) return 0;
+  const value = parseInt(input.value, 10);
+  return Number.isNaN(value) ? 0 : value;
 }
 
-function calculateGameDeckTotals() {
-  return {
-    attributes: sumInputValues("#attribute-table tr:last-child input"),
-    grundskills: sumInputValues("#grund-table tr td:nth-child(5) input"),
-    groupskills: sumInputValues("#grupp-table tr td:nth-child(5) input"),
-  };
+function getTableCell(row, index) {
+  if (!row || !row.cells || row.cells.length <= index) {
+    return null;
+  }
+  return row.cells[index];
+}
+
+function collectAttributeOptions() {
+  const table = document.getElementById("attribute-table");
+  if (!table) return [];
+  const headerRow = table.rows[0];
+  const startRow = table.rows[1];
+  const increaseRow = table.rows[2];
+  const totalRow = table.rows[3];
+  if (!headerRow) return [];
+
+  const baseLabel = t("game_deck_attribute_base_label");
+  const increaseLabel = t("game_deck_attribute_increase_label");
+
+  const options = [];
+  for (let col = 1; col < headerRow.cells.length; col += 1) {
+    const headerCell = headerRow.cells[col];
+    if (!headerCell) continue;
+    const label = (headerCell.textContent || "").trim();
+    if (!label) continue;
+
+    const startCell = getTableCell(startRow, col);
+    const increaseCell = getTableCell(increaseRow, col);
+    const totalCell = getTableCell(totalRow, col);
+
+    const startInput = startCell ? startCell.querySelector("input") : null;
+    const increaseInput = increaseCell ? increaseCell.querySelector("input") : null;
+    const totalInput = totalCell ? totalCell.querySelector("input") : null;
+
+    const base = getNumericInputValue(startInput);
+    const increase = getNumericInputValue(increaseInput);
+    const total = totalInput ? getNumericInputValue(totalInput) : base + increase;
+
+    options.push({
+      id: `attribute-${col}`,
+      label,
+      value: total,
+      breakdown: {
+        base,
+        increase,
+        baseLabel,
+        increaseLabel,
+      },
+    });
+  }
+
+  return options;
+}
+
+function collectGrundskillOptions() {
+  const table = document.getElementById("grund-table");
+  if (!table) return [];
+  const rows = Array.from(table.rows).slice(1);
+  if (rows.length === 0) return [];
+
+  const baseLabel = t("game_deck_skill_base_label");
+  const increaseLabel = t("game_deck_skill_increase_label");
+
+  return rows
+    .map((row, index) => {
+      const nameCell = getTableCell(row, 0);
+      const nameSpan = nameCell ? nameCell.querySelector("span:last-of-type") : null;
+      const label = nameSpan ? nameSpan.textContent.trim() : "";
+      if (!label) return null;
+
+      const baseCell = getTableCell(row, 2);
+      const increaseCell = getTableCell(row, 3);
+      const totalCell = getTableCell(row, 4);
+
+      const baseInput = baseCell ? baseCell.querySelector("input") : null;
+      const increaseInput = increaseCell ? increaseCell.querySelector("input") : null;
+      const totalInput = totalCell ? totalCell.querySelector("input") : null;
+
+      const base = getNumericInputValue(baseInput);
+      const increase = getNumericInputValue(increaseInput);
+      const total = totalInput ? getNumericInputValue(totalInput) : base + increase;
+
+      return {
+        id: `grund-${index}`,
+        label,
+        value: total,
+        breakdown: {
+          base,
+          increase,
+          baseLabel,
+          increaseLabel,
+        },
+      };
+    })
+    .filter(Boolean);
+}
+
+function collectGroupskillOptions() {
+  const table = document.getElementById("grupp-table");
+  if (!table) return [];
+  const rows = Array.from(table.rows).slice(1);
+  if (rows.length === 0) return [];
+
+  const baseLabel = t("game_deck_group_base_label");
+  const increaseLabel = t("game_deck_group_increase_label");
+
+  return rows
+    .map((row, index) => {
+      const nameCell = getTableCell(row, 0);
+      const nameField = nameCell ? nameCell.querySelector("textarea") : null;
+      const label = nameField ? nameField.value.trim() : "";
+      if (!label) return null;
+
+      const baseCell = getTableCell(row, 2);
+      const increaseCell = getTableCell(row, 3);
+      const totalCell = getTableCell(row, 4);
+
+      const baseInput = baseCell ? baseCell.querySelector("input") : null;
+      const increaseInput = increaseCell ? increaseCell.querySelector("input") : null;
+      const totalInput = totalCell ? totalCell.querySelector("input") : null;
+
+      const base = getNumericInputValue(baseInput);
+      const increase = getNumericInputValue(increaseInput);
+      const total = totalInput ? getNumericInputValue(totalInput) : base + increase;
+
+      return {
+        id: `groupskill-${index}`,
+        label,
+        value: total,
+        breakdown: {
+          base,
+          increase,
+          baseLabel,
+          increaseLabel,
+        },
+      };
+    })
+    .filter(Boolean);
+}
+
+function buildGameDeckOptionGroups() {
+  const groups = [];
+  const attributes = collectAttributeOptions();
+  if (attributes.length > 0) {
+    groups.push({
+      id: "attributes",
+      label: t("game_deck_category_attributes"),
+      options: attributes,
+    });
+  }
+
+  const grundskills = collectGrundskillOptions();
+  if (grundskills.length > 0) {
+    groups.push({
+      id: "grundskills",
+      label: t("game_deck_category_grundskills"),
+      options: grundskills,
+    });
+  }
+
+  const groupskills = collectGroupskillOptions();
+  if (groupskills.length > 0) {
+    groups.push({
+      id: "groupskills",
+      label: t("game_deck_category_groupskills"),
+      options: groupskills,
+    });
+  }
+
+  return groups;
 }
 
 function renderGameDeckComponent() {
@@ -80,15 +243,9 @@ function renderGameDeckComponent() {
   if (!gameDeckReactRoot) {
     gameDeckReactRoot = window.ReactDOM.createRoot(container);
   }
-  const totals = calculateGameDeckTotals();
-  const labels = {
-    attributes: t("game_deck_category_attributes"),
-    grundskills: t("game_deck_category_grundskills"),
-    groupskills: t("game_deck_category_groupskills"),
-  };
+  const optionGroups = buildGameDeckOptionGroups();
   const element = window.React.createElement(window.GameDeck, {
-    categoryTotals: totals,
-    categoryLabels: labels,
+    optionGroups,
   });
   gameDeckReactRoot.render(element);
 }

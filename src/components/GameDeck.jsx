@@ -142,12 +142,15 @@
 
 .game-deck__slider-track {
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .game-deck__slider-track input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
-  width: 100%;
+  width: min(100%, 360px);
   height: 10px;
   border-radius: 999px;
   background: linear-gradient(
@@ -158,6 +161,7 @@
     rgba(0, 0, 0, 0.2) 100%
   );
   cursor: pointer;
+  margin: 0 auto;
   transition: box-shadow 0.2s ease;
 }
 
@@ -216,10 +220,13 @@
   cursor: pointer;
 }
 
-.game-deck__total {
+.game-deck__total,
+.game-deck__stat {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  gap: 0.35rem;
   padding: 0.75rem 0.85rem;
   border-radius: 8px;
   background: rgba(250, 240, 230, 0.9);
@@ -228,9 +235,56 @@
   font-size: 1rem;
 }
 
-.game-deck__total-value {
+.game-deck__stat-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.game-deck__stat-label {
+  font-weight: 600;
+}
+
+.game-deck__total-value,
+.game-deck__stat-value {
   font-weight: 700;
   font-size: 1.25rem;
+}
+
+.game-deck__stat-value.is-positive {
+  color: var(--color-positive, #2e7d32);
+}
+
+.game-deck__stat-value.is-negative {
+  color: var(--color-negative, #c62828);
+}
+
+.game-deck__stat-subtext {
+  font-size: 0.85rem;
+  color: rgba(17, 17, 17, 0.7);
+}
+
+.game-deck__critical {
+  border-style: dashed;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.game-deck__critical--success {
+  border-color: var(--color-positive, #2e7d32);
+  color: var(--color-positive, #2e7d32);
+  background: rgba(46, 125, 50, 0.12);
+}
+
+.game-deck__critical--failure {
+  border-color: var(--color-negative, #c62828);
+  color: var(--color-negative, #c62828);
+  background: rgba(198, 40, 40, 0.12);
+}
+
+.game-deck__empty {
+  font-style: italic;
+  color: rgba(17, 17, 17, 0.7);
 }
 `;
 
@@ -251,15 +305,9 @@
     return fallbackTranslate;
   };
 
-  // Neue Kategorien können hinzugefügt werden, indem ein Eintrag ergänzt, der
-  // Übersetzungsschlüssel in translations.js angelegt und der Wert über
-  // categoryTotals übergeben wird. Optionale Bezeichnungen lassen sich über
-  // categoryLabels überschreiben.
-  const CATEGORY_DEFINITIONS = [
-    { key: "attributes", labelKey: "game_deck_category_attributes" },
-    { key: "grundskills", labelKey: "game_deck_category_grundskills" },
-    { key: "groupskills", labelKey: "game_deck_category_groupskills" },
-  ];
+  // Zusätzliche Tabellen lassen sich anbinden, indem optionGroups mit
+  // { id, label, value, breakdown } in renderGameDeckComponent übergeben
+  // werden. GameDeck nutzt diese Daten automatisch für Auswahl & Anzeige.
 
   const ROLL_INTERVAL_MS = 70;
   const ROLL_DURATION_MS = 1100;
@@ -267,16 +315,46 @@
 
   const randomDiceValue = () => Math.floor(Math.random() * 100) + 1;
   const formatModifier = value => (value > 0 ? `+${value}` : `${value}`);
+  const toNumber = value => {
+    if (typeof value === "number") {
+      return Number.isNaN(value) ? 0 : value;
+    }
+    const parsed = parseInt(value, 10);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  };
 
-  const GameDeck = ({ categoryTotals = {}, categoryLabels = {} }) => {
+  const GameDeck = ({ optionGroups = [] }) => {
     const t = useMemo(() => getTranslator(), []);
+    const flatOptions = useMemo(() => {
+      if (!Array.isArray(optionGroups)) return [];
+      const aggregated = [];
+      optionGroups.forEach((group, groupIndex) => {
+        if (!group || !Array.isArray(group.options)) {
+          return;
+        }
+        const groupLabel = group.label || "";
+        group.options.forEach((option, optionIndex) => {
+          if (!option) return;
+          const optionId =
+            typeof option.id === "string" && option.id.length > 0
+              ? option.id
+              : `group-${groupIndex}-option-${optionIndex}`;
+          aggregated.push({
+            ...option,
+            id: optionId,
+            groupId: group.id || `group-${groupIndex}`,
+            groupLabel,
+          });
+        });
+      });
+      return aggregated;
+    }, [optionGroups]);
+
+    const [selectedOptionId, setSelectedOptionId] = useState(() => flatOptions[0]?.id || "");
     const [diceValue, setDiceValue] = useState(null);
     const [isRolling, setIsRolling] = useState(false);
     const [isFlashing, setIsFlashing] = useState(false);
     const [sliderValue, setSliderValue] = useState(0);
-    const [selectedCategory, setSelectedCategory] = useState(
-      CATEGORY_DEFINITIONS[0]?.key || ""
-    );
 
     const sliderBaseId = useId();
     const sliderInputId = `${sliderBaseId}-input`;
@@ -287,6 +365,8 @@
     const dropdownLabelId = `${dropdownBaseId}-label`;
     const diceLabelId = useId();
     const totalLabelId = useId();
+    const successLabelId = useId();
+    const criticalLabelId = useId();
 
     const rollIntervalRef = useRef(null);
     const rollTimeoutRef = useRef(null);
@@ -310,13 +390,18 @@
       };
     }, []);
 
-    const totals = useMemo(() => {
-      const base = CATEGORY_DEFINITIONS.reduce((acc, def) => {
-        acc[def.key] = 0;
-        return acc;
-      }, {});
-      return { ...base, ...categoryTotals };
-    }, [categoryTotals]);
+    useEffect(() => {
+      if (flatOptions.length === 0) {
+        if (selectedOptionId !== "") {
+          setSelectedOptionId("");
+        }
+        return;
+      }
+      const match = flatOptions.some(option => option.id === selectedOptionId);
+      if (!match) {
+        setSelectedOptionId(flatOptions[0].id);
+      }
+    }, [flatOptions, selectedOptionId]);
 
     const sliderCustomProperties = useMemo(
       () => ({ "--game-deck-slider-progress": String((sliderValue + 100) / 200) }),
@@ -367,14 +452,17 @@
       setSliderValue(Number(event.target.value));
     };
 
-    const handleCategoryChange = event => {
-      setSelectedCategory(event.target.value);
+    const handleOptionChange = event => {
+      setSelectedOptionId(event.target.value);
     };
 
-    const currentCategory = selectedCategory || CATEGORY_DEFINITIONS[0]?.key || "";
-    const categoryTotalValue = totals[currentCategory] ?? 0;
+    const hasOptions = flatOptions.length > 0;
+    const selectedOption = flatOptions.find(option => option.id === selectedOptionId) || null;
+    const hasSelection = Boolean(selectedOption);
+
+    const targetValue = hasSelection ? toNumber(selectedOption.value) : 0;
     const modifierDisplay = formatModifier(sliderValue);
-    const diceDisplay = diceValue ?? t("game_deck_no_result");
+    const diceDisplay = diceValue == null ? t("game_deck_no_result") : String(diceValue);
 
     const diceDisplayClassName = [
       "game-deck__dice-display",
@@ -386,32 +474,124 @@
       isRolling ? "is-rolling" : "",
     ].filter(Boolean).join(" ");
 
-    const sliderValueLabel = `${t("game_deck_slider_value_label")}: ${modifierDisplay}`;
+    const optionElements = hasOptions
+      ? optionGroups
+          .map((group, groupIndex) => {
+            if (!group || !Array.isArray(group.options) || group.options.length === 0) {
+              return null;
+            }
+            const groupLabel = group.label || t("game_deck_dropdown_label");
+            const children = group.options.map((option, optionIndex) => {
+              if (!option) return null;
+              const value =
+                typeof option.id === "string" && option.id.length > 0
+                  ? option.id
+                  : `group-${groupIndex}-option-${optionIndex}`;
+              return h(
+                "option",
+                {
+                  key: value,
+                  value,
+                },
+                option.label || value
+              );
+            }).filter(Boolean);
+            if (children.length === 0) return null;
+            return h(
+              "optgroup",
+              {
+                key: group.id || group.label || `group-${groupIndex}`,
+                label: group.label || t("game_deck_dropdown_label"),
+              },
+              children
+            );
+          })
+          .filter(Boolean)
+      : [h("option", { value: "" }, t("game_deck_no_options"))];
 
-    const optionElements = CATEGORY_DEFINITIONS.map(({ key, labelKey }) => {
-      const label =
-        (categoryLabels && categoryLabels[key]) ||
-        (labelKey ? t(labelKey) : t(key));
-      return h(
-        "option",
-        {
-          key,
-          value: key,
-        },
-        label
-      );
-    });
+    const selectedBreakdown = hasSelection && selectedOption.breakdown ? selectedOption.breakdown : null;
+    const breakdownSubtext = selectedBreakdown
+      ? `${selectedBreakdown.baseLabel || t("game_deck_attribute_base_label")}: ${toNumber(
+          selectedBreakdown.base
+        )} · ${selectedBreakdown.increaseLabel || t("game_deck_attribute_increase_label")}: ${toNumber(
+          selectedBreakdown.increase
+        )}`
+      : null;
 
-    const selectedDefinition = CATEGORY_DEFINITIONS.find(
-      def => def.key === currentCategory
-    );
-    const selectedCategoryLabel =
-      (categoryLabels && categoryLabels[currentCategory]) ||
-      (selectedDefinition ? t(selectedDefinition.labelKey) : currentCategory);
+    const totalLabelParts = [t("game_deck_total_label")];
+    if (selectedOption && selectedOption.groupLabel) {
+      totalLabelParts.push(selectedOption.groupLabel);
+    }
+    if (selectedOption && selectedOption.label) {
+      totalLabelParts.push(selectedOption.label);
+    }
+    const totalLabelContent = totalLabelParts.join(" – ");
 
-    const totalLabelContent = selectedCategoryLabel
-      ? `${t("game_deck_total_label")} – ${selectedCategoryLabel}`
-      : t("game_deck_total_label");
+    const targetValueDisplay = hasSelection
+      ? String(targetValue)
+      : hasOptions
+      ? t("game_deck_no_target")
+      : t("game_deck_no_options");
+
+    const modifiedRoll = diceValue == null ? null : diceValue + sliderValue;
+    const modifiedRollDisplay = modifiedRoll == null ? t("game_deck_no_result") : String(modifiedRoll);
+    const successLevels = diceValue == null || !hasSelection ? null : Math.floor((targetValue - modifiedRoll) / 10);
+    const successValueDisplay = successLevels == null ? "–" : successLevels > 0 ? `+${successLevels}` : String(successLevels);
+    const successValueClassName = [
+      "game-deck__stat-value",
+      successLevels != null && successLevels > 0 ? "is-positive" : "",
+      successLevels != null && successLevels < 0 ? "is-negative" : "",
+    ].filter(Boolean).join(" ");
+
+    const successSubtext = (() => {
+      if (!hasOptions) return t("game_deck_no_options");
+      if (!hasSelection) return t("game_deck_no_selection");
+      if (diceValue == null) return t("game_deck_no_comparison");
+      return `${t("game_deck_modified_result_label")}: ${modifiedRollDisplay} · ${t("game_deck_target_value_label")}: ${targetValueDisplay}`;
+    })();
+
+    const isDouble = typeof diceValue === "number" && diceValue > 0 && diceValue < 100 && diceValue % 11 === 0;
+    const isSuccessfulRoll = hasSelection && diceValue != null ? modifiedRoll <= targetValue : false;
+    const criticalInfo = (() => {
+      if (diceValue == null) {
+        return { message: t("game_deck_critical_pending"), tone: "" };
+      }
+      if (!isDouble) {
+        return { message: t("game_deck_critical_none"), tone: "" };
+      }
+      if (!hasSelection) {
+        return { message: hasOptions ? t("game_deck_no_selection") : t("game_deck_no_options"), tone: "" };
+      }
+      return isSuccessfulRoll
+        ? { message: t("game_deck_critical_success"), tone: "success" }
+        : { message: t("game_deck_critical_failure"), tone: "failure" };
+    })();
+
+    const criticalClassName = [
+      "game-deck__stat",
+      "game-deck__critical",
+      criticalInfo.tone === "success" ? "game-deck__critical--success" : "",
+      criticalInfo.tone === "failure" ? "game-deck__critical--failure" : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+    const criticalValueClassName = [
+      "game-deck__stat-value",
+      criticalInfo.tone === "success" ? "is-positive" : "",
+      criticalInfo.tone === "failure" ? "is-negative" : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+    const criticalSubtextParts = [];
+    if (diceValue != null) {
+      criticalSubtextParts.push(`${t("game_deck_result_label")}: ${diceValue}`);
+    }
+    if (sliderValue !== 0) {
+      criticalSubtextParts.push(`${t("game_deck_slider_label")}: ${modifierDisplay}`);
+    }
+    const criticalSubtext = criticalSubtextParts.length > 0 ? criticalSubtextParts.join(" · ") : null;
 
     return h(
       "div",
@@ -474,8 +654,8 @@
               htmlFor: sliderInputId,
               className: "game-deck__slider-value",
               "aria-live": "polite",
-              "aria-label": sliderValueLabel,
-              title: sliderValueLabel,
+              "aria-label": `${t("game_deck_slider_value_label")}: ${modifierDisplay}`,
+              title: `${t("game_deck_slider_value_label")}: ${modifierDisplay}`,
             },
             modifierDisplay
           )
@@ -514,31 +694,118 @@
           {
             id: dropdownSelectId,
             className: "game-deck__select",
-            value: currentCategory,
-            onChange: handleCategoryChange,
+            value: selectedOptionId,
+            onChange: handleOptionChange,
+            disabled: !hasOptions,
           },
           optionElements
+        ),
+        hasOptions
+          ? h(
+              "div",
+              {
+                className: "game-deck__stat game-deck__stat--target",
+                role: "status",
+                "aria-live": "polite",
+                "aria-labelledby": totalLabelId,
+              },
+              h(
+                "div",
+                { className: "game-deck__stat-line" },
+                h(
+                  "span",
+                  {
+                    id: totalLabelId,
+                    className: "game-deck__stat-label",
+                  },
+                  totalLabelContent
+                ),
+                h(
+                  "span",
+                  { className: "game-deck__stat-value" },
+                  targetValueDisplay
+                )
+              ),
+              breakdownSubtext
+                ? h(
+                    "span",
+                    { className: "game-deck__stat-subtext" },
+                    breakdownSubtext
+                  )
+                : null
+            )
+          : h(
+              "p",
+              {
+                className: "game-deck__empty",
+                role: "status",
+                "aria-live": "polite",
+              },
+              t("game_deck_no_options")
+            ),
+        h(
+          "div",
+          {
+            className: "game-deck__stat game-deck__stat--success",
+            role: "status",
+            "aria-live": "polite",
+            "aria-labelledby": successLabelId,
+          },
+          h(
+            "div",
+            { className: "game-deck__stat-line" },
+            h(
+              "span",
+              {
+                id: successLabelId,
+                className: "game-deck__stat-label",
+              },
+              t("game_deck_success_label")
+            ),
+            h(
+              "span",
+              { className: successValueClassName },
+              successValueDisplay
+            )
+          ),
+          h(
+            "span",
+            { className: "game-deck__stat-subtext" },
+            successSubtext
+          )
         ),
         h(
           "div",
           {
-            className: "game-deck__total",
+            className: criticalClassName,
             role: "status",
             "aria-live": "polite",
-            "aria-labelledby": totalLabelId,
+            "aria-labelledby": criticalLabelId,
           },
           h(
-            "span",
-            {
-              id: totalLabelId,
-            },
-            totalLabelContent
+            "div",
+            { className: "game-deck__stat-line" },
+            h(
+              "span",
+              {
+                id: criticalLabelId,
+                className: "game-deck__stat-label",
+              },
+              t("game_deck_critical_label")
+            ),
+            h(
+              "span",
+              { className: criticalValueClassName },
+              criticalInfo.message
+            )
           ),
-          h(
-            "span",
-            { className: "game-deck__total-value" },
-            String(categoryTotalValue)
-          )
+          criticalSubtext
+            ? h(
+                "span",
+                { className: "game-deck__stat-subtext" },
+                criticalSubtext
+              )
+            : null
         )
       )
     );
