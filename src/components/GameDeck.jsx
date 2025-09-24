@@ -90,29 +90,41 @@
   background: rgba(255, 255, 255, 0.85);
   color: var(--color-text, #111);
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.game-deck__dice-display.is-rolling {
-  animation: game-deck-rolling 1s linear infinite;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
 }
 
 .game-deck__dice-display.is-flashing {
-  animation: game-deck-flash 0.6s ease-out;
+  animation: game-deck-blood-flash 0.9s ease-out;
+  color: #8b0000;
 }
 
-@keyframes game-deck-rolling {
-  0% { transform: rotate3d(1, 1, 0, 0deg); }
-  25% { transform: rotate3d(1, 1, 0, 90deg); }
-  50% { transform: rotate3d(1, 1, 0, 180deg); }
-  75% { transform: rotate3d(1, 1, 0, 270deg); }
-  100% { transform: rotate3d(1, 1, 0, 360deg); }
+.game-deck__dice-display.is-flashing .game-deck__dice-number {
+  text-shadow: 0 0 12px rgba(139, 0, 0, 0.75);
 }
 
-@keyframes game-deck-flash {
-  0% { box-shadow: 0 0 0 rgba(255, 223, 0, 0.0); }
-  40% { box-shadow: 0 0 24px rgba(255, 223, 0, 0.75); }
-  100% { box-shadow: 0 0 0 rgba(255, 223, 0, 0.0); }
+.game-deck__dice-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3ch;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.game-deck__dice-number.is-rolling {
+  animation: game-deck-number-spin 0.25s linear infinite;
+}
+
+@keyframes game-deck-number-spin {
+  0% { transform: rotateX(0deg); opacity: 1; }
+  50% { transform: rotateX(180deg); opacity: 0.45; }
+  100% { transform: rotateX(360deg); opacity: 1; }
+}
+
+@keyframes game-deck-blood-flash {
+  0% { box-shadow: 0 0 0 rgba(139, 0, 0, 0); }
+  35% { box-shadow: 0 0 28px rgba(139, 0, 0, 0.8); }
+  100% { box-shadow: 0 0 0 rgba(139, 0, 0, 0); }
 }
 
 .game-deck__slider-header {
@@ -239,25 +251,32 @@
     return fallbackTranslate;
   };
 
-  // Neue Kategorien können hinzugefügt werden, indem der entsprechende Schlüssel
-  // hier ergänzt, ein Übersetzungseintrag in translations.js angelegt und der Wert
-  // über die categoryTotals-Prop übergeben wird.
-  const CATEGORY_KEYS = ["attributes", "grundskills", "groupskills"];
+  // Neue Kategorien können hinzugefügt werden, indem ein Eintrag ergänzt, der
+  // Übersetzungsschlüssel in translations.js angelegt und der Wert über
+  // categoryTotals übergeben wird. Optionale Bezeichnungen lassen sich über
+  // categoryLabels überschreiben.
+  const CATEGORY_DEFINITIONS = [
+    { key: "attributes", labelKey: "game_deck_category_attributes" },
+    { key: "grundskills", labelKey: "game_deck_category_grundskills" },
+    { key: "groupskills", labelKey: "game_deck_category_groupskills" },
+  ];
 
-  const ROLL_INTERVAL_MS = 120;
-  const ROLL_DURATION_MS = 1200;
-  const FLASH_DURATION_MS = 600;
+  const ROLL_INTERVAL_MS = 70;
+  const ROLL_DURATION_MS = 1100;
+  const FLASH_DURATION_MS = 900;
 
   const randomDiceValue = () => Math.floor(Math.random() * 100) + 1;
   const formatModifier = value => (value > 0 ? `+${value}` : `${value}`);
 
-  const GameDeck = ({ categoryTotals = {} }) => {
+  const GameDeck = ({ categoryTotals = {}, categoryLabels = {} }) => {
     const t = useMemo(() => getTranslator(), []);
     const [diceValue, setDiceValue] = useState(null);
     const [isRolling, setIsRolling] = useState(false);
     const [isFlashing, setIsFlashing] = useState(false);
     const [sliderValue, setSliderValue] = useState(0);
-    const [selectedCategory, setSelectedCategory] = useState(CATEGORY_KEYS[0]);
+    const [selectedCategory, setSelectedCategory] = useState(
+      CATEGORY_DEFINITIONS[0]?.key || ""
+    );
 
     const sliderBaseId = useId();
     const sliderInputId = `${sliderBaseId}-input`;
@@ -291,15 +310,13 @@
       };
     }, []);
 
-    const totals = useMemo(
-      () => ({
-        attributes: 0,
-        grundskills: 0,
-        groupskills: 0,
-        ...categoryTotals,
-      }),
-      [categoryTotals]
-    );
+    const totals = useMemo(() => {
+      const base = CATEGORY_DEFINITIONS.reduce((acc, def) => {
+        acc[def.key] = 0;
+        return acc;
+      }, {});
+      return { ...base, ...categoryTotals };
+    }, [categoryTotals]);
 
     const sliderCustomProperties = useMemo(
       () => ({ "--game-deck-slider-progress": String((sliderValue + 100) / 200) }),
@@ -311,6 +328,7 @@
 
       setIsRolling(true);
       setIsFlashing(false);
+      setDiceValue(randomDiceValue());
 
       if (rollIntervalRef.current) {
         clearInterval(rollIntervalRef.current);
@@ -353,28 +371,47 @@
       setSelectedCategory(event.target.value);
     };
 
-    const categoryTotalValue = totals[selectedCategory] ?? 0;
+    const currentCategory = selectedCategory || CATEGORY_DEFINITIONS[0]?.key || "";
+    const categoryTotalValue = totals[currentCategory] ?? 0;
     const modifierDisplay = formatModifier(sliderValue);
     const diceDisplay = diceValue ?? t("game_deck_no_result");
 
     const diceDisplayClassName = [
       "game-deck__dice-display",
-      isRolling ? "is-rolling" : "",
       isFlashing ? "is-flashing" : "",
+    ].filter(Boolean).join(" ");
+
+    const diceNumberClassName = [
+      "game-deck__dice-number",
+      isRolling ? "is-rolling" : "",
     ].filter(Boolean).join(" ");
 
     const sliderValueLabel = `${t("game_deck_slider_value_label")}: ${modifierDisplay}`;
 
-    const optionElements = CATEGORY_KEYS.map(key =>
-      h(
+    const optionElements = CATEGORY_DEFINITIONS.map(({ key, labelKey }) => {
+      const label =
+        (categoryLabels && categoryLabels[key]) ||
+        (labelKey ? t(labelKey) : t(key));
+      return h(
         "option",
         {
           key,
           value: key,
         },
-        t(key)
-      )
+        label
+      );
+    });
+
+    const selectedDefinition = CATEGORY_DEFINITIONS.find(
+      def => def.key === currentCategory
     );
+    const selectedCategoryLabel =
+      (categoryLabels && categoryLabels[currentCategory]) ||
+      (selectedDefinition ? t(selectedDefinition.labelKey) : currentCategory);
+
+    const totalLabelContent = selectedCategoryLabel
+      ? `${t("game_deck_total_label")} – ${selectedCategoryLabel}`
+      : t("game_deck_total_label");
 
     return h(
       "div",
@@ -408,7 +445,11 @@
             "aria-live": "polite",
             "aria-atomic": "true",
           },
-          diceDisplay
+          h(
+            "span",
+            { className: diceNumberClassName },
+            diceDisplay
+          )
         )
       ),
       h(
@@ -473,7 +514,7 @@
           {
             id: dropdownSelectId,
             className: "game-deck__select",
-            value: selectedCategory,
+            value: currentCategory,
             onChange: handleCategoryChange,
           },
           optionElements
@@ -491,7 +532,7 @@
             {
               id: totalLabelId,
             },
-            t("game_deck_total_label")
+            totalLabelContent
           ),
           h(
             "span",

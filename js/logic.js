@@ -81,7 +81,15 @@ function renderGameDeckComponent() {
     gameDeckReactRoot = window.ReactDOM.createRoot(container);
   }
   const totals = calculateGameDeckTotals();
-  const element = window.React.createElement(window.GameDeck, { categoryTotals: totals });
+  const labels = {
+    attributes: t("game_deck_category_attributes"),
+    grundskills: t("game_deck_category_grundskills"),
+    groupskills: t("game_deck_category_groupskills"),
+  };
+  const element = window.React.createElement(window.GameDeck, {
+    categoryTotals: totals,
+    categoryLabels: labels,
+  });
   gameDeckReactRoot.render(element);
 }
 

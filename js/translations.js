@@ -68,6 +68,9 @@ const baseTranslations = {
   game_deck_slider_value_label: "Aktueller Wert",
   game_deck_dropdown_label: "Kategorie",
   game_deck_total_label: "Gesamtwert",
+  game_deck_category_attributes: "Attribute",
+  game_deck_category_grundskills: "Grundfähigkeiten",
+  game_deck_category_groupskills: "Gruppierte Fähigkeiten",
   // Sections
   game_deck: "Game Deck",
   grunddaten: "Grunddaten",
