@@ -126,12 +126,14 @@ textarea {
   font-family: inherit;
   font-weight: bold;
   vertical-align: top;
+  box-sizing: border-box;
+  padding: 2px 3px;
+  min-height: var(--row-height);
 }
 
 input[type="text"],
 input[type="number"] {
-  min-height: var(--row-height);
-  line-height: var(--row-height);
+  line-height: calc(var(--row-height) - 4px);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -146,11 +148,9 @@ input[type="number"] {
 }
 
 textarea {
-  min-height: var(--row-height);
-  line-height: 1.35;
-  padding: 2px 4px;
+  line-height: 1.25;
   resize: vertical;
-  overflow: auto;
+  overflow: hidden;
 }
 
 #mutationen-table select,
