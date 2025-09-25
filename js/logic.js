@@ -1111,36 +1111,54 @@ function exportCharacterPdf() {
 
   const metaParts = [];
   if (charName) {
-    metaParts.push(`<div><strong>${t('export_character_name')}:</strong> ${escapeHtml(charName)}</div>`);
+    metaParts.push(`<span><strong>${t('export_character_name')}:</strong> ${escapeHtml(charName)}</span>`);
   }
-  metaParts.push(`<div><strong>${t('export_character_id')}:</strong> ${escapeHtml(currentCharacter)}</div>`);
-  metaParts.push(`<div><strong>${t('export_generated_at')}:</strong> ${escapeHtml(generatedAt)}</div>`);
+  metaParts.push(`<span><strong>${t('export_character_id')}:</strong> ${escapeHtml(currentCharacter)}</span>`);
+  metaParts.push(`<span><strong>${t('export_generated_at')}:</strong> ${escapeHtml(generatedAt)}</span>`);
 
   const styles = `
-    body { font-family: 'Times New Roman', Georgia, serif; color: #111; margin: 0; padding: 32px; background: #fff; }
-    .pdf-header { text-align: center; margin-bottom: 24px; }
-    .pdf-header h1 { font-family: 'Times New Roman', Georgia, serif; font-size: 32px; margin: 0 0 8px; }
-    .pdf-meta { font-size: 12px; display: flex; flex-direction: column; gap: 4px; align-items: center; }
-    section.pdf-section { margin-bottom: 28px; page-break-inside: avoid; }
-    section.pdf-section h2 { font-size: 20px; margin: 0 0 12px; border-bottom: 2px solid #333; padding-bottom: 6px; }
-    section.pdf-section h3 { font-size: 16px; margin: 16px 0 8px; }
-    section.pdf-section table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-    section.pdf-section th, section.pdf-section td { border: 1px solid #999; padding: 6px 8px; font-size: 12px; vertical-align: top; }
-    section.pdf-section th { background: #f0f0f0; font-weight: 600; }
-    .dual-table-wrapper { display: flex; gap: 12px; }
-    .dual-table-wrapper > div { flex: 1; }
+    @page { size: A4 landscape; margin: 6mm; }
+    body.pdf-body { font-family: 'Times New Roman', Georgia, serif; color: #111; margin: 0; background: #fff; font-size: 11px; line-height: 1.32; }
+    .pdf-canvas { transform: rotate(-7deg) scale(0.96); transform-origin: top left; width: calc(100% + 18mm); margin-left: -12mm; padding: 4mm 0 0; box-sizing: border-box; }
+    .pdf-header-wrap { transform: rotate(7deg); margin: 0 auto 4mm; max-width: 90%; text-align: center; }
+    .pdf-header h1 { font-size: 26px; margin: 0 0 3mm; letter-spacing: 0.08em; text-transform: uppercase; }
+    .pdf-meta { font-size: 9.5px; display: flex; flex-wrap: wrap; justify-content: center; gap: 4mm; }
+    .pdf-meta span { white-space: nowrap; }
+    .pdf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 3mm 6mm; align-items: stretch; padding: 0 8mm 6mm 6mm; box-sizing: border-box; }
+    .pdf-card { background: #fff; border: 0.3mm solid #8a8a8a; border-radius: 2mm; padding: 3mm; box-shadow: 0 0 1.3mm rgba(0, 0, 0, 0.12); transform: rotate(7deg); transform-origin: center; box-sizing: border-box; page-break-inside: avoid; overflow: hidden; }
+    .pdf-card:nth-child(odd) { margin-top: 6mm; }
+    .pdf-card:nth-child(even) { margin-bottom: 6mm; }
+    .pdf-card.span-2 { grid-column: span 2; }
+    section.pdf-section { margin: 0; }
+    section.pdf-section h2 { font-size: 14px; margin: 0 0 3mm; border-bottom: 0.3mm solid #333; padding-bottom: 1.5mm; text-transform: uppercase; letter-spacing: 0.04em; }
+    section.pdf-section h3 { font-size: 12px; margin: 3mm 0 1.5mm; }
+    section.pdf-section table { width: 100%; border-collapse: collapse; margin-bottom: 2mm; }
+    section.pdf-section th, section.pdf-section td { border: 0.3mm solid #777; padding: 1.5mm 2mm; font-size: 10px; vertical-align: top; }
+    section.pdf-section th { background: #f3f3f3; font-weight: 600; }
+    .dual-table-wrapper { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2mm; }
+    .dual-table-wrapper > div { min-width: 0; }
     .export-value { display: inline-block; min-width: 0.5em; }
     .export-multiline { white-space: pre-wrap; }
-    .pdf-subsection { margin-bottom: 12px; }
+    .pdf-subsection { margin-bottom: 2mm; }
     .pdf-subsection table { margin-bottom: 0; }
-    .pdf-section .marker-icon { margin-right: 4px; }
-    .coin { display: inline-block; width: 0.8em; height: 0.8em; border-radius: 50%; margin-right: 4px; }
+    .pdf-section .marker-icon { margin-right: 3px; }
+    .coin { display: inline-block; width: 0.6em; height: 0.6em; border-radius: 50%; margin-right: 3px; }
     .coin.gold { background: #d4af37; }
     .coin.silver { background: #c0c0c0; }
     .coin.copper { background: #b87333; }
   `;
 
-  const sectionsHtml = preparedSections.map(sec => sec.outerHTML).join('');
+  const cardsHtml = preparedSections
+    .map((sec, index) => {
+      const sectionId = sec.id || `section-${index}`;
+      const rowCount = sec.querySelectorAll('tr').length;
+      const cellCount = sec.querySelectorAll('td, th').length;
+      const hasLargeVisual = !!sec.querySelector('.armor-visual, .dual-table-wrapper, .pdf-subsection table:nth-of-type(n+2)');
+      const spanTwoColumns = rowCount > 18 || cellCount > 120 || hasLargeVisual;
+      const spanClass = spanTwoColumns ? ' span-2' : '';
+      return `<div class="pdf-card${spanClass}" data-section="${escapeHtml(sectionId)}">${sec.outerHTML}</div>`;
+    })
+    .join('');
   const docTitle = `${t('export_pdf_title')} - ${charName || currentCharacter}`;
 
   const html = `<!DOCTYPE html>
@@ -1150,12 +1168,16 @@ function exportCharacterPdf() {
       <title>${escapeHtml(docTitle)}</title>
       <style>${styles}</style>
     </head>
-    <body>
-      <header class="pdf-header">
-        <h1>${escapeHtml(t('character_sheet'))}</h1>
-        <div class="pdf-meta">${metaParts.join('')}</div>
-      </header>
-      ${sectionsHtml}
+    <body class="pdf-body">
+      <div class="pdf-canvas">
+        <div class="pdf-header-wrap">
+          <header class="pdf-header">
+            <h1>${escapeHtml(t('character_sheet'))}</h1>
+            <div class="pdf-meta">${metaParts.join('')}</div>
+          </header>
+        </div>
+        <div class="pdf-grid">${cardsHtml}</div>
+      </div>
     </body>
   </html>`;
 
