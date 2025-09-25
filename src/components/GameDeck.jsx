@@ -25,7 +25,9 @@
   width: 100%;
 
   color: var(--color-text, #111);
-  --game-deck-slider-fill: var(--color-highlight, #9E9E9E);
+  --game-deck-slider-gradient-start: #4a0000;
+  --game-deck-slider-gradient-end: #0d5f23;
+  --game-deck-slider-thumb-size: 41.6px;
 }
 
 @media (min-width: 768px) {
@@ -177,10 +179,8 @@
   border-radius: 999px;
   background: linear-gradient(
     to right,
-    var(--game-deck-slider-fill, var(--color-highlight, #9E9E9E)) 0%,
-    var(--game-deck-slider-fill, var(--color-highlight, #9E9E9E)) calc(var(--game-deck-slider-progress, 0.5) * 100%),
-    rgba(var(--color-text-rgb, 17, 17, 17), 0.2) calc(var(--game-deck-slider-progress, 0.5) * 100%),
-    rgba(var(--color-text-rgb, 17, 17, 17), 0.2) 100%
+    var(--game-deck-slider-gradient-start, #4a0000) 0%,
+    var(--game-deck-slider-gradient-end, #0d5f23) 100%
   );
   background-repeat: no-repeat;
   background-position: center;
@@ -197,8 +197,8 @@
 .game-deck__slider-track input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 52px;
-  height: 52px;
+  width: var(--game-deck-slider-thumb-size, 41.6px);
+  height: var(--game-deck-slider-thumb-size, 41.6px);
   border-radius: 50%;
   background: transparent url("data:image/svg+xml,${TALENT_THUMB_SVG}") no-repeat center/95%;
   border: none;
@@ -206,8 +206,8 @@
 }
 
 .game-deck__slider-track input[type="range"]::-moz-range-thumb {
-  width: 52px;
-  height: 52px;
+  width: var(--game-deck-slider-thumb-size, 41.6px);
+  height: var(--game-deck-slider-thumb-size, 41.6px);
   border-radius: 50%;
   background: transparent url("data:image/svg+xml,${TALENT_THUMB_SVG}") no-repeat center/95%;
   border: none;
