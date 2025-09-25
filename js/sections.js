@@ -128,20 +128,38 @@ const sections = [
     id: "schicksalzaehigkeit",
     title: t('fate_resilience'),
     content: `
-      <div class="dual-table-wrapper">
-        <div>
-          <h3>${t('fate')}</h3>
-          <table class="value-table">
-            <tr><td>${t('fate')}</td><td><input type="number" id="fate-value" class="small-field" max="99" min="0"></td></tr>
-            <tr><td>${t('luck')}</td><td><input type="number" id="luck-current" class="small-field" max="99" min="0"><span class="slash">/</span><input type="number" id="luck-max" class="small-field" max="99" min="0"></td></tr>
-          </table>
+      <div class="token-grid">
+        <div class="token-field" data-token-field="fate">
+          <div class="token-field__header">
+            <h3>${t('fate')}</h3>
+            <button type="button" class="token-field__add" data-token-add="fate" title="${t('token_add')}" aria-label="${t('token_add')}">+</button>
+          </div>
+          <div class="token-field__icons" data-token-list="fate" data-empty-label="${t('token_empty')}" role="list"></div>
+          <input type="hidden" id="fate-tokens" value="[]">
         </div>
-        <div>
-          <h3>${t('resilience')}</h3>
-          <table class="value-table">
-            <tr><td>${t('resilience')}</td><td><input type="number" id="resilience-value" class="small-field" max="99" min="0"></td></tr>
-            <tr><td>${t('resolve')}</td><td><input type="number" id="resolve-current" class="small-field" max="99" min="0"><span class="slash">/</span><input type="number" id="resolve-max" class="small-field" max="99" min="0"></td></tr>
-          </table>
+        <div class="token-field" data-token-field="luck">
+          <div class="token-field__header">
+            <h3>${t('luck')}</h3>
+            <button type="button" class="token-field__add" data-token-add="luck" title="${t('token_add')}" aria-label="${t('token_add')}">+</button>
+          </div>
+          <div class="token-field__icons" data-token-list="luck" data-empty-label="${t('token_empty')}" role="list"></div>
+          <input type="hidden" id="luck-tokens" value="[]">
+        </div>
+        <div class="token-field" data-token-field="resilience">
+          <div class="token-field__header">
+            <h3>${t('resilience')}</h3>
+            <button type="button" class="token-field__add" data-token-add="resilience" title="${t('token_add')}" aria-label="${t('token_add')}">+</button>
+          </div>
+          <div class="token-field__icons" data-token-list="resilience" data-empty-label="${t('token_empty')}" role="list"></div>
+          <input type="hidden" id="resilience-tokens" value="[]">
+        </div>
+        <div class="token-field" data-token-field="resolve">
+          <div class="token-field__header">
+            <h3>${t('resolve')}</h3>
+            <button type="button" class="token-field__add" data-token-add="resolve" title="${t('token_add')}" aria-label="${t('token_add')}">+</button>
+          </div>
+          <div class="token-field__icons" data-token-list="resolve" data-empty-label="${t('token_empty')}" role="list"></div>
+          <input type="hidden" id="resolve-tokens" value="[]">
         </div>
       </div>
       <div class="section-divider"></div>
