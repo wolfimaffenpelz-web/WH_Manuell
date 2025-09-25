@@ -906,19 +906,132 @@ th[data-input]::before {
 /* ================================================
    Schicksal & Zähigkeit
    ================================================ */
-.dual-table-wrapper {
+.token-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.token-field {
+  background: var(--color-field);
+  border: 1px solid var(--color-table-lines, rgba(var(--color-text-rgb), 0.32));
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 132px;
+}
+
+.token-field__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.token-field__header h3 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+}
+
+.token-field__add {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--color-table-lines, rgba(var(--color-text-rgb), 0.35));
+  background: rgba(var(--color-highlight-rgb, 158, 158, 158), 0.15);
+  color: inherit;
+  font-size: 1.35rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+
+.token-field__add:hover:not(:disabled) {
+  background: rgba(var(--color-highlight-rgb, 158, 158, 158), 0.35);
+  transform: translateY(-1px);
+}
+
+.token-field__add:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.token-field__add:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.token-field__icons {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 8px;
+  min-height: 40px;
   align-items: flex-start;
+  position: relative;
 }
 
-.value-table {
-  width: auto;
+.token-field__icons::before {
+  content: attr(data-empty-label);
+  display: none;
+  font-style: italic;
+  opacity: 0.7;
 }
 
-.small-field {
-  width: 3ch;
+.token-field__icons[data-empty="true"]::before {
+  display: inline-block;
+}
+
+.token-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--color-table-lines, rgba(var(--color-text-rgb), 0.4));
+  background: rgba(var(--color-field-rgb, 248, 215, 215), 0.9);
+  color: var(--color-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+
+.token-icon:hover {
+  transform: translateY(-1px);
+}
+
+.token-icon[data-token-state="spent"] {
+  background: rgba(var(--color-text-rgb), 0.1);
+  color: var(--color-negative);
+}
+
+.token-icon:focus-visible,
+.token-field__add:focus-visible {
+  outline: 2px solid var(--color-highlight, #9E9E9E);
+  outline-offset: 3px;
+}
+
+.token-field__summary {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 1.2rem;
+}
+
+.token-field__summary span {
+  display: inline-flex;
+  width: 26px;
+  height: 26px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--color-table-lines, rgba(var(--color-text-rgb), 0.4));
 }
 
 .tiny-field {
@@ -928,10 +1041,6 @@ th[data-input]::before {
 /* Bewegungstabelle ohne Umbruch */
 .movement-table { width: auto; table-layout: auto; }
 .movement-table td { white-space: nowrap; }
-
-.slash {
-  padding: 0 4px;
-}
 /* ================================================
    Desktop Overrides
    ================================================ */
