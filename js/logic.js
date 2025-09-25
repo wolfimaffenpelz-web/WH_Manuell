@@ -831,6 +831,7 @@ function saveState() {
 
   // Tabellen separat serialisieren
   [
+    "lp-status-table",
     "grupp-table",
     "talent-table",
     "waffen-table",
@@ -866,6 +867,7 @@ function loadState() {
   });
 
   [
+    "lp-status-table",
     "grupp-table",
     "talent-table",
     "waffen-table",
@@ -893,6 +895,7 @@ function loadState() {
 // =========================
 function ensureInitialRows() {
   [
+    "lp-status-table",
     "grupp-table",
     "talent-table",
     "waffen-table",
@@ -925,6 +928,7 @@ function resetCharacterSheet() {
   });
 
   [
+    "lp-status-table",
     "grupp-table",
     "talent-table",
     "waffen-table",
@@ -1637,6 +1641,14 @@ function addRow(tableId) {
       <td><input type="number" min="0"></td>
       <td class="text-left"><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('spar-table'); saveState(); updateVermoegen();">❌</button></td>
+    `;
+  }
+  else if (tableId === "lp-status-table") {
+    // Lebenspunkt-Statusübersicht
+    row.innerHTML = `
+      <td><textarea rows="1"></textarea></td>
+      <td><input type="number" min="0"></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('lp-status-table'); saveState(); updateLebenspunkte();">❌</button></td>
     `;
   }
   else if (tableId === "ruestung-table") {
