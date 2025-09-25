@@ -254,21 +254,20 @@ function buildGameDeckOptionGroups() {
 }
 
 function renderGameDeckComponent() {
-  if (!hasGameDeckSupport()) {
-    return;
-  }
-  const container = document.getElementById("game-deck-root");
-  if (!container) {
-    disposeGameDeck();
-    return;
-  }
+  if (!hasGameDeckSupport()) return;
+
+  const el = document.getElementById("game-deck-root");
+  if (!el) { disposeGameDeck(); return; }
+
+  // Mini-Hook: Klasse für das scoped CSS setzen
+  el.classList.add("game-deck");
+
   if (!gameDeckReactRoot) {
-    gameDeckReactRoot = window.ReactDOM.createRoot(container);
+    gameDeckReactRoot = window.ReactDOM.createRoot(el);
   }
+
   const optionGroups = buildGameDeckOptionGroups();
-  const element = window.React.createElement(window.GameDeck, {
-    optionGroups,
-  });
+  const element = window.React.createElement(window.GameDeck, { optionGroups });
   gameDeckReactRoot.render(element);
 }
 
