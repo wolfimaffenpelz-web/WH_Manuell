@@ -36,7 +36,7 @@
 
 .game-deck__card {
   background: var(--color-bg, #FAF0E6);
-  border: 1px solid var(--color-table-line, #000);
+  border: none;
   border-radius: 12px;
   padding: 1rem;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
@@ -56,6 +56,8 @@
   font-weight: 600;
   font-family: var(--font-heading, 'UnifrakturMaguntia', cursive);
   font-size: 1rem;
+  text-align: center;
+  width: 100%;
 }
 
 .game-deck__label--dice {
@@ -76,6 +78,7 @@
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  margin-bottom: 1rem;
 }
 
 .game-deck__dice-button:hover:not(:disabled) {
@@ -148,15 +151,18 @@
 
 .game-deck__slider-header {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 0.75rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
 }
 
 .game-deck__slider-value {
   font-family: var(--font-main, 'Podkova', serif);
   font-size: 1.1rem;
   font-weight: 600;
+  text-align: center;
 }
 
 .game-deck__slider-track {
@@ -164,13 +170,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 52px;
 }
 
 .game-deck__slider-track input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   width: min(100%, 360px);
-  height: 10px;
+  height: 52px;
   border-radius: 999px;
   background: linear-gradient(
     to right,
@@ -179,6 +186,9 @@
     rgba(var(--color-text-rgb, 17, 17, 17), 0.2) calc(var(--game-deck-slider-progress, 0.5) * 100%),
     rgba(var(--color-text-rgb, 17, 17, 17), 0.2) 100%
   );
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 10px;
   cursor: pointer;
   margin: 0 auto;
   transition: box-shadow 0.2s ease;
@@ -192,20 +202,20 @@
 .game-deck__slider-track input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 40px;
-  height: 40px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  background: transparent url("data:image/svg+xml,${TALENT_THUMB_SVG}") no-repeat center/85%;
+  background: transparent url("data:image/svg+xml,${TALENT_THUMB_SVG}") no-repeat center/95%;
   border: none;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   cursor: pointer;
 }
 
 .game-deck__slider-track input[type="range"]::-moz-range-thumb {
-  width: 40px;
-  height: 40px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  background: transparent url("data:image/svg+xml,${TALENT_THUMB_SVG}") no-repeat center/85%;
+  background: transparent url("data:image/svg+xml,${TALENT_THUMB_SVG}") no-repeat center/95%;
   border: none;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   cursor: pointer;
@@ -249,7 +259,7 @@
   padding: 0.75rem 0.85rem;
   border-radius: 8px;
   background: var(--color-bg, #FAF0E6);
-  border: 1px solid var(--color-table-line, #000);
+  border: none;
   color: var(--color-text, #111);
 
   font-family: var(--font-main, 'Podkova', serif);
@@ -627,7 +637,7 @@
     const isAutoFailure = diceValue === 100;
 
     const diceFeedback = (() => {
-      if (diceValue == null) {
+      if (isRolling || diceValue == null) {
         return null;
       }
       if (isAutoSuccess) {
