@@ -23,6 +23,10 @@
   display: grid;
   gap: 1.5rem;
   width: 100%;
+
+  color: var(--color-text, #111);
+  --game-deck-slider-fill: var(--color-highlight, #9E9E9E);
+
 }
 
 @media (min-width: 768px) {
@@ -32,11 +36,15 @@
 }
 
 .game-deck__card {
+  background: var(--color-field, rgba(255, 255, 255, 0.75));
+.game-deck__card {
   background: rgba(255, 255, 255, 0.75);
+
   border: 1px solid var(--color-table-line, #000);
   border-radius: 12px;
   padding: 1rem;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+  color: var(--color-text, #111);
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -84,10 +92,12 @@
   justify-content: center;
   min-height: 3.5rem;
   border-radius: 12px;
-  border: 2px solid var(--color-highlight, #9E9E9E);
+  border: 2px solid var(--color-table-line, #000);
   font-size: 2.2rem;
   font-weight: 700;
-  background: rgba(255, 255, 255, 0.85);
+  font-family: var(--font-heading, 'UnifrakturMaguntia', cursive);
+  background: var(--color-field, rgba(255, 255, 255, 0.85));
+
   color: var(--color-text, #111);
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.08);
   overflow: hidden;
@@ -96,9 +106,8 @@
 
 .game-deck__dice-display.is-flashing {
   animation: game-deck-blood-flash 0.9s ease-out;
-  color: #8b0000;
+ color: var(--color-negative, #8b0000);
 }
-
 .game-deck__dice-display.is-flashing .game-deck__dice-number {
   text-shadow: 0 0 12px rgba(139, 0, 0, 0.75);
 }
@@ -108,6 +117,8 @@
   align-items: center;
   justify-content: center;
   min-width: 3ch;
+  font-family: var(--font-heading, 'UnifrakturMaguntia', cursive);
+
   transition: transform 0.2s ease, color 0.2s ease;
 }
 
@@ -157,8 +168,8 @@
     to right,
     var(--game-deck-slider-fill, var(--color-highlight, #9E9E9E)) 0%,
     var(--game-deck-slider-fill, var(--color-highlight, #9E9E9E)) calc(var(--game-deck-slider-progress, 0.5) * 100%),
-    rgba(0, 0, 0, 0.2) calc(var(--game-deck-slider-progress, 0.5) * 100%),
-    rgba(0, 0, 0, 0.2) 100%
+    rgba(var(--color-text-rgb, 17, 17, 17), 0.2) calc(var(--game-deck-slider-progress, 0.5) * 100%),
+    rgba(var(--color-text-rgb, 17, 17, 17), 0.2) 100%
   );
   cursor: pointer;
   margin: 0 auto;
@@ -216,10 +227,10 @@
   border: 1px solid var(--color-table-line, #000);
   font-family: var(--font-main, 'Podkova', serif);
   font-size: 1rem;
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--color-field, rgba(255, 255, 255, 0.92));
+  color: var(--color-text, #111);
   cursor: pointer;
 }
-
 .game-deck__total,
 .game-deck__stat {
   display: flex;
@@ -229,8 +240,10 @@
   gap: 0.35rem;
   padding: 0.75rem 0.85rem;
   border-radius: 8px;
-  background: rgba(250, 240, 230, 0.9);
-  border: 1px solid var(--color-highlight, #9E9E9E);
+  background: var(--color-field, rgba(250, 240, 230, 0.9));
+  border: 1px solid var(--color-table-line, #000);
+  color: var(--color-text, #111);
+
   font-family: var(--font-main, 'Podkova', serif);
   font-size: 1rem;
 }
@@ -262,29 +275,57 @@
 
 .game-deck__stat-subtext {
   font-size: 0.85rem;
-  color: rgba(17, 17, 17, 0.7);
+  color: var(--color-text, #111);
+  opacity: 0.75;
+
 }
 
 .game-deck__critical {
   border-style: dashed;
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--color-field, rgba(255, 255, 255, 0.7));
+}
+
+.game-deck__critical--success,
+.game-deck__critical--failure {
+  background: transparent;
+  border-color: transparent;
 }
 
 .game-deck__critical--success {
-  border-color: var(--color-positive, #2e7d32);
   color: var(--color-positive, #2e7d32);
-  background: rgba(46, 125, 50, 0.12);
 }
 
 .game-deck__critical--failure {
-  border-color: var(--color-negative, #c62828);
   color: var(--color-negative, #c62828);
-  background: rgba(198, 40, 40, 0.12);
+}
+
+.game-deck__critical-message {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.35rem 0;
+  color: var(--color-text, #111);
+}
+
+.game-deck__critical-message-text {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.game-deck__critical-message--success .game-deck__critical-message-text {
+  color: var(--color-positive, #2e7d32);
+}
+
+.game-deck__critical-message--failure .game-deck__critical-message-text {
+  color: var(--color-negative, #c62828);
 }
 
 .game-deck__empty {
   font-style: italic;
-  color: rgba(17, 17, 17, 0.7);
+ codex/implement-gamedeck-ui-component
+  color: var(--color-text, #111);
+  opacity: 0.7;
+
 }
 `;
 
@@ -612,6 +653,13 @@
       .filter(Boolean)
       .join(" ");
 
+    const isCriticalHighlight = criticalInfo.tone === "success" || criticalInfo.tone === "failure";
+    const criticalMessageClassName = [
+      "game-deck__critical-message",
+      isCriticalHighlight ? `game-deck__critical-message--${criticalInfo.tone}` : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
     const criticalSubtextParts = [];
     if (diceValue != null) {
       criticalSubtextParts.push(`${t("game_deck_result_label")}: ${diceValue}`);
@@ -808,39 +856,70 @@
             successSubtext
           )
         ),
-        h(
-          "div",
-          {
-            className: criticalClassName,
-            role: "status",
-            "aria-live": "polite",
-            "aria-labelledby": criticalLabelId,
-          },
-          h(
-            "div",
-            { className: "game-deck__stat-line" },
-            h(
-              "span",
+        isCriticalHighlight
+          ? h(
+              "div",
               {
-                id: criticalLabelId,
-                className: "game-deck__stat-label",
+                className: criticalMessageClassName,
+                role: "status",
+                "aria-live": "polite",
+                "aria-labelledby": criticalLabelId,
               },
-              t("game_deck_critical_label")
-            ),
-            h(
-              "span",
-              { className: criticalValueClassName },
-              criticalInfo.message
-            )
-          ),
-          criticalSubtext
-            ? h(
+              h(
                 "span",
-                { className: "game-deck__stat-subtext" },
-                criticalSubtext
-              )
-            : null
-        )
+                {
+                  id: criticalLabelId,
+                  className: "game-deck__stat-label",
+                },
+                t("game_deck_critical_label")
+              ),
+              h(
+                "span",
+                { className: "game-deck__critical-message-text" },
+                criticalInfo.message
+              ),
+              criticalSubtext
+                ? h(
+                    "span",
+                    { className: "game-deck__stat-subtext" },
+                    criticalSubtext
+                  )
+                : null
+            )
+          : h(
+              "div",
+              {
+                className: criticalClassName,
+                role: "status",
+                "aria-live": "polite",
+                "aria-labelledby": criticalLabelId,
+              },
+              h(
+                "div",
+                { className: "game-deck__stat-line" },
+                h(
+                  "span",
+                  {
+                    id: criticalLabelId,
+                    className: "game-deck__stat-label",
+                  },
+                  t("game_deck_critical_label")
+                ),
+                h(
+                  "span",
+                  { className: criticalValueClassName },
+                  criticalInfo.message
+                )
+              ),
+              criticalSubtext
+                ? h(
+                    "span",
+                    { className: "game-deck__stat-subtext" },
+                    criticalSubtext
+                  )
+                : null
+            )
+
       )
     );
   };
