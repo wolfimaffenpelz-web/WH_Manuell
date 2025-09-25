@@ -782,6 +782,16 @@ th[data-input]::before {
   color: var(--color-negative);
 }
 
+#schulden-table td input,
+#spar-table td input,
+#vermoegen-table td input,
+#nettovermoegen-block td input,
+#korruption-table td input,
+#exp-simple td input,
+#exp-full td input {
+  text-align: center;
+}
+
 /* Münzbesitz und Nettovermögen */
 #vermoegen-table,
 #vermoegen-table th,
