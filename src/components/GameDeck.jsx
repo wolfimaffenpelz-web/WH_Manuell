@@ -39,11 +39,14 @@
   border: none;
   border-radius: 12px;
   padding: 1rem;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
   color: var(--color-text, #111);
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+.game-deck__card--slider {
+  gap: 0.4rem;
 }
 
 .game-deck__card--dice {
@@ -55,15 +58,15 @@
   margin: 0;
   font-weight: 600;
   font-family: var(--font-heading, 'UnifrakturMaguntia', cursive);
-  font-size: 1rem;
+  font-size: 1.3rem;
   text-align: center;
   width: 100%;
 }
 
 .game-deck__label--dice {
-  font-size: 1.3rem;
   margin-top: 1rem;
 }
+
 
 .game-deck__dice-button {
   align-self: center;
@@ -76,14 +79,12 @@
   font-size: 2.2rem;
   line-height: 1;
   cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  transition: transform 0.2s ease, opacity 0.2s ease;
   margin-bottom: 1rem;
 }
 
 .game-deck__dice-button:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
 .game-deck__dice-button:active:not(:disabled) {
@@ -109,18 +110,11 @@
   background: var(--color-bg, #FAF0E6);
 
   color: var(--color-text, #111);
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  transition: box-shadow 0.3s ease;
 }
 
 .game-deck__dice-display.is-flashing {
-  animation: game-deck-blood-flash 0.9s ease-out;
   color: var(--color-negative, #8b0000);
-}
-
-.game-deck__dice-display.is-flashing .game-deck__dice-number {
-  text-shadow: 0 0 12px rgba(139, 0, 0, 0.75);
 }
 
 .game-deck__dice-number {
@@ -143,12 +137,6 @@
   100% { transform: rotateX(360deg); opacity: 1; }
 }
 
-@keyframes game-deck-blood-flash {
-  0% { box-shadow: 0 0 0 rgba(139, 0, 0, 0); }
-  35% { box-shadow: 0 0 28px rgba(139, 0, 0, 0.8); }
-  100% { box-shadow: 0 0 0 rgba(139, 0, 0, 0); }
-}
-
 .game-deck__slider-header {
   display: flex;
   flex-direction: column;
@@ -163,6 +151,14 @@
   font-size: 1.1rem;
   font-weight: 600;
   text-align: center;
+}
+
+.game-deck__slider-value.is-positive {
+  color: var(--color-positive, #2e7d32);
+}
+
+.game-deck__slider-value.is-negative {
+  color: var(--color-negative, #c62828);
 }
 
 .game-deck__slider-track {
@@ -191,7 +187,6 @@
   background-size: 100% 10px;
   cursor: pointer;
   margin: 0 auto;
-  transition: box-shadow 0.2s ease;
 }
 
 .game-deck__slider-track input[type="range"]:focus-visible {
@@ -207,7 +202,6 @@
   border-radius: 50%;
   background: transparent url("data:image/svg+xml,${TALENT_THUMB_SVG}") no-repeat center/95%;
   border: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   cursor: pointer;
 }
 
@@ -217,7 +211,6 @@
   border-radius: 50%;
   background: transparent url("data:image/svg+xml,${TALENT_THUMB_SVG}") no-repeat center/95%;
   border: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   cursor: pointer;
 }
 
@@ -515,6 +508,13 @@
 
     const modifierValue = sliderValue;
     const modifierDisplay = formatModifier(modifierValue);
+    const sliderValueClassName = [
+      "game-deck__slider-value",
+      modifierValue > 0 ? "is-positive" : "",
+      modifierValue < 0 ? "is-negative" : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
     const targetValue = hasSelection ? toNumber(selectedOption.value) : 0;
     const adjustedTargetValue = hasSelection ? targetValue + modifierValue : null;
     const diceDisplay =
@@ -737,7 +737,7 @@
       ),
       h(
         "section",
-        { className: "game-deck__card", "aria-labelledby": sliderLabelId },
+        { className: "game-deck__card game-deck__card--slider", "aria-labelledby": sliderLabelId },
         h(
           "div",
           { className: "game-deck__slider-header" },
@@ -755,7 +755,7 @@
             {
               id: sliderValueId,
               htmlFor: sliderInputId,
-              className: "game-deck__slider-value",
+              className: sliderValueClassName,
               "aria-live": "polite",
               "aria-label": `${t("game_deck_slider_value_label")}: ${modifierDisplay}`,
               title: `${t("game_deck_slider_value_label")}: ${modifierDisplay}`,
