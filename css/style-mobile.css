@@ -90,17 +90,16 @@ table {
 }
 
 table tr {
-  height: var(--row-height);
-  vertical-align: middle;
+  height: auto;
 }
 
 th, td {
   border: 0;
   padding: 2px;
   text-align: center;
-  vertical-align: middle;
+  vertical-align: top;
   max-width: 120px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 td:first-child,
@@ -118,37 +117,40 @@ th:first-child textarea {
 }
 
 input[type="text"],
-textarea {
-  width: 100%;
-  margin: 0;
-  border: none;
-  background: var(--color-field);
-  text-align: left;
-  font-family: inherit;
-  font-weight: bold;
-  height: var(--row-height);
-  line-height: var(--row-height);
-  vertical-align: middle;
-}
-
 input[type="number"],
 textarea {
   width: 100%;
   margin: 0;
   border: none;
   background: var(--color-field);
-  text-align: center;
   font-family: inherit;
   font-weight: bold;
-  height: var(--row-height);
+  vertical-align: top;
+}
+
+input[type="text"],
+input[type="number"] {
+  min-height: var(--row-height);
   line-height: var(--row-height);
-  vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+input[type="text"] {
+  text-align: left;
+}
+
+input[type="number"] {
+  text-align: center;
 }
 
 textarea {
   min-height: var(--row-height);
-  resize: none;
-  overflow: hidden;
+  line-height: 1.35;
+  padding: 2px 4px;
+  resize: vertical;
+  overflow: auto;
 }
 
 #mutationen-table select,
