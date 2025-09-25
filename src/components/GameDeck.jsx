@@ -26,7 +26,6 @@
 
   color: var(--color-text, #111);
   --game-deck-slider-fill: var(--color-highlight, #9E9E9E);
-
 }
 
 @media (min-width: 768px) {
@@ -36,10 +35,7 @@
 }
 
 .game-deck__card {
-  background: var(--color-field, rgba(255, 255, 255, 0.75));
-.game-deck__card {
-  background: rgba(255, 255, 255, 0.75);
-
+  background: var(--color-bg, #FAF0E6);
   border: 1px solid var(--color-table-line, #000);
   border-radius: 12px;
   padding: 1rem;
@@ -50,6 +46,11 @@
   gap: 0.75rem;
 }
 
+.game-deck__card--dice {
+  align-items: center;
+  text-align: center;
+}
+
 .game-deck__label {
   margin: 0;
   font-weight: 600;
@@ -57,15 +58,21 @@
   font-size: 1rem;
 }
 
+.game-deck__label--dice {
+  font-size: 1.3rem;
+  margin-top: 1rem;
+}
+
 .game-deck__dice-button {
-  align-self: flex-start;
+  align-self: center;
   background: var(--color-highlight, #9E9E9E);
   color: var(--color-bg, #FAF0E6);
   border: none;
   border-radius: 999px;
-  padding: 0.6rem 1.4rem;
-  font-family: var(--font-main, 'Podkova', serif);
-  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-heading, 'UnifrakturMaguntia', cursive);
+  font-size: 2.2rem;
+  line-height: 1;
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
@@ -96,7 +103,7 @@
   font-size: 2.2rem;
   font-weight: 700;
   font-family: var(--font-heading, 'UnifrakturMaguntia', cursive);
-  background: var(--color-field, rgba(255, 255, 255, 0.85));
+  background: var(--color-bg, #FAF0E6);
 
   color: var(--color-text, #111);
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.08);
@@ -106,8 +113,9 @@
 
 .game-deck__dice-display.is-flashing {
   animation: game-deck-blood-flash 0.9s ease-out;
- color: var(--color-negative, #8b0000);
+  color: var(--color-negative, #8b0000);
 }
+
 .game-deck__dice-display.is-flashing .game-deck__dice-number {
   text-shadow: 0 0 12px rgba(139, 0, 0, 0.75);
 }
@@ -240,7 +248,7 @@
   gap: 0.35rem;
   padding: 0.75rem 0.85rem;
   border-radius: 8px;
-  background: var(--color-field, rgba(250, 240, 230, 0.9));
+  background: var(--color-bg, #FAF0E6);
   border: 1px solid var(--color-table-line, #000);
   color: var(--color-text, #111);
 
@@ -280,49 +288,40 @@
 
 }
 
-.game-deck__critical {
-  border-style: dashed;
-  background: var(--color-field, rgba(255, 255, 255, 0.7));
-}
-
-.game-deck__critical--success,
-.game-deck__critical--failure {
-  background: transparent;
-  border-color: transparent;
-}
-
-.game-deck__critical--success {
-  color: var(--color-positive, #2e7d32);
-}
-
-.game-deck__critical--failure {
-  color: var(--color-negative, #c62828);
-}
-
-.game-deck__critical-message {
+.game-deck__dice-feedback {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 0.35rem;
-  padding: 0.35rem 0;
-  color: var(--color-text, #111);
+  margin-top: 0.75rem;
 }
 
-.game-deck__critical-message-text {
-  font-size: 1.1rem;
+.game-deck__dice-feedback-text {
+  font-family: var(--font-heading, 'UnifrakturMaguntia', cursive);
+  font-size: 1.4rem;
   font-weight: 700;
 }
 
-.game-deck__critical-message--success .game-deck__critical-message-text {
+.game-deck__dice-feedback-note {
+  font-size: 0.95rem;
+  font-family: var(--font-main, 'Podkova', serif);
+  color: var(--color-text, #111);
+}
+
+.game-deck__dice-feedback--success .game-deck__dice-feedback-text {
   color: var(--color-positive, #2e7d32);
 }
 
-.game-deck__critical-message--failure .game-deck__critical-message-text {
+.game-deck__dice-feedback--failure .game-deck__dice-feedback-text {
   color: var(--color-negative, #c62828);
+}
+
+.game-deck__dice-feedback--pending .game-deck__dice-feedback-text {
+  color: var(--color-text, #111);
 }
 
 .game-deck__empty {
   font-style: italic;
- codex/implement-gamedeck-ui-component
   color: var(--color-text, #111);
   opacity: 0.7;
 
@@ -408,9 +407,9 @@
     const dropdownSelectId = `${dropdownBaseId}-select`;
     const dropdownLabelId = `${dropdownBaseId}-label`;
     const diceLabelId = useId();
+    const diceFeedbackId = useId();
     const totalLabelId = useId();
     const successLabelId = useId();
-    const criticalLabelId = useId();
 
     const rollIntervalRef = useRef(null);
     const rollTimeoutRef = useRef(null);
@@ -508,7 +507,10 @@
     const modifierDisplay = formatModifier(modifierValue);
     const targetValue = hasSelection ? toNumber(selectedOption.value) : 0;
     const adjustedTargetValue = hasSelection ? targetValue + modifierValue : null;
-    const diceDisplay = diceValue == null ? t("game_deck_no_result") : String(diceValue);
+    const diceDisplay =
+      diceValue == null
+        ? t("game_deck_no_result")
+        : String(diceValue).padStart(diceValue === 100 ? 3 : 2, "0");
 
     const diceDisplayClassName = [
       "game-deck__dice-display",
@@ -621,66 +623,65 @@
     const isDouble = typeof diceValue === "number" && diceValue > 0 && diceValue < 100 && diceValue % 11 === 0;
     const isSuccessfulRoll =
       diceValue != null && adjustedTargetValue != null ? diceValue <= adjustedTargetValue : false;
-    const criticalInfo = (() => {
+    const isAutoSuccess = diceValue === 1;
+    const isAutoFailure = diceValue === 100;
+
+    const diceFeedback = (() => {
       if (diceValue == null) {
-        return { message: t("game_deck_critical_pending"), tone: "" };
+        return null;
+      }
+      if (isAutoSuccess) {
+        return {
+          message: t("game_deck_critical_success_label"),
+          tone: "success",
+          note: t("game_deck_auto_success_note"),
+        };
+      }
+      if (isAutoFailure) {
+        return {
+          message: t("game_deck_patzer_label"),
+          tone: "failure",
+          note: t("game_deck_auto_failure_note"),
+        };
       }
       if (!isDouble) {
-        return { message: t("game_deck_critical_none"), tone: "" };
+        return null;
       }
       if (!hasSelection) {
-        return { message: hasOptions ? t("game_deck_no_selection") : t("game_deck_no_options"), tone: "" };
+        return {
+          message: hasOptions ? t("game_deck_no_selection") : t("game_deck_no_options"),
+          tone: "pending",
+        };
       }
       return isSuccessfulRoll
-        ? { message: t("game_deck_critical_success"), tone: "success" }
-        : { message: t("game_deck_critical_failure"), tone: "failure" };
+        ? { message: t("game_deck_critical_success_label"), tone: "success" }
+        : { message: t("game_deck_patzer_label"), tone: "failure" };
     })();
 
-    const criticalClassName = [
-      "game-deck__stat",
-      "game-deck__critical",
-      criticalInfo.tone === "success" ? "game-deck__critical--success" : "",
-      criticalInfo.tone === "failure" ? "game-deck__critical--failure" : "",
+    const diceFeedbackClassName = [
+      "game-deck__dice-feedback",
+      diceFeedback && diceFeedback.tone ? `game-deck__dice-feedback--${diceFeedback.tone}` : "",
     ]
       .filter(Boolean)
       .join(" ");
 
-    const criticalValueClassName = [
-      "game-deck__stat-value",
-      criticalInfo.tone === "success" ? "is-positive" : "",
-      criticalInfo.tone === "failure" ? "is-negative" : "",
-    ]
-      .filter(Boolean)
-      .join(" ");
+    const diceDisplayProps = {
+      className: diceDisplayClassName,
+      role: "status",
+      "aria-live": "polite",
+      "aria-atomic": "true",
+    };
 
-    const isCriticalHighlight = criticalInfo.tone === "success" || criticalInfo.tone === "failure";
-    const criticalMessageClassName = [
-      "game-deck__critical-message",
-      isCriticalHighlight ? `game-deck__critical-message--${criticalInfo.tone}` : "",
-    ]
-      .filter(Boolean)
-      .join(" ");
-    const criticalSubtextParts = [];
-    if (diceValue != null) {
-      criticalSubtextParts.push(`${t("game_deck_result_label")}: ${diceValue}`);
+    if (diceFeedback && diceFeedback.message) {
+      diceDisplayProps["aria-describedby"] = diceFeedbackId;
     }
-    if (hasSelection) {
-      criticalSubtextParts.push(`${t("game_deck_target_value_label")}: ${targetValueDisplay}`);
-    }
-    if (modifierValue !== 0 && adjustedTargetValue != null) {
-      criticalSubtextParts.push(`${t("game_deck_adjusted_target_label")}: ${adjustedTargetDisplay}`);
-    }
-    if (modifierValue !== 0) {
-      criticalSubtextParts.push(`${t("game_deck_slider_label")}: ${modifierDisplay}`);
-    }
-    const criticalSubtext = criticalSubtextParts.length > 0 ? criticalSubtextParts.join(" · ") : null;
 
     return h(
       "div",
       { className: "game-deck" },
       h(
         "section",
-        { className: "game-deck__card", "aria-labelledby": diceLabelId },
+        { className: "game-deck__card game-deck__card--dice", "aria-labelledby": diceLabelId },
         h(
           "button",
           {
@@ -695,24 +696,34 @@
           "p",
           {
             id: diceLabelId,
-            className: "game-deck__label",
+            className: "game-deck__label game-deck__label--dice",
           },
           t("game_deck_result_label")
         ),
         h(
           "div",
-          {
-            className: diceDisplayClassName,
-            role: "status",
-            "aria-live": "polite",
-            "aria-atomic": "true",
-          },
+          diceDisplayProps,
           h(
             "span",
             { className: diceNumberClassName },
             diceDisplay
           )
-        )
+        ),
+        diceFeedback && diceFeedback.message
+          ? h(
+              "div",
+              {
+                id: diceFeedbackId,
+                className: diceFeedbackClassName,
+                role: "status",
+                "aria-live": "polite",
+              },
+              h("span", { className: "game-deck__dice-feedback-text" }, diceFeedback.message),
+              diceFeedback.note
+                ? h("span", { className: "game-deck__dice-feedback-note" }, diceFeedback.note)
+                : null
+            )
+          : null
       ),
       h(
         "section",
@@ -855,71 +866,7 @@
             { className: "game-deck__stat-subtext" },
             successSubtext
           )
-        ),
-        isCriticalHighlight
-          ? h(
-              "div",
-              {
-                className: criticalMessageClassName,
-                role: "status",
-                "aria-live": "polite",
-                "aria-labelledby": criticalLabelId,
-              },
-              h(
-                "span",
-                {
-                  id: criticalLabelId,
-                  className: "game-deck__stat-label",
-                },
-                t("game_deck_critical_label")
-              ),
-              h(
-                "span",
-                { className: "game-deck__critical-message-text" },
-                criticalInfo.message
-              ),
-              criticalSubtext
-                ? h(
-                    "span",
-                    { className: "game-deck__stat-subtext" },
-                    criticalSubtext
-                  )
-                : null
-            )
-          : h(
-              "div",
-              {
-                className: criticalClassName,
-                role: "status",
-                "aria-live": "polite",
-                "aria-labelledby": criticalLabelId,
-              },
-              h(
-                "div",
-                { className: "game-deck__stat-line" },
-                h(
-                  "span",
-                  {
-                    id: criticalLabelId,
-                    className: "game-deck__stat-label",
-                  },
-                  t("game_deck_critical_label")
-                ),
-                h(
-                  "span",
-                  { className: criticalValueClassName },
-                  criticalInfo.message
-                )
-              ),
-              criticalSubtext
-                ? h(
-                    "span",
-                    { className: "game-deck__stat-subtext" },
-                    criticalSubtext
-                  )
-                : null
-            )
-
+        )
       )
     );
   };
