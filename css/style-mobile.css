@@ -153,6 +153,12 @@ textarea {
   overflow: hidden;
 }
 
+/* halte leere Mehrzeilenfelder auf der Grundzeilenhöhe */
+textarea:empty {
+  height: var(--row-height) !important;
+  min-height: var(--row-height);
+}
+
 #mutationen-table select,
 #ruestung-table select,
 #grupp-table select {
