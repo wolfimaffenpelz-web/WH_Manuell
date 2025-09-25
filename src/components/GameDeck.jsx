@@ -23,8 +23,10 @@
   display: grid;
   gap: 1.5rem;
   width: 100%;
+
   color: var(--color-text, #111);
   --game-deck-slider-fill: var(--color-highlight, #9E9E9E);
+
 }
 
 @media (min-width: 768px) {
@@ -33,9 +35,11 @@
   }
 }
 
-
 .game-deck__card {
   background: var(--color-field, rgba(255, 255, 255, 0.75));
+.game-deck__card {
+  background: rgba(255, 255, 255, 0.75);
+
   border: 1px solid var(--color-table-line, #000);
   border-radius: 12px;
   padding: 1rem;
@@ -93,6 +97,7 @@
   font-weight: 700;
   font-family: var(--font-heading, 'UnifrakturMaguntia', cursive);
   background: var(--color-field, rgba(255, 255, 255, 0.85));
+
   color: var(--color-text, #111);
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.08);
   overflow: hidden;
@@ -101,9 +106,8 @@
 
 .game-deck__dice-display.is-flashing {
   animation: game-deck-blood-flash 0.9s ease-out;
-  color: var(--color-negative, #8b0000);
+ color: var(--color-negative, #8b0000);
 }
-
 .game-deck__dice-display.is-flashing .game-deck__dice-number {
   text-shadow: 0 0 12px rgba(139, 0, 0, 0.75);
 }
@@ -114,6 +118,7 @@
   justify-content: center;
   min-width: 3ch;
   font-family: var(--font-heading, 'UnifrakturMaguntia', cursive);
+
   transition: transform 0.2s ease, color 0.2s ease;
 }
 
@@ -226,7 +231,6 @@
   color: var(--color-text, #111);
   cursor: pointer;
 }
-
 .game-deck__total,
 .game-deck__stat {
   display: flex;
@@ -239,6 +243,7 @@
   background: var(--color-field, rgba(250, 240, 230, 0.9));
   border: 1px solid var(--color-table-line, #000);
   color: var(--color-text, #111);
+
   font-family: var(--font-main, 'Podkova', serif);
   font-size: 1rem;
 }
@@ -272,6 +277,7 @@
   font-size: 0.85rem;
   color: var(--color-text, #111);
   opacity: 0.75;
+
 }
 
 .game-deck__critical {
@@ -316,8 +322,10 @@
 
 .game-deck__empty {
   font-style: italic;
+ codex/implement-gamedeck-ui-component
   color: var(--color-text, #111);
   opacity: 0.7;
+
 }
 `;
 
@@ -652,7 +660,6 @@
     ]
       .filter(Boolean)
       .join(" ");
-
     const criticalSubtextParts = [];
     if (diceValue != null) {
       criticalSubtextParts.push(`${t("game_deck_result_label")}: ${diceValue}`);
@@ -912,6 +919,7 @@
                   )
                 : null
             )
+
       )
     );
   };
