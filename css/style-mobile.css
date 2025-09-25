@@ -110,8 +110,9 @@ th:first-child {
   overflow: visible;
 }
 
-td:first-child input,
-th:first-child input,
+/* Erste Spalte links – aber nur für Text, nicht für Zahlen */
+td:first-child input[type="text"],
+th:first-child input[type="text"],
 td:first-child textarea,
 th:first-child textarea {
   text-align: left;
@@ -750,6 +751,19 @@ th[data-input]::before {
 /* ================================================
    Schulden- und Spar-Tabellen
    ================================================ */
+
+/* Münzbesitz + Nettovermögen */
+#vermoegen-table td input[type="number"],
+#nettovermoegen-block td input[type="number"] {
+  text-align: center;            /* oder right */
+}
+
+/* Schulden & Sparen – nur die ersten drei (GK/S/G) Spalten */
+#schulden-table td:nth-child(-n+3) input[type="number"],
+#spar-table     td:nth-child(-n+3) input[type="number"] {
+  text-align: center;            /* oder right */
+}
+
 #schulden-table,
 #schulden-table th,
 #schulden-table td { font-family: var(--font-main); color: var(--color-text); }
