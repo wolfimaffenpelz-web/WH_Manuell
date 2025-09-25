@@ -1159,36 +1159,106 @@ function exportCharacterPdf() {
     </body>
   </html>`;
 
-  const printWindow = window.open('', '_blank');
-  if (!printWindow) {
-    alert(t('export_popup_blocked'));
-    return;
-  }
+  const openPopupFallback = () => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert(t('export_popup_blocked'));
+      return;
+    }
 
-  printWindow.document.open();
-  printWindow.document.write(html);
-  printWindow.document.close();
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
 
-  const triggerPrint = () => {
-    printWindow.focus();
-    setTimeout(() => {
-      try {
-        printWindow.print();
-      } catch (err) {
-        console.error('Failed to trigger print dialog', err);
-      }
-    }, 50);
+    const triggerPrint = () => {
+      setTimeout(() => {
+        try {
+          printWindow.focus();
+          printWindow.print();
+        } catch (err) {
+          console.error('Failed to trigger print dialog', err);
+        }
+      }, 50);
+    };
+
+    if (printWindow.document.readyState === 'complete' || printWindow.document.readyState === 'interactive') {
+      triggerPrint();
+    } else {
+      printWindow.document.addEventListener('DOMContentLoaded', triggerPrint, { once: true });
+    }
+
+    printWindow.addEventListener('afterprint', () => {
+      printWindow.close();
+    });
   };
 
-  if (printWindow.document.readyState === 'complete' || printWindow.document.readyState === 'interactive') {
-    triggerPrint();
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.right = '0';
+  iframe.style.bottom = '0';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = '0';
+  iframe.style.opacity = '0';
+  iframe.style.pointerEvents = 'none';
+  iframe.setAttribute('aria-hidden', 'true');
+
+  let blobUrl = '';
+  if ('srcdoc' in iframe) {
+    iframe.srcdoc = html;
   } else {
-    printWindow.document.addEventListener('DOMContentLoaded', triggerPrint, { once: true });
+    const blob = new Blob([html], { type: 'text/html' });
+    blobUrl = URL.createObjectURL(blob);
+    iframe.src = blobUrl;
   }
 
-  printWindow.addEventListener('afterprint', () => {
-    printWindow.close();
+  const cleanup = () => {
+    if (iframe.parentNode) {
+      iframe.parentNode.removeChild(iframe);
+    }
+    if (blobUrl) {
+      URL.revokeObjectURL(blobUrl);
+      blobUrl = '';
+    }
+  };
+
+  iframe.addEventListener('load', () => {
+    const frameWindow = iframe.contentWindow;
+    if (!frameWindow || typeof frameWindow.print !== 'function') {
+      cleanup();
+      openPopupFallback();
+      return;
+    }
+
+    const cleanupTimer = setTimeout(() => {
+      cleanup();
+    }, 30000);
+
+    const onAfterPrint = () => {
+      frameWindow.removeEventListener('afterprint', onAfterPrint);
+      clearTimeout(cleanupTimer);
+      cleanup();
+    };
+    frameWindow.addEventListener('afterprint', onAfterPrint);
+
+    setTimeout(() => {
+      try {
+        frameWindow.focus();
+        frameWindow.print();
+      } catch (err) {
+        console.error('Failed to trigger print dialog', err);
+        cleanup();
+        openPopupFallback();
+      }
+    }, 100);
   });
+
+  iframe.addEventListener('error', () => {
+    cleanup();
+    openPopupFallback();
+  });
+
+  document.body.appendChild(iframe);
 }
 
 function openExportPopup() {
