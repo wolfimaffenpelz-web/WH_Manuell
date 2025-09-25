@@ -1117,9 +1117,9 @@ function exportCharacterPdf() {
   metaParts.push(`<div><strong>${t('export_generated_at')}:</strong> ${escapeHtml(generatedAt)}</div>`);
 
   const styles = `
-    body { font-family: 'Podkova', serif; color: #111; margin: 0; padding: 32px; background: #fff; }
+    body { font-family: 'Times New Roman', Georgia, serif; color: #111; margin: 0; padding: 32px; background: #fff; }
     .pdf-header { text-align: center; margin-bottom: 24px; }
-    .pdf-header h1 { font-family: 'UnifrakturMaguntia', 'Times New Roman', serif; font-size: 32px; margin: 0 0 8px; }
+    .pdf-header h1 { font-family: 'Times New Roman', Georgia, serif; font-size: 32px; margin: 0 0 8px; }
     .pdf-meta { font-size: 12px; display: flex; flex-direction: column; gap: 4px; align-items: center; }
     section.pdf-section { margin-bottom: 28px; page-break-inside: avoid; }
     section.pdf-section h2 { font-size: 20px; margin: 0 0 12px; border-bottom: 2px solid #333; padding-bottom: 6px; }
@@ -1148,7 +1148,6 @@ function exportCharacterPdf() {
     <head>
       <meta charset="utf-8">
       <title>${escapeHtml(docTitle)}</title>
-      <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Podkova&display=swap" rel="stylesheet">
       <style>${styles}</style>
     </head>
     <body>
@@ -1169,12 +1168,26 @@ function exportCharacterPdf() {
   printWindow.document.open();
   printWindow.document.write(html);
   printWindow.document.close();
-  printWindow.addEventListener('load', () => {
+
+  const triggerPrint = () => {
     printWindow.focus();
-    printWindow.print();
-    printWindow.addEventListener('afterprint', () => {
-      printWindow.close();
-    });
+    setTimeout(() => {
+      try {
+        printWindow.print();
+      } catch (err) {
+        console.error('Failed to trigger print dialog', err);
+      }
+    }, 50);
+  };
+
+  if (printWindow.document.readyState === 'complete' || printWindow.document.readyState === 'interactive') {
+    triggerPrint();
+  } else {
+    printWindow.document.addEventListener('DOMContentLoaded', triggerPrint, { once: true });
+  }
+
+  printWindow.addEventListener('afterprint', () => {
+    printWindow.close();
   });
 }
 
