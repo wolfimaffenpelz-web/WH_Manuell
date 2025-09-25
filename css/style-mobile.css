@@ -155,7 +155,7 @@ textarea {
 
 /* halte leere Mehrzeilenfelder auf der Grundzeilenhöhe */
 textarea:empty {
-  height: var(--row-height) !important;
+  height: var(--row-height);
   min-height: var(--row-height);
 }
 
