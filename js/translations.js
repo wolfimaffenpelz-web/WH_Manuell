@@ -176,6 +176,7 @@ const baseTranslations = {
   value_col: "Wert",
   comment_col: "Kommentar",
   sin: "Sünde",
+  count: "Anzahl",
   st_bonus: "ST-Bonus",
   wi_bonus: "WI-Bonus",
   wk_bonus: "2× WK-Bonus",

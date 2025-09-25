@@ -411,6 +411,14 @@ sections.push(
         <tr><td>Gesamt-LP</td><td><input type="number" id="lp-gesamt" readonly></td></tr>
         <tr><td>${t('current_lp')}</td><td><input type="number" id="lp-aktuell" min="0" max="99"></td></tr>
       </table>
+      <h3>${t('status')}</h3>
+      <table class="full-width" id="lp-status-table">
+        <tr>
+          <th>${t('status')}</th>
+          <th>${t('count')}</th>
+          <th class="delete-col"></th>
+        </tr>
+      </table>
       <p>* Automatisch durch Talent "Robustheit" / "Hardy"</p>
       <div class="section-divider"></div>
     `
