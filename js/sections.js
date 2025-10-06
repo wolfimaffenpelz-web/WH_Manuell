@@ -140,7 +140,6 @@ const sections = [
         <div class="token-field" data-token-field="luck">
           <div class="token-field__header">
             <h3>${t('luck')}</h3>
-            <button type="button" class="token-field__add" data-token-add="luck" title="${t('token_add')}" aria-label="${t('token_add')}">+</button>
           </div>
           <div class="token-field__icons" data-token-list="luck" data-empty-label="${t('token_empty')}" role="list"></div>
           <input type="hidden" id="luck-tokens" value="[]">
@@ -156,11 +155,22 @@ const sections = [
         <div class="token-field" data-token-field="resolve">
           <div class="token-field__header">
             <h3>${t('resolve')}</h3>
-            <button type="button" class="token-field__add" data-token-add="resolve" title="${t('token_add')}" aria-label="${t('token_add')}">+</button>
           </div>
           <div class="token-field__icons" data-token-list="resolve" data-empty-label="${t('token_empty')}" role="list"></div>
           <input type="hidden" id="resolve-tokens" value="[]">
         </div>
+      </div>
+      <div class="token-refresh" data-token-refresh-container>
+        <button
+          type="button"
+          class="token-refresh__button"
+          data-token-refresh
+          title="${t('token_refresh_hint')}"
+          aria-label="${t('token_refresh_hint')}"
+        >
+          <span class="token-refresh__icon" aria-hidden="true">⟳</span>
+          <span class="token-refresh__label">${t('token_refresh')}</span>
+        </button>
       </div>
       <div class="section-divider"></div>
     `

@@ -773,14 +773,24 @@ function initFinanzenToggle() {
 // =========================
 const TOKEN_ACTIVE_SYMBOL = "●";
 const TOKEN_SPENT_SYMBOL = "✖";
-const TOKEN_LONG_PRESS_MS = 3000;
+const TOKEN_LONG_PRESS_MS = 2000;
+const TOKEN_CONSUME_DELAY_MS = 3000;
 
 const tokenConfig = {
-  fate: { storageId: "fate-tokens", child: "luck" },
+  fate: { storageId: "fate-tokens", child: "luck", isParent: true },
   luck: { storageId: "luck-tokens", parent: "fate" },
-  resilience: { storageId: "resilience-tokens", child: "resolve" },
+  resilience: { storageId: "resilience-tokens", child: "resolve", isParent: true },
   resolve: { storageId: "resolve-tokens", parent: "resilience" }
 };
+
+function generateTokenId(type) {
+  return `${type}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function createToken(type, state = "active", id) {
+  const normalizedId = typeof id === "string" && id.trim() !== "" ? id : generateTokenId(type);
+  return { id: normalizedId, state };
+}
 
 function getTokenInput(type) {
   const config = tokenConfig[type];
@@ -788,12 +798,23 @@ function getTokenInput(type) {
   return document.getElementById(config.storageId);
 }
 
-function normalizeTokenEntry(type, entry) {
-  const isParent = type === "fate" || type === "resilience";
-  if (entry === "spent" && isParent) {
-    return "active";
+function normalizeTokenState(type, state) {
+  const config = tokenConfig[type];
+  if (config && config.isParent) {
+    return state === "pending" ? "pending" : "active";
   }
-  return entry === "spent" ? "spent" : "active";
+  return state === "spent" ? "spent" : "active";
+}
+
+function normalizeTokenEntry(type, entry) {
+  if (entry && typeof entry === "object") {
+    return createToken(type, normalizeTokenState(type, entry.state), entry.id);
+  }
+  if (typeof entry === "string") {
+    const [rawState, rawId] = entry.includes("|") ? entry.split("|") : [entry, ""];
+    return createToken(type, normalizeTokenState(type, rawState), rawId);
+  }
+  return createToken(type);
 }
 
 function readTokenData(type) {
@@ -812,7 +833,7 @@ function readTokenData(type) {
   if (!raw || JSON.stringify(parsed) !== JSON.stringify(normalized)) {
     input.value = JSON.stringify(normalized);
   }
-  return normalized;
+  return normalized.map(token => ({ ...token }));
 }
 
 function writeTokenData(type, data) {
@@ -823,7 +844,7 @@ function writeTokenData(type, data) {
     : [];
   input.value = JSON.stringify(normalized);
   saveState();
-  return normalized;
+  return normalized.map(token => ({ ...token }));
 }
 
 function updateTokenAddButton(type) {
@@ -846,18 +867,30 @@ function updateTokenAddButton(type) {
   btn.title = t(labelKey);
 }
 
-function enforceTokenChildLimit(parentType) {
+function syncTokenChild(parentType) {
   const config = tokenConfig[parentType];
-  if (!config || !config.child) return;
+  if (!config || !config.child) return false;
   const childType = config.child;
-  const parentCount = readTokenData(parentType).length;
-  const childData = readTokenData(childType);
-  if (childData.length > parentCount) {
-    writeTokenData(childType, childData.slice(0, parentCount));
-    renderTokenButtons(childType);
-  } else {
-    updateTokenAddButton(childType);
+  const parentTokens = readTokenData(parentType);
+  const desiredLength = parentTokens.length;
+  let childTokens = readTokenData(childType);
+  let changed = false;
+
+  if (childTokens.length > desiredLength) {
+    childTokens = childTokens.slice(0, desiredLength);
+    changed = true;
   }
+  if (childTokens.length < desiredLength) {
+    changed = true;
+    while (childTokens.length < desiredLength) {
+      childTokens.push(createToken(childType));
+    }
+  }
+
+  if (changed) {
+    writeTokenData(childType, childTokens);
+  }
+  return changed;
 }
 
 function attachTokenInteractions(btn, type) {
@@ -869,6 +902,7 @@ function attachTokenInteractions(btn, type) {
     }
   };
   btn.addEventListener("pointerdown", event => {
+    if (btn.disabled || btn.dataset.tokenState === "pending") return;
     event.preventDefault();
     clearTimer();
     timerId = window.setTimeout(() => {
@@ -885,19 +919,39 @@ function attachTokenInteractions(btn, type) {
 }
 
 function handleTokenLongPress(type, button) {
-  const index = parseInt(button.dataset.tokenIndex, 10);
-  if (Number.isNaN(index)) return;
+  const tokenId = button.dataset.tokenId;
+  if (!tokenId) return;
   const tokens = readTokenData(type);
-  if (type === "fate" || type === "resilience") {
-    tokens.splice(index, 1);
-    writeTokenData(type, tokens);
+  const index = tokens.findIndex(token => token.id === tokenId);
+  if (index === -1) return;
+  const config = tokenConfig[type];
+  if (config && config.isParent) {
+    if (tokens[index].state === "pending") return;
+    const pendingToken = { ...tokens[index], state: "pending" };
+    const updatedTokens = [...tokens];
+    updatedTokens.splice(index, 1, pendingToken);
+    writeTokenData(type, updatedTokens);
     renderTokenButtons(type);
-    enforceTokenChildLimit(type);
+    window.setTimeout(() => {
+      const refreshed = readTokenData(type);
+      const removalIndex = refreshed.findIndex(entry => entry.id === pendingToken.id);
+      if (removalIndex !== -1) {
+        refreshed.splice(removalIndex, 1);
+        writeTokenData(type, refreshed);
+        renderTokenButtons(type);
+        if (config.child) {
+          syncTokenChild(type);
+          renderTokenButtons(config.child);
+        }
+      }
+    }, TOKEN_CONSUME_DELAY_MS);
     return;
   }
-  if (!tokens[index]) return;
-  tokens[index] = tokens[index] === "spent" ? "active" : "spent";
-  writeTokenData(type, tokens);
+  const token = tokens[index];
+  const nextState = token.state === "spent" ? "active" : "spent";
+  const updatedTokens = [...tokens];
+  updatedTokens.splice(index, 1, { ...token, state: nextState });
+  writeTokenData(type, updatedTokens);
   renderTokenButtons(type);
 }
 
@@ -907,20 +961,27 @@ function renderTokenButtons(type) {
   const tokens = readTokenData(type);
   container.innerHTML = "";
   container.setAttribute("data-empty", tokens.length === 0 ? "true" : "false");
-  tokens.forEach((state, index) => {
+  tokens.forEach(token => {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "token-icon";
     btn.dataset.tokenType = type;
-    btn.dataset.tokenIndex = String(index);
-    btn.dataset.tokenState = state;
-    btn.setAttribute("aria-label", state === "spent" ? t("token_spent") : t("token_active"));
+    btn.dataset.tokenId = token.id;
+    btn.dataset.tokenState = token.state;
+    const isPending = token.state === "pending";
+    const isSpent = token.state === "spent";
+    const labelKey = isPending ? "token_consuming" : isSpent ? "token_spent" : "token_active";
+    btn.setAttribute("aria-label", t(labelKey));
+    btn.setAttribute("aria-disabled", isPending ? "true" : "false");
+    btn.disabled = isPending;
     btn.setAttribute("role", "listitem");
-    btn.innerHTML = `<span aria-hidden="true">${state === "spent" ? TOKEN_SPENT_SYMBOL : TOKEN_ACTIVE_SYMBOL}</span>`;
+    const symbol = isPending || isSpent ? TOKEN_SPENT_SYMBOL : TOKEN_ACTIVE_SYMBOL;
+    btn.innerHTML = `<span aria-hidden="true">${symbol}</span>`;
     attachTokenInteractions(btn, type);
     container.appendChild(btn);
   });
   updateTokenAddButton(type);
+  updateRefreshButtonState();
 }
 
 function addToken(type) {
@@ -933,11 +994,12 @@ function addToken(type) {
       return;
     }
   }
-  tokens.push("active");
+  tokens.push(createToken(type));
   writeTokenData(type, tokens);
   renderTokenButtons(type);
   if (config && config.child) {
-    enforceTokenChildLimit(type);
+    syncTokenChild(type);
+    renderTokenButtons(config.child);
   }
 }
 
@@ -948,11 +1010,11 @@ function restoreTokenFields() {
       input.value = "[]";
     }
   });
+  syncTokenChild("fate");
+  syncTokenChild("resilience");
   Object.keys(tokenConfig).forEach(type => {
     renderTokenButtons(type);
   });
-  enforceTokenChildLimit("fate");
-  enforceTokenChildLimit("resilience");
 }
 
 function resetTokenFields() {
@@ -972,7 +1034,42 @@ function initTokenFields() {
       addToken(type);
     });
   });
+  const refreshBtn = document.querySelector("[data-token-refresh]");
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", () => {
+      refreshChildTokens();
+    });
+  }
   restoreTokenFields();
+}
+
+function updateRefreshButtonState() {
+  const refreshBtn = document.querySelector("[data-token-refresh]");
+  if (!refreshBtn) return;
+  const hasSpent = ["luck", "resolve"].some(type =>
+    readTokenData(type).some(token => token.state === "spent")
+  );
+  refreshBtn.disabled = !hasSpent;
+  refreshBtn.setAttribute("aria-disabled", hasSpent ? "false" : "true");
+}
+
+function refreshChildTokens() {
+  ["luck", "resolve"].forEach(type => {
+    const tokens = readTokenData(type);
+    let changed = false;
+    const refreshed = tokens.map(token => {
+      if (token.state === "spent") {
+        changed = true;
+        return { ...token, state: "active" };
+      }
+      return token;
+    });
+    if (changed) {
+      writeTokenData(type, refreshed);
+    }
+    renderTokenButtons(type);
+  });
+  updateRefreshButtonState();
 }
 
 function prepareTokenFieldForPdf(field) {
@@ -986,7 +1083,9 @@ function prepareTokenFieldForPdf(field) {
   } else {
     tokens.forEach(token => {
       const span = document.createElement("span");
-      span.textContent = token.dataset.tokenState === "spent" ? TOKEN_SPENT_SYMBOL : TOKEN_ACTIVE_SYMBOL;
+      const state = token.dataset.tokenState;
+      const isSpent = state === "spent" || state === "pending";
+      span.textContent = isSpent ? TOKEN_SPENT_SYMBOL : TOKEN_ACTIVE_SYMBOL;
       summary.appendChild(span);
     });
   }
