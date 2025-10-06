@@ -787,9 +787,15 @@ function generateTokenId(type) {
   return `${type}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-function createToken(type, state = "active", id) {
+function createToken(type, state = "active", id, extra = {}) {
   const normalizedId = typeof id === "string" && id.trim() !== "" ? id : generateTokenId(type);
-  return { id: normalizedId, state };
+  const token = { id: normalizedId, state, ...extra };
+  if (token.state !== "pending") {
+    delete token.pendingSince;
+  } else if (typeof token.pendingSince !== "number" || !Number.isFinite(token.pendingSince)) {
+    token.pendingSince = Date.now();
+  }
+  return token;
 }
 
 function getTokenInput(type) {
@@ -807,8 +813,13 @@ function normalizeTokenState(type, state) {
 }
 
 function normalizeTokenEntry(type, entry) {
-  if (entry && typeof entry === "object") {
-    return createToken(type, normalizeTokenState(type, entry.state), entry.id);
+  if (entry && typeof entry === "object" && !Array.isArray(entry)) {
+    const { state, id, pendingSince } = entry;
+    const extra = {};
+    if (typeof pendingSince === "number" && Number.isFinite(pendingSince)) {
+      extra.pendingSince = pendingSince;
+    }
+    return createToken(type, normalizeTokenState(type, state), id, extra);
   }
   if (typeof entry === "string") {
     const [rawState, rawId] = entry.includes("|") ? entry.split("|") : [entry, ""];
@@ -893,6 +904,60 @@ function syncTokenChild(parentType) {
   return changed;
 }
 
+const pendingRemovalTimers = new Map();
+
+function getPendingRemovalKey(type, tokenId) {
+  return `${type}:${tokenId}`;
+}
+
+function clearPendingRemovalTimer(type, tokenId) {
+  const key = getPendingRemovalKey(type, tokenId);
+  const existing = pendingRemovalTimers.get(key);
+  if (existing) {
+    window.clearTimeout(existing);
+    pendingRemovalTimers.delete(key);
+  }
+}
+
+function finalizePendingRemoval(type, tokenId) {
+  const tokens = readTokenData(type);
+  const index = tokens.findIndex(token => token.id === tokenId);
+  if (index === -1) {
+    clearPendingRemovalTimer(type, tokenId);
+    return;
+  }
+  const token = tokens[index];
+  if (token.state !== "pending") {
+    clearPendingRemovalTimer(type, tokenId);
+    return;
+  }
+  tokens.splice(index, 1);
+  writeTokenData(type, tokens);
+  renderTokenButtons(type);
+  const config = tokenConfig[type];
+  if (config && config.child) {
+    syncTokenChild(type);
+    renderTokenButtons(config.child);
+  }
+  clearPendingRemovalTimer(type, tokenId);
+}
+
+function schedulePendingRemoval(type, tokenId, pendingSince) {
+  const key = getPendingRemovalKey(type, tokenId);
+  clearPendingRemovalTimer(type, tokenId);
+  const elapsed = Date.now() - pendingSince;
+  if (elapsed >= TOKEN_CONSUME_DELAY_MS) {
+    finalizePendingRemoval(type, tokenId);
+    return;
+  }
+  const remaining = TOKEN_CONSUME_DELAY_MS - elapsed;
+  const timerId = window.setTimeout(() => {
+    pendingRemovalTimers.delete(key);
+    finalizePendingRemoval(type, tokenId);
+  }, remaining);
+  pendingRemovalTimers.set(key, timerId);
+}
+
 function attachTokenInteractions(btn, type) {
   let timerId = null;
   const clearTimer = () => {
@@ -927,30 +992,20 @@ function handleTokenLongPress(type, button) {
   const config = tokenConfig[type];
   if (config && config.isParent) {
     if (tokens[index].state === "pending") return;
-    const pendingToken = { ...tokens[index], state: "pending" };
+    const pendingToken = createToken(type, "pending", tokens[index].id, {
+      pendingSince: Date.now()
+    });
     const updatedTokens = [...tokens];
     updatedTokens.splice(index, 1, pendingToken);
     writeTokenData(type, updatedTokens);
     renderTokenButtons(type);
-    window.setTimeout(() => {
-      const refreshed = readTokenData(type);
-      const removalIndex = refreshed.findIndex(entry => entry.id === pendingToken.id);
-      if (removalIndex !== -1) {
-        refreshed.splice(removalIndex, 1);
-        writeTokenData(type, refreshed);
-        renderTokenButtons(type);
-        if (config.child) {
-          syncTokenChild(type);
-          renderTokenButtons(config.child);
-        }
-      }
-    }, TOKEN_CONSUME_DELAY_MS);
+    schedulePendingRemoval(type, pendingToken.id, pendingToken.pendingSince);
     return;
   }
   const token = tokens[index];
   const nextState = token.state === "spent" ? "active" : "spent";
   const updatedTokens = [...tokens];
-  updatedTokens.splice(index, 1, { ...token, state: nextState });
+  updatedTokens.splice(index, 1, createToken(type, nextState, token.id));
   writeTokenData(type, updatedTokens);
   renderTokenButtons(type);
 }
@@ -1003,6 +1058,29 @@ function addToken(type) {
   }
 }
 
+function reconcilePendingTokens(type) {
+  const tokens = readTokenData(type);
+  let updatedTokens = tokens;
+  let changed = false;
+  tokens.forEach((token, index) => {
+    if (token.state !== "pending") return;
+    const pendingSince = typeof token.pendingSince === "number" && Number.isFinite(token.pendingSince)
+      ? token.pendingSince
+      : Date.now();
+    if (pendingSince !== token.pendingSince) {
+      if (updatedTokens === tokens) {
+        updatedTokens = [...tokens];
+      }
+      updatedTokens[index] = createToken(type, "pending", token.id, { pendingSince });
+      changed = true;
+    }
+    schedulePendingRemoval(type, token.id, pendingSince);
+  });
+  if (changed) {
+    writeTokenData(type, updatedTokens);
+  }
+}
+
 function restoreTokenFields() {
   Object.keys(tokenConfig).forEach(type => {
     const input = getTokenInput(type);
@@ -1012,6 +1090,9 @@ function restoreTokenFields() {
   });
   syncTokenChild("fate");
   syncTokenChild("resilience");
+  Object.keys(tokenConfig).forEach(type => {
+    reconcilePendingTokens(type);
+  });
   Object.keys(tokenConfig).forEach(type => {
     renderTokenButtons(type);
   });
@@ -1060,7 +1141,7 @@ function refreshChildTokens() {
     const refreshed = tokens.map(token => {
       if (token.state === "spent") {
         changed = true;
-        return { ...token, state: "active" };
+        return createToken(type, "active", token.id);
       }
       return token;
     });
