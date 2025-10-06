@@ -773,7 +773,8 @@ function initFinanzenToggle() {
 // =========================
 const TOKEN_ACTIVE_SYMBOL = "●";
 const TOKEN_SPENT_SYMBOL = "✖";
-const TOKEN_LONG_PRESS_MS = 3000;
+const TOKEN_LONG_PRESS_MS = 2000;
+const TOKEN_PARENT_REMOVE_DELAY_MS = 3000;
 
 const tokenConfig = {
   fate: { storageId: "fate-tokens", child: "luck" },
@@ -851,12 +852,29 @@ function enforceTokenChildLimit(parentType) {
   if (!config || !config.child) return;
   const childType = config.child;
   const parentCount = readTokenData(parentType).length;
-  const childData = readTokenData(childType);
+  let childData = readTokenData(childType);
+  const original = JSON.stringify(childData);
   if (childData.length > parentCount) {
-    writeTokenData(childType, childData.slice(0, parentCount));
+    let removeCount = childData.length - parentCount;
+    const updated = childData.slice();
+    while (removeCount > 0) {
+      const spentIndex = updated.lastIndexOf("spent");
+      const indexToRemove = spentIndex >= 0 ? spentIndex : updated.length - 1;
+      if (indexToRemove >= 0) {
+        updated.splice(indexToRemove, 1);
+      }
+      removeCount -= 1;
+    }
+    childData = updated;
+  }
+  if (childData.length < parentCount) {
+    childData = childData.concat(Array(parentCount - childData.length).fill("active"));
+  }
+  if (JSON.stringify(childData) !== original) {
+    writeTokenData(childType, childData);
     renderTokenButtons(childType);
   } else {
-    updateTokenAddButton(childType);
+    renderTokenButtons(childType);
   }
 }
 
@@ -889,10 +907,23 @@ function handleTokenLongPress(type, button) {
   if (Number.isNaN(index)) return;
   const tokens = readTokenData(type);
   if (type === "fate" || type === "resilience") {
-    tokens.splice(index, 1);
-    writeTokenData(type, tokens);
-    renderTokenButtons(type);
-    enforceTokenChildLimit(type);
+    if (button.disabled) return;
+    button.disabled = true;
+    button.dataset.tokenState = "spent";
+    button.classList.add("token-icon--cooldown");
+    button.setAttribute("aria-label", t("token_spent"));
+    button.innerHTML = `<span aria-hidden="true">${TOKEN_SPENT_SYMBOL}</span>`;
+    window.setTimeout(() => {
+      const currentTokens = readTokenData(type);
+      if (index < currentTokens.length) {
+        currentTokens.splice(index, 1);
+      } else if (currentTokens.length > 0) {
+        currentTokens.pop();
+      }
+      writeTokenData(type, currentTokens);
+      renderTokenButtons(type);
+      enforceTokenChildLimit(type);
+    }, TOKEN_PARENT_REMOVE_DELAY_MS);
     return;
   }
   if (!tokens[index]) return;
@@ -927,11 +958,8 @@ function addToken(type) {
   const tokens = readTokenData(type);
   const config = tokenConfig[type];
   if (config && config.parent) {
-    const parentCount = readTokenData(config.parent).length;
-    if (tokens.length >= parentCount) {
-      updateTokenAddButton(type);
-      return;
-    }
+    // Child-Token werden automatisch verwaltet
+    return;
   }
   tokens.push("active");
   writeTokenData(type, tokens);
@@ -965,11 +993,30 @@ function resetTokenFields() {
   restoreTokenFields();
 }
 
+function refreshChildTokens() {
+  ["luck", "resolve"].forEach(type => {
+    const tokens = readTokenData(type);
+    if (!tokens.length) return;
+    const refreshed = tokens.map(() => "active");
+    if (JSON.stringify(tokens) !== JSON.stringify(refreshed)) {
+      writeTokenData(type, refreshed);
+      renderTokenButtons(type);
+    } else {
+      renderTokenButtons(type);
+    }
+  });
+}
+
 function initTokenFields() {
   document.querySelectorAll("[data-token-add]").forEach(btn => {
     btn.addEventListener("click", () => {
       const type = btn.dataset.tokenAdd;
       addToken(type);
+    });
+  });
+  document.querySelectorAll("[data-token-refresh]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      refreshChildTokens();
     });
   });
   restoreTokenFields();

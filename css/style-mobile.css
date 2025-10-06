@@ -942,6 +942,11 @@ th[data-input]::before {
   font-size: 1.1rem;
 }
 
+.token-field__hint {
+  font-size: 0.85rem;
+  color: rgba(var(--color-text-rgb), 0.65);
+}
+
 .token-field__add {
   width: 32px;
   height: 32px;
@@ -1011,10 +1016,58 @@ th[data-input]::before {
   color: var(--color-negative);
 }
 
+.token-icon:disabled,
+.token-icon--cooldown {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .token-icon:focus-visible,
 .token-field__add:focus-visible {
   outline: 2px solid var(--color-highlight, #9E9E9E);
   outline-offset: 2px;
+}
+
+.token-refresh {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.token-refresh__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--color-table-lines, rgba(var(--color-text-rgb), 0.28));
+  background: rgba(var(--color-field-rgb, 248, 215, 215), 0.9);
+  color: inherit;
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+
+.token-refresh__button:hover {
+  background: rgba(var(--color-highlight-rgb, 158, 158, 158), 0.3);
+}
+
+.token-refresh__button:active {
+  transform: translateY(1px);
+}
+
+.token-refresh__button:focus-visible {
+  outline: 2px solid var(--color-highlight, #9E9E9E);
+  outline-offset: 2px;
+}
+
+.token-refresh__icon {
+  font-size: 1.1rem;
+}
+
+.token-refresh__text {
+  white-space: nowrap;
 }
 
 .token-field__summary {
