@@ -769,6 +769,234 @@ function initFinanzenToggle() {
 }
 
 // =========================
+// 🛡 Schicksal & Zähigkeit Symbole
+// =========================
+const TOKEN_ACTIVE_SYMBOL = "●";
+const TOKEN_SPENT_SYMBOL = "✖";
+const TOKEN_LONG_PRESS_MS = 3000;
+
+const tokenConfig = {
+  fate: { storageId: "fate-tokens", child: "luck" },
+  luck: { storageId: "luck-tokens", parent: "fate" },
+  resilience: { storageId: "resilience-tokens", child: "resolve" },
+  resolve: { storageId: "resolve-tokens", parent: "resilience" }
+};
+
+function getTokenInput(type) {
+  const config = tokenConfig[type];
+  if (!config) return null;
+  return document.getElementById(config.storageId);
+}
+
+function normalizeTokenEntry(type, entry) {
+  const isParent = type === "fate" || type === "resilience";
+  if (entry === "spent" && isParent) {
+    return "active";
+  }
+  return entry === "spent" ? "spent" : "active";
+}
+
+function readTokenData(type) {
+  const input = getTokenInput(type);
+  if (!input) return [];
+  const raw = (input.value || "").trim();
+  let parsed;
+  try {
+    parsed = raw ? JSON.parse(raw) : [];
+  } catch (err) {
+    parsed = [];
+  }
+  const normalized = Array.isArray(parsed)
+    ? parsed.map(entry => normalizeTokenEntry(type, entry))
+    : [];
+  if (!raw || JSON.stringify(parsed) !== JSON.stringify(normalized)) {
+    input.value = JSON.stringify(normalized);
+  }
+  return normalized;
+}
+
+function writeTokenData(type, data) {
+  const input = getTokenInput(type);
+  if (!input) return [];
+  const normalized = Array.isArray(data)
+    ? data.map(entry => normalizeTokenEntry(type, entry))
+    : [];
+  input.value = JSON.stringify(normalized);
+  saveState();
+  return normalized;
+}
+
+function updateTokenAddButton(type) {
+  const btn = document.querySelector(`[data-token-add="${type}"]`);
+  if (!btn) return;
+  const config = tokenConfig[type];
+  let disabled = false;
+  let labelKey = "token_add";
+  if (config && config.parent) {
+    const parentCount = readTokenData(config.parent).length;
+    const ownCount = readTokenData(type).length;
+    if (ownCount >= parentCount) {
+      disabled = true;
+      labelKey = "token_parent_limit";
+    }
+  }
+  btn.disabled = disabled;
+  btn.setAttribute("aria-disabled", disabled ? "true" : "false");
+  btn.setAttribute("aria-label", t(labelKey));
+  btn.title = t(labelKey);
+}
+
+function enforceTokenChildLimit(parentType) {
+  const config = tokenConfig[parentType];
+  if (!config || !config.child) return;
+  const childType = config.child;
+  const parentCount = readTokenData(parentType).length;
+  const childData = readTokenData(childType);
+  if (childData.length > parentCount) {
+    writeTokenData(childType, childData.slice(0, parentCount));
+    renderTokenButtons(childType);
+  } else {
+    updateTokenAddButton(childType);
+  }
+}
+
+function attachTokenInteractions(btn, type) {
+  let timerId = null;
+  const clearTimer = () => {
+    if (timerId) {
+      clearTimeout(timerId);
+      timerId = null;
+    }
+  };
+  btn.addEventListener("pointerdown", event => {
+    event.preventDefault();
+    clearTimer();
+    timerId = window.setTimeout(() => {
+      timerId = null;
+      handleTokenLongPress(type, btn);
+    }, TOKEN_LONG_PRESS_MS);
+  });
+  ["pointerup", "pointerleave", "pointercancel"].forEach(evt => {
+    btn.addEventListener(evt, () => {
+      clearTimer();
+    });
+  });
+  btn.addEventListener("contextmenu", event => event.preventDefault());
+}
+
+function handleTokenLongPress(type, button) {
+  const index = parseInt(button.dataset.tokenIndex, 10);
+  if (Number.isNaN(index)) return;
+  const tokens = readTokenData(type);
+  if (type === "fate" || type === "resilience") {
+    tokens.splice(index, 1);
+    writeTokenData(type, tokens);
+    renderTokenButtons(type);
+    enforceTokenChildLimit(type);
+    return;
+  }
+  if (!tokens[index]) return;
+  tokens[index] = tokens[index] === "spent" ? "active" : "spent";
+  writeTokenData(type, tokens);
+  renderTokenButtons(type);
+}
+
+function renderTokenButtons(type) {
+  const container = document.querySelector(`[data-token-list="${type}"]`);
+  if (!container) return;
+  const tokens = readTokenData(type);
+  container.innerHTML = "";
+  container.setAttribute("data-empty", tokens.length === 0 ? "true" : "false");
+  tokens.forEach((state, index) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "token-icon";
+    btn.dataset.tokenType = type;
+    btn.dataset.tokenIndex = String(index);
+    btn.dataset.tokenState = state;
+    btn.setAttribute("aria-label", state === "spent" ? t("token_spent") : t("token_active"));
+    btn.setAttribute("role", "listitem");
+    btn.innerHTML = `<span aria-hidden="true">${state === "spent" ? TOKEN_SPENT_SYMBOL : TOKEN_ACTIVE_SYMBOL}</span>`;
+    attachTokenInteractions(btn, type);
+    container.appendChild(btn);
+  });
+  updateTokenAddButton(type);
+}
+
+function addToken(type) {
+  const tokens = readTokenData(type);
+  const config = tokenConfig[type];
+  if (config && config.parent) {
+    const parentCount = readTokenData(config.parent).length;
+    if (tokens.length >= parentCount) {
+      updateTokenAddButton(type);
+      return;
+    }
+  }
+  tokens.push("active");
+  writeTokenData(type, tokens);
+  renderTokenButtons(type);
+  if (config && config.child) {
+    enforceTokenChildLimit(type);
+  }
+}
+
+function restoreTokenFields() {
+  Object.keys(tokenConfig).forEach(type => {
+    const input = getTokenInput(type);
+    if (input && (!input.value || input.value.trim() === "")) {
+      input.value = "[]";
+    }
+  });
+  Object.keys(tokenConfig).forEach(type => {
+    renderTokenButtons(type);
+  });
+  enforceTokenChildLimit("fate");
+  enforceTokenChildLimit("resilience");
+}
+
+function resetTokenFields() {
+  Object.keys(tokenConfig).forEach(type => {
+    const input = getTokenInput(type);
+    if (input) {
+      input.value = "[]";
+    }
+  });
+  restoreTokenFields();
+}
+
+function initTokenFields() {
+  document.querySelectorAll("[data-token-add]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const type = btn.dataset.tokenAdd;
+      addToken(type);
+    });
+  });
+  restoreTokenFields();
+}
+
+function prepareTokenFieldForPdf(field) {
+  const iconsContainer = field.querySelector(".token-field__icons");
+  if (!iconsContainer) return;
+  const tokens = Array.from(iconsContainer.querySelectorAll(".token-icon"));
+  const summary = document.createElement("div");
+  summary.className = "token-field__summary";
+  if (tokens.length === 0) {
+    summary.textContent = "–";
+  } else {
+    tokens.forEach(token => {
+      const span = document.createElement("span");
+      span.textContent = token.dataset.tokenState === "spent" ? TOKEN_SPENT_SYMBOL : TOKEN_ACTIVE_SYMBOL;
+      summary.appendChild(span);
+    });
+  }
+  iconsContainer.replaceWith(summary);
+  const addBtn = field.querySelector(".token-field__add");
+  if (addBtn) addBtn.remove();
+}
+
+
+// =========================
 // 💾 Speicher- und Lade-Logik
 // =========================
 function serializeTable(tableId) {
@@ -883,6 +1111,7 @@ function loadState() {
     deserializeTable(id, state[id]); // Tabellen rekonstruieren
   });
 
+  restoreTokenFields();
   updateAttributes();
   restoreMarkers();
   ensureInitialRows();
@@ -958,6 +1187,8 @@ function resetCharacterSheet() {
       updateAttrHeader(th, 0);
     }
   });
+
+  resetTokenFields();
 
   ensureInitialRows();
   updateAttributes();
@@ -1087,6 +1318,8 @@ function prepareSectionForPdf(section, exportFullExperience) {
   clone.querySelectorAll('.subsection').forEach(div => div.classList.add('pdf-subsection'));
 
   clone.querySelectorAll('table').forEach(table => removeDeleteColumns(table));
+
+  clone.querySelectorAll('.token-field').forEach(field => prepareTokenFieldForPdf(field));
 
   clone.querySelectorAll('input, textarea, select').forEach(el => replaceFormElementForPdf(el));
   clone.querySelectorAll('button, .switch, .slider, .icon-btn').forEach(el => el.remove());
@@ -2081,6 +2314,7 @@ document.addEventListener("focusout", e => {
 // =========================
 function initLogic() {
   renderSections();
+  initTokenFields();
   renderGameDeckComponent();
   initSectionToggles();
   initFinanzenToggle();
