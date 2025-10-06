@@ -841,8 +841,11 @@ function readTokenData(type) {
   const normalized = Array.isArray(parsed)
     ? parsed.map(entry => normalizeTokenEntry(type, entry))
     : [];
-  if (!raw || JSON.stringify(parsed) !== JSON.stringify(normalized)) {
-    input.value = JSON.stringify(normalized);
+  const normalizedJson = JSON.stringify(normalized);
+  const needsUpdate = !raw || JSON.stringify(parsed) !== normalizedJson;
+  if (needsUpdate && input.value !== normalizedJson) {
+    input.value = normalizedJson;
+    saveState();
   }
   return normalized.map(token => ({ ...token }));
 }
