@@ -175,9 +175,25 @@ tr + tr th {
 }
 
 /* spezielle Tabellen */
+.two-col-table {
+  table-layout: auto;
+}
+
 .two-col-table td,
 .two-col-table th {
-  width: 50%;
+  width: auto;
+  max-width: none;
+}
+
+.two-col-table td:first-child,
+.two-col-table th:first-child {
+  width: max-content;
+  white-space: nowrap;
+}
+
+.two-col-table td:nth-child(2),
+.two-col-table th:nth-child(2) {
+  width: 100%;
 }
 
 .movement-table td + td,

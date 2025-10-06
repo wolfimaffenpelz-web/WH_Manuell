@@ -186,6 +186,7 @@ tr + tr th {
 .two-col-table td,
 .two-col-table th {
   width: 50%;
+  max-width: none;
 }
 
 .movement-table td + td,
