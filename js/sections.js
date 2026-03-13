@@ -48,18 +48,6 @@ const sections = [
     `
   },
 
-  // 🎲 Game Deck Segment
-  {
-    id: "gamedeck",
-    title: t('game_deck'),
-    content: `
-      <div class="game-deck-host">
-        <div id="game-deck-root" aria-live="polite"></div>
-      </div>
-      <div class="section-divider"></div>
-    `
-  },
-
   // 📊 Attribute (Spielwerte)
   {
     id: "attribute",
@@ -128,45 +116,21 @@ const sections = [
     id: "schicksalzaehigkeit",
     title: t('fate_resilience'),
     content: `
-      <div class="token-grid">
-        <div class="token-field" data-token-field="fate">
-          <div class="token-field__header">
-            <h3>${t('fate')}</h3>
-            <button type="button" class="token-field__add" data-token-add="fate" title="${t('token_add')}" aria-label="${t('token_add')}">+</button>
-          </div>
-          <div class="token-field__icons" data-token-list="fate" data-empty-label="${t('token_empty')}" role="list"></div>
-          <input type="hidden" id="fate-tokens" value="[]">
+      <div class="dual-table-wrapper">
+        <div>
+          <h3>${t('fate')}</h3>
+          <table class="value-table">
+            <tr><td>${t('fate')}</td><td><input type="number" id="fate-value" class="small-field" max="99" min="0"></td></tr>
+            <tr><td>${t('luck')}</td><td><input type="number" id="luck-current" class="small-field" max="99" min="0"><span class="slash">/</span><input type="number" id="luck-max" class="small-field" max="99" min="0"></td></tr>
+          </table>
         </div>
-        <div class="token-field" data-token-field="luck">
-          <div class="token-field__header">
-            <h3>${t('luck')}</h3>
-            <span class="token-field__hint">${t('token_child_synced')}</span>
-          </div>
-          <div class="token-field__icons" data-token-list="luck" data-empty-label="${t('token_empty')}" role="list"></div>
-          <input type="hidden" id="luck-tokens" value="[]">
+        <div>
+          <h3>${t('resilience')}</h3>
+          <table class="value-table">
+            <tr><td>${t('resilience')}</td><td><input type="number" id="resilience-value" class="small-field" max="99" min="0"></td></tr>
+            <tr><td>${t('resolve')}</td><td><input type="number" id="resolve-current" class="small-field" max="99" min="0"><span class="slash">/</span><input type="number" id="resolve-max" class="small-field" max="99" min="0"></td></tr>
+          </table>
         </div>
-        <div class="token-field" data-token-field="resilience">
-          <div class="token-field__header">
-            <h3>${t('resilience')}</h3>
-            <button type="button" class="token-field__add" data-token-add="resilience" title="${t('token_add')}" aria-label="${t('token_add')}">+</button>
-          </div>
-          <div class="token-field__icons" data-token-list="resilience" data-empty-label="${t('token_empty')}" role="list"></div>
-          <input type="hidden" id="resilience-tokens" value="[]">
-        </div>
-        <div class="token-field" data-token-field="resolve">
-          <div class="token-field__header">
-            <h3>${t('resolve')}</h3>
-            <span class="token-field__hint">${t('token_child_synced')}</span>
-          </div>
-          <div class="token-field__icons" data-token-list="resolve" data-empty-label="${t('token_empty')}" role="list"></div>
-          <input type="hidden" id="resolve-tokens" value="[]">
-        </div>
-      </div>
-      <div class="token-refresh">
-        <button type="button" class="token-refresh__button" data-token-refresh="fortune" aria-label="${t('token_refresh_label')}">
-          <span class="token-refresh__icon" aria-hidden="true">↺</span>
-          <span class="token-refresh__text">${t('token_refresh_text')}</span>
-        </button>
       </div>
       <div class="section-divider"></div>
     `
@@ -434,14 +398,6 @@ sections.push(
         <tr><td>Robustheit*</td><td><input type="number" id="lp-robustheit" readonly></td></tr>
         <tr><td>Gesamt-LP</td><td><input type="number" id="lp-gesamt" readonly></td></tr>
         <tr><td>${t('current_lp')}</td><td><input type="number" id="lp-aktuell" min="0" max="99"></td></tr>
-      </table>
-      <h3>${t('status')}</h3>
-      <table class="full-width" id="lp-status-table">
-        <tr>
-          <th>${t('status')}</th>
-          <th>${t('count')}</th>
-          <th class="delete-col"></th>
-        </tr>
       </table>
       <p>* Automatisch durch Talent "Robustheit" / "Hardy"</p>
       <div class="section-divider"></div>

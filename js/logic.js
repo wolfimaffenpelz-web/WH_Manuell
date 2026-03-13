@@ -34,244 +34,6 @@ document.addEventListener("DOMContentLoaded", initPasswordProtection);
 let currentCharacter = null;
 let characterList = [];
 
-let gameDeckReactRoot = null;
-
-function disposeGameDeck() {
-  if (gameDeckReactRoot && typeof gameDeckReactRoot.unmount === "function") {
-    gameDeckReactRoot.unmount();
-  }
-  gameDeckReactRoot = null;
-}
-
-function hasGameDeckSupport() {
-  return (
-    typeof window !== "undefined" &&
-    window.React &&
-    window.ReactDOM &&
-    typeof window.ReactDOM.createRoot === "function" &&
-    window.GameDeck
-  );
-}
-
-function getNumericInputValue(input) {
-  if (!input) return 0;
-  const value = parseInt(input.value, 10);
-  return Number.isNaN(value) ? 0 : value;
-}
-
-function getTableCell(row, index) {
-  if (!row || !row.cells || row.cells.length <= index) {
-    return null;
-  }
-  return row.cells[index];
-}
-
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-function collectAttributeOptions() {
-  const table = document.getElementById("attribute-table");
-  if (!table) return [];
-
-  const rows = Array.from(table.rows);
-  if (rows.length === 0) return [];
-
-  const headerRow = rows[0];
-  if (!headerRow) return [];
-
-  const startRow = rows[1] || null;
-  const increaseRow = rows[2] || null;
-  const totalRow = rows[rows.length - 1] || null;
-
-  const baseLabel = t("game_deck_attribute_base_label");
-  const increaseLabel = t("game_deck_attribute_increase_label");
-
-  const options = [];
-  for (let col = 1; col < headerRow.cells.length; col += 1) {
-    const headerCell = headerRow.cells[col];
-    if (!headerCell) continue;
-    const label = (headerCell.textContent || "").trim();
-    if (!label) continue;
-
-    const startCell = getTableCell(startRow, col);
-    const increaseCell = getTableCell(increaseRow, col);
-    const totalCell = getTableCell(totalRow, col);
-
-    const startInput = startCell ? startCell.querySelector("input") : null;
-    const increaseInput = increaseCell ? increaseCell.querySelector("input") : null;
-    const totalInput = totalCell ? totalCell.querySelector("input") : null;
-
-    const base = getNumericInputValue(startInput);
-    const increase = getNumericInputValue(increaseInput);
-    const total = totalInput ? getNumericInputValue(totalInput) : base + increase;
-
-    options.push({
-      id: `attribute-${col}`,
-      label,
-      value: total,
-      breakdown: {
-        base,
-        increase,
-        baseLabel,
-        increaseLabel,
-      },
-    });
-  }
-
-  return options;
-}
-
-function collectGrundskillOptions() {
-  const table = document.getElementById("grund-table");
-  if (!table) return [];
-  const rows = Array.from(table.rows).slice(1);
-  if (rows.length === 0) return [];
-
-  const baseLabel = t("game_deck_skill_base_label");
-  const increaseLabel = t("game_deck_skill_increase_label");
-
-  return rows
-    .map((row, index) => {
-      const nameCell = getTableCell(row, 0);
-      const nameSpan = nameCell ? nameCell.querySelector("span:last-of-type") : null;
-      const label = nameSpan ? nameSpan.textContent.trim() : "";
-      if (!label) return null;
-
-      const totalCellIndex = row.cells.length - 1;
-      const increaseCellIndex = row.cells.length - 2;
-      const baseCellIndex = row.cells.length - 3;
-
-      const baseCell = getTableCell(row, baseCellIndex);
-      const increaseCell = getTableCell(row, increaseCellIndex);
-      const totalCell = getTableCell(row, totalCellIndex);
-
-      const baseInput = baseCell ? baseCell.querySelector("input") : null;
-      const increaseInput = increaseCell ? increaseCell.querySelector("input") : null;
-      const totalInput = totalCell ? totalCell.querySelector("input") : null;
-
-      const base = getNumericInputValue(baseInput);
-      const increase = getNumericInputValue(increaseInput);
-      const total = totalInput ? getNumericInputValue(totalInput) : base + increase;
-
-      return {
-        id: `grund-${index}`,
-        label,
-        value: total,
-        breakdown: {
-          base,
-          increase,
-          baseLabel,
-          increaseLabel,
-        },
-      };
-    })
-    .filter(Boolean);
-}
-
-function collectGroupskillOptions() {
-  const table = document.getElementById("grupp-table");
-  if (!table) return [];
-  const rows = Array.from(table.rows).slice(1);
-  if (rows.length === 0) return [];
-
-  const baseLabel = t("game_deck_group_base_label");
-  const increaseLabel = t("game_deck_group_increase_label");
-
-  return rows
-    .map((row, index) => {
-      const nameCell = getTableCell(row, 0);
-      const nameField = nameCell ? nameCell.querySelector("textarea") : null;
-      const label = nameField ? nameField.value.trim() : "";
-      if (!label) return null;
-
-      const totalCellIndex = row.cells.length - 2;
-      const increaseCellIndex = row.cells.length - 3;
-      const baseCellIndex = row.cells.length - 4;
-
-      const baseCell = getTableCell(row, baseCellIndex);
-      const increaseCell = getTableCell(row, increaseCellIndex);
-      const totalCell = getTableCell(row, totalCellIndex);
-
-      const baseInput = baseCell ? baseCell.querySelector("input") : null;
-      const increaseInput = increaseCell ? increaseCell.querySelector("input") : null;
-      const totalInput = totalCell ? totalCell.querySelector("input") : null;
-
-      const base = getNumericInputValue(baseInput);
-      const increase = getNumericInputValue(increaseInput);
-      const total = totalInput ? getNumericInputValue(totalInput) : base + increase;
-
-      return {
-        id: `groupskill-${index}`,
-        label,
-        value: total,
-        breakdown: {
-          base,
-          increase,
-          baseLabel,
-          increaseLabel,
-        },
-      };
-    })
-    .filter(Boolean);
-}
-
-function buildGameDeckOptionGroups() {
-  const groups = [];
-  const attributes = collectAttributeOptions();
-  if (attributes.length > 0) {
-    groups.push({
-      id: "attributes",
-      label: t("game_deck_category_attributes"),
-      options: attributes,
-    });
-  }
-
-  const grundskills = collectGrundskillOptions();
-  if (grundskills.length > 0) {
-    groups.push({
-      id: "grundskills",
-      label: t("game_deck_category_grundskills"),
-      options: grundskills,
-    });
-  }
-
-  const groupskills = collectGroupskillOptions();
-  if (groupskills.length > 0) {
-    groups.push({
-      id: "groupskills",
-      label: t("game_deck_category_groupskills"),
-      options: groupskills,
-    });
-  }
-
-  return groups;
-}
-
-function renderGameDeckComponent() {
-  if (!hasGameDeckSupport()) {
-    return;
-  }
-  const container = document.getElementById("game-deck-root");
-  if (!container) {
-    disposeGameDeck();
-    return;
-  }
-  if (!gameDeckReactRoot) {
-    gameDeckReactRoot = window.ReactDOM.createRoot(container);
-  }
-  const optionGroups = buildGameDeckOptionGroups();
-  const element = window.React.createElement(window.GameDeck, {
-    optionGroups,
-  });
-  gameDeckReactRoot.render(element);
-}
-
 function applySavedSettings() {
   const colors = JSON.parse(localStorage.getItem("color-settings") || "{}");
   Object.entries(colors).forEach(([k, v]) => {
@@ -534,7 +296,7 @@ function initCharacterManagement() {
 
   importBtn.addEventListener("click", () => importFile.click());
   importFile.addEventListener("change", (e) => { importCharacters(e.target.files); e.target.value = ""; });
-  exportBtn.addEventListener("click", openExportPopup);
+  exportBtn.addEventListener("click", exportCharacters);
 }
 
 function openColorSettings() {
@@ -687,7 +449,6 @@ function openFontSettings() {
 // =========================
 function renderSections() {
   const main = document.getElementById("main-content");
-  disposeGameDeck();
   main.innerHTML = ""; // vorherige Inhalte entfernen
   sections.forEach(sec => {
     const sectionEl = document.createElement("section");
@@ -712,39 +473,28 @@ function initSectionToggle(sectionId) {
   if (!body || !header || !arrow) return;
   const storageKey = `${sectionId}-collapsed`;
   const collapsed = localStorage.getItem(storageKey) === "true";
-  body.style.removeProperty("display");
-  const getChildren = () => Array.from(body.children);
-  const applyCollapsedState = (isCollapsed, persist) => {
-    getChildren().forEach(child => {
-      if (child.classList && child.classList.contains("section-divider")) {
-        child.style.removeProperty("display");
-        return;
-      }
-      if (isCollapsed) {
-        child.style.display = "none";
-      } else {
-        child.style.removeProperty("display");
-      }
-    });
-    section.classList.toggle("collapsed", isCollapsed);
-    arrow.textContent = isCollapsed ? "▶" : "▼";
-    if (isCollapsed) {
-      body.setAttribute("aria-hidden", "true");
-      section.setAttribute("data-collapsed", "true");
-    } else {
-      body.removeAttribute("aria-hidden");
-      section.removeAttribute("data-collapsed");
-    }
-    if (persist) {
-      localStorage.setItem(storageKey, isCollapsed ? "true" : "false");
-    }
-  };
-
-  applyCollapsedState(collapsed, false);
-
+  if (collapsed) {
+    body.style.display = "none";
+    arrow.textContent = "▶";
+    section.classList.add("collapsed");
+  } else {
+    body.style.display = "block";
+    arrow.textContent = "▼";
+    section.classList.remove("collapsed");
+  }
   header.addEventListener("click", () => {
-    const nextState = !section.classList.contains("collapsed");
-    applyCollapsedState(nextState, true);
+    const isCollapsed = body.style.display === "none";
+    if (isCollapsed) {
+      body.style.display = "block";
+      arrow.textContent = "▼";
+      section.classList.remove("collapsed");
+      localStorage.setItem(storageKey, "false");
+    } else {
+      body.style.display = "none";
+      arrow.textContent = "▶";
+      section.classList.add("collapsed");
+      localStorage.setItem(storageKey, "true");
+    }
   });
 }
 
@@ -767,281 +517,6 @@ function initFinanzenToggle() {
     }
   });
 }
-
-// =========================
-// 🛡 Schicksal & Zähigkeit Symbole
-// =========================
-const TOKEN_ACTIVE_SYMBOL = "●";
-const TOKEN_SPENT_SYMBOL = "✖";
-const TOKEN_LONG_PRESS_MS = 2000;
-const TOKEN_PARENT_REMOVE_DELAY_MS = 3000;
-
-const tokenConfig = {
-  fate: { storageId: "fate-tokens", child: "luck" },
-  luck: { storageId: "luck-tokens", parent: "fate" },
-  resilience: { storageId: "resilience-tokens", child: "resolve" },
-  resolve: { storageId: "resolve-tokens", parent: "resilience" }
-};
-
-function getTokenInput(type) {
-  const config = tokenConfig[type];
-  if (!config) return null;
-  return document.getElementById(config.storageId);
-}
-
-function normalizeTokenEntry(type, entry) {
-  const isParent = type === "fate" || type === "resilience";
-  if (entry === "spent" && isParent) {
-    return "active";
-  }
-  return entry === "spent" ? "spent" : "active";
-}
-
-function readTokenData(type) {
-  const input = getTokenInput(type);
-  if (!input) return [];
-  const raw = (input.value || "").trim();
-  let parsed;
-  try {
-    parsed = raw ? JSON.parse(raw) : [];
-  } catch (err) {
-    parsed = [];
-  }
-  const normalized = Array.isArray(parsed)
-    ? parsed.map(entry => normalizeTokenEntry(type, entry))
-    : [];
-  if (!raw || JSON.stringify(parsed) !== JSON.stringify(normalized)) {
-    input.value = JSON.stringify(normalized);
-  }
-  return normalized;
-}
-
-function writeTokenData(type, data) {
-  const input = getTokenInput(type);
-  if (!input) return [];
-  const normalized = Array.isArray(data)
-    ? data.map(entry => normalizeTokenEntry(type, entry))
-    : [];
-  input.value = JSON.stringify(normalized);
-  saveState();
-  return normalized;
-}
-
-function updateTokenAddButton(type) {
-  const btn = document.querySelector(`[data-token-add="${type}"]`);
-  if (!btn) return;
-  const config = tokenConfig[type];
-  let disabled = false;
-  let labelKey = "token_add";
-  if (config && config.parent) {
-    const parentCount = readTokenData(config.parent).length;
-    const ownCount = readTokenData(type).length;
-    if (ownCount >= parentCount) {
-      disabled = true;
-      labelKey = "token_parent_limit";
-    }
-  }
-  btn.disabled = disabled;
-  btn.setAttribute("aria-disabled", disabled ? "true" : "false");
-  btn.setAttribute("aria-label", t(labelKey));
-  btn.title = t(labelKey);
-}
-
-function enforceTokenChildLimit(parentType) {
-  const config = tokenConfig[parentType];
-  if (!config || !config.child) return;
-  const childType = config.child;
-  const parentCount = readTokenData(parentType).length;
-  let childData = readTokenData(childType);
-  const original = JSON.stringify(childData);
-  if (childData.length > parentCount) {
-    let removeCount = childData.length - parentCount;
-    const updated = childData.slice();
-    while (removeCount > 0) {
-      const spentIndex = updated.lastIndexOf("spent");
-      const indexToRemove = spentIndex >= 0 ? spentIndex : updated.length - 1;
-      if (indexToRemove >= 0) {
-        updated.splice(indexToRemove, 1);
-      }
-      removeCount -= 1;
-    }
-    childData = updated;
-  }
-  if (childData.length < parentCount) {
-    childData = childData.concat(Array(parentCount - childData.length).fill("active"));
-  }
-  if (JSON.stringify(childData) !== original) {
-    writeTokenData(childType, childData);
-    renderTokenButtons(childType);
-  } else {
-    renderTokenButtons(childType);
-  }
-}
-
-function attachTokenInteractions(btn, type) {
-  let timerId = null;
-  const clearTimer = () => {
-    if (timerId) {
-      clearTimeout(timerId);
-      timerId = null;
-    }
-  };
-  btn.addEventListener("pointerdown", event => {
-    event.preventDefault();
-    clearTimer();
-    timerId = window.setTimeout(() => {
-      timerId = null;
-      handleTokenLongPress(type, btn);
-    }, TOKEN_LONG_PRESS_MS);
-  });
-  ["pointerup", "pointerleave", "pointercancel"].forEach(evt => {
-    btn.addEventListener(evt, () => {
-      clearTimer();
-    });
-  });
-  btn.addEventListener("contextmenu", event => event.preventDefault());
-}
-
-function handleTokenLongPress(type, button) {
-  const index = parseInt(button.dataset.tokenIndex, 10);
-  if (Number.isNaN(index)) return;
-  const tokens = readTokenData(type);
-  if (type === "fate" || type === "resilience") {
-    if (button.disabled) return;
-    button.disabled = true;
-    button.dataset.tokenState = "spent";
-    button.classList.add("token-icon--cooldown");
-    button.setAttribute("aria-label", t("token_spent"));
-    button.innerHTML = `<span aria-hidden="true">${TOKEN_SPENT_SYMBOL}</span>`;
-    window.setTimeout(() => {
-      const currentTokens = readTokenData(type);
-      if (index < currentTokens.length) {
-        currentTokens.splice(index, 1);
-      } else if (currentTokens.length > 0) {
-        currentTokens.pop();
-      }
-      writeTokenData(type, currentTokens);
-      renderTokenButtons(type);
-      enforceTokenChildLimit(type);
-    }, TOKEN_PARENT_REMOVE_DELAY_MS);
-    return;
-  }
-  if (!tokens[index]) return;
-  tokens[index] = tokens[index] === "spent" ? "active" : "spent";
-  writeTokenData(type, tokens);
-  renderTokenButtons(type);
-}
-
-function renderTokenButtons(type) {
-  const container = document.querySelector(`[data-token-list="${type}"]`);
-  if (!container) return;
-  const tokens = readTokenData(type);
-  container.innerHTML = "";
-  container.setAttribute("data-empty", tokens.length === 0 ? "true" : "false");
-  tokens.forEach((state, index) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "token-icon";
-    btn.dataset.tokenType = type;
-    btn.dataset.tokenIndex = String(index);
-    btn.dataset.tokenState = state;
-    btn.setAttribute("aria-label", state === "spent" ? t("token_spent") : t("token_active"));
-    btn.setAttribute("role", "listitem");
-    btn.innerHTML = `<span aria-hidden="true">${state === "spent" ? TOKEN_SPENT_SYMBOL : TOKEN_ACTIVE_SYMBOL}</span>`;
-    attachTokenInteractions(btn, type);
-    container.appendChild(btn);
-  });
-  updateTokenAddButton(type);
-}
-
-function addToken(type) {
-  const tokens = readTokenData(type);
-  const config = tokenConfig[type];
-  if (config && config.parent) {
-    // Child-Token werden automatisch verwaltet
-    return;
-  }
-  tokens.push("active");
-  writeTokenData(type, tokens);
-  renderTokenButtons(type);
-  if (config && config.child) {
-    enforceTokenChildLimit(type);
-  }
-}
-
-function restoreTokenFields() {
-  Object.keys(tokenConfig).forEach(type => {
-    const input = getTokenInput(type);
-    if (input && (!input.value || input.value.trim() === "")) {
-      input.value = "[]";
-    }
-  });
-  Object.keys(tokenConfig).forEach(type => {
-    renderTokenButtons(type);
-  });
-  enforceTokenChildLimit("fate");
-  enforceTokenChildLimit("resilience");
-}
-
-function resetTokenFields() {
-  Object.keys(tokenConfig).forEach(type => {
-    const input = getTokenInput(type);
-    if (input) {
-      input.value = "[]";
-    }
-  });
-  restoreTokenFields();
-}
-
-function refreshChildTokens() {
-  ["luck", "resolve"].forEach(type => {
-    const tokens = readTokenData(type);
-    if (!tokens.length) return;
-    const refreshed = tokens.map(() => "active");
-    if (JSON.stringify(tokens) !== JSON.stringify(refreshed)) {
-      writeTokenData(type, refreshed);
-      renderTokenButtons(type);
-    } else {
-      renderTokenButtons(type);
-    }
-  });
-}
-
-function initTokenFields() {
-  document.querySelectorAll("[data-token-add]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const type = btn.dataset.tokenAdd;
-      addToken(type);
-    });
-  });
-  document.querySelectorAll("[data-token-refresh]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      refreshChildTokens();
-    });
-  });
-  restoreTokenFields();
-}
-
-function prepareTokenFieldForPdf(field) {
-  const iconsContainer = field.querySelector(".token-field__icons");
-  if (!iconsContainer) return;
-  const tokens = Array.from(iconsContainer.querySelectorAll(".token-icon"));
-  const summary = document.createElement("div");
-  summary.className = "token-field__summary";
-  if (tokens.length === 0) {
-    summary.textContent = "–";
-  } else {
-    tokens.forEach(token => {
-      const span = document.createElement("span");
-      span.textContent = token.dataset.tokenState === "spent" ? TOKEN_SPENT_SYMBOL : TOKEN_ACTIVE_SYMBOL;
-      summary.appendChild(span);
-    });
-  }
-  iconsContainer.replaceWith(summary);
-  const addBtn = field.querySelector(".token-field__add");
-  if (addBtn) addBtn.remove();
-}
-
 
 // =========================
 // 💾 Speicher- und Lade-Logik
@@ -1106,7 +581,6 @@ function saveState() {
 
   // Tabellen separat serialisieren
   [
-    "lp-status-table",
     "grupp-table",
     "talent-table",
     "waffen-table",
@@ -1142,7 +616,6 @@ function loadState() {
   });
 
   [
-    "lp-status-table",
     "grupp-table",
     "talent-table",
     "waffen-table",
@@ -1158,12 +631,10 @@ function loadState() {
     deserializeTable(id, state[id]); // Tabellen rekonstruieren
   });
 
-  restoreTokenFields();
   updateAttributes();
   restoreMarkers();
   ensureInitialRows();
   updateCharacterDisplay();
-  updateExperienceView();
 }
 
 // =========================
@@ -1171,7 +642,6 @@ function loadState() {
 // =========================
 function ensureInitialRows() {
   [
-    "lp-status-table",
     "grupp-table",
     "talent-table",
     "waffen-table",
@@ -1204,7 +674,6 @@ function resetCharacterSheet() {
   });
 
   [
-    "lp-status-table",
     "grupp-table",
     "talent-table",
     "waffen-table",
@@ -1235,14 +704,12 @@ function resetCharacterSheet() {
     }
   });
 
-  resetTokenFields();
-
   ensureInitialRows();
   updateAttributes();
 }
 
 // Aktuellen Charakter exportieren
-function exportCharacterData() {
+function exportCharacters() {
   if (!currentCharacter) return;
   saveState();
   const state = JSON.parse(localStorage.getItem('state-' + currentCharacter) || '{}');
@@ -1252,288 +719,6 @@ function exportCharacterData() {
   a.href = URL.createObjectURL(blob);
   a.download = `${currentCharacter}.json`;
   a.click();
-}
-
-function replaceFormElementForPdf(el) {
-  if (el.type === "hidden") {
-    el.remove();
-    return;
-  }
-
-  let value = "";
-  if (el.tagName === "SELECT") {
-    const selected = el.options[el.selectedIndex] || null;
-    value = selected ? selected.text : el.value;
-  } else if (el.type === "checkbox" || el.type === "radio") {
-    value = el.checked ? t('yes') : t('no');
-  } else {
-    value = el.value;
-  }
-
-  const normalized = typeof value === "string" ? value : String(value ?? "");
-  if (el.tagName === "TEXTAREA") {
-    const div = document.createElement("div");
-    div.className = "export-multiline";
-    if (normalized.trim() === "") {
-      div.textContent = "–";
-    } else {
-      div.innerHTML = escapeHtml(normalized).replace(/\n/g, "<br>");
-    }
-    el.replaceWith(div);
-    return;
-  }
-
-  const span = document.createElement("span");
-  span.className = "export-value";
-  span.textContent = normalized.trim() === "" ? "–" : normalized;
-  el.replaceWith(span);
-}
-
-function removeDeleteColumns(table) {
-  const indexes = new Set();
-  Array.from(table.rows).forEach(row => {
-    Array.from(row.cells).forEach((cell, idx) => {
-      if (cell.classList && cell.classList.contains('delete-col')) {
-        indexes.add(idx);
-      }
-    });
-  });
-  const sorted = Array.from(indexes).sort((a, b) => b - a);
-  sorted.forEach(index => {
-    Array.from(table.rows).forEach(row => {
-      if (row.cells[index]) {
-        row.deleteCell(index);
-      }
-    });
-  });
-}
-
-function prepareSectionForPdf(section, exportFullExperience) {
-  const clone = section.cloneNode(true);
-  clone.classList.remove('collapsed');
-  clone.removeAttribute('data-collapsed');
-  clone.classList.add('pdf-section');
-
-  const header = clone.querySelector('h2');
-  if (header) {
-    const arrow = header.querySelector('.section-arrow');
-    if (arrow) arrow.remove();
-    header.textContent = header.textContent.replace(/^[▼▶]\s*/, '').trim();
-  }
-
-  const finanzenToggle = clone.querySelector('#finanzen-toggle');
-  if (finanzenToggle) {
-    const arrow = finanzenToggle.querySelector('#finanzen-arrow');
-    if (arrow) arrow.remove();
-    finanzenToggle.textContent = t('finances_expand');
-  }
-
-  const finanzenExtra = clone.querySelector('#finanzen-extra');
-  if (finanzenExtra) {
-    finanzenExtra.style.removeProperty('display');
-  }
-
-  const experienceToggle = clone.querySelector('#exp-toggle');
-  if (experienceToggle) {
-    const container = experienceToggle.closest('div');
-    if (container) {
-      container.innerHTML = `<strong>${t('experience_mode_label')}:</strong> ${exportFullExperience ? t('full') : t('simple')}`;
-      container.style.textAlign = 'left';
-    }
-  }
-
-  const simpleBlock = clone.querySelector('#exp-simple');
-  const fullBlock = clone.querySelector('#exp-full');
-  if (simpleBlock || fullBlock) {
-    if (exportFullExperience) {
-      if (simpleBlock) simpleBlock.remove();
-      if (fullBlock) fullBlock.style.removeProperty('display');
-    } else {
-      if (fullBlock) fullBlock.remove();
-      if (simpleBlock) simpleBlock.style.removeProperty('display');
-    }
-  }
-
-  clone.querySelectorAll('.armor-visual, .table-gap').forEach(el => el.remove());
-
-  clone.querySelectorAll('.section-divider').forEach(div => div.remove());
-  clone.querySelectorAll('[style]').forEach(el => {
-    if (el.style.display === 'none') {
-      el.style.removeProperty('display');
-    }
-  });
-  clone.querySelectorAll('.subsection').forEach(div => div.classList.add('pdf-subsection'));
-
-  clone.querySelectorAll('table').forEach(table => removeDeleteColumns(table));
-
-  clone.querySelectorAll('.token-field').forEach(field => prepareTokenFieldForPdf(field));
-
-  clone.querySelectorAll('input, textarea, select').forEach(el => replaceFormElementForPdf(el));
-  clone.querySelectorAll('button, .switch, .slider, .icon-btn').forEach(el => el.remove());
-
-  clone.querySelectorAll('[id]').forEach(el => {
-    if (el.id !== clone.id) {
-      el.removeAttribute('id');
-    }
-  });
-
-  return clone;
-}
-
-function exportCharacterPdf() {
-  if (!currentCharacter) return;
-  saveState();
-
-  const exportFullExperience = !!document.getElementById('exp-toggle')?.checked;
-  const sectionsToExport = Array.from(document.querySelectorAll('#main-content > section'))
-    .filter(sec => sec.id !== 'gamedeck');
-
-  const preparedSections = sectionsToExport.map(sec => prepareSectionForPdf(sec, exportFullExperience));
-
-  const charName = (document.getElementById('char-name')?.value || '').trim();
-  const generatedAt = new Date().toLocaleString();
-
-  const metaParts = [];
-  if (charName) {
-    metaParts.push(`<div><strong>${t('export_character_name')}:</strong> ${escapeHtml(charName)}</div>`);
-  }
-  metaParts.push(`<div><strong>${t('export_character_id')}:</strong> ${escapeHtml(currentCharacter)}</div>`);
-  metaParts.push(`<div><strong>${t('export_generated_at')}:</strong> ${escapeHtml(generatedAt)}</div>`);
-
-  const styles = `
-    body { font-family: 'Times New Roman', Georgia, serif; color: #111; margin: 0; padding: 32px; background: #fff; }
-    .pdf-header { text-align: center; margin-bottom: 24px; }
-    .pdf-header h1 { font-family: 'Times New Roman', Georgia, serif; font-size: 32px; margin: 0 0 8px; }
-    .pdf-meta { font-size: 12px; display: flex; flex-direction: column; gap: 4px; align-items: center; }
-    section.pdf-section { margin-bottom: 28px; page-break-inside: avoid; }
-    section.pdf-section h2 { font-size: 20px; margin: 0 0 12px; border-bottom: 2px solid #333; padding-bottom: 6px; }
-    section.pdf-section h3 { font-size: 16px; margin: 16px 0 8px; }
-    section.pdf-section table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-    section.pdf-section th, section.pdf-section td { border: 1px solid #999; padding: 6px 8px; font-size: 12px; vertical-align: top; }
-    section.pdf-section th { background: #f0f0f0; font-weight: 600; }
-    .dual-table-wrapper { display: flex; gap: 12px; }
-    .dual-table-wrapper > div { flex: 1; }
-    .export-value { display: inline-block; min-width: 0.5em; }
-    .export-multiline { white-space: pre-wrap; }
-    .pdf-subsection { margin-bottom: 12px; }
-    .pdf-subsection table { margin-bottom: 0; }
-    .pdf-section .marker-icon { margin-right: 4px; }
-    .coin { display: inline-block; width: 0.8em; height: 0.8em; border-radius: 50%; margin-right: 4px; }
-    .coin.gold { background: #d4af37; }
-    .coin.silver { background: #c0c0c0; }
-    .coin.copper { background: #b87333; }
-  `;
-
-  const sectionsHtml = preparedSections.map(sec => sec.outerHTML).join('');
-  const docTitle = `${t('export_pdf_title')} - ${charName || currentCharacter}`;
-
-  const html = `<!DOCTYPE html>
-  <html lang="${document.documentElement.lang || 'de'}">
-    <head>
-      <meta charset="utf-8">
-      <title>${escapeHtml(docTitle)}</title>
-      <style>${styles}</style>
-    </head>
-    <body>
-      <header class="pdf-header">
-        <h1>${escapeHtml(t('character_sheet'))}</h1>
-        <div class="pdf-meta">${metaParts.join('')}</div>
-      </header>
-      ${sectionsHtml}
-    </body>
-  </html>`;
-
-  const printWindow = window.open('', '_blank');
-  if (!printWindow) {
-    alert(t('export_popup_blocked'));
-    return;
-  }
-
-  printWindow.document.open();
-  printWindow.document.write(html);
-  printWindow.document.close();
-
-  const triggerPrint = () => {
-    printWindow.focus();
-    setTimeout(() => {
-      try {
-        printWindow.print();
-      } catch (err) {
-        console.error('Failed to trigger print dialog', err);
-      }
-    }, 50);
-  };
-
-  if (printWindow.document.readyState === 'complete' || printWindow.document.readyState === 'interactive') {
-    triggerPrint();
-  } else {
-    printWindow.document.addEventListener('DOMContentLoaded', triggerPrint, { once: true });
-  }
-
-  printWindow.addEventListener('afterprint', () => {
-    printWindow.close();
-  });
-}
-
-function openExportPopup() {
-  if (!currentCharacter) {
-    alert(t('choose_character'));
-    return;
-  }
-
-  const existing = document.getElementById('export-popup');
-  if (existing) {
-    existing.remove();
-  }
-
-  const overlay = document.createElement('div');
-  overlay.id = 'export-popup';
-  overlay.className = 'overlay';
-  overlay.innerHTML = `
-    <div class="overlay-content">
-      <h2>${t('export')}</h2>
-      <p>${t('export_choose_action')}</p>
-      <div class="popup-buttons">
-        <button id="export-json-btn">${t('export_json_button')}</button>
-      </div>
-      <div class="popup-buttons">
-        <button id="export-pdf-btn">${t('export_pdf_button')}</button>
-      </div>
-      <div class="popup-buttons">
-        <button id="export-cancel">${t('cancel')}</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-
-  function close() {
-    overlay.remove();
-    document.removeEventListener('keydown', onKeyDown);
-  }
-
-  function onKeyDown(e) {
-    if (e.key === 'Escape') {
-      close();
-    }
-  }
-
-  document.addEventListener('keydown', onKeyDown);
-
-  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
-  overlay.querySelector('#export-cancel').addEventListener('click', close);
-  overlay.querySelector('#export-json-btn').addEventListener('click', () => {
-    close();
-    exportCharacterData();
-  });
-  overlay.querySelector('#export-pdf-btn').addEventListener('click', () => {
-    close();
-    exportCharacterPdf();
-  });
-
-  const jsonBtn = overlay.querySelector('#export-json-btn');
-  if (jsonBtn) {
-    jsonBtn.focus();
-  }
 }
 
 // Charakter importieren und laden
@@ -1781,7 +966,6 @@ function updateAttributes() {
   updateTraglast();
   updateVermoegen();
   updateErfahrung();
-  renderGameDeckComponent();
   saveState();
 }
 
@@ -1820,7 +1004,6 @@ function updateGruppierteFaehigkeiten() {
     const steigVal = parseInt(steig.value) || 0;
     ges.value = att ? attVal + steigVal : steigVal;
   });
-  renderGameDeckComponent();
 }
 
 function autoAddRow(tableId) {
@@ -1921,14 +1104,6 @@ function addRow(tableId) {
       <td><input type="number" min="0"></td>
       <td class="text-left"><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('spar-table'); saveState(); updateVermoegen();">❌</button></td>
-    `;
-  }
-  else if (tableId === "lp-status-table") {
-    // Lebenspunkt-Statusübersicht
-    row.innerHTML = `
-      <td><textarea rows="1"></textarea></td>
-      <td><input type="number" min="0"></td>
-      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('lp-status-table'); saveState(); updateLebenspunkte();">❌</button></td>
     `;
   }
   else if (tableId === "ruestung-table") {
@@ -2264,23 +1439,6 @@ function updateVermoegen() {
 // =========================
 // ⭐ Erfahrung
 // =========================
-function updateExperienceView() {
-  const toggle = document.getElementById("exp-toggle");
-  const simpleBlock = document.getElementById("exp-simple");
-  const fullBlock = document.getElementById("exp-full");
-  if (!toggle || !simpleBlock || !fullBlock) return;
-
-  if (toggle.checked) {
-    simpleBlock.style.display = "none";
-    fullBlock.style.display = "block";
-  } else {
-    simpleBlock.style.display = "block";
-    fullBlock.style.display = "none";
-  }
-
-  updateErfahrung();
-}
-
 let aktWarNegativ = false;
 function updateErfahrung() {
   const toggle = document.getElementById("exp-toggle");
@@ -2361,33 +1519,32 @@ document.addEventListener("focusout", e => {
 // =========================
 function initLogic() {
   renderSections();
-  initTokenFields();
-  renderGameDeckComponent();
   initSectionToggles();
   initFinanzenToggle();
   initCharacterManagement();
 
   document.addEventListener("input", e => {
-    if (!e.target.matches("input, textarea, select")) {
-      return;
+    if (e.target.matches("input, textarea, select")) {
+      updateAttributes();
     }
-    const gameDeckRoot = document.getElementById("game-deck-root");
-    if (gameDeckRoot && gameDeckRoot.contains(e.target)) {
-      return;
-    }
-    updateAttributes();
   });
 
   const toggle = document.getElementById("exp-toggle");
   if (toggle) {
     toggle.addEventListener("change", () => {
-      updateExperienceView();
+      if (!toggle.checked) {
+        document.getElementById("exp-simple").style.display = "block";
+        document.getElementById("exp-full").style.display = "none";
+      } else {
+        document.getElementById("exp-simple").style.display = "none";
+        document.getElementById("exp-full").style.display = "block";
+      }
+      updateErfahrung();
       saveState();
     });
   }
 
   loadState();
-  updateExperienceView();
   if (!currentCharacter) {
     ensureInitialRows();
     updateAttributes();
