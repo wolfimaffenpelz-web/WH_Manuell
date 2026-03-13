@@ -137,7 +137,7 @@ const baseTranslations = {
   comment_col: "Kommentar",
   sin: "Sünde",
   st_bonus: "ST-Bonus",
-  wi_bonus: "2x WI-Bonus",
+  wi_bonus: "WI-Bonus",
   wk_bonus: "WK-Bonus",
   robustness: "Robustheit*",
   total_lp: "Gesamt-LP",
