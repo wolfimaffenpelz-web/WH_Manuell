@@ -393,8 +393,8 @@ sections.push(
       <table class="full-width" id="lp-table">
         <tr><th>Komponente</th><th>Wert</th></tr>
         <tr><td>ST-Bonus</td><td><input type="number" id="lp-stb" readonly></td></tr>
-        <tr><td>WI-Bonus</td><td><input type="number" id="lp-wib" readonly></td></tr>
-        <tr><td>2× WK-Bonus</td><td><input type="number" id="lp-wkb" readonly></td></tr>
+        <tr><td>2x WI-Bonus</td><td><input type="number" id="lp-wib" readonly></td></tr>
+        <tr><td>WK-Bonus</td><td><input type="number" id="lp-wkb" readonly></td></tr>
         <tr><td>Robustheit*</td><td><input type="number" id="lp-robustheit" readonly></td></tr>
         <tr><td>Gesamt-LP</td><td><input type="number" id="lp-gesamt" readonly></td></tr>
         <tr><td>${t('current_lp')}</td><td><input type="number" id="lp-aktuell" min="0" max="99"></td></tr>
