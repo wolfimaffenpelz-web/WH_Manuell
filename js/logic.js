@@ -1261,8 +1261,8 @@ function updateLebenspunkte() {
 
   // Basiswerte berechnen
   const stb = Math.floor(ST/10);
-  const wib = Math.floor(WI/10);
-  const wkb = Math.floor(WK/10) * 2;
+  const wib = Math.floor(WI/10) * 2;
+  const wkb = Math.floor(WK/10);
 
   const hardyLevel = checkTalentEffects();
   const robust = wib * hardyLevel; // Robustheit: WI-Bonus mal Talentstufe
