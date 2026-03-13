@@ -11,7 +11,7 @@ const baseTranslations = {
   delete: "Löschen",
   import: "Import",
   export: "Export",
-  export_choose_action: "Bitte Exportmethode wählen.",
+  export_choose_action: "Bitte Exportmethode wählen!",
   export_json_button: "Charakterdaten exportieren",
   export_pdf_button: "Charakterdaten als PDF speichern",
   export_pdf_title: "Charakterdaten PDF",
