@@ -2388,6 +2388,7 @@ function initLogic() {
 
   loadState();
   updateExperienceView();
+  updateErfahrung(); 
   if (!currentCharacter) {
     ensureInitialRows();
     updateAttributes();
