@@ -1477,6 +1477,16 @@ function updateErfahrung() {
   }
 }
 
+function syncErfahrungMode() {
+  const toggle = document.getElementById("exp-toggle");
+  const simple = document.getElementById("exp-simple");
+  const full = document.getElementById("exp-full");
+  if (!toggle || !simple || !full) return;
+
+  simple.style.display = toggle.checked ? "none" : "block";
+  full.style.display = toggle.checked ? "block" : "none";
+}
+
 // =========================
 // 🎨 Highlighting
 // =========================
@@ -1532,19 +1542,14 @@ function initLogic() {
   const toggle = document.getElementById("exp-toggle");
   if (toggle) {
     toggle.addEventListener("change", () => {
-      if (!toggle.checked) {
-        document.getElementById("exp-simple").style.display = "block";
-        document.getElementById("exp-full").style.display = "none";
-      } else {
-        document.getElementById("exp-simple").style.display = "none";
-        document.getElementById("exp-full").style.display = "block";
-      }
+      syncErfahrungMode();
       updateErfahrung();
       saveState();
     });
   }
 
   loadState();
+  syncErfahrungMode();
   if (!currentCharacter) {
     ensureInitialRows();
     updateAttributes();
