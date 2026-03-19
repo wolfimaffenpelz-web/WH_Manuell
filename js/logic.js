@@ -761,7 +761,9 @@ function autoResize(el) {
 }
 
 function syncRowFieldHeights(row) {
-  const fields = Array.from(row.querySelectorAll('textarea, input[type="text"]'));
+  const fields = Array.from(
+    row.querySelectorAll('textarea, input:not([type="hidden"]), select')
+  ).filter(field => field.type !== 'checkbox' && field.type !== 'radio');
   if (fields.length === 0) return;
 
   fields.forEach(field => {
@@ -1112,7 +1114,7 @@ function addRow(tableId) {
       <td><input type="number"></td>
       <td><input type="text"></td>
       <td><input type="text"></td>
-      <td class="text-left"><textarea></textarea></td>
+      <td class="text-left"><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('waffen-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten(); updateTraglast();">❌</button></td>
     `;
     row.querySelectorAll("input, textarea").forEach(el => {
@@ -1170,7 +1172,7 @@ function addRow(tableId) {
       <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></td>
       <td><input type="number"></td>
       <td><input type="number"></td>
-      <td class="text-left"><textarea></textarea></td>
+      <td class="text-left"><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('ausruestung-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten(); updateTraglast();">❌</button></td>
     `;
     row.querySelectorAll("input, textarea").forEach(el => {
@@ -1185,7 +1187,7 @@ function addRow(tableId) {
       <td><input type="text"></td>
       <td><input type="text"></td>
       <td><input type="text"></td>
-      <td class="text-left"><textarea></textarea></td>
+      <td class="text-left"><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('zauber-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
@@ -1200,7 +1202,7 @@ function addRow(tableId) {
           <option>${t('mind')}</option>
         </select>
       </td>
-      <td class="text-left"><textarea></textarea></td>
+      <td class="text-left"><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('mutationen-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
@@ -1208,7 +1210,7 @@ function addRow(tableId) {
     // Einträge für psychologische Effekte
     row.innerHTML = `
       <td><textarea rows="1"></textarea></td>
-      <td class="text-left"><textarea></textarea></td>
+      <td class="text-left"><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('psychologie-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
