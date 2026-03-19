@@ -636,6 +636,7 @@ function loadState() {
   restoreMarkers();
   ensureInitialRows();
   updateCharacterDisplay();
+  syncAllRowFieldHeights();
 }
 
 // =========================
@@ -707,6 +708,7 @@ function resetCharacterSheet() {
 
   ensureInitialRows();
   updateAttributes();
+  syncAllRowFieldHeights();
 }
 
 // Aktuellen Charakter exportieren
@@ -749,8 +751,38 @@ function importCharacters(files) {
 }
 
 function autoResize(el) {
+  const row = el.closest('tr');
+  if (row) {
+    syncRowFieldHeights(row);
+    return;
+  }
   el.style.height = 'auto';
   el.style.height = el.scrollHeight + 'px';
+}
+
+function syncRowFieldHeights(row) {
+  const fields = Array.from(row.querySelectorAll('textarea, input[type="text"]'));
+  if (fields.length === 0) return;
+
+  fields.forEach(field => {
+    field.style.height = 'auto';
+  });
+
+  const maxHeight = Math.max(
+    ...fields.map(field => (
+      field.tagName === 'TEXTAREA'
+        ? field.scrollHeight
+        : Math.max(field.scrollHeight, field.offsetHeight)
+    ))
+  );
+
+  fields.forEach(field => {
+    field.style.height = `${maxHeight}px`;
+  });
+}
+
+function syncAllRowFieldHeights() {
+  document.querySelectorAll('table tr').forEach(syncRowFieldHeights);
 }
 
 document.addEventListener('input', e => {
@@ -1194,6 +1226,8 @@ function addRow(tableId) {
     first.addEventListener('input', () => { autoAddRow(tableId); saveState(); updateRuestung(); updateTraglast(); });
   }
 
+  syncRowFieldHeights(row);
+
   if (tableId === "exp-table") {
     updateErfahrung(); // nach Änderung Erfahrungswerte neu berechnen
   }
@@ -1559,4 +1593,5 @@ function initLogic() {
     ensureInitialRows();
     updateAttributes();
   }
+  syncAllRowFieldHeights();
 }

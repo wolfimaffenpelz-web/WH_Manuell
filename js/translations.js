@@ -1,3 +1,4 @@
+/* exported t, applyTranslations */
 // translations.js - zentrale Sprachdatei
 // Deutsch wird als Platzhalter für alle Sprachen genutzt
 const baseTranslations = {
