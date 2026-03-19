@@ -89,7 +89,8 @@ table {
 }
 
 table tr {
-  height: var(--row-height);
+  min-height: var(--row-height);
+  height: auto;
   vertical-align: middle;
 }
 
@@ -148,6 +149,25 @@ textarea {
   min-height: var(--row-height);
   resize: none;
   overflow: hidden;
+}
+
+#grupp-table td:nth-child(1),
+#talent-table td:nth-child(1),
+#talent-table td:nth-child(3),
+#waffen-table td:nth-child(1),
+#waffen-table td:nth-child(6),
+#ausruestung-table td:nth-child(1),
+#ausruestung-table td:nth-child(4),
+#mutationen-table td:nth-child(1),
+#mutationen-table td:nth-child(3),
+#psychologie-table td:nth-child(1),
+#psychologie-table td:nth-child(2),
+#schulden-table td:nth-child(4),
+#spar-table td:nth-child(4),
+#exp-table td:nth-child(2) {
+  white-space: normal;
+  overflow: visible;
+  word-break: break-word;
 }
 
 #mutationen-table select,

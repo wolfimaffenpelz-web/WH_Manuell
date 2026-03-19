@@ -33,6 +33,7 @@ document.addEventListener("DOMContentLoaded", initPasswordProtection);
 // =========================
 let currentCharacter = null;
 let characterList = [];
+let corruptionWarningShown = false;
 
 function applySavedSettings() {
   const colors = JSON.parse(localStorage.getItem("color-settings") || "{}");
@@ -1290,9 +1291,13 @@ function updateKorruption() {
 
   if (akt > max) {
     document.getElementById("korruption-akt").classList.add("readonly-red");
-    alert("⚠️ Korruption über Maximum – Wurf auf Mutation/Wahnsinn nötig!");
+    if (!corruptionWarningShown) {
+      alert(t("corruption_limit_warning"));
+      corruptionWarningShown = true;
+    }
   } else {
     document.getElementById("korruption-akt").classList.remove("readonly-red");
+    corruptionWarningShown = false;
   }
 }
 

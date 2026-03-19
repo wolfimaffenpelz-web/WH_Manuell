@@ -157,6 +157,7 @@ const baseTranslations = {
   savings: "Sparvermögen",
   max_cross_warning: "Max 3 ✠ erlaubt.",
   current_negative_warning: "Warnung: Aktuell ist negativ!",
+  corruption_limit_warning: "⚠️ Korruption über Maximum – Wurf auf Mutation/Wahnsinn nötig!",
   head_short: "Kopf",
   left_arm_short: "L. Arm",
   right_arm_short: "R. Arm",
