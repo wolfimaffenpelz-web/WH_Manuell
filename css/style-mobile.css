@@ -272,7 +272,34 @@ textarea {
 .armor-dialog input,
 .armor-dialog textarea {
   background: var(--color-field);
+  border: 1px solid var(--color-table-line);
   text-align: left;
+}
+
+.armor-dialog .armor-zone-option {
+  background: var(--color-field);
+  border: 1px solid var(--color-table-line);
+}
+
+
+.armor-zone-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.armor-zone-status {
+  justify-content: center;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.armor-zone-label {
+  text-align: center;
+}
+
+.armor-zone-value-input {
+  width: 28px;
+  min-width: 28px;
 }
 
 #ruestung-table th {

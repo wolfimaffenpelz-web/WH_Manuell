@@ -272,7 +272,13 @@ textarea {
 .armor-dialog input,
 .armor-dialog textarea {
   background: var(--color-field);
+  border: 1px solid var(--color-table-line);
   text-align: left;
+}
+
+.armor-dialog .armor-zone-option {
+  background: var(--color-field);
+  border: 1px solid var(--color-table-line);
 }
 
 #ruestung-table th {
