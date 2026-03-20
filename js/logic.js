@@ -1127,19 +1127,14 @@ function addRow(tableId) {
   }
   else if (tableId === "ruestung-table") {
     // Rüstungsstücke
-    const armorZoneOptions = ARMOR_ZONES.map(zone => `
-      <label class="armor-zone-option">
-        <input type="checkbox" class="armor-zone-toggle" data-zone="${zone.key}">
-        <span>${t(zone.shortKey)}</span>
-      </label>
-    `).join('');
-    const armorDamageInputs = ARMOR_ZONES.map(zone => `
-      <label class="armor-damage-item" data-zone="${zone.key}">
-        <span>${t(zone.shortKey)}</span>
+    const armorZoneRows = ARMOR_ZONES.map(zone => `
+      <div class="armor-zone-status" data-zone="${zone.key}">
+        <input type="checkbox" class="armor-zone-toggle" data-zone="${zone.key}" hidden>
+        <span class="armor-zone-label">${t(zone.shortKey)}</span>
         <button type="button" class="armor-damage-btn" data-step="-1" data-zone="${zone.key}">−</button>
-        <input type="number" class="armor-damage-input" data-zone="${zone.key}" min="0" value="0" readonly disabled>
+        <input type="number" class="armor-zone-value-input" data-zone="${zone.key}" min="0" value="" readonly disabled>
         <button type="button" class="armor-damage-btn" data-step="1" data-zone="${zone.key}">+</button>
-      </label>
+      </div>
     `).join('');
     row.innerHTML = `
       <td colspan="5">
@@ -1152,10 +1147,7 @@ function addRow(tableId) {
               <button class="delete-row" type="button">❌</button>
             </div>
           </div>
-          <div class="armor-protection-cell">
-            <div class="armor-zone-grid">${armorZoneOptions}</div>
-            <div class="armor-damage-grid">${armorDamageInputs}</div>
-          </div>
+          <div class="armor-zone-list">${armorZoneRows}</div>
           <div class="armor-card-qualities text-left"><textarea rows="1"></textarea></div>
         </div>
       </td>
@@ -1174,22 +1166,14 @@ function addRow(tableId) {
         saveState();
       });
     });
-    row.querySelectorAll(".armor-zone-toggle").forEach(el => {
-      el.addEventListener('change', () => {
-        syncArmorRowControls(row);
-        updateRuestung();
-        updateTraglast();
-        saveState();
-      });
-    });
     row.querySelectorAll(".armor-damage-btn").forEach(btn => {
       btn.addEventListener('click', () => {
         const zoneKey = btn.dataset.zone;
-        const input = row.querySelector(`.armor-damage-input[data-zone="${zoneKey}"]`);
-        const maxDamage = parseInt(row.querySelector('.armor-rp-input')?.value) || 0;
+        const input = row.querySelector(`.armor-zone-value-input[data-zone="${zoneKey}"]`);
+        const maxValue = parseInt(row.querySelector('.armor-rp-input')?.value) || 0;
         const step = parseInt(btn.dataset.step, 10) || 0;
         const current = parseInt(input?.value) || 0;
-        const next = Math.min(maxDamage, Math.max(0, current + step));
+        const next = Math.min(maxValue, Math.max(0, current + step));
         if (input) input.value = String(next);
         syncArmorRowControls(row);
         updateRuestung();
@@ -1382,19 +1366,20 @@ function getArmorZoneValueMap(defaultValue = 0) {
 
 function syncArmorRowControls(row) {
   if (!row) return;
-  const maxDamage = Math.max(0, parseInt(row.querySelector('.armor-rp-input')?.value) || 0);
+  const maxValue = Math.max(0, parseInt(row.querySelector('.armor-rp-input')?.value) || 0);
   row.querySelectorAll('.armor-zone-toggle').forEach(toggle => {
     const zoneKey = toggle.dataset.zone;
-    const damageWrap = row.querySelector(`.armor-damage-item[data-zone="${zoneKey}"]`);
+    const damageWrap = row.querySelector(`.armor-zone-status[data-zone="${zoneKey}"]`);
     if (!damageWrap) return;
     damageWrap.classList.toggle('active', toggle.checked);
-    const damageInput = damageWrap.querySelector('input');
+    const valueInput = damageWrap.querySelector('.armor-zone-value-input');
     const buttons = damageWrap.querySelectorAll('button');
-    if (damageInput) {
-      damageInput.disabled = !toggle.checked;
-      const current = parseInt(damageInput.value) || 0;
-      damageInput.value = String(toggle.checked ? Math.min(current, maxDamage) : 0);
-      damageInput.max = String(maxDamage);
+    if (valueInput) {
+      valueInput.disabled = !toggle.checked;
+      const raw = valueInput.value;
+      const current = raw === '' ? maxValue : (parseInt(raw, 10) || 0);
+      valueInput.value = String(toggle.checked ? Math.min(current, maxValue) : 0);
+      valueInput.max = String(maxValue);
     }
     buttons.forEach(btn => { btn.disabled = !toggle.checked; });
   });
@@ -1469,9 +1454,9 @@ function updateRuestung() {
 
     row.querySelectorAll('.armor-zone-toggle:checked').forEach(toggle => {
       const zoneKey = toggle.dataset.zone;
-      const damageInput = row.querySelector(`.armor-damage-item[data-zone="${zoneKey}"] input`);
-      const damage = parseInt(damageInput?.value) || 0;
-      zones[zoneKey] += Math.max(0, rp - damage);
+      const valueInput = row.querySelector(`.armor-zone-value-input[data-zone="${zoneKey}"]`);
+      const currentValue = parseInt(valueInput?.value) || 0;
+      zones[zoneKey] += Math.max(0, currentValue);
     });
   });
 

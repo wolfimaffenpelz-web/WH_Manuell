@@ -159,7 +159,19 @@ textarea {
 .armor-card {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0;
+  border: 1px solid var(--color-table-line);
+}
+
+.armor-card-top,
+.armor-zone-list,
+.armor-card-qualities {
+  padding: 4px;
+}
+
+.armor-card-top,
+.armor-zone-list {
+  border-bottom: 1px solid var(--color-table-line);
 }
 
 .armor-card-top {
@@ -180,55 +192,44 @@ textarea {
   background: var(--color-field);
 }
 
-.armor-protection-cell,
-.armor-zone-grid,
-.armor-damage-grid,
-.armor-stats-inline {
+.armor-zone-list,
+.armor-stats-inline,
+.armor-dialog .armor-zone-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
   align-items: center;
 }
 
-.armor-protection-cell {
-  flex-direction: column;
-  align-items: stretch;
-}
-
 .armor-zone-option,
-.armor-damage-item,
+.armor-zone-status,
 .armor-stats-inline label {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   min-height: var(--row-height);
   border: 1px solid var(--color-table-line);
-  border-radius: 999px;
   padding: 0 6px;
   background: var(--color-bg);
 }
 
-.armor-zone-option,
-.armor-damage-item {
+.armor-zone-option {
   white-space: nowrap;
 }
 
-.armor-zone-option input,
-.armor-damage-item input,
-.armor-stats-inline input {
-  width: auto;
-  margin: 0;
-}
-
-.armor-damage-item {
+.armor-zone-status {
   display: none;
 }
 
-.armor-damage-item.active {
+.armor-zone-status.active {
   display: inline-flex;
 }
 
-.armor-damage-item input,
+.armor-zone-label {
+  font-weight: bold;
+}
+
+.armor-zone-value-input,
 .armor-stats-inline input {
   width: 32px;
   min-width: 32px;
