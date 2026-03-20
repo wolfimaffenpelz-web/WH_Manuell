@@ -287,7 +287,7 @@ sections.push(
 
       <!-- Dynamische Rüstungsteile -->
       <h3>${t('armor')}</h3>
-      <button id="add-armor-button" type="button">${t('add_armor')}</button>
+      <button id="add-armor-button" type="button">${t('add_armor_button')}</button>
       <table class="full-width" id="ruestung-table">
         <tr>
           <th>${t('armor_entries')}</th>

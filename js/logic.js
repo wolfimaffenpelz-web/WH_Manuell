@@ -553,20 +553,6 @@ function deserializeTable(tableId, data) {
     addRow(tableId); // neue Zeile erzeugen
     const row = table.rows[table.rows.length - 1];
 
-    if (tableId === 'ruestung-table' && Array.isArray(rowData) && rowData.length === 6) {
-      const [marker, name, zone, ap, enc, qualities] = rowData;
-      row.querySelector("[data-marker] input[type='hidden']").value = marker;
-      const textareas = row.querySelectorAll("textarea");
-      textareas[0].value = name || '';
-      textareas[1].value = qualities || '';
-      row.querySelector(".armor-rp-input").value = ap;
-      row.querySelector(".armor-tp-input").value = enc;
-      const checkbox = row.querySelector(`.armor-zone-toggle[data-zone="${zone}"]`);
-      if (checkbox) checkbox.checked = true;
-      syncArmorRowControls(row);
-      return;
-    }
-
     const inputs = row.querySelectorAll("input, select, textarea");
     rowData.forEach((val, idx) => {
       const el = inputs[idx];

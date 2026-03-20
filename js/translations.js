@@ -154,6 +154,7 @@ const baseTranslations = {
   new_row: "Neue Zeile",
   mark_to_equip: "Zeile markieren zum Ausrüsten",
   add_armor: "Rüstung hinzufügen",
+  add_armor_button: "+ Rüstung hinzufügen",
   armor_entries: "Rüstungseinträge",
   armor_name: "Bezeichnung",
   armor_protected_areas: "Geschützte Bereiche",
