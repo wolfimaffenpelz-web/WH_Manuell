@@ -290,10 +290,8 @@ sections.push(
       <table class="full-width" id="ruestung-table">
         <tr>
           <th>Name</th>
-          <th>${t('armor_parts')}</th>
-          <th>${t('armor_ap')}</th>
-          <th>${t('armor_enc')}</th>
-          <th>${t('armor_damage')}</th>
+          <th>${t('armor_protection')}</th>
+          <th>${t('armor_stats')}</th>
           <th class="text-left">${t('qualities')}</th>
           <th class="delete-col"></th>
         </tr>

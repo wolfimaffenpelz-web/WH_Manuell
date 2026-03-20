@@ -559,8 +559,8 @@ function deserializeTable(tableId, data) {
       const textareas = row.querySelectorAll("textarea");
       textareas[0].value = name || '';
       textareas[1].value = qualities || '';
-      row.querySelector(".armor-ap-input").value = ap;
-      row.querySelector(".armor-enc-input").value = enc;
+      row.querySelector(".armor-rp-input").value = ap;
+      row.querySelector(".armor-tp-input").value = enc;
       const checkbox = row.querySelector(`.armor-zone-toggle[data-zone="${zone}"]`);
       if (checkbox) checkbox.checked = true;
       syncArmorRowControls(row);
@@ -1142,10 +1142,18 @@ function addRow(tableId) {
     `).join('');
     row.innerHTML = `
       <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></td>
-      <td><div class="armor-zone-grid">${armorZoneOptions}</div></td>
-      <td><input type="number" class="armor-ap-input" min="0"></td>
-      <td><input type="number" class="armor-enc-input" min="0"></td>
-      <td><div class="armor-damage-grid">${armorDamageInputs}</div></td>
+      <td>
+        <div class="armor-protection-cell">
+          <div class="armor-zone-grid">${armorZoneOptions}</div>
+          <div class="armor-damage-grid">${armorDamageInputs}</div>
+        </div>
+      </td>
+      <td>
+        <div class="armor-stats-stack">
+          <label><span>${t('armor_rp')}</span><input type="number" class="armor-rp-input" min="0"></label>
+          <label><span>${t('armor_tp')}</span><input type="number" class="armor-tp-input" min="0"></label>
+        </div>
+      </td>
       <td class="text-left"><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('ruestung-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten(); updateRuestung(); updateTraglast();">❌</button></td>
     `;
@@ -1370,7 +1378,7 @@ function updateRuestung() {
   document.querySelectorAll("#ruestung-table tr").forEach((row, idx) => {
     if (idx === 0) return;
     syncArmorRowControls(row);
-    const ap = parseInt(row.querySelector('.armor-ap-input')?.value) || 0;
+    const rp = parseInt(row.querySelector('.armor-rp-input')?.value) || 0;
     const eq = row.cells[0].querySelector("input[type='hidden']")?.value === "1";
     if (!eq) return;
 
@@ -1378,7 +1386,7 @@ function updateRuestung() {
       const zoneKey = toggle.dataset.zone;
       const damageInput = row.querySelector(`.armor-damage-item[data-zone="${zoneKey}"] input`);
       const damage = parseInt(damageInput?.value) || 0;
-      zones[zoneKey] += Math.max(0, ap - damage);
+      zones[zoneKey] += Math.max(0, rp - damage);
     });
   });
 
@@ -1415,7 +1423,7 @@ function updateTraglast() {
   // Gewicht der Rüstungsteile
   document.querySelectorAll("#ruestung-table tr").forEach((row, idx) => {
     if (idx === 0) return;
-    const tp = parseInt(row.cells[3].querySelector("input").value) || 0;
+    const tp = parseInt(row.querySelector('.armor-tp-input')?.value) || 0;
     const eq = row.cells[0].querySelector("input[type='hidden']")?.value === "1";
     ruestungTP += Math.max(0, tp - (eq ? 1 : 0));
   });
