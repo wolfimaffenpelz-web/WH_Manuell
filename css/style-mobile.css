@@ -35,6 +35,19 @@
     --silhouette-width: 192px;
     --shield-width: calc(var(--silhouette-width) * 0.55);
     --armor-box-size: 24px;
+
+  /* Mobile-Rüstung: Diese Werte kannst du gezielt anpassen.
+     - Name bekommt automatisch den Restplatz in Zeile 1.
+     - RP/TP/X steuern sich über die kleinen Breiten/Gaps unten.
+     - Zeile 2 nutzt standardmäßig 2 Einträge pro Zeile. */
+  --armor-mobile-top-gap: 6px;            /* Abstand zwischen Name-Block und RP/TP/X in Zeile 1 */
+  --armor-mobile-name-gap: 6px;           /* Abstand zwischen Marker und Name */
+  --armor-mobile-section-padding: 4px;    /* Innenabstand für Zeile 1/2/3 des Rüstungsblocks */
+  --armor-mobile-zone-columns: 2;         /* Wie viele Zonen-Einträge pro Zeile sichtbar sein sollen */
+  --armor-mobile-chip-gap: 0;             /* Abstand zwischen RP/TP-Feldern bzw. Zonen-Kacheln */
+  --armor-mobile-chip-padding-x: 6px;     /* Horizontaler Innenabstand der kleinen Kacheln */
+  --armor-mobile-stat-input-width: 35px;  /* Breite der RP/TP-Felder in Zeile 1 */
+  --armor-mobile-zone-value-width: 28px;  /* Breite des Zahlenfelds in Zeile 2 */
   --font-size-footnote: 0.8em;
 }
 
@@ -156,6 +169,216 @@ textarea {
   background: var(--color-bg);
 }
 
+/* ================================================
+   Rüstung – Mobile-Bausteine
+   -----------------------------------------------
+   Alle mobilen Armor-Komponenten nutzen jetzt ein klares Grid/Flex-Modell:
+   - Karte = äußerer Rahmen + definierte Innenzeilen
+   - Zeile 1 = Grid aus Name-Spalte und fixer Stats-/Delete-Spalte
+   - Zeile 2 = striktes 2-Spalten-Grid für Zonen
+   - Jede Zonen-Zeile = internes Grid mit fester Button/Input-Ausrichtung
+   ================================================ */
+.armor-card {
+  display: grid;
+  gap: 0;
+  border: 1px solid var(--color-table-line);
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.armor-card-top,
+.armor-zone-list,
+.armor-card-qualities {
+  padding: var(--armor-mobile-section-padding);
+}
+
+.armor-card-top,
+.armor-zone-list {
+  border-bottom: 1px solid var(--color-table-line);
+}
+
+.armor-card-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--armor-mobile-top-gap);
+  align-items: start;
+}
+
+.armor-card-name {
+  min-width: 0;
+}
+
+.armor-card-name textarea,
+.armor-card-qualities textarea {
+  background: var(--color-field);
+}
+
+.armor-stats-inline {
+  display: grid;
+  grid-template-columns: repeat(2, max-content) var(--delete-col-width);
+  gap: 0;
+  align-items: start;
+  justify-self: end;
+}
+
+.armor-stats-inline label {
+  display: grid;
+  grid-template-columns: max-content var(--armor-mobile-stat-input-width);
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  min-height: var(--row-height);
+  border: 1px solid var(--color-table-line);
+  padding: 0 var(--armor-mobile-chip-padding-x);
+  background: var(--color-bg);
+}
+
+.armor-stats-inline .delete-row {
+  width: var(--delete-col-width);
+  padding: 0;
+  margin: 0;
+  justify-self: end;
+  align-self: stretch;
+  flex: 0 0 auto;
+}
+
+.armor-zone-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  align-items: start;
+}
+
+.armor-zone-status {
+  display: none;
+}
+
+.armor-zone-status.active {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  min-height: var(--row-height);
+  border: 1px solid var(--color-table-line);
+  padding: 0 var(--armor-mobile-chip-padding-x);
+  background: var(--color-bg);
+}
+
+.armor-zone-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: bold;
+  text-align: left;
+}
+
+.armor-zone-value-input,
+.armor-stats-inline input {
+  width: 2ch;
+  min-width: 2ch;
+  text-align: center;
+}
+
+.armor-zone-option,
+.armor-damage-btn,
+#add-armor-button {
+  border: 1px solid var(--color-table-line);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.armor-zone-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: var(--row-height);
+  white-space: nowrap;
+  margin: 0 4px 4px 0;
+  padding: 0 var(--armor-mobile-chip-padding-x);
+}
+
+#add-armor-button {
+  display: block;
+  margin: 0 0 6px auto;
+  border-width: 2px;
+  font-weight: bold;
+}
+
+.armor-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(100%, 420px);
+  max-width: 100%;
+  text-align: left;
+}
+
+.armor-dialog label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
+
+.armor-dialog .armor-zone-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  align-items: stretch;
+}
+
+.armor-dialog input,
+.armor-dialog textarea {
+  background: var(--color-field);
+  border: 1px solid var(--color-table-line);
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.armor-dialog .armor-zone-option {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0 4px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-table-line);
+  box-sizing: border-box;
+}
+
+.armor-dialog .popup-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+#ruestung-table th {
+  white-space: nowrap;
+}
+
+#ruestung-table th,
+#ruestung-table td {
+  max-width: none;
+  width: 100%;
+  text-align: left;
+}
+
+#ruestung-table td {
+  padding: 0;
+}
+
+#ruestung-table tr.line-marked .armor-stats-inline label,
+#ruestung-table tr.line-marked .armor-zone-status,
+#ruestung-table tr.line-marked .armor-damage-btn {
+  background: transparent;
+  border-color: var(--color-negative);
+}
+
 input[readonly],
 .readonly {
   background: var(--color-readonly);
@@ -256,18 +479,29 @@ td.wsg { width: 35px; }
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.18);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  padding: 16px;
+  box-sizing: border-box;
 }
 
 .overlay-content {
-  background: var(--color-field);
-  padding: 20px;
-  border-radius: 5px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-table-line);
+  padding: 16px;
   text-align: center;
+  width: auto;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .overlay-content input {
@@ -674,22 +908,6 @@ th[data-input]::before {
 #waffen-table th,
 #waffen-table td { padding: 2px 1px; }
 
-#ruestung-table th:nth-child(1),
-#ruestung-table td:nth-child(1) { max-width: none; width: auto; }
-#ruestung-table th:nth-child(2),
-#ruestung-table td:nth-child(2) { width: auto; }
-#ruestung-table th:nth-child(3),
-#ruestung-table td:nth-child(3) { width: 35px; }
-#ruestung-table th:nth-child(4),
-#ruestung-table td:nth-child(4) { width: 35px; }
-#ruestung-table th:nth-child(5),
-#ruestung-table td:nth-child(5) { max-width: none; width: auto; text-align: left; }
-#ruestung-table th:nth-child(6),
-#ruestung-table td:nth-child(6) { width: 16px; padding: 0; }
-
-.ruestung-uebersicht,
-.ruestung-uebersicht + .table-gap { display: none; }
-
 #ausruestung-table th:nth-child(1),
 #ausruestung-table td:nth-child(1) { max-width: none; width: auto; }
 #ausruestung-table th:nth-child(2),
@@ -739,7 +957,7 @@ th[data-input]::before {
 /* Linksbündige Textareas */
 #talent-table td:nth-child(3) textarea,
 #waffen-table td:nth-child(6) textarea,
-#ruestung-table td:nth-child(5) textarea,
+#ruestung-table textarea,
 #ausruestung-table td:nth-child(4) textarea,
 #zauber-table td:nth-child(6) textarea,
 #mutationen-table td:nth-child(3) textarea,

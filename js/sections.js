@@ -273,8 +273,8 @@ sections.push(
         </div>
       </div>
 
-      <!-- Übersicht RP pro Zone -->
-      <table class="ruestung-uebersicht">
+      <!-- Interne RP-Summen pro Zone bleiben für Berechnungen im DOM, werden aber nicht mehr sichtbar angezeigt. -->
+      <table class="ruestung-uebersicht" hidden>
         <tr><th>${t('zone')}</th><th>${t('range')}</th><th>${t('sum_rp')}</th></tr>
         <tr><td>${t('head')}</td><td>01–09</td><td><input type="number" id="rp-kopf" readonly></td></tr>
         <tr><td>${t('left_arm')}</td><td>10–24</td><td><input type="number" id="rp-larm" readonly></td></tr>
@@ -283,18 +283,13 @@ sections.push(
         <tr><td>${t('left_leg')}</td><td>80–89</td><td><input type="number" id="rp-lbein" readonly></td></tr>
         <tr><td>${t('right_leg')}</td><td>90–100</td><td><input type="number" id="rp-rbein" readonly></td></tr>
       </table>
-      <div class="table-gap"></div>
 
       <!-- Dynamische Rüstungsteile -->
-      <h3>Rüstungsteile</h3>
+      <h3>${t('armor')}</h3>
+      <button id="add-armor-button" type="button">${t('add_armor_button')}</button>
       <table class="full-width" id="ruestung-table">
         <tr>
-          <th>Name</th>
-          <th>${t('zone_short')}</th>
-          <th>RP</th>
-          <th>TP</th>
-          <th class="text-left">${t('qualities')}</th>
-          <th class="delete-col"></th>
+          <th>${t('armor_entries')}</th>
         </tr>
       </table>
       <div class="table-footnote">* ${t('mark_to_equip')}</div>

@@ -156,6 +156,204 @@ textarea {
   background: var(--color-bg);
 }
 
+/* ================================================
+   Rüstung – Desktop-Bausteine
+   -----------------------------------------------
+   Struktur pro Eintrag:
+   - .armor-card            = kompletter Eintrag / äußere Hülle
+   - .armor-card-top        = Zeile 1 (Name | RP | TP | Löschen)
+   - .armor-zone-list       = Zeile 2 (geschützte Zonen mit +/- und Ist-Wert)
+   - .armor-card-qualities  = Zeile 3 (Qualitäten)
+
+   Idee hinter den Regeln:
+   - möglichst nahe an der Tabellenoptik der App bleiben
+   - gleiche Rahmenfarbe wie im restlichen Sheet verwenden
+   - Zahlenfelder bewusst schmal halten, damit Name und Buttons Platz haben
+   - Zeile 2 nur für tatsächlich gewählte Zonen anzeigen
+   ================================================ */
+/* Gesamter Rüstungseintrag als kompakter "Karten-/Tabellenblock". */
+.armor-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--color-table-line);
+}
+
+/* Gemeinsame Innenabstände für alle drei sichtbaren Zeilen. */
+.armor-card-top,
+.armor-zone-list,
+.armor-card-qualities {
+  padding: 4px;
+}
+
+/* Trennlinien nur zwischen Zeile 1/2 und 2/3. */
+.armor-card-top,
+.armor-zone-list {
+  border-bottom: 1px solid var(--color-table-line);
+}
+
+/* Zeile 1: Name links, RP/TP/Löschen rechts. */
+.armor-card-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+  align-items: start;
+}
+
+/* Name + Marker links bündig, damit lange Namen sauber umbrechen können. */
+.armor-card-name {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+/* Editierbare Textfelder immer im normalen Feldfarbton der App. */
+.armor-card-name textarea,
+.armor-card-qualities textarea {
+  background: var(--color-field);
+}
+
+/* Zeile 2, RP/TP-Gruppe und Popup-Zonenauswahl nutzen überall Flex für sauberes Anordnen. */
+.armor-zone-list,
+.armor-stats-inline,
+.armor-dialog .armor-zone-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  align-items: center;
+}
+
+/* Einheitliche Optik für kleine UI-Bausteine: Popup-Optionen, Zonen-Einträge, RP/TP-Kapseln. */
+.armor-zone-option,
+.armor-zone-status,
+.armor-stats-inline label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: var(--row-height);
+  border: 1px solid var(--color-table-line);
+  padding: 0 6px;
+  background: var(--color-bg);
+}
+
+/* Popup-Optionen dürfen nicht umbrechen und bekommen etwas Abstand zueinander. */
+.armor-zone-option {
+  white-space: nowrap;
+  margin: 0 4px 4px 0;
+}
+
+/* Nachbarelemente leicht zusammenschieben, damit keine optisch doppelte Rahmenlinie entsteht. */
+.armor-zone-status + .armor-zone-status,
+.armor-stats-inline label + label {
+  margin-left: -1px;
+}
+
+/* Rechte Blockgruppe in Zeile 1 immer auf einer Linie halten. */
+.armor-stats-inline {
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+}
+
+/* Löschen-Button immer ganz rechts verankern. */
+.armor-stats-inline .delete-row {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+/* Standardmäßig sind Zonen unsichtbar; sichtbar werden nur gewählte Schutzzonen. */
+.armor-zone-status {
+  display: none;
+}
+
+/* Aktivierte Zonen aus dem Popup werden im Eintrag eingeblendet. */
+.armor-zone-status.active {
+  display: inline-flex;
+}
+
+/* Zonenname optisch stärker gewichten als die +/- Steuerung. */
+.armor-zone-label {
+  font-weight: bold;
+}
+
+/* Schmale Zahlenfelder: genug Platz für Werte, aber Fokus auf Name/Zonen. */
+.armor-zone-value-input,
+.armor-stats-inline input {
+  width: 35px;
+  min-width: 35px;
+  text-align: center;
+}
+
+/* Buttons übernehmen dieselbe Grundlinie wie andere UI-Elemente der App. */
+.armor-damage-btn,
+#add-armor-button {
+  border: 1px solid var(--color-table-line);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* "Rüstung hinzufügen" rechtsbündig, etwas kräftigerer Rahmen als visuelle Aktion. */
+#add-armor-button {
+  display: block;
+  margin: 0 0 6px auto;
+  border-width: 2px;
+  font-weight: bold;
+}
+
+/* Popup-Inhalt vertikal stapeln. */
+.armor-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Label + Feld immer linksbündig untereinander. */
+.armor-dialog label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
+
+/* Echte Eingabefelder im Standard-Feldfarbton der App. */
+.armor-dialog input,
+.armor-dialog textarea {
+  background: var(--color-field);
+  border: 1px solid var(--color-table-line);
+  text-align: left;
+}
+
+/* Zonen-Auswahl im Popup bewusst im normalen App-Hintergrund lassen. */
+.armor-dialog .armor-zone-option {
+  background: var(--color-bg);
+  border: 1px solid var(--color-table-line);
+}
+
+/* Überschrift nicht umbrechen lassen. */
+#ruestung-table th {
+  white-space: nowrap;
+}
+
+/* Der Spezial-Armor-Bereich soll nicht durch globale Tabellen-Maxbreiten beschnitten werden. */
+#ruestung-table th,
+/* Etwas kleinerer Zellabstand, damit die Armor-Blöcke kompakt bleiben. */
+#ruestung-table td {
+  max-width: none;
+  width: 100%;
+  text-align: left;
+}
+
+#ruestung-table td {
+  padding: 4px 2px;
+}
+
+/* Wenn eine Rüstung als getragen markiert ist, übernehmen auch die Spezialbausteine den Tragen-Look. */
+#ruestung-table tr.line-marked .armor-stats-inline label,
+#ruestung-table tr.line-marked .armor-zone-status,
+#ruestung-table tr.line-marked .armor-damage-btn {
+  background: transparent;
+  border-color: var(--color-negative);
+}
+
 input[readonly],
 .readonly {
   background: var(--color-readonly);
@@ -672,22 +870,6 @@ th[data-input]::before {
 #waffen-table th,
 #waffen-table td { padding: 2px 1px; }
 
-#ruestung-table th:nth-child(1),
-#ruestung-table td:nth-child(1) { max-width: none; width: auto; }
-#ruestung-table th:nth-child(2),
-#ruestung-table td:nth-child(2) { width: auto; }
-#ruestung-table th:nth-child(3),
-#ruestung-table td:nth-child(3) { width: 35px; }
-#ruestung-table th:nth-child(4),
-#ruestung-table td:nth-child(4) { width: 35px; }
-#ruestung-table th:nth-child(5),
-#ruestung-table td:nth-child(5) { max-width: none; width: auto; text-align: left; }
-#ruestung-table th:nth-child(6),
-#ruestung-table td:nth-child(6) { width: 16px; padding: 0; }
-
-.ruestung-uebersicht,
-.ruestung-uebersicht + .table-gap { display: none; }
-
 #ausruestung-table th:nth-child(1),
 #ausruestung-table td:nth-child(1) { max-width: none; width: auto; }
 #ausruestung-table th:nth-child(2),
@@ -739,7 +921,7 @@ th[data-input]::before {
 /* Linksbündige Textareas */
 #talent-table td:nth-child(3) textarea,
 #waffen-table td:nth-child(6) textarea,
-#ruestung-table td:nth-child(5) textarea,
+#ruestung-table textarea,
 #ausruestung-table td:nth-child(4) textarea,
 #zauber-table td:nth-child(6) textarea,
 #mutationen-table td:nth-child(3) textarea,
