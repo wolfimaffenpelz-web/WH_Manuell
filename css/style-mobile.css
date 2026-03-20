@@ -197,12 +197,13 @@ textarea {
 .armor-zone-list,
 .armor-card-qualities {
   padding: var(--armor-mobile-section-padding);
+  border: none;
 }
 
-/* Trennlinien nur zwischen Zeile 1/2 und 2/3. */
+/* Dünne Trennlinien nur zwischen den Hauptsektionen, ohne zusätzliche Innenrahmen. */
 .armor-card-top,
 .armor-zone-list {
-  border-bottom: 1px solid var(--color-table-line);
+  box-shadow: inset 0 -1px 0 var(--color-table-line);
 }
 
 /* Zeile 1: Name links, RP/TP/Löschen rechts. */
@@ -270,6 +271,8 @@ textarea {
 /* Löschen-Button immer ganz rechts verankern. */
 .armor-stats-inline .delete-row {
   margin-left: auto;
+  width: var(--delete-col-width);
+  padding: 0;
   flex: 0 0 auto;
 }
 
@@ -344,9 +347,8 @@ textarea {
 /* Mobile-Sonderfall: Zeile 2 als 2-Spalten-Raster, damit maximal zwei Zonen nebeneinander stehen. */
 .armor-zone-list {
   display: grid;
-  grid-template-columns: repeat(var(--armor-mobile-zone-columns), minmax(0, 1fr));
-  column-gap: 0;
-  row-gap: 0;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
 }
 
 /* Im Raster keine negative Überlappung zwischen zwei Nachbarzellen. */
@@ -374,8 +376,8 @@ textarea {
 
 /* Mobile: Zahlenfeld noch schmaler, damit Kürzel wie "R. Arm" sicher in eine Zeile passen. */
 .armor-zone-value-input {
-  width: var(--armor-mobile-zone-value-width);
-  min-width: var(--armor-mobile-zone-value-width);
+  width: 2ch;
+  min-width: 2ch;
 }
 
 /* Überschrift nicht umbrechen lassen. */
