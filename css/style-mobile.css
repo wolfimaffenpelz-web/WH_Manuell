@@ -172,41 +172,31 @@ textarea {
 /* ================================================
    Rüstung – Mobile-Bausteine
    -----------------------------------------------
-   Struktur pro Eintrag:
-   - .armor-card            = kompletter Eintrag / äußere Hülle
-   - .armor-card-top        = Zeile 1 (Name | RP | TP | Löschen)
-   - .armor-zone-list       = Zeile 2 (geschützte Zonen mit +/- und Ist-Wert)
-   - .armor-card-qualities  = Zeile 3 (Qualitäten)
-
-   Idee hinter den Regeln:
-   - möglichst nahe an der Tabellenoptik der App bleiben
-   - gleiche Rahmenfarbe wie im restlichen Sheet verwenden
-   - Zahlenfelder bewusst schmal halten, damit Name und Buttons Platz haben
-   - Zeile 2 nur für tatsächlich gewählte Zonen anzeigen
+   Alle mobilen Armor-Komponenten nutzen jetzt ein klares Grid/Flex-Modell:
+   - Karte = äußerer Rahmen + definierte Innenzeilen
+   - Zeile 1 = Grid aus Name-Spalte und fixer Stats-/Delete-Spalte
+   - Zeile 2 = striktes 2-Spalten-Grid für Zonen
+   - Jede Zonen-Zeile = internes Grid mit fester Button/Input-Ausrichtung
    ================================================ */
-/* Gesamter Rüstungseintrag als kompakter "Karten-/Tabellenblock". */
 .armor-card {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 0;
   border: 1px solid var(--color-table-line);
+  margin-top: 6px;
+  overflow: hidden;
 }
 
-/* Gemeinsame Innenabstände für alle drei sichtbaren Zeilen. */
 .armor-card-top,
 .armor-zone-list,
 .armor-card-qualities {
   padding: var(--armor-mobile-section-padding);
-  border: none;
 }
 
-/* Dünne Trennlinien nur zwischen den Hauptsektionen, ohne zusätzliche Innenrahmen. */
 .armor-card-top,
 .armor-zone-list {
-  box-shadow: inset 0 -1px 0 var(--color-table-line);
+  border-bottom: 1px solid var(--color-table-line);
 }
 
-/* Zeile 1: Name links, RP/TP/Löschen rechts. */
 .armor-card-top {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -214,92 +204,84 @@ textarea {
   align-items: start;
 }
 
-/* Name + Marker links bündig, damit lange Namen sauber umbrechen können. */
 .armor-card-name {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--armor-mobile-name-gap);
+  min-width: 0;
 }
 
-/* Editierbare Textfelder immer im normalen Feldfarbton der App. */
 .armor-card-name textarea,
 .armor-card-qualities textarea {
   background: var(--color-field);
 }
 
-/* Zeile 2, RP/TP-Gruppe und Popup-Zonenauswahl nutzen überall Flex für sauberes Anordnen. */
-.armor-zone-list,
-.armor-stats-inline,
-.armor-dialog .armor-zone-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--armor-mobile-chip-gap);
-  align-items: center;
+.armor-stats-inline {
+  display: grid;
+  grid-template-columns: repeat(2, max-content) var(--delete-col-width);
+  gap: 0;
+  align-items: start;
+  justify-self: end;
 }
 
-/* Einheitliche Optik für kleine UI-Bausteine: Popup-Optionen, Zonen-Einträge, RP/TP-Kapseln. */
-.armor-zone-option,
-.armor-zone-status,
 .armor-stats-inline label {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: max-content var(--armor-mobile-stat-input-width);
   align-items: center;
   gap: 4px;
+  min-width: 0;
   min-height: var(--row-height);
   border: 1px solid var(--color-table-line);
   padding: 0 var(--armor-mobile-chip-padding-x);
   background: var(--color-bg);
 }
 
-/* Popup-Optionen dürfen nicht umbrechen und bekommen etwas Abstand zueinander. */
-.armor-zone-option {
-  white-space: nowrap;
-  margin: 0 4px 4px 0;
-}
-
-/* Nachbarelemente leicht zusammenschieben, damit keine optisch doppelte Rahmenlinie entsteht. */
-.armor-zone-status + .armor-zone-status,
-.armor-stats-inline label + label {
-  margin-left: -1px;
-}
-
-/* Rechte Blockgruppe in Zeile 1 immer auf einer Linie halten. */
-.armor-stats-inline {
-  flex-wrap: nowrap;
-  justify-content: flex-end;
-}
-
-/* Löschen-Button immer ganz rechts verankern. */
 .armor-stats-inline .delete-row {
-  margin-left: auto;
   width: var(--delete-col-width);
   padding: 0;
+  margin: 0;
+  justify-self: end;
+  align-self: stretch;
   flex: 0 0 auto;
 }
 
-/* Standardmäßig sind Zonen unsichtbar; sichtbar werden nur gewählte Schutzzonen. */
+.armor-zone-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  align-items: start;
+}
+
 .armor-zone-status {
   display: none;
 }
 
-/* Aktivierte Zonen aus dem Popup werden im Eintrag eingeblendet. */
 .armor-zone-status.active {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  min-height: var(--row-height);
+  border: 1px solid var(--color-table-line);
+  padding: 0 var(--armor-mobile-chip-padding-x);
+  background: var(--color-bg);
 }
 
-/* Zonenname optisch stärker gewichten als die +/- Steuerung. */
 .armor-zone-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-weight: bold;
+  text-align: left;
 }
 
-/* Schmale Zahlenfelder: genug Platz für Werte, aber Fokus auf Name/Zonen. */
 .armor-zone-value-input,
 .armor-stats-inline input {
-  width: var(--armor-mobile-stat-input-width);
-  min-width: var(--armor-mobile-stat-input-width);
+  width: 2ch;
+  min-width: 2ch;
   text-align: center;
 }
 
-/* Buttons übernehmen dieselbe Grundlinie wie andere UI-Elemente der App. */
+.armor-zone-option,
 .armor-damage-btn,
 #add-armor-button {
   border: 1px solid var(--color-table-line);
@@ -307,7 +289,16 @@ textarea {
   color: var(--color-text);
 }
 
-/* "Rüstung hinzufügen" rechtsbündig, etwas kräftigerer Rahmen als visuelle Aktion. */
+.armor-zone-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: var(--row-height);
+  white-space: nowrap;
+  margin: 0 4px 4px 0;
+  padding: 0 var(--armor-mobile-chip-padding-x);
+}
+
 #add-armor-button {
   display: block;
   margin: 0 0 6px auto;
@@ -315,14 +306,12 @@ textarea {
   font-weight: bold;
 }
 
-/* Popup-Inhalt vertikal stapeln. */
 .armor-dialog {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-/* Label + Feld immer linksbündig untereinander. */
 .armor-dialog label {
   display: flex;
   flex-direction: column;
@@ -330,7 +319,13 @@ textarea {
   text-align: left;
 }
 
-/* Echte Eingabefelder im Standard-Feldfarbton der App. */
+.armor-dialog .armor-zone-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  align-items: center;
+}
+
 .armor-dialog input,
 .armor-dialog textarea {
   background: var(--color-field);
@@ -338,54 +333,15 @@ textarea {
   text-align: left;
 }
 
-/* Zonen-Auswahl im Popup bewusst im normalen App-Hintergrund lassen. */
 .armor-dialog .armor-zone-option {
   background: var(--color-bg);
   border: 1px solid var(--color-table-line);
 }
 
-/* Mobile-Sonderfall: Zeile 2 als 2-Spalten-Raster, damit maximal zwei Zonen nebeneinander stehen. */
-.armor-zone-list {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
-}
-
-/* Im Raster keine negative Überlappung zwischen zwei Nachbarzellen. */
-.armor-zone-list .armor-zone-status + .armor-zone-status {
-  margin-left: 0;
-}
-
-/* Jede Zonen-Zelle darf die volle halbe Breite ihrer Grid-Spalte nutzen. */
-.armor-zone-list .armor-zone-status {
-  max-width: none;
-  overflow: hidden;
-}
-
-/* Inhalt innerhalb jeder mobilen Halbspalte zentrieren und Umbrüche vermeiden. */
-.armor-zone-status {
-  justify-content: center;
-  white-space: nowrap;
-  width: 100%;
-}
-
-/* Zonenname mittig halten, damit die Zeile optisch ruhiger wirkt. */
-.armor-zone-label {
-  text-align: center;
-}
-
-/* Mobile: Zahlenfeld noch schmaler, damit Kürzel wie "R. Arm" sicher in eine Zeile passen. */
-.armor-zone-value-input {
-  width: 2ch;
-  min-width: 2ch;
-}
-
-/* Überschrift nicht umbrechen lassen. */
 #ruestung-table th {
   white-space: nowrap;
 }
 
-/* Der Spezial-Armor-Bereich soll nicht durch globale Tabellen-Maxbreiten beschnitten werden. */
 #ruestung-table th,
 #ruestung-table td {
   max-width: none;
@@ -393,12 +349,10 @@ textarea {
   text-align: left;
 }
 
-/* Etwas kleinerer Zellabstand, damit die Armor-Blöcke kompakt bleiben. */
 #ruestung-table td {
-  padding: 4px 2px;
+  padding: 0;
 }
 
-/* Wenn eine Rüstung als getragen markiert ist, übernehmen auch die Spezialbausteine den Tragen-Look. */
 #ruestung-table tr.line-marked .armor-stats-inline label,
 #ruestung-table tr.line-marked .armor-zone-status,
 #ruestung-table tr.line-marked .armor-damage-btn {
