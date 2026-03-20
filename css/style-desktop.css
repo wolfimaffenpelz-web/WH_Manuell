@@ -223,6 +223,16 @@ textarea {
   margin-left: -1px;
 }
 
+.armor-stats-inline {
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+}
+
+.armor-stats-inline .delete-row {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
 .armor-zone-status {
   display: none;
 }
@@ -277,7 +287,7 @@ textarea {
 }
 
 .armor-dialog .armor-zone-option {
-  background: var(--color-field);
+  background: var(--color-bg);
   border: 1px solid var(--color-table-line);
 }
 
