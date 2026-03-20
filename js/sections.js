@@ -287,13 +287,10 @@ sections.push(
 
       <!-- Dynamische Rüstungsteile -->
       <h3>${t('armor')}</h3>
+      <button id="add-armor-button" type="button">${t('add_armor')}</button>
       <table class="full-width" id="ruestung-table">
         <tr>
-          <th>Name</th>
-          <th>${t('armor_protection')}</th>
-          <th>${t('armor_stats')}</th>
-          <th class="text-left">${t('qualities')}</th>
-          <th class="delete-col"></th>
+          <th>${t('armor_entries')}</th>
         </tr>
       </table>
       <div class="table-footnote">* ${t('mark_to_equip')}</div>

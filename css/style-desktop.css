@@ -156,23 +156,48 @@ textarea {
   background: var(--color-bg);
 }
 
-.armor-protection-cell {
+.armor-card {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
+.armor-card-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+  align-items: start;
+}
+
+.armor-card-name {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.armor-card-name textarea,
+.armor-card-qualities textarea {
+  background: var(--color-field);
+}
+
+.armor-protection-cell,
 .armor-zone-grid,
-.armor-damage-grid {
+.armor-damage-grid,
+.armor-stats-inline {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
   align-items: center;
 }
 
+.armor-protection-cell {
+  flex-direction: column;
+  align-items: stretch;
+}
+
 .armor-zone-option,
 .armor-damage-item,
-.armor-stats-stack label {
+.armor-stats-inline label {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -183,13 +208,14 @@ textarea {
   background: var(--color-bg);
 }
 
-.armor-zone-option {
+.armor-zone-option,
+.armor-damage-item {
   white-space: nowrap;
 }
 
 .armor-zone-option input,
 .armor-damage-item input,
-.armor-stats-stack input {
+.armor-stats-inline input {
   width: auto;
   margin: 0;
 }
@@ -203,24 +229,45 @@ textarea {
 }
 
 .armor-damage-item input,
-.armor-stats-stack input {
-  width: 38px;
-  min-width: 38px;
+.armor-stats-inline input {
+  width: 32px;
+  min-width: 32px;
+  text-align: center;
 }
 
-.armor-stats-stack {
+.armor-damage-btn,
+#add-armor-button {
+  border: 1px solid var(--color-table-line);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.armor-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.armor-dialog label {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  align-items: stretch;
-}
-
-.armor-stats-stack label {
-  justify-content: space-between;
+  text-align: left;
 }
 
 #ruestung-table th {
   white-space: nowrap;
+}
+
+#ruestung-table th,
+#ruestung-table td {
+  max-width: none;
+  width: 100%;
+  text-align: left;
+}
+
+#ruestung-table td {
+  padding: 4px 2px;
 }
 
 input[readonly],
@@ -739,17 +786,6 @@ th[data-input]::before {
 #waffen-table th,
 #waffen-table td { padding: 2px 1px; }
 
-#ruestung-table th:nth-child(1),
-#ruestung-table td:nth-child(1) { max-width: none; width: auto; }
-#ruestung-table th:nth-child(2),
-#ruestung-table td:nth-child(2) { width: 220px; text-align: left; }
-#ruestung-table th:nth-child(3),
-#ruestung-table td:nth-child(3) { width: 72px; vertical-align: top; }
-#ruestung-table th:nth-child(4),
-#ruestung-table td:nth-child(4) { max-width: none; width: auto; text-align: left; }
-#ruestung-table th:nth-child(5),
-#ruestung-table td:nth-child(5) { width: 16px; padding: 0; }
-
 .ruestung-uebersicht,
 .ruestung-uebersicht + .table-gap { display: none; }
 
@@ -804,7 +840,7 @@ th[data-input]::before {
 /* Linksbündige Textareas */
 #talent-table td:nth-child(3) textarea,
 #waffen-table td:nth-child(6) textarea,
-#ruestung-table td:nth-child(4) textarea,
+#ruestung-table textarea,
 #ausruestung-table td:nth-child(4) textarea,
 #zauber-table td:nth-child(6) textarea,
 #mutationen-table td:nth-child(3) textarea,

@@ -555,7 +555,7 @@ function deserializeTable(tableId, data) {
 
     if (tableId === 'ruestung-table' && Array.isArray(rowData) && rowData.length === 6) {
       const [marker, name, zone, ap, enc, qualities] = rowData;
-      row.querySelector("td[data-marker] input[type='hidden']").value = marker;
+      row.querySelector("[data-marker] input[type='hidden']").value = marker;
       const textareas = row.querySelectorAll("textarea");
       textareas[0].value = name || '';
       textareas[1].value = qualities || '';
@@ -667,7 +667,6 @@ function ensureInitialRows() {
     "waffen-table",
     "schulden-table",
     "spar-table",
-    "ruestung-table",
     "ausruestung-table",
     "zauber-table",
     "mutationen-table",
@@ -953,7 +952,7 @@ document.addEventListener("click", e => {
 });
 
 document.addEventListener("input", e => {
-  const cell = e.target.closest('td[data-marker]');
+  const cell = e.target.closest('[data-marker]');
   if (!cell || !e.target.matches('input[type="text"], textarea')) return;
   if (e.target.value.trim() !== "") return;
   const hid = cell.querySelector('input[type="hidden"]');
@@ -1137,26 +1136,36 @@ function addRow(tableId) {
     const armorDamageInputs = ARMOR_ZONES.map(zone => `
       <label class="armor-damage-item" data-zone="${zone.key}">
         <span>${t(zone.shortKey)}</span>
-        <input type="number" class="armor-damage-input" data-zone="${zone.key}" min="0" value="0" disabled>
+        <button type="button" class="armor-damage-btn" data-step="-1" data-zone="${zone.key}">−</button>
+        <input type="number" class="armor-damage-input" data-zone="${zone.key}" min="0" value="0" readonly disabled>
+        <button type="button" class="armor-damage-btn" data-step="1" data-zone="${zone.key}">+</button>
       </label>
     `).join('');
     row.innerHTML = `
-      <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></td>
-      <td>
-        <div class="armor-protection-cell">
-          <div class="armor-zone-grid">${armorZoneOptions}</div>
-          <div class="armor-damage-grid">${armorDamageInputs}</div>
+      <td colspan="5">
+        <div class="armor-card">
+          <div class="armor-card-top">
+            <div class="armor-card-name" data-marker><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></div>
+            <div class="armor-stats-inline">
+              <label><span>${t('armor_rp')}</span><input type="number" class="armor-rp-input" min="1" max="9"></label>
+              <label><span>${t('armor_tp')}</span><input type="number" class="armor-tp-input" min="1" max="9"></label>
+              <button class="delete-row" type="button">❌</button>
+            </div>
+          </div>
+          <div class="armor-protection-cell">
+            <div class="armor-zone-grid">${armorZoneOptions}</div>
+            <div class="armor-damage-grid">${armorDamageInputs}</div>
+          </div>
+          <div class="armor-card-qualities text-left"><textarea rows="1"></textarea></div>
         </div>
       </td>
-      <td>
-        <div class="armor-stats-stack">
-          <label><span>${t('armor_rp')}</span><input type="number" class="armor-rp-input" min="0"></label>
-          <label><span>${t('armor_tp')}</span><input type="number" class="armor-tp-input" min="0"></label>
-        </div>
-      </td>
-      <td class="text-left"><textarea rows="1"></textarea></td>
-      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('ruestung-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten(); updateRuestung(); updateTraglast();">❌</button></td>
     `;
+    row.querySelector(".delete-row").addEventListener('click', () => {
+      row.remove();
+      saveState();
+      updateRuestung();
+      updateTraglast();
+    });
     row.querySelectorAll("input, textarea").forEach(el => {
       el.addEventListener('input', () => {
         syncArmorRowControls(row);
@@ -1170,6 +1179,20 @@ function addRow(tableId) {
         syncArmorRowControls(row);
         updateRuestung();
         updateTraglast();
+        saveState();
+      });
+    });
+    row.querySelectorAll(".armor-damage-btn").forEach(btn => {
+      btn.addEventListener('click', () => {
+        const zoneKey = btn.dataset.zone;
+        const input = row.querySelector(`.armor-damage-input[data-zone="${zoneKey}"]`);
+        const maxDamage = parseInt(row.querySelector('.armor-rp-input')?.value) || 0;
+        const step = parseInt(btn.dataset.step, 10) || 0;
+        const current = parseInt(input?.value) || 0;
+        const next = Math.min(maxDamage, Math.max(0, current + step));
+        if (input) input.value = String(next);
+        syncArmorRowControls(row);
+        updateRuestung();
         saveState();
       });
     });
@@ -1359,16 +1382,78 @@ function getArmorZoneValueMap(defaultValue = 0) {
 
 function syncArmorRowControls(row) {
   if (!row) return;
+  const maxDamage = Math.max(0, parseInt(row.querySelector('.armor-rp-input')?.value) || 0);
   row.querySelectorAll('.armor-zone-toggle').forEach(toggle => {
     const zoneKey = toggle.dataset.zone;
     const damageWrap = row.querySelector(`.armor-damage-item[data-zone="${zoneKey}"]`);
     if (!damageWrap) return;
     damageWrap.classList.toggle('active', toggle.checked);
     const damageInput = damageWrap.querySelector('input');
+    const buttons = damageWrap.querySelectorAll('button');
     if (damageInput) {
       damageInput.disabled = !toggle.checked;
-      if (!toggle.checked) damageInput.value = '0';
+      const current = parseInt(damageInput.value) || 0;
+      damageInput.value = String(toggle.checked ? Math.min(current, maxDamage) : 0);
+      damageInput.max = String(maxDamage);
     }
+    buttons.forEach(btn => { btn.disabled = !toggle.checked; });
+  });
+}
+
+function openArmorDialog() {
+  const overlay = document.createElement("div");
+  overlay.className = "overlay";
+  const zoneOptions = ARMOR_ZONES.map(zone => `
+    <label class="armor-zone-option">
+      <input type="checkbox" value="${zone.key}">
+      <span>${t(zone.shortKey)}</span>
+    </label>
+  `).join('');
+  overlay.innerHTML = `
+    <div class="overlay-content armor-dialog">
+      <p>${t('add_armor')}</p>
+      <label>${t('armor_name')}<textarea id="armor-name-input" rows="1"></textarea></label>
+      <label>${t('armor_protected_areas')}<div class="armor-zone-grid">${zoneOptions}</div></label>
+      <label>${t('armor_rp')}<input id="armor-rp-input" type="number" min="1" max="9"></label>
+      <label>${t('armor_tp')}<input id="armor-tp-input" type="number" min="1" max="9"></label>
+      <label>${t('armor_qualities')}<textarea id="armor-qualities-input" rows="2"></textarea></label>
+      <div class="popup-buttons">
+        <button id="armor-add-confirm">${t('armor_add_confirm')}</button>
+        <button id="armor-add-cancel">${t('cancel')}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const close = () => overlay.remove();
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  overlay.querySelector('#armor-add-cancel').addEventListener('click', close);
+  overlay.querySelector('#armor-add-confirm').addEventListener('click', () => {
+    const name = overlay.querySelector('#armor-name-input').value.trim();
+    const rp = parseInt(overlay.querySelector('#armor-rp-input').value, 10);
+    const tp = parseInt(overlay.querySelector('#armor-tp-input').value, 10);
+    const qualities = overlay.querySelector('#armor-qualities-input').value;
+    const zones = Array.from(overlay.querySelectorAll('.armor-zone-grid input:checked')).map(el => el.value);
+    if (!name) { alert(t('name_required')); return; }
+    if (zones.length === 0) { alert(t('armor_zone_required')); return; }
+    if (!Number.isInteger(rp) || rp < 1 || rp > 9) { alert(t('armor_rp_range')); return; }
+    if (!Number.isInteger(tp) || tp < 1 || tp > 9) { alert(t('armor_tp_range')); return; }
+    addRow('ruestung-table');
+    const row = document.querySelector('#ruestung-table tr:last-child');
+    const textareas = row.querySelectorAll('textarea');
+    textareas[0].value = name;
+    textareas[1].value = qualities;
+    row.querySelector('.armor-rp-input').value = String(rp);
+    row.querySelector('.armor-tp-input').value = String(tp);
+    zones.forEach(zone => {
+      const checkbox = row.querySelector(`.armor-zone-toggle[data-zone="${zone}"]`);
+      if (checkbox) checkbox.checked = true;
+    });
+    syncArmorRowControls(row);
+    row.querySelectorAll('textarea').forEach(autoResize);
+    updateRuestung();
+    updateTraglast();
+    saveState();
+    close();
   });
 }
 
@@ -1604,12 +1689,16 @@ function initLogic() {
   });
 
   const toggle = document.getElementById("exp-toggle");
+  const addArmorButton = document.getElementById("add-armor-button");
   if (toggle) {
     toggle.addEventListener("change", () => {
       syncExperienceMode();
       updateErfahrung();
       saveState();
     });
+  }
+  if (addArmorButton) {
+    addArmorButton.addEventListener("click", openArmorDialog);
   }
 
   loadState();
