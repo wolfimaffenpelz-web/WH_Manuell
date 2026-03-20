@@ -156,6 +156,44 @@ textarea {
   background: var(--color-bg);
 }
 
+.armor-zone-grid,
+.armor-damage-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 6px;
+  align-items: center;
+}
+
+.armor-zone-option,
+.armor-damage-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: var(--row-height);
+}
+
+.armor-zone-option {
+  white-space: nowrap;
+}
+
+.armor-zone-option input,
+.armor-damage-item input {
+  width: auto;
+  margin: 0;
+}
+
+.armor-damage-item {
+  display: none;
+}
+
+.armor-damage-item.active {
+  display: inline-flex;
+}
+
+.armor-damage-item input {
+  width: 42px;
+}
+
 input[readonly],
 .readonly {
   background: var(--color-readonly);
@@ -677,15 +715,17 @@ th[data-input]::before {
 #ruestung-table th:nth-child(1),
 #ruestung-table td:nth-child(1) { max-width: none; width: auto; }
 #ruestung-table th:nth-child(2),
-#ruestung-table td:nth-child(2) { width: auto; }
+#ruestung-table td:nth-child(2) { width: 190px; }
 #ruestung-table th:nth-child(3),
-#ruestung-table td:nth-child(3) { width: 35px; }
+#ruestung-table td:nth-child(3) { width: 40px; }
 #ruestung-table th:nth-child(4),
-#ruestung-table td:nth-child(4) { width: 35px; }
+#ruestung-table td:nth-child(4) { width: 46px; }
 #ruestung-table th:nth-child(5),
-#ruestung-table td:nth-child(5) { max-width: none; width: auto; text-align: left; }
+#ruestung-table td:nth-child(5) { width: 200px; text-align: left; }
 #ruestung-table th:nth-child(6),
-#ruestung-table td:nth-child(6) { width: 16px; padding: 0; }
+#ruestung-table td:nth-child(6) { max-width: none; width: auto; text-align: left; }
+#ruestung-table th:nth-child(7),
+#ruestung-table td:nth-child(7) { width: 16px; padding: 0; }
 
 .ruestung-uebersicht,
 .ruestung-uebersicht + .table-gap { display: none; }
@@ -739,7 +779,7 @@ th[data-input]::before {
 /* Linksbündige Textareas */
 #talent-table td:nth-child(3) textarea,
 #waffen-table td:nth-child(6) textarea,
-#ruestung-table td:nth-child(5) textarea,
+#ruestung-table td:nth-child(6) textarea,
 #ausruestung-table td:nth-child(4) textarea,
 #zauber-table td:nth-child(6) textarea,
 #mutationen-table td:nth-child(3) textarea,

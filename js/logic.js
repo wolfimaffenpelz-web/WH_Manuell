@@ -552,6 +552,21 @@ function deserializeTable(tableId, data) {
   data.forEach(rowData => {
     addRow(tableId); // neue Zeile erzeugen
     const row = table.rows[table.rows.length - 1];
+
+    if (tableId === 'ruestung-table' && Array.isArray(rowData) && rowData.length === 6) {
+      const [marker, name, zone, ap, enc, qualities] = rowData;
+      row.querySelector("td[data-marker] input[type='hidden']").value = marker;
+      const textareas = row.querySelectorAll("textarea");
+      textareas[0].value = name || '';
+      textareas[1].value = qualities || '';
+      row.querySelector(".armor-ap-input").value = ap;
+      row.querySelector(".armor-enc-input").value = enc;
+      const checkbox = row.querySelector(`.armor-zone-toggle[data-zone="${zone}"]`);
+      if (checkbox) checkbox.checked = true;
+      syncArmorRowControls(row);
+      return;
+    }
+
     const inputs = row.querySelectorAll("input, select, textarea");
     rowData.forEach((val, idx) => {
       const el = inputs[idx];
@@ -562,6 +577,10 @@ function deserializeTable(tableId, data) {
         el.value = val;
       }
     });
+
+    if (tableId === 'ruestung-table') {
+      syncArmorRowControls(row);
+    }
   });
 }
 
@@ -631,6 +650,7 @@ function loadState() {
     deserializeTable(id, state[id]); // Tabellen rekonstruieren
   });
 
+  syncExperienceMode();
   updateAttributes();
   restoreMarkers();
   ensureInitialRows();
@@ -1108,28 +1128,44 @@ function addRow(tableId) {
   }
   else if (tableId === "ruestung-table") {
     // Rüstungsstücke
+    const armorZoneOptions = ARMOR_ZONES.map(zone => `
+      <label class="armor-zone-option">
+        <input type="checkbox" class="armor-zone-toggle" data-zone="${zone.key}">
+        <span>${t(zone.shortKey)}</span>
+      </label>
+    `).join('');
+    const armorDamageInputs = ARMOR_ZONES.map(zone => `
+      <label class="armor-damage-item" data-zone="${zone.key}">
+        <span>${t(zone.shortKey)}</span>
+        <input type="number" class="armor-damage-input" data-zone="${zone.key}" min="0" value="0" disabled>
+      </label>
+    `).join('');
     row.innerHTML = `
       <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></td>
-        <td>
-          <select required>
-            <option value="" selected disabled>-</option>
-            <option value="Kopf">${t('head_short')}</option>
-            <option value="Linker Arm">${t('left_arm_short')}</option>
-            <option value="Rechter Arm">${t('right_arm_short')}</option>
-            <option value="Linkes Bein">${t('left_leg_short')}</option>
-            <option value="Rechtes Bein">${t('right_leg_short')}</option>
-            <option value="Brust">${t('chest_short')}</option>
-            <option value="Schild">${t('shield_short')}</option>
-          </select>
-        </td>
-      <td><input type="number"></td>
-      <td><input type="number"></td>
+      <td><div class="armor-zone-grid">${armorZoneOptions}</div></td>
+      <td><input type="number" class="armor-ap-input" min="0"></td>
+      <td><input type="number" class="armor-enc-input" min="0"></td>
+      <td><div class="armor-damage-grid">${armorDamageInputs}</div></td>
       <td class="text-left"><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('ruestung-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten(); updateRuestung(); updateTraglast();">❌</button></td>
     `;
-    row.querySelectorAll("input, textarea, select").forEach(el => {
-      el.addEventListener('input', () => { updateRuestung(); updateTraglast(); saveState(); });
+    row.querySelectorAll("input, textarea").forEach(el => {
+      el.addEventListener('input', () => {
+        syncArmorRowControls(row);
+        updateRuestung();
+        updateTraglast();
+        saveState();
+      });
     });
+    row.querySelectorAll(".armor-zone-toggle").forEach(el => {
+      el.addEventListener('change', () => {
+        syncArmorRowControls(row);
+        updateRuestung();
+        updateTraglast();
+        saveState();
+      });
+    });
+    syncArmorRowControls(row);
   }
   else if (tableId === "ausruestung-table") {
     // Allgemeine Ausrüstung
@@ -1299,40 +1335,63 @@ function updateKorruption() {
 // =========================
 // 🛡️ Rüstung
 // =========================
+const ARMOR_ZONES = [
+  { key: "Kopf", shortKey: "armor_part_head", rpInputId: "rp-kopf", rpBoxId: "rp-box-kopf" },
+  { key: "Linker Arm", shortKey: "armor_part_left_arm", rpInputId: "rp-larm", rpBoxId: "rp-box-larm" },
+  { key: "Rechter Arm", shortKey: "armor_part_right_arm", rpInputId: "rp-rarm", rpBoxId: "rp-box-rarm" },
+  { key: "Brust", shortKey: "armor_part_chest", rpInputId: "rp-brust", rpBoxId: "rp-box-brust" },
+  { key: "Linkes Bein", shortKey: "armor_part_left_leg", rpInputId: "rp-lbein", rpBoxId: "rp-box-lbein" },
+  { key: "Rechtes Bein", shortKey: "armor_part_right_leg", rpInputId: "rp-rbein", rpBoxId: "rp-box-rbein" },
+  { key: "Schild", shortKey: "armor_part_shield", rpBoxId: "rp-box-schild" }
+];
+
+function getArmorZoneValueMap(defaultValue = 0) {
+  return Object.fromEntries(ARMOR_ZONES.map(zone => [zone.key, defaultValue]));
+}
+
+function syncArmorRowControls(row) {
+  if (!row) return;
+  row.querySelectorAll('.armor-zone-toggle').forEach(toggle => {
+    const zoneKey = toggle.dataset.zone;
+    const damageWrap = row.querySelector(`.armor-damage-item[data-zone="${zoneKey}"]`);
+    if (!damageWrap) return;
+    damageWrap.classList.toggle('active', toggle.checked);
+    const damageInput = damageWrap.querySelector('input');
+    if (damageInput) {
+      damageInput.disabled = !toggle.checked;
+      if (!toggle.checked) damageInput.value = '0';
+    }
+  });
+}
+
 function updateRuestung() {
-  const zones = {
-    "Kopf": 0,
-    "Linker Arm": 0,
-    "Rechter Arm": 0,
-    "Brust": 0,
-    "Linkes Bein": 0,
-    "Rechtes Bein": 0,
-    "Schild": 0
-  }; // Sammeln der besten Rüstungswerte pro Zone
+  const zones = getArmorZoneValueMap(0);
 
   document.querySelectorAll("#ruestung-table tr").forEach((row, idx) => {
     if (idx === 0) return;
-    const zoneSel = row.cells[1].querySelector("select");
-    const zone = zoneSel ? zoneSel.value : "";
-    const rp = parseInt(row.cells[2].querySelector("input").value) || 0;
+    syncArmorRowControls(row);
+    const ap = parseInt(row.querySelector('.armor-ap-input')?.value) || 0;
     const eq = row.cells[0].querySelector("input[type='hidden']")?.value === "1";
-    if (eq && zones.hasOwnProperty(zone)) zones[zone] += rp; // Werte je Zone addieren
+    if (!eq) return;
+
+    row.querySelectorAll('.armor-zone-toggle:checked').forEach(toggle => {
+      const zoneKey = toggle.dataset.zone;
+      const damageInput = row.querySelector(`.armor-damage-item[data-zone="${zoneKey}"] input`);
+      const damage = parseInt(damageInput?.value) || 0;
+      zones[zoneKey] += Math.max(0, ap - damage);
+    });
   });
 
-  document.getElementById("rp-kopf").value = zones["Kopf"] || 0;
-  document.getElementById("rp-larm").value = zones["Linker Arm"] || 0;
-  document.getElementById("rp-rarm").value = zones["Rechter Arm"] || 0;
-  document.getElementById("rp-brust").value = zones["Brust"] || 0;
-  document.getElementById("rp-lbein").value = zones["Linkes Bein"] || 0;
-  document.getElementById("rp-rbein").value = zones["Rechtes Bein"] || 0;
-
-  document.getElementById("rp-box-kopf").textContent = zones["Kopf"] || 0;
-  document.getElementById("rp-box-larm").textContent = zones["Linker Arm"] || 0;
-  document.getElementById("rp-box-rarm").textContent = zones["Rechter Arm"] || 0;
-  document.getElementById("rp-box-brust").textContent = zones["Brust"] || 0;
-  document.getElementById("rp-box-lbein").textContent = zones["Linkes Bein"] || 0;
-  document.getElementById("rp-box-rbein").textContent = zones["Rechtes Bein"] || 0;
-  document.getElementById("rp-box-schild").textContent = zones["Schild"] || 0;
+  ARMOR_ZONES.forEach(zone => {
+    if (zone.rpInputId) {
+      const input = document.getElementById(zone.rpInputId);
+      if (input) input.value = zones[zone.key] || 0;
+    }
+    if (zone.rpBoxId) {
+      const box = document.getElementById(zone.rpBoxId);
+      if (box) box.textContent = zones[zone.key] || 0;
+    }
+  });
 }
 
 // =========================
@@ -1439,6 +1498,13 @@ function updateVermoegen() {
 // =========================
 // ⭐ Erfahrung
 // =========================
+function syncExperienceMode() {
+  const toggle = document.getElementById("exp-toggle");
+  if (!toggle) return;
+  document.getElementById("exp-simple").style.display = toggle.checked ? "none" : "block";
+  document.getElementById("exp-full").style.display = toggle.checked ? "block" : "none";
+}
+
 let aktWarNegativ = false;
 function updateErfahrung() {
   const toggle = document.getElementById("exp-toggle");
@@ -1532,13 +1598,7 @@ function initLogic() {
   const toggle = document.getElementById("exp-toggle");
   if (toggle) {
     toggle.addEventListener("change", () => {
-      if (!toggle.checked) {
-        document.getElementById("exp-simple").style.display = "block";
-        document.getElementById("exp-full").style.display = "none";
-      } else {
-        document.getElementById("exp-simple").style.display = "none";
-        document.getElementById("exp-full").style.display = "block";
-      }
+      syncExperienceMode();
       updateErfahrung();
       saveState();
     });

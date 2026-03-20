@@ -286,13 +286,14 @@ sections.push(
       <div class="table-gap"></div>
 
       <!-- Dynamische Rüstungsteile -->
-      <h3>Rüstungsteile</h3>
+      <h3>${t('armor')}</h3>
       <table class="full-width" id="ruestung-table">
         <tr>
           <th>Name</th>
-          <th>${t('zone_short')}</th>
-          <th>RP</th>
-          <th>TP</th>
+          <th>${t('armor_parts')}</th>
+          <th>${t('armor_ap')}</th>
+          <th>${t('armor_enc')}</th>
+          <th>${t('armor_damage')}</th>
           <th class="text-left">${t('qualities')}</th>
           <th class="delete-col"></th>
         </tr>
