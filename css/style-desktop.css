@@ -197,7 +197,7 @@ textarea {
 .armor-dialog .armor-zone-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 0;
   align-items: center;
 }
 
@@ -215,6 +215,12 @@ textarea {
 
 .armor-zone-option {
   white-space: nowrap;
+  margin: 0 4px 4px 0;
+}
+
+.armor-zone-status + .armor-zone-status,
+.armor-stats-inline label + label {
+  margin-left: -1px;
 }
 
 .armor-zone-status {
@@ -263,6 +269,12 @@ textarea {
   text-align: left;
 }
 
+.armor-dialog input,
+.armor-dialog textarea {
+  background: var(--color-field);
+  text-align: left;
+}
+
 #ruestung-table th {
   white-space: nowrap;
 }
@@ -276,6 +288,13 @@ textarea {
 
 #ruestung-table td {
   padding: 4px 2px;
+}
+
+#ruestung-table tr.line-marked .armor-stats-inline label,
+#ruestung-table tr.line-marked .armor-zone-status,
+#ruestung-table tr.line-marked .armor-damage-btn {
+  background: transparent;
+  border-color: var(--color-negative);
 }
 
 input[readonly],

@@ -1418,6 +1418,8 @@ function openArmorDialog() {
     zones.forEach(zone => {
       const checkbox = row.querySelector(`.armor-zone-toggle[data-zone="${zone}"]`);
       if (checkbox) checkbox.checked = true;
+      const zoneValue = row.querySelector(`.armor-zone-value-input[data-zone="${zone}"]`);
+      if (zoneValue) zoneValue.value = String(rp);
     });
     syncArmorRowControls(row);
     row.querySelectorAll('textarea').forEach(autoResize);
