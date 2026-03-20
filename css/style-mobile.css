@@ -35,6 +35,19 @@
     --silhouette-width: 192px;
     --shield-width: calc(var(--silhouette-width) * 0.55);
     --armor-box-size: 24px;
+
+  /* Mobile-Rüstung: Diese Werte kannst du gezielt anpassen.
+     - Name bekommt automatisch den Restplatz in Zeile 1.
+     - RP/TP/X steuern sich über die kleinen Breiten/Gaps unten.
+     - Zeile 2 nutzt standardmäßig 2 Einträge pro Zeile. */
+  --armor-mobile-top-gap: 6px;            /* Abstand zwischen Name-Block und RP/TP/X in Zeile 1 */
+  --armor-mobile-name-gap: 6px;           /* Abstand zwischen Marker und Name */
+  --armor-mobile-section-padding: 4px;    /* Innenabstand für Zeile 1/2/3 des Rüstungsblocks */
+  --armor-mobile-zone-columns: 2;         /* Wie viele Zonen-Einträge pro Zeile sichtbar sein sollen */
+  --armor-mobile-chip-gap: 0;             /* Abstand zwischen RP/TP-Feldern bzw. Zonen-Kacheln */
+  --armor-mobile-chip-padding-x: 6px;     /* Horizontaler Innenabstand der kleinen Kacheln */
+  --armor-mobile-stat-input-width: 35px;  /* Breite der RP/TP-Felder in Zeile 1 */
+  --armor-mobile-zone-value-width: 28px;  /* Breite des Zahlenfelds in Zeile 2 */
   --font-size-footnote: 0.8em;
 }
 
@@ -183,7 +196,7 @@ textarea {
 .armor-card-top,
 .armor-zone-list,
 .armor-card-qualities {
-  padding: 4px;
+  padding: var(--armor-mobile-section-padding);
 }
 
 /* Trennlinien nur zwischen Zeile 1/2 und 2/3. */
@@ -196,7 +209,7 @@ textarea {
 .armor-card-top {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 6px;
+  gap: var(--armor-mobile-top-gap);
   align-items: start;
 }
 
@@ -204,7 +217,7 @@ textarea {
 .armor-card-name {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
+  gap: var(--armor-mobile-name-gap);
 }
 
 /* Editierbare Textfelder immer im normalen Feldfarbton der App. */
@@ -219,7 +232,7 @@ textarea {
 .armor-dialog .armor-zone-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 0;
+  gap: var(--armor-mobile-chip-gap);
   align-items: center;
 }
 
@@ -232,7 +245,7 @@ textarea {
   gap: 4px;
   min-height: var(--row-height);
   border: 1px solid var(--color-table-line);
-  padding: 0 6px;
+  padding: 0 var(--armor-mobile-chip-padding-x);
   background: var(--color-bg);
 }
 
@@ -278,8 +291,8 @@ textarea {
 /* Schmale Zahlenfelder: genug Platz für Werte, aber Fokus auf Name/Zonen. */
 .armor-zone-value-input,
 .armor-stats-inline input {
-  width: 35px;
-  min-width: 35px;
+  width: var(--armor-mobile-stat-input-width);
+  min-width: var(--armor-mobile-stat-input-width);
   text-align: center;
 }
 
@@ -331,7 +344,7 @@ textarea {
 /* Mobile-Sonderfall: Zeile 2 als 2-Spalten-Raster, damit maximal zwei Zonen nebeneinander stehen. */
 .armor-zone-list {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--armor-mobile-zone-columns), minmax(0, 1fr));
   column-gap: 0;
   row-gap: 0;
 }
@@ -361,8 +374,8 @@ textarea {
 
 /* Mobile: Zahlenfeld noch schmaler, damit Kürzel wie "R. Arm" sicher in eine Zeile passen. */
 .armor-zone-value-input {
-  width: 28px;
-  min-width: 28px;
+  width: var(--armor-mobile-zone-value-width);
+  min-width: var(--armor-mobile-zone-value-width);
 }
 
 /* Überschrift nicht umbrechen lassen. */
