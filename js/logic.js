@@ -919,6 +919,7 @@ function restoreMarkers() {
   });
   updateRuestung();
   updateTraglast();
+  updateStatesSummary();
 }
 
 document.addEventListener("click", e => {
@@ -1646,6 +1647,119 @@ document.addEventListener("focusout", e => {
   }
 });
 
+function clampStateValue(value) {
+  return Math.max(0, Math.min(99, value));
+}
+
+function setStateCardActive(stateKey, active, { resetValue = false } = {}) {
+  const card = document.querySelector(`[data-state-card][data-state-key="${stateKey}"]`);
+  const toggle = document.getElementById(`state-${stateKey}-toggle`);
+  const input = document.getElementById(`state-${stateKey}-value`);
+  const binaryValue = document.getElementById(`state-${stateKey}-binary`);
+  if (!card || !toggle || !input) return;
+  const isBinary = card.dataset.stateBinary === 'true';
+  const nextValue = resetValue ? 0 : clampStateValue(parseInt(input.value, 10) || 0);
+  input.value = String(nextValue);
+  card.classList.toggle('active', active);
+  toggle.classList.toggle('inactive', !active);
+  toggle.classList.toggle('active', active);
+  toggle.setAttribute('aria-pressed', active ? 'true' : 'false');
+  toggle.title = t(active ? 'state_deactivate' : 'state_activate');
+  if (binaryValue) {
+    binaryValue.textContent = t(active ? 'state_active_binary' : 'state_inactive_binary');
+  }
+  if (isBinary && active && nextValue === 0) {
+    input.value = '1';
+  }
+}
+
+function updateStatesSummary() {
+  const container = document.getElementById('states-summary');
+  if (!container) return;
+  const activeCards = Array.from(document.querySelectorAll('[data-state-card].active'));
+  if (activeCards.length === 0) {
+    container.innerHTML = `<span class="state-effect-placeholder">${t('states_effects_empty')}</span>`;
+    return;
+  }
+  container.innerHTML = activeCards.map(card => {
+    const stateKey = card.dataset.stateKey;
+    const name = card.dataset.stateName || stateKey;
+    const effect = card.dataset.stateEffect || t('state_effects_none');
+    const isBinary = card.dataset.stateBinary === 'true';
+    const value = document.getElementById(`state-${stateKey}-value`)?.value || '0';
+    const label = isBinary ? name : `${name} ${value}`;
+    return `<span class="state-effect-chip" title="${effect}">${label}</span>`;
+  }).join('');
+}
+
+function changeStateValue(stateKey, delta) {
+  const input = document.getElementById(`state-${stateKey}-value`);
+  if (!input) return;
+  const card = document.querySelector(`[data-state-card][data-state-key="${stateKey}"]`);
+  if (card?.dataset.stateBinary === 'true') return;
+  const current = clampStateValue(parseInt(input.value, 10) || 0);
+  const next = clampStateValue(current + delta);
+  input.value = String(next);
+  setStateCardActive(stateKey, next > 0, { resetValue: next === 0 });
+  updateStatesSummary();
+  saveState();
+}
+
+function openStateInfo(stateKey) {
+  const card = document.querySelector(`[data-state-card][data-state-key="${stateKey}"]`);
+  const input = document.getElementById(`state-${stateKey}-value`);
+  if (!card || !input) return;
+  const isBinary = card.dataset.stateBinary === 'true';
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.innerHTML = `
+    <div class="overlay-content">
+      <h2>${card.dataset.stateName}</h2>
+      <p><strong>${t('state_info_stage_label')}:</strong> ${isBinary ? t((parseInt(input.value, 10) || 0) > 0 ? 'state_active_binary' : 'state_inactive_binary') : input.value}</p>
+      <p><strong>${t('state_info_effects_label')}:</strong> ${card.dataset.stateEffect}</p>
+      <p>${t('state_info_future_hint')}</p>
+      <button type="button" id="state-info-close">${t('ok')}</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const close = () => overlay.remove();
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  overlay.querySelector('#state-info-close').addEventListener('click', close);
+}
+
+function initStatesSection() {
+  document.querySelectorAll('[data-state-card]').forEach(card => {
+    const stateKey = card.dataset.stateKey;
+    const input = document.getElementById(`state-${stateKey}-value`);
+    const toggle = card.querySelector('[data-state-toggle]');
+    if (input) {
+      input.value = String(clampStateValue(parseInt(input.value, 10) || 0));
+    }
+    const active = (parseInt(input?.value, 10) || 0) > 0;
+    setStateCardActive(stateKey, active, { resetValue: !active });
+    toggle?.addEventListener('click', () => {
+      const isActive = card.classList.contains('active');
+      setStateCardActive(stateKey, !isActive, { resetValue: isActive });
+      if (!isActive && input && parseInt(input.value, 10) === 0) input.value = '1';
+      updateStatesSummary();
+      saveState();
+    });
+  });
+
+  document.querySelectorAll('[data-state-step]').forEach(button => {
+    button.addEventListener('click', () => {
+      const dir = button.dataset.direction === 'down' ? -1 : 1;
+      changeStateValue(button.dataset.stateKey, dir);
+    });
+  });
+
+  document.querySelectorAll('[data-state-info]').forEach(button => {
+    button.addEventListener('click', () => openStateInfo(button.dataset.stateKey));
+  });
+
+  updateStatesSummary();
+}
+
 // =========================
 // 🚀 Init
 // =========================
@@ -1654,6 +1768,7 @@ function initLogic() {
   initSectionToggles();
   initFinanzenToggle();
   initCharacterManagement();
+  initStatesSection();
 
   document.addEventListener("input", e => {
     if (e.target.matches("input, textarea, select")) {

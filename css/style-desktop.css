@@ -1152,3 +1152,134 @@ main td:first-child {
 .dual-table-wrapper {
   flex-wrap: nowrap;
 }
+
+
+/* ================================================
+   Zustände
+   ================================================ */
+.states-top-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.states-summary-label {
+  font-weight: bold;
+}
+
+.states-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: calc(var(--row-height) * 1.5);
+  padding: 6px;
+  border: 1px solid var(--color-table-line);
+  background: var(--color-bg);
+}
+
+.state-effect-placeholder {
+  opacity: 0.75;
+}
+
+.state-effect-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--row-height);
+  padding: 2px 8px;
+  border: 1px solid var(--color-table-line);
+  background: var(--color-field);
+}
+
+.state-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1px;
+  background: var(--color-table-line);
+}
+
+.state-card {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) 32px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  background: var(--color-bg);
+}
+
+.state-icon-button,
+.state-info-button,
+.state-step-button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.state-icon-button {
+  width: 56px;
+  height: 56px;
+  padding: 0;
+}
+
+.state-icon-button img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: filter 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+}
+
+.state-icon-button.inactive img {
+  filter: grayscale(1) saturate(0.2) brightness(0.85);
+  opacity: 0.55;
+}
+
+.state-card.active .state-icon-button img {
+  filter: none;
+  opacity: 1;
+  transform: scale(1.03);
+}
+
+.state-body {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.state-name {
+  font-weight: bold;
+  line-height: 1.1;
+}
+
+.state-counter {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 24px;
+  gap: 4px;
+  align-items: center;
+}
+
+.state-counter input {
+  min-width: 0;
+  text-align: center;
+}
+
+.state-binary-value {
+  opacity: 0.75;
+}
+
+.state-card.active .state-binary-value {
+  opacity: 1;
+}
+
+.state-step-button,
+.state-info-button {
+  min-height: var(--row-height);
+  font-weight: bold;
+}
+
+.state-info-button {
+  width: 24px;
+  height: 24px;
+  justify-self: end;
+  padding: 0;
+}
