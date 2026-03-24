@@ -1180,7 +1180,7 @@ th[data-input]::before {
 
 .state-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1px;
   background: var(--color-table-line);
 }
@@ -1240,13 +1240,17 @@ th[data-input]::before {
 
 .state-counter {
   display: grid;
-  grid-template-columns: 24px minmax(0, 1fr) 24px;
-  gap: 4px;
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-rows: min-content;
+  justify-items: center;
+  gap: 2px;
   align-items: center;
 }
 
 .state-counter input {
-  min-width: 0;
+  width: 2ch;
+  max-width: 2ch;
+  min-width: 2ch;
   text-align: center;
 }
 
