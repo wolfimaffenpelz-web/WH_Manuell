@@ -1655,7 +1655,9 @@ function setStateCardActive(stateKey, active, { resetValue = false } = {}) {
   const card = document.querySelector(`[data-state-card][data-state-key="${stateKey}"]`);
   const toggle = document.getElementById(`state-${stateKey}-toggle`);
   const input = document.getElementById(`state-${stateKey}-value`);
+  const binaryValue = document.getElementById(`state-${stateKey}-binary`);
   if (!card || !toggle || !input) return;
+  const isBinary = card.dataset.stateBinary === 'true';
   const nextValue = resetValue ? 0 : clampStateValue(parseInt(input.value, 10) || 0);
   input.value = String(nextValue);
   card.classList.toggle('active', active);
@@ -1663,6 +1665,12 @@ function setStateCardActive(stateKey, active, { resetValue = false } = {}) {
   toggle.classList.toggle('active', active);
   toggle.setAttribute('aria-pressed', active ? 'true' : 'false');
   toggle.title = t(active ? 'state_deactivate' : 'state_activate');
+  if (binaryValue) {
+    binaryValue.textContent = t(active ? 'state_active_binary' : 'state_inactive_binary');
+  }
+  if (isBinary && active && nextValue === 0) {
+    input.value = '1';
+  }
 }
 
 function updateStatesSummary() {
@@ -1677,14 +1685,18 @@ function updateStatesSummary() {
     const stateKey = card.dataset.stateKey;
     const name = card.dataset.stateName || stateKey;
     const effect = card.dataset.stateEffect || t('state_effects_none');
+    const isBinary = card.dataset.stateBinary === 'true';
     const value = document.getElementById(`state-${stateKey}-value`)?.value || '0';
-    return `<span class="state-effect-chip" title="${effect}">${name} ${value}</span>`;
+    const label = isBinary ? name : `${name} ${value}`;
+    return `<span class="state-effect-chip" title="${effect}">${label}</span>`;
   }).join('');
 }
 
 function changeStateValue(stateKey, delta) {
   const input = document.getElementById(`state-${stateKey}-value`);
   if (!input) return;
+  const card = document.querySelector(`[data-state-card][data-state-key="${stateKey}"]`);
+  if (card?.dataset.stateBinary === 'true') return;
   const current = clampStateValue(parseInt(input.value, 10) || 0);
   const next = clampStateValue(current + delta);
   input.value = String(next);
@@ -1697,12 +1709,13 @@ function openStateInfo(stateKey) {
   const card = document.querySelector(`[data-state-card][data-state-key="${stateKey}"]`);
   const input = document.getElementById(`state-${stateKey}-value`);
   if (!card || !input) return;
+  const isBinary = card.dataset.stateBinary === 'true';
   const overlay = document.createElement('div');
   overlay.className = 'overlay';
   overlay.innerHTML = `
     <div class="overlay-content">
       <h2>${card.dataset.stateName}</h2>
-      <p><strong>${t('state_info_stage_label')}:</strong> ${input.value}</p>
+      <p><strong>${t('state_info_stage_label')}:</strong> ${isBinary ? t((parseInt(input.value, 10) || 0) > 0 ? 'state_active_binary' : 'state_inactive_binary') : input.value}</p>
       <p><strong>${t('state_info_effects_label')}:</strong> ${card.dataset.stateEffect}</p>
       <p>${t('state_info_future_hint')}</p>
       <button type="button" id="state-info-close">${t('ok')}</button>
