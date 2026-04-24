@@ -1610,6 +1610,308 @@ function updateErfahrung() {
   }
 }
 
+const levelUpCostBrackets = [
+  { min: 0, max: 5, attrCost: 25, skillCost: 10 },
+  { min: 6, max: 10, attrCost: 30, skillCost: 15 },
+  { min: 11, max: 15, attrCost: 40, skillCost: 20 },
+  { min: 16, max: 20, attrCost: 50, skillCost: 30 },
+  { min: 21, max: 25, attrCost: 70, skillCost: 40 },
+  { min: 26, max: 30, attrCost: 90, skillCost: 60 },
+  { min: 31, max: 35, attrCost: 120, skillCost: 80 },
+  { min: 36, max: 40, attrCost: 150, skillCost: 110 },
+  { min: 41, max: 45, attrCost: 190, skillCost: 140 },
+  { min: 46, max: 50, attrCost: 230, skillCost: 180 }
+];
+
+function getBracketCost(advances, type) {
+  const safeAdvances = Math.max(0, advances);
+  const bracket = levelUpCostBrackets.find(entry => safeAdvances >= entry.min && safeAdvances <= entry.max)
+    || levelUpCostBrackets[levelUpCostBrackets.length - 1];
+  return type === "attribute" ? bracket.attrCost : bracket.skillCost;
+}
+
+function getAvailableXP() {
+  const fullMode = document.getElementById("exp-toggle")?.checked;
+  if (fullMode) {
+    return parseInt(document.getElementById("exp-full-akt")?.value, 10) || 0;
+  }
+  return parseInt(document.getElementById("exp-simple-akt")?.value, 10) || 0;
+}
+
+function formatLevelValue(entry, delta = 0) {
+  if (entry.type === "attribute") {
+    const start = parseInt(document.getElementById(`${entry.key}-start`)?.value, 10) || 0;
+    const baseSteig = parseInt(document.getElementById(`${entry.key}-steig`)?.value, 10) || 0;
+    return `${delta >= 0 ? "+" : ""}${delta} (${start + baseSteig + delta})`;
+  }
+  const baseSteig = parseInt(entry.steigInput?.value, 10) || 0;
+  const att = entry.attributeSource();
+  const attValue = att ? (parseInt(document.getElementById(`${att}-akt`)?.value, 10) || 0) : 0;
+  return `${delta >= 0 ? "+" : ""}${delta} (${baseSteig + delta + attValue})`;
+}
+
+function buildLevelUpEntries() {
+  const entries = [];
+
+  document.querySelectorAll('th[data-input]').forEach(th => {
+    const hidden = th.querySelector('input[type="hidden"]');
+    if (!hidden || hidden.value === "0") return;
+    const key = (th.getAttribute("data-input") || "").replace("-mark", "");
+    entries.push({
+      id: `attr-${key}`,
+      type: "attribute",
+      group: "attributes",
+      label: key,
+      key,
+      currentAdvances: () => parseInt(document.getElementById(`${key}-steig`)?.value, 10) || 0,
+      attributeSource: () => key,
+      apply: delta => {
+        const input = document.getElementById(`${key}-steig`);
+        const now = parseInt(input.value, 10) || 0;
+        input.value = now + delta;
+      }
+    });
+  });
+
+  document.querySelectorAll("#grund-table tr").forEach((row, idx) => {
+    if (idx === 0) return;
+    const label = row.cells[0]?.querySelector("span:last-of-type")?.textContent?.trim();
+    const att = row.cells[1]?.textContent?.trim();
+    const steigInput = row.cells[3]?.querySelector("input");
+    if (!label || !att || !steigInput) return;
+    entries.push({
+      id: `grund-${label}`,
+      type: "skill",
+      group: "basic_skills",
+      label,
+      steigInput,
+      currentAdvances: () => parseInt(steigInput.value, 10) || 0,
+      attributeSource: () => att,
+      apply: delta => {
+        const now = parseInt(steigInput.value, 10) || 0;
+        steigInput.value = now + delta;
+      }
+    });
+  });
+
+  document.querySelectorAll("#grupp-table tr").forEach((row, idx) => {
+    if (idx === 0) return;
+    const label = row.cells[0]?.querySelector("textarea,input[type='text']")?.value?.trim();
+    const sel = row.cells[1]?.querySelector("select");
+    const steigInput = row.cells[3]?.querySelector("input");
+    if (!label || !sel || !steigInput) return;
+    entries.push({
+      id: `group-${idx}-${label}`,
+      type: "skill",
+      group: "grouped_skills",
+      label,
+      steigInput,
+      currentAdvances: () => parseInt(steigInput.value, 10) || 0,
+      attributeSource: () => sel.value,
+      apply: delta => {
+        const now = parseInt(steigInput.value, 10) || 0;
+        steigInput.value = now + delta;
+      }
+    });
+  });
+
+  return entries;
+}
+
+function calculateLevelUpCost(entries, deltas) {
+  return entries.reduce((total, entry) => {
+    const delta = deltas[entry.id] || 0;
+    if (delta <= 0) return total;
+    let sum = total;
+    for (let i = 0; i < delta; i++) {
+      const advancesAtPurchase = entry.currentAdvances() + i;
+      sum += getBracketCost(advancesAtPurchase, entry.type);
+    }
+    return sum;
+  }, 0);
+}
+
+function openLevelUpOverlay() {
+  const entries = buildLevelUpEntries();
+  const deltas = Object.fromEntries(entries.map(entry => [entry.id, 0]));
+
+  const overlay = document.createElement("div");
+  overlay.className = "overlay";
+  overlay.innerHTML = `
+    <div class="overlay-content scrollable levelup-popup">
+      <h2>${t('levelup_mode')}</h2>
+      <div class="levelup-top">
+        <div><strong>${t('levelup_total_cost')}:</strong> <span id="levelup-total">0</span></div>
+        <div><strong>${t('levelup_available_xp')}:</strong> <span id="levelup-available">${getAvailableXP()}</span></div>
+        <button type="button" id="levelup-clear">🧹 ${t('levelup_clear')}</button>
+      </div>
+      <div class="levelup-cost-table-wrap">
+        <h3>${t('levelup_cost_table_title')}</h3>
+        <table class="full-width levelup-cost-table">
+          <tr>
+            <th>${t('levelup_cost_col_advances')}</th>
+            <th>${t('levelup_cost_col_attr')}</th>
+            <th>${t('levelup_cost_col_skill')}</th>
+          </tr>
+          ${levelUpCostBrackets.map(row => `
+            <tr>
+              <td>${row.min}-${row.max}</td>
+              <td>${row.attrCost}</td>
+              <td>${row.skillCost}</td>
+            </tr>
+          `).join('')}
+        </table>
+      </div>
+      <div id="levelup-tables"></div>
+      <div class="popup-buttons">
+        <button type="button" id="levelup-cancel">${t('levelup_close')}</button>
+        <button type="button" id="levelup-confirm">${t('levelup_confirm')}</button>
+      </div>
+      <p class="levelup-hint">${t('levelup_requires_full_mode')}</p>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const grouped = {
+    attributes: entries.filter(e => e.group === "attributes"),
+    basic_skills: entries.filter(e => e.group === "basic_skills"),
+    grouped_skills: entries.filter(e => e.group === "grouped_skills")
+  };
+
+  const container = overlay.querySelector("#levelup-tables");
+  const groupDefs = [
+    { key: "attributes", title: t('levelup_group_attributes') },
+    { key: "basic_skills", title: t('levelup_group_basic_skills') },
+    { key: "grouped_skills", title: t('levelup_group_grouped_skills') }
+  ];
+
+  groupDefs.forEach(group => {
+    const rows = grouped[group.key];
+    const block = document.createElement("div");
+    block.className = "levelup-group";
+    if (rows.length === 0) {
+      block.innerHTML = `<h3>${group.title}</h3><p>${t('levelup_no_available_entries')}</p>`;
+      container.appendChild(block);
+      return;
+    }
+    block.innerHTML = `
+      <h3>${group.title}</h3>
+      <table class="full-width levelup-table">
+        <tr>
+          <th>${t('levelup_col_label')}</th>
+          <th class="wsg">${t('levelup_col_minus')}</th>
+          <th class="wsg">${t('levelup_col_delta')}</th>
+          <th class="wsg">${t('levelup_col_plus')}</th>
+          <th>${t('value')}</th>
+        </tr>
+        ${rows.map(entry => `
+          <tr data-entry="${entry.id}">
+            <td class="text-left">${entry.label}</td>
+            <td class="wsg"><button type="button" data-act="minus">−</button></td>
+            <td class="wsg levelup-delta" data-delta>${formatLevelValue(entry, 0)}</td>
+            <td class="wsg"><button type="button" data-act="plus">+</button></td>
+            <td class="text-left levelup-projected">${formatLevelValue(entry, 0)}</td>
+          </tr>
+        `).join('')}
+      </table>
+    `;
+    container.appendChild(block);
+  });
+
+  function render() {
+    const total = calculateLevelUpCost(entries, deltas);
+    const available = getAvailableXP();
+    overlay.querySelector("#levelup-total").textContent = String(total);
+    overlay.querySelector("#levelup-available").textContent = String(available);
+
+    entries.forEach(entry => {
+      const row = overlay.querySelector(`tr[data-entry="${entry.id}"]`);
+      if (!row) return;
+      const delta = deltas[entry.id] || 0;
+      row.querySelector("[data-delta]").textContent = `${delta >= 0 ? "+" : ""}${delta}`;
+      row.querySelector(".levelup-projected").textContent = formatLevelValue(entry, delta);
+      row.querySelector('[data-act="plus"]').disabled = calculateLevelUpCost(entries, { ...deltas, [entry.id]: delta + 1 }) > available;
+    });
+  }
+
+  function close() {
+    overlay.remove();
+  }
+
+  overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
+  overlay.querySelector("#levelup-cancel").addEventListener("click", close);
+
+  overlay.querySelector("#levelup-clear").addEventListener("click", () => {
+    Object.keys(deltas).forEach(key => { deltas[key] = 0; });
+    render();
+  });
+
+  overlay.querySelectorAll("tr[data-entry]").forEach(row => {
+    const entry = entries.find(item => item.id === row.dataset.entry);
+    if (!entry) return;
+    row.querySelector('[data-act="minus"]').addEventListener("click", () => {
+      const minDelta = -entry.currentAdvances();
+      deltas[entry.id] = Math.max(minDelta, (deltas[entry.id] || 0) - 1);
+      render();
+    });
+    row.querySelector('[data-act="plus"]').addEventListener("click", () => {
+      const next = (deltas[entry.id] || 0) + 1;
+      const nextCost = calculateLevelUpCost(entries, { ...deltas, [entry.id]: next });
+      if (nextCost > getAvailableXP()) return;
+      deltas[entry.id] = next;
+      render();
+    });
+  });
+
+  overlay.querySelector("#levelup-confirm").addEventListener("click", () => {
+    const totalCost = calculateLevelUpCost(entries, deltas);
+    if (totalCost <= 0) {
+      close();
+      return;
+    }
+
+    const positiveEntries = entries
+      .filter(entry => (deltas[entry.id] || 0) > 0)
+      .map(entry => ({
+        entry,
+        delta: deltas[entry.id],
+        beforeAdv: entry.currentAdvances()
+      }));
+
+    entries.forEach(entry => {
+      const delta = deltas[entry.id] || 0;
+      if (delta !== 0) {
+        entry.apply(delta);
+      }
+    });
+
+    const summary = positiveEntries
+      .map(({ entry, delta, beforeAdv }) => {
+        const from = beforeAdv + 1;
+        const to = beforeAdv + delta;
+        return `${delta}*${entry.label} (${from}-${to})`;
+      }).join(", ");
+
+    const table = document.getElementById("exp-table");
+    if (table) {
+      const row = table.insertRow(-1);
+      row.innerHTML = `
+        <td><input type="number" value="${-totalCost}"></td>
+        <td><textarea rows="1">${t('levelup_xp_comment_prefix')} ${summary}</textarea></td>
+        <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('exp-table'); saveState(); updateLebenspunkte(); updateErfahrung(); updateGruppierteFaehigkeiten();">❌</button></td>
+      `;
+    }
+
+    autoAddRow("exp-table");
+    updateAttributes();
+    updateErfahrung();
+    saveState();
+    close();
+  });
+
+  render();
+}
+
 // =========================
 // 🎨 Highlighting
 // =========================
@@ -1778,6 +2080,7 @@ function initLogic() {
 
   const toggle = document.getElementById("exp-toggle");
   const addArmorButton = document.getElementById("add-armor-button");
+  const levelUpButton = document.getElementById("levelup-open");
   if (toggle) {
     toggle.addEventListener("change", () => {
       syncExperienceMode();
@@ -1787,6 +2090,9 @@ function initLogic() {
   }
   if (addArmorButton) {
     addArmorButton.addEventListener("click", openArmorDialog);
+  }
+  if (levelUpButton) {
+    levelUpButton.addEventListener("click", openLevelUpOverlay);
   }
 
   loadState();

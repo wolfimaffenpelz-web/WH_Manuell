@@ -36,6 +36,7 @@
     --shield-width: calc(var(--silhouette-width) * 0.55);
     --armor-box-size: 24px;
   --font-size-footnote: 0.8em;
+  --levelup-col-action: 46px;
 }
 
 /* ================================================
@@ -498,6 +499,41 @@ td.wsg { width: 35px; }
 
 .overlay-content .popup-buttons {
   margin-top: 10px;
+}
+
+.levelup-popup {
+  width: min(980px, 92vw);
+  text-align: left;
+}
+
+.levelup-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+#levelup-open {
+  margin-left: 10px;
+}
+
+.levelup-table th:nth-child(2),
+.levelup-table th:nth-child(3),
+.levelup-table th:nth-child(4),
+.levelup-table td:nth-child(2),
+.levelup-table td:nth-child(3),
+.levelup-table td:nth-child(4) {
+  width: var(--levelup-col-action);
+}
+
+.levelup-table td button {
+  width: 100%;
+}
+
+.levelup-group p,
+.levelup-hint {
+  margin: 6px 0;
 }
 
 /* ================================================
