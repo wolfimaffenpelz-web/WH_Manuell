@@ -1638,7 +1638,7 @@ function getAvailableXP() {
   return parseInt(document.getElementById("exp-simple-akt")?.value, 10) || 0;
 }
 
-function formatLevelValue(entry, delta = 0) {
+function formatLevelValue(entry, delta = 0, deltas = {}) {
   if (entry.type === "attribute") {
     const start = parseInt(document.getElementById(`${entry.key}-start`)?.value, 10) || 0;
     const baseSteig = parseInt(document.getElementById(`${entry.key}-steig`)?.value, 10) || 0;
@@ -1647,7 +1647,8 @@ function formatLevelValue(entry, delta = 0) {
   const baseSteig = parseInt(entry.steigInput?.value, 10) || 0;
   const att = entry.attributeSource();
   const attValue = att ? (parseInt(document.getElementById(`${att}-akt`)?.value, 10) || 0) : 0;
-  return `${delta >= 0 ? "+" : ""}${delta} (${baseSteig + delta + attValue})`;
+  const plannedAttDelta = att ? (deltas[`attr-${att}`] || 0) : 0;
+  return `${delta >= 0 ? "+" : ""}${delta} (${baseSteig + delta + attValue + plannedAttDelta})`;
 }
 
 function buildLevelUpEntries() {
@@ -1812,9 +1813,9 @@ function openLevelUpOverlay() {
           <tr data-entry="${entry.id}">
             <td class="text-left">${entry.label}</td>
             <td class="wsg"><button type="button" data-act="minus">−</button></td>
-            <td class="wsg levelup-delta" data-delta>${formatLevelValue(entry, 0)}</td>
+            <td class="wsg levelup-delta" data-delta>${formatLevelValue(entry, 0, deltas)}</td>
             <td class="wsg"><button type="button" data-act="plus">+</button></td>
-            <td class="text-left levelup-projected">${formatLevelValue(entry, 0)}</td>
+            <td class="text-left levelup-projected">${formatLevelValue(entry, 0, deltas)}</td>
           </tr>
         `).join('')}
       </table>
@@ -1833,7 +1834,7 @@ function openLevelUpOverlay() {
       if (!row) return;
       const delta = deltas[entry.id] || 0;
       row.querySelector("[data-delta]").textContent = `${delta >= 0 ? "+" : ""}${delta}`;
-      row.querySelector(".levelup-projected").textContent = formatLevelValue(entry, delta);
+      row.querySelector(".levelup-projected").textContent = formatLevelValue(entry, delta, deltas);
       row.querySelector('[data-act="plus"]').disabled = calculateLevelUpCost(entries, { ...deltas, [entry.id]: delta + 1 }) > available;
     });
   }
