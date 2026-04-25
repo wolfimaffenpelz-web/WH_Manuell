@@ -1675,6 +1675,8 @@ function buildLevelUpEntries() {
 
   document.querySelectorAll("#grund-table tr").forEach((row, idx) => {
     if (idx === 0) return;
+    const marker = row.cells[0]?.querySelector('input[type="hidden"]');
+    if (!marker || marker.value !== "1") return;
     const label = row.cells[0]?.querySelector("span:last-of-type")?.textContent?.trim();
     const att = row.cells[1]?.textContent?.trim();
     const steigInput = row.cells[3]?.querySelector("input");
@@ -1696,6 +1698,8 @@ function buildLevelUpEntries() {
 
   document.querySelectorAll("#grupp-table tr").forEach((row, idx) => {
     if (idx === 0) return;
+    const marker = row.cells[0]?.querySelector('input[type="hidden"]');
+    if (!marker || marker.value !== "1") return;
     const label = row.cells[0]?.querySelector("textarea,input[type='text']")?.value?.trim();
     const sel = row.cells[1]?.querySelector("select");
     const steigInput = row.cells[3]?.querySelector("input");
