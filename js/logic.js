@@ -1831,7 +1831,7 @@ function openLevelUpOverlay() {
         ${rows.map(entry => `
           <tr data-entry="${entry.id}">
             <td class="text-left">${entry.label}</td>
-            <td class="wsg"><button type="button" data-act="minus">−</button></td>
+            <td class="wsg"><button type="button" data-act="minus" disabled>−</button></td>
             <td class="wsg levelup-delta" data-delta>${formatAdvanceDelta(entry, 0)}</td>
             <td class="wsg"><button type="button" data-act="plus">+</button></td>
             <td class="text-left levelup-projected">${formatLevelValue(entry, 0, deltas)}</td>
@@ -1855,6 +1855,7 @@ function openLevelUpOverlay() {
       const delta = deltas[entry.id] || 0;
       row.querySelector("[data-delta]").textContent = formatAdvanceDelta(entry, delta);
       row.querySelector(".levelup-projected").textContent = formatLevelValue(entry, delta, deltas);
+      row.querySelector('[data-act="minus"]').disabled = delta <= 0;
       row.querySelector('[data-act="plus"]').disabled = calculateLevelUpCost(entries, { ...deltas, [entry.id]: delta + 1 }) > available;
     });
   }
@@ -1875,8 +1876,7 @@ function openLevelUpOverlay() {
     const entry = entries.find(item => item.id === row.dataset.entry);
     if (!entry) return;
     row.querySelector('[data-act="minus"]').addEventListener("click", () => {
-      const minDelta = -entry.currentAdvances();
-      deltas[entry.id] = Math.max(minDelta, (deltas[entry.id] || 0) - 1);
+      deltas[entry.id] = Math.max(0, (deltas[entry.id] || 0) - 1);
       render();
     });
     row.querySelector('[data-act="plus"]').addEventListener("click", () => {

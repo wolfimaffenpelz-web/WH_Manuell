@@ -605,6 +605,7 @@ td.wsg { width: 35px; }
   white-space: nowrap;
   padding-left: var(--levelup-col-action-gap);
   padding-right: var(--levelup-col-action-gap);
+  text-align: center;
 }
 
 .levelup-table td button {
