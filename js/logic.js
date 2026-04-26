@@ -1947,7 +1947,7 @@ function openLevelUpOverlay() {
       const aktVal = parseInt(simpleAkt?.value, 10) || 0;
       const ausgVal = parseInt(simpleAusg?.value, 10) || 0;
       if (simpleAkt) simpleAkt.value = String(aktVal - totalCost);
-      if (simpleAusg) simpleAusg.value = String(ausgVal - totalCost);
+      if (simpleAusg) simpleAusg.value = String(ausgVal + totalCost);
     }
     updateAttributes();
     updateErfahrung();
