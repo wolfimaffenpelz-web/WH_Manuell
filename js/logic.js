@@ -1655,13 +1655,13 @@ function formatLevelValue(entry, delta = 0, deltas = {}) {
   if (entry.type === "attribute") {
     const start = parseInt(document.getElementById(`${entry.key}-start`)?.value, 10) || 0;
     const baseSteig = parseInt(document.getElementById(`${entry.key}-steig`)?.value, 10) || 0;
-    return `${delta >= 0 ? "+" : ""}${delta} (${start + baseSteig + delta})`;
+    return `${start + baseSteig + delta}`;
   }
   const baseSteig = parseInt(entry.steigInput?.value, 10) || 0;
   const att = entry.attributeSource();
   const attValue = att ? (parseInt(document.getElementById(`${att}-akt`)?.value, 10) || 0) : 0;
   const plannedAttDelta = att ? (deltas[`attr-${att}`] || 0) : 0;
-  return `${delta >= 0 ? "+" : ""}${delta} (${baseSteig + delta + attValue + plannedAttDelta})`;
+  return `${baseSteig + delta + attValue + plannedAttDelta}`;
 }
 
 function formatAdvanceDelta(entry, delta = 0) {

@@ -50,9 +50,11 @@
   --armor-mobile-zone-value-width: 28px;  /* Breite des Zahlenfelds in Zeile 2 */
   --font-size-footnote: 0.8em;
   --levelup-col-action: 28px;
-  --levelup-col-delta: 62px;
-  --levelup-col-sum: 82px;
-  --levelup-col-sum-compact: 78px;
+  --levelup-col-action-btn: 24px;
+  --levelup-col-action-gap: 2px;
+  --levelup-col-delta: 78px;
+  --levelup-col-sum: 34px;
+  --levelup-col-sum-compact: 34px;
 }
 
 /* ================================================
@@ -565,6 +567,9 @@ td.wsg { width: 35px; }
 .levelup-table th:nth-child(4),
 .levelup-table td:nth-child(4) {
   width: var(--levelup-col-action);
+  padding-left: var(--levelup-col-action-gap);
+  padding-right: var(--levelup-col-action-gap);
+  text-align: center;
 }
 
 .levelup-table th:nth-child(3),
@@ -598,13 +603,15 @@ td.wsg { width: 35px; }
 .levelup-table th:nth-child(5),
 .levelup-table td:nth-child(5) {
   white-space: nowrap;
+  padding-left: var(--levelup-col-action-gap);
+  padding-right: var(--levelup-col-action-gap);
 }
 
 .levelup-table td button {
-  width: var(--levelup-col-action);
-  height: var(--levelup-col-action);
-  min-width: var(--levelup-col-action);
-  min-height: var(--levelup-col-action);
+  width: var(--levelup-col-action-btn);
+  height: var(--levelup-col-action-btn);
+  min-width: var(--levelup-col-action-btn);
+  min-height: var(--levelup-col-action-btn);
   display: inline-flex;
   align-items: center;
   justify-content: center;
