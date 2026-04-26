@@ -1611,7 +1611,7 @@ function updateErfahrung() {
 }
 
 const levelUpCostBrackets = [
-  { min: 0, max: 5, attrCost: 25, skillCost: 10 },
+  { min: 1, max: 5, attrCost: 25, skillCost: 10 },
   { min: 6, max: 10, attrCost: 30, skillCost: 15 },
   { min: 11, max: 15, attrCost: 40, skillCost: 20 },
   { min: 16, max: 20, attrCost: 50, skillCost: 30 },
@@ -1624,18 +1624,31 @@ const levelUpCostBrackets = [
 ];
 
 function getBracketCost(advances, type) {
-  const safeAdvances = Math.max(0, advances);
+  const safeAdvances = Math.max(1, advances);
   const bracket = levelUpCostBrackets.find(entry => safeAdvances >= entry.min && safeAdvances <= entry.max)
     || levelUpCostBrackets[levelUpCostBrackets.length - 1];
   return type === "attribute" ? bracket.attrCost : bracket.skillCost;
 }
 
-function getAvailableXP() {
-  const fullMode = document.getElementById("exp-toggle")?.checked;
-  if (fullMode) {
-    return parseInt(document.getElementById("exp-full-akt")?.value, 10) || 0;
+function getPreferredExperienceSource() {
+  const simpleTotal = parseInt(document.getElementById("exp-simple-gesamt")?.value, 10) || 0;
+  const fullTotal = parseInt(document.getElementById("exp-full-gesamt")?.value, 10) || 0;
+  if (simpleTotal > fullTotal) {
+    return {
+      mode: "simple",
+      total: simpleTotal,
+      available: parseInt(document.getElementById("exp-simple-akt")?.value, 10) || 0
+    };
   }
-  return parseInt(document.getElementById("exp-simple-akt")?.value, 10) || 0;
+  return {
+    mode: "full",
+    total: fullTotal,
+    available: parseInt(document.getElementById("exp-full-akt")?.value, 10) || 0
+  };
+}
+
+function getAvailableXP() {
+  return getPreferredExperienceSource().available;
 }
 
 function formatLevelValue(entry, delta = 0, deltas = {}) {
@@ -1729,7 +1742,7 @@ function calculateLevelUpCost(entries, deltas) {
     if (delta <= 0) return total;
     let sum = total;
     for (let i = 0; i < delta; i++) {
-      const advancesAtPurchase = entry.currentAdvances() + i;
+      const advancesAtPurchase = entry.currentAdvances() + i + 1;
       sum += getBracketCost(advancesAtPurchase, entry.type);
     }
     return sum;
@@ -1737,6 +1750,7 @@ function calculateLevelUpCost(entries, deltas) {
 }
 
 function openLevelUpOverlay() {
+  updateErfahrung();
   const entries = buildLevelUpEntries();
   const deltas = Object.fromEntries(entries.map(entry => [entry.id, 0]));
 
@@ -1824,6 +1838,7 @@ function openLevelUpOverlay() {
   });
 
   function render() {
+    updateErfahrung();
     const total = calculateLevelUpCost(entries, deltas);
     const available = getAvailableXP();
     overlay.querySelector("#levelup-total").textContent = String(total);
@@ -1869,6 +1884,7 @@ function openLevelUpOverlay() {
   });
 
   overlay.querySelector("#levelup-confirm").addEventListener("click", () => {
+    updateErfahrung();
     const totalCost = calculateLevelUpCost(entries, deltas);
     if (totalCost <= 0) {
       close();
@@ -1897,17 +1913,26 @@ function openLevelUpOverlay() {
         return `${delta}*${entry.label} (${from}-${to})`;
       }).join(", ");
 
-    const table = document.getElementById("exp-table");
-    if (table) {
-      const row = table.insertRow(-1);
-      row.innerHTML = `
-        <td><input type="number" value="${-totalCost}"></td>
-        <td><textarea rows="1">${t('levelup_xp_comment_prefix')} ${summary}</textarea></td>
-        <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('exp-table'); saveState(); updateLebenspunkte(); updateErfahrung(); updateGruppierteFaehigkeiten();">❌</button></td>
-      `;
+    const preferredSource = getPreferredExperienceSource();
+    if (preferredSource.mode === "full") {
+      const table = document.getElementById("exp-table");
+      if (table) {
+        const row = table.insertRow(-1);
+        row.innerHTML = `
+          <td><input type="number" value="${-totalCost}"></td>
+          <td><textarea rows="1">${t('levelup_xp_comment_prefix')} ${summary}</textarea></td>
+          <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('exp-table'); saveState(); updateLebenspunkte(); updateErfahrung(); updateGruppierteFaehigkeiten();">❌</button></td>
+        `;
+      }
+      autoAddRow("exp-table");
+    } else {
+      const simpleAkt = document.getElementById("exp-simple-akt");
+      const simpleAusg = document.getElementById("exp-simple-ausg");
+      const aktVal = parseInt(simpleAkt?.value, 10) || 0;
+      const ausgVal = parseInt(simpleAusg?.value, 10) || 0;
+      if (simpleAkt) simpleAkt.value = String(aktVal - totalCost);
+      if (simpleAusg) simpleAusg.value = String(ausgVal - totalCost);
     }
-
-    autoAddRow("exp-table");
     updateAttributes();
     updateErfahrung();
     saveState();

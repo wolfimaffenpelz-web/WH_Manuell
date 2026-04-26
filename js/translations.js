@@ -46,7 +46,7 @@ const baseTranslations = {
   levelup_cost_col_attr: "Nächster Attribut-Advance (XP)",
   levelup_cost_col_skill: "Nächster Skill-Advance (XP)",
   levelup_no_available_entries: "Keine verfügbaren Einträge.",
-  levelup_requires_full_mode: "Für den XP-Logeintrag wird der volle Erfahrungsmodus genutzt.",
+  levelup_requires_full_mode: "Es wird automatisch der Modus mit der höheren Gesamt-XP verwendet.",
   levelup_xp_comment_prefix: "Level Up:",
   yes: "Ja",
   no: "Nein",
