@@ -36,7 +36,9 @@
     --shield-width: calc(var(--silhouette-width) * 0.55);
     --armor-box-size: 24px;
   --font-size-footnote: 0.8em;
-  --levelup-col-action: 46px;
+  --levelup-col-action: 37px;
+  --levelup-col-sum: 90px;
+  --levelup-col-sum-compact: 72px;
 }
 
 /* ================================================
@@ -525,6 +527,24 @@ td.wsg { width: 35px; }
 .levelup-table td:nth-child(3),
 .levelup-table td:nth-child(4) {
   width: var(--levelup-col-action);
+}
+
+.levelup-table--attributes th:nth-child(5),
+.levelup-table--attributes td:nth-child(5) {
+  width: var(--levelup-col-sum);
+}
+
+.levelup-table--compact-sum th:nth-child(5),
+.levelup-table--compact-sum td:nth-child(5) {
+  width: var(--levelup-col-sum-compact);
+}
+
+.levelup-table th:nth-child(1),
+.levelup-table td:nth-child(1) {
+  width: auto;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .levelup-table td button {

@@ -1664,6 +1664,11 @@ function formatLevelValue(entry, delta = 0, deltas = {}) {
   return `${delta >= 0 ? "+" : ""}${delta} (${baseSteig + delta + attValue + plannedAttDelta})`;
 }
 
+function formatAdvanceDelta(entry, delta = 0) {
+  const totalAdvances = entry.currentAdvances() + delta;
+  return `${delta >= 0 ? "+" : ""}${delta} (${totalAdvances})`;
+}
+
 function buildLevelUpEntries() {
   const entries = [];
 
@@ -1815,19 +1820,19 @@ function openLevelUpOverlay() {
     }
     block.innerHTML = `
       <h3>${group.title}</h3>
-      <table class="full-width levelup-table">
+      <table class="full-width levelup-table ${group.key === "attributes" ? "levelup-table--attributes" : "levelup-table--compact-sum"}">
         <tr>
           <th>${t('levelup_col_label')}</th>
           <th class="wsg">${t('levelup_col_minus')}</th>
           <th class="wsg">${t('levelup_col_delta')}</th>
           <th class="wsg">${t('levelup_col_plus')}</th>
-          <th>${t('value')}</th>
+          <th>${t('total')}</th>
         </tr>
         ${rows.map(entry => `
           <tr data-entry="${entry.id}">
             <td class="text-left">${entry.label}</td>
             <td class="wsg"><button type="button" data-act="minus">−</button></td>
-            <td class="wsg levelup-delta" data-delta>${formatLevelValue(entry, 0, deltas)}</td>
+            <td class="wsg levelup-delta" data-delta>${formatAdvanceDelta(entry, 0)}</td>
             <td class="wsg"><button type="button" data-act="plus">+</button></td>
             <td class="text-left levelup-projected">${formatLevelValue(entry, 0, deltas)}</td>
           </tr>
@@ -1848,7 +1853,7 @@ function openLevelUpOverlay() {
       const row = overlay.querySelector(`tr[data-entry="${entry.id}"]`);
       if (!row) return;
       const delta = deltas[entry.id] || 0;
-      row.querySelector("[data-delta]").textContent = `${delta >= 0 ? "+" : ""}${delta}`;
+      row.querySelector("[data-delta]").textContent = formatAdvanceDelta(entry, delta);
       row.querySelector(".levelup-projected").textContent = formatLevelValue(entry, delta, deltas);
       row.querySelector('[data-act="plus"]').disabled = calculateLevelUpCost(entries, { ...deltas, [entry.id]: delta + 1 }) > available;
     });
