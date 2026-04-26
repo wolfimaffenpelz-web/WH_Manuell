@@ -548,6 +548,7 @@ sections.push(
           <span class="slider"></span>
         </label>
         <label>${t('full')}</label>
+        <button type="button" id="levelup-open">${t('levelup_open')}</button>
       </div>
 
       <!-- Simpler Modus -->
