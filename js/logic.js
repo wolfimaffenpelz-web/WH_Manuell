@@ -1917,12 +1917,28 @@ function openLevelUpOverlay() {
     if (preferredSource.mode === "full") {
       const table = document.getElementById("exp-table");
       if (table) {
-        const row = table.insertRow(-1);
-        row.innerHTML = `
-          <td><input type="number" value="${-totalCost}"></td>
-          <td><textarea rows="1">${t('levelup_xp_comment_prefix')} ${summary}</textarea></td>
-          <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('exp-table'); saveState(); updateLebenspunkte(); updateErfahrung(); updateGruppierteFaehigkeiten();">❌</button></td>
-        `;
+        const dataRows = Array.from(table.querySelectorAll("tr")).slice(1);
+        let targetRow = dataRows.find(row => {
+          const valueInput = row.cells[0]?.querySelector("input");
+          const commentInput = row.cells[1]?.querySelector("textarea");
+          const valueEmpty = !valueInput || valueInput.value.trim() === "";
+          const commentEmpty = !commentInput || commentInput.value.trim() === "";
+          return valueEmpty && commentEmpty;
+        });
+
+        if (!targetRow) {
+          targetRow = table.insertRow(-1);
+          targetRow.innerHTML = `
+            <td><input type="number"></td>
+            <td><textarea rows="1"></textarea></td>
+            <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('exp-table'); saveState(); updateLebenspunkte(); updateErfahrung(); updateGruppierteFaehigkeiten();">❌</button></td>
+          `;
+        }
+
+        const valueInput = targetRow.cells[0]?.querySelector("input");
+        const commentInput = targetRow.cells[1]?.querySelector("textarea");
+        if (valueInput) valueInput.value = String(-totalCost);
+        if (commentInput) commentInput.value = `${t('levelup_xp_comment_prefix')} ${summary}`;
       }
       autoAddRow("exp-table");
     } else {
