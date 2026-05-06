@@ -1,4 +1,4 @@
-const CACHE_NAME = "charakterbogen-cache-v2";
+const CACHE_NAME = "charakterbogen-cache-v3";
 const ASSETS = [
   "/",              // Root
   "/index.html",         // Hauptdokument
@@ -9,7 +9,19 @@ const ASSETS = [
   "/js/logic.js",        // Logik
   "/manifest.json",      // PWA Manifest
   "/img/appicon.png",    // App-Icon
-  "/img/splash.png"      // Splashscreen
+  "/img/splash.png",     // Splashscreen
+  "/img/state-bleeding.svg",
+  "/img/state-blinded.svg",
+  "/img/state-broken.svg",
+  "/img/state-burning.svg",
+  "/img/state-deafened.svg",
+  "/img/state-entangled.svg",
+  "/img/state-fatigued.svg",
+  "/img/state-poisoned.svg",
+  "/img/state-prone.svg",
+  "/img/state-stunned.svg",
+  "/img/state-surprised.svg",
+  "/img/state-unconscious.svg"
 ];
 
 self.addEventListener("install", e => {

@@ -2004,6 +2004,85 @@ function clampStateValue(value) {
   return Math.max(0, Math.min(99, value));
 }
 
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function formatSignedPenalty(value) {
+  return `${value < 0 ? '' : '-'}${Math.abs(value)}`;
+}
+
+function getStateCount(stateKey) {
+  const input = document.getElementById(`state-${stateKey}-value`);
+  return clampStateValue(parseInt(input?.value, 10) || 0);
+}
+
+function addStateSummary(items, label, detail) {
+  if (!detail) return;
+  items.push(`<span class="state-effect-chip"><strong>${escapeHtml(label)}:</strong> ${escapeHtml(detail)}</span>`);
+}
+
+function buildStateEffectSummary() {
+  const activeCards = Array.from(document.querySelectorAll('[data-state-card].active'));
+  if (activeCards.length === 0) {
+    return `<span class="state-effect-placeholder">${t('states_effects_empty')}</span>`;
+  }
+
+  const values = Object.fromEntries(activeCards.map(card => [card.dataset.stateKey, getStateCount(card.dataset.stateKey)]));
+  const items = [];
+  const allTestPenalties = [
+    values.fatigued ? { name: t('state_fatigued'), value: -10 * values.fatigued } : null,
+    values.poisoned ? { name: t('state_poisoned'), value: -10 * values.poisoned } : null,
+    values.stunned ? { name: t('state_stunned'), value: -10 * values.stunned } : null
+  ].filter(Boolean);
+  const strongestAllTestPenalty = allTestPenalties.reduce((best, current) => !best || current.value < best.value ? current : best, null);
+
+  addStateSummary(items, t('state_summary_label'), activeCards.map(card => {
+    const name = card.dataset.stateName || card.dataset.stateKey;
+    const isBinary = card.dataset.stateBinary === 'true';
+    const value = values[card.dataset.stateKey] || 0;
+    return isBinary ? name : `${name} ${value}`;
+  }).join(', '));
+
+  if (strongestAllTestPenalty) {
+    const sources = allTestPenalties.map(entry => `${entry.name} ${formatSignedPenalty(entry.value)}`).join(', ');
+    addStateSummary(items, t('state_summary_all_tests'), `${formatSignedPenalty(strongestAllTestPenalty.value)} (${strongestAllTestPenalty.name}; ${sources})`);
+  }
+
+  if (values.blinded) addStateSummary(items, t('state_summary_sight_tests'), `${formatSignedPenalty(-10 * values.blinded)}; ${t('state_summary_melee_against_you')} +${10 * values.blinded}`);
+  if (values.deafened) addStateSummary(items, t('state_summary_hearing_tests'), `${formatSignedPenalty(-10 * values.deafened)}; ${t('state_summary_flank_rear_plus10')}`);
+  if (values.broken) addStateSummary(items, t('state_summary_not_run_hide'), `${formatSignedPenalty(-10 * values.broken)}; ${t('state_summary_must_flee_hide')}`);
+
+  const movementPenalties = [
+    values.entangled ? { name: t('state_entangled'), value: -10 * values.entangled, note: t('state_summary_no_normal_move') } : null,
+    values.prone ? { name: t('state_prone'), value: -20, note: t('state_summary_stand_or_crawl') } : null
+  ].filter(Boolean);
+  const strongestMovementPenalty = movementPenalties.reduce((best, current) => !best || current.value < best.value ? current : best, null);
+  if (strongestMovementPenalty) {
+    addStateSummary(items, t('state_summary_movement_tests'), `${formatSignedPenalty(strongestMovementPenalty.value)} (${strongestMovementPenalty.name}; ${strongestMovementPenalty.note})`);
+  }
+
+  if (values.bleeding) {
+    addStateSummary(items, t('state_summary_wounds_end_round'), `${formatSignedPenalty(values.bleeding)} ${t('state_summary_bleeding_wounds')} ${t('state_bleeding')}; ${t('state_summary_infection_penalty')} ${formatSignedPenalty(-10 * values.bleeding)}`);
+  }
+  if (values.poisoned) addStateSummary(items, t('state_summary_poison_end_round'), `${formatSignedPenalty(values.poisoned)} LP; ${t('state_summary_no_heal_until_poison_removed')}`);
+  if (values.burning) addStateSummary(items, t('state_summary_fire_end_round'), `1W10${values.burning > 1 ? `+${values.burning - 1}` : ''} ${t('state_summary_damage_minimum')}`);
+  if (values.prone) addStateSummary(items, t('state_summary_melee_opponents'), t('state_summary_melee_plus20_prone'));
+  if (values.stunned) addStateSummary(items, t('state_stunned'), t('state_summary_stunned_detail'));
+  if (values.surprised) addStateSummary(items, t('state_surprised'), t('state_summary_surprised_detail'));
+  if (values.unconscious) addStateSummary(items, t('state_unconscious'), t('state_summary_unconscious_detail'));
+
+  items.push(`<span class="state-effect-placeholder">${escapeHtml(t('states_effects_stack_hint'))}</span>`);
+  items.push(`<span class="state-effect-placeholder">${escapeHtml(t('state_info_future_hint'))}</span>`);
+  return items.join('');
+}
+
 function setStateCardActive(stateKey, active, { resetValue = false } = {}) {
   const card = document.querySelector(`[data-state-card][data-state-key="${stateKey}"]`);
   const toggle = document.getElementById(`state-${stateKey}-toggle`);
@@ -2029,20 +2108,7 @@ function setStateCardActive(stateKey, active, { resetValue = false } = {}) {
 function updateStatesSummary() {
   const container = document.getElementById('states-summary');
   if (!container) return;
-  const activeCards = Array.from(document.querySelectorAll('[data-state-card].active'));
-  if (activeCards.length === 0) {
-    container.innerHTML = `<span class="state-effect-placeholder">${t('states_effects_empty')}</span>`;
-    return;
-  }
-  container.innerHTML = activeCards.map(card => {
-    const stateKey = card.dataset.stateKey;
-    const name = card.dataset.stateName || stateKey;
-    const effect = card.dataset.stateEffect || t('state_effects_none');
-    const isBinary = card.dataset.stateBinary === 'true';
-    const value = document.getElementById(`state-${stateKey}-value`)?.value || '0';
-    const label = isBinary ? name : `${name} ${value}`;
-    return `<span class="state-effect-chip" title="${effect}">${label}</span>`;
-  }).join('');
+  container.innerHTML = buildStateEffectSummary();
 }
 
 function changeStateValue(stateKey, delta) {
@@ -2067,9 +2133,11 @@ function openStateInfo(stateKey) {
   overlay.className = 'overlay';
   overlay.innerHTML = `
     <div class="overlay-content">
-      <h2>${card.dataset.stateName}</h2>
+      <h2>${escapeHtml(card.dataset.stateName)}</h2>
       <p><strong>${t('state_info_stage_label')}:</strong> ${isBinary ? t((parseInt(input.value, 10) || 0) > 0 ? 'state_active_binary' : 'state_inactive_binary') : input.value}</p>
-      <p><strong>${t('state_info_effects_label')}:</strong> ${card.dataset.stateEffect}</p>
+      <p><strong>${t('state_info_effects_label')}:</strong> ${escapeHtml(card.dataset.stateEffect || t('state_effects_none'))}</p>
+      <p><strong>${t('state_info_description_label')}:</strong> ${escapeHtml(card.dataset.stateDescription || t('state_effects_none'))}</p>
+      <p>${t('state_all_advantage_lost')}</p>
       <p>${t('state_info_future_hint')}</p>
       <button type="button" id="state-info-close">${t('ok')}</button>
     </div>
