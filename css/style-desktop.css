@@ -43,9 +43,11 @@
   --levelup-col-sum: 34px;
   --levelup-col-sum-compact: 34px;
   --state-icon-column-width: 64px;
+  --state-icon-size: 56px;
   --state-card-gap: 10px;
   --state-control-size: 24px;
   --state-step-control-size: 29px;
+  --state-count-width: 1.8ch;
   --state-name-min-height: calc(var(--row-height) * 1.4);
 }
 
@@ -1310,8 +1312,8 @@ main td:first-child {
 }
 
 .state-icon-button {
-  width: 56px;
-  height: 56px;
+  width: var(--state-icon-size);
+  height: var(--state-icon-size);
   padding: 0;
 }
 
@@ -1359,13 +1361,14 @@ main td:first-child {
 }
 
 .state-counter {
-  grid-template-columns: var(--state-step-control-size) minmax(2.6ch, 1fr) var(--state-step-control-size) var(--state-control-size);
+  grid-template-columns: var(--state-step-control-size) var(--state-count-width) var(--state-step-control-size) var(--state-control-size);
   gap: 4px;
 }
 
 .state-counter input {
-  width: 100%;
-  min-width: 2.6ch;
+  width: var(--state-count-width);
+  min-width: var(--state-count-width);
+  max-width: var(--state-count-width);
   text-align: center;
 }
 

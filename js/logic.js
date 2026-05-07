@@ -2001,7 +2001,7 @@ document.addEventListener("focusout", e => {
 });
 
 function clampStateValue(value) {
-  return Math.max(0, Math.min(99, value));
+  return Math.max(0, Math.min(9, value));
 }
 
 
