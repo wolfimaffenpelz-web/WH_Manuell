@@ -1341,17 +1341,17 @@ th[data-input]::before {
 .state-controls {
   display: grid;
   align-items: center;
-  justify-self: end;
+  justify-self: stretch;
   min-height: var(--row-height);
 }
 
 .state-controls-binary {
-  grid-template-columns: max-content var(--state-control-size);
+  grid-template-columns: minmax(0, 1fr) var(--state-control-size);
   gap: 4px;
 }
 
 .state-counter {
-  grid-template-columns: var(--state-step-control-size) var(--state-count-width) var(--state-step-control-size) var(--state-control-size);
+  grid-template-columns: var(--state-step-control-size) var(--state-count-width) var(--state-step-control-size) minmax(0, 1fr) var(--state-control-size);
   gap: 4px;
 }
 
