@@ -55,8 +55,8 @@
   --levelup-col-delta: 78px;
   --levelup-col-sum: 34px;
   --levelup-col-sum-compact: 34px;
-  --state-icon-column-width: 42px;
-  --state-icon-size: 40px;
+  --state-icon-column-width: 50px;
+  --state-icon-size: 48px;
   --state-card-gap: 4px;
   --state-control-size: 22px;
   --state-step-control-size: 24px;
@@ -1301,6 +1301,8 @@ th[data-input]::before {
 .state-icon-button {
   width: var(--state-icon-size);
   height: var(--state-icon-size);
+  align-self: center;
+  justify-self: center;
   padding: 0;
 }
 
@@ -1339,11 +1341,12 @@ th[data-input]::before {
 .state-controls {
   display: grid;
   align-items: center;
+  justify-self: end;
   min-height: var(--row-height);
 }
 
 .state-controls-binary {
-  grid-template-columns: minmax(0, 1fr) var(--state-control-size);
+  grid-template-columns: max-content var(--state-control-size);
   gap: 4px;
 }
 
