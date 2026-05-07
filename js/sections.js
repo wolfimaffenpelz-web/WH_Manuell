@@ -34,17 +34,20 @@ function renderConditionCards() {
       <div class="state-body ${condition.binary ? 'state-body-binary' : ''}">
         <div class="state-name">${t(condition.translationKey)}</div>
         ${condition.binary ? `
-          <div class="state-binary-value" id="state-${condition.key}-binary">${t('state_inactive_binary')}</div>
-          <input type="hidden" id="state-${condition.key}-value" value="0">
+          <div class="state-controls state-controls-binary">
+            <div class="state-binary-value" id="state-${condition.key}-binary">${t('state_inactive_binary')}</div>
+            <input type="hidden" id="state-${condition.key}-value" value="0">
+            <button type="button" class="state-info-button" data-state-info data-state-key="${condition.key}" title="${t('state_info')}">i</button>
+          </div>
         ` : `
-          <div class="state-counter" aria-label="${t('state_stage')}">
-            <button type="button" class="state-step-button" data-state-step data-direction="up" data-state-key="${condition.key}" aria-label="${t('state_stage')} +1">▲</button>
+          <div class="state-controls state-counter" aria-label="${t('state_stage')}">
+            <button type="button" class="state-step-button" data-state-step data-direction="down" data-state-key="${condition.key}" aria-label="${t('state_stage')} -1">◀</button>
             <input type="number" id="state-${condition.key}-value" min="0" max="99" value="0" readonly>
-            <button type="button" class="state-step-button" data-state-step data-direction="down" data-state-key="${condition.key}" aria-label="${t('state_stage')} -1">▼</button>
+            <button type="button" class="state-step-button" data-state-step data-direction="up" data-state-key="${condition.key}" aria-label="${t('state_stage')} +1">▶</button>
+            <button type="button" class="state-info-button" data-state-info data-state-key="${condition.key}" title="${t('state_info')}">i</button>
           </div>
         `}
       </div>
-      <button type="button" class="state-info-button" data-state-info data-state-key="${condition.key}" title="${t('state_info')}">i</button>
     </article>
   `).join('');
 }

@@ -42,7 +42,13 @@
   --levelup-col-delta: 78px;
   --levelup-col-sum: 34px;
   --levelup-col-sum-compact: 34px;
+  --state-icon-column-width: 64px;
+  --state-card-gap: 10px;
+  --state-control-size: 24px;
+  --state-step-control-size: 29px;
+  --state-name-min-height: calc(var(--row-height) * 1.4);
 }
+
 
 /* ================================================
    Segmentübergreifende Styles
@@ -1287,9 +1293,9 @@ main td:first-child {
 
 .state-card {
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr) 32px;
-  align-items: center;
-  gap: 10px;
+  grid-template-columns: var(--state-icon-column-width) minmax(0, 1fr);
+  align-items: stretch;
+  gap: var(--state-card-gap);
   padding: 6px 8px;
   background: var(--color-bg);
 }
@@ -1330,24 +1336,45 @@ main td:first-child {
 .state-body {
   min-width: 0;
   display: grid;
-  gap: 4px;
-}
-
-.state-name {
-  font-weight: bold;
-  line-height: 1.1;
-}
-
-.state-counter {
-  display: grid;
-  grid-template-columns: 24px minmax(0, 1fr) 24px;
+  grid-template-rows: minmax(var(--state-name-min-height), auto) minmax(var(--row-height), auto);
   gap: 4px;
   align-items: center;
 }
 
+.state-name {
+  align-self: center;
+  font-weight: bold;
+  line-height: 1.1;
+}
+
+.state-controls {
+  display: grid;
+  align-items: center;
+  min-height: var(--row-height);
+}
+
+.state-controls-binary {
+  grid-template-columns: minmax(0, 1fr) var(--state-control-size);
+  gap: 4px;
+}
+
+.state-counter {
+  grid-template-columns: var(--state-step-control-size) minmax(2.6ch, 1fr) var(--state-step-control-size) var(--state-control-size);
+  gap: 4px;
+}
+
 .state-counter input {
-  min-width: 0;
+  width: 100%;
+  min-width: 2.6ch;
   text-align: center;
+}
+
+.state-step-button {
+  width: var(--state-step-control-size);
+  min-height: var(--state-step-control-size);
+  padding: 0;
+  font-size: 1.2em;
+  line-height: 1;
 }
 
 .state-binary-value {
@@ -1365,8 +1392,8 @@ main td:first-child {
 }
 
 .state-info-button {
-  width: 24px;
-  height: 24px;
+  width: var(--state-control-size);
+  height: var(--state-control-size);
   justify-self: end;
   padding: 0;
 }

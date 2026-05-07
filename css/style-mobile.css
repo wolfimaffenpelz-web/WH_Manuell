@@ -55,7 +55,13 @@
   --levelup-col-delta: 78px;
   --levelup-col-sum: 34px;
   --levelup-col-sum-compact: 34px;
+  --state-icon-column-width: 64px;
+  --state-card-gap: 10px;
+  --state-control-size: 24px;
+  --state-step-control-size: 29px;
+  --state-name-min-height: calc(var(--row-height) * 1.4);
 }
+
 
 /* ================================================
    Segmentübergreifende Styles
@@ -1267,16 +1273,16 @@ th[data-input]::before {
 
 .state-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1px;
   background: var(--color-table-line);
 }
 
 .state-card {
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr) 32px;
-  align-items: center;
-  gap: 10px;
+  grid-template-columns: var(--state-icon-column-width) minmax(0, 1fr);
+  align-items: stretch;
+  gap: var(--state-card-gap);
   padding: 6px 8px;
   background: var(--color-bg);
 }
@@ -1317,28 +1323,45 @@ th[data-input]::before {
 .state-body {
   min-width: 0;
   display: grid;
+  grid-template-rows: minmax(var(--state-name-min-height), auto) minmax(var(--row-height), auto);
   gap: 4px;
+  align-items: center;
 }
 
 .state-name {
+  align-self: center;
   font-weight: bold;
   line-height: 1.1;
 }
 
-.state-counter {
+.state-controls {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-auto-rows: min-content;
-  justify-items: center;
-  gap: 2px;
   align-items: center;
+  min-height: var(--row-height);
+}
+
+.state-controls-binary {
+  grid-template-columns: minmax(0, 1fr) var(--state-control-size);
+  gap: 4px;
+}
+
+.state-counter {
+  grid-template-columns: var(--state-step-control-size) minmax(2.6ch, 1fr) var(--state-step-control-size) var(--state-control-size);
+  gap: 4px;
 }
 
 .state-counter input {
-  width: 2ch;
-  max-width: 2ch;
-  min-width: 2ch;
+  width: 100%;
+  min-width: 2.6ch;
   text-align: center;
+}
+
+.state-step-button {
+  width: var(--state-step-control-size);
+  min-height: var(--state-step-control-size);
+  padding: 0;
+  font-size: 1.2em;
+  line-height: 1;
 }
 
 .state-binary-value {
@@ -1356,8 +1379,8 @@ th[data-input]::before {
 }
 
 .state-info-button {
-  width: 24px;
-  height: 24px;
+  width: var(--state-control-size);
+  height: var(--state-control-size);
   justify-self: end;
   padding: 0;
 }
