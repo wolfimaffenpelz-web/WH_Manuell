@@ -3,21 +3,23 @@
 
 // Zustand-Definitionen für die Zustände-Sektion
 const conditionDefinitions = [
-  { key: "blinded", translationKey: "state_blinded", icon: "img/state-blinded.svg", effectKey: "state_effects_none", binary: false },
-  { key: "bleeding", translationKey: "state_bleeding", icon: "img/state-bleeding.svg", effectKey: "state_effects_none", binary: false },
-  { key: "burning", translationKey: "state_burning", icon: "img/state-burning.svg", effectKey: "state_effects_none", binary: false },
-  { key: "broken", translationKey: "state_broken", icon: "img/state-broken.svg", effectKey: "state_effects_none", binary: false },
-  { key: "deafened", translationKey: "state_deafened", icon: "img/state-deafened.svg", effectKey: "state_effects_none", binary: false },
-  { key: "entangled", translationKey: "state_entangled", icon: "img/state-entangled.svg", effectKey: "state_effects_none", binary: false },
-  { key: "fatigued", translationKey: "state_fatigued", icon: "img/state-fatigued.svg", effectKey: "state_effects_none", binary: false },
-  { key: "poisoned", translationKey: "state_poisoned", icon: "img/state-poisoned.svg", effectKey: "state_effects_none", binary: false },
-  { key: "prone", translationKey: "state_prone", icon: "img/state-prone.svg", effectKey: "state_effects_none", binary: true },
-  { key: "stunned", translationKey: "state_unconscious", icon: "img/state-stunned.svg", effectKey: "state_effects_none", binary: true }
+  { key: "stunned", translationKey: "state_stunned", icon: "img/state-stunned.svg", effectKey: "state_stunned_effect", descriptionKey: "state_stunned_description", binary: false },
+  { key: "unconscious", translationKey: "state_unconscious", icon: "img/state-unconscious.svg", effectKey: "state_unconscious_effect", descriptionKey: "state_unconscious_description", binary: true },
+  { key: "bleeding", translationKey: "state_bleeding", icon: "img/state-bleeding.svg", effectKey: "state_bleeding_effect", descriptionKey: "state_bleeding_description", binary: false },
+  { key: "burning", translationKey: "state_burning", icon: "img/state-burning.svg", effectKey: "state_burning_effect", descriptionKey: "state_burning_description", binary: false },
+  { key: "broken", translationKey: "state_broken", icon: "img/state-broken.svg", effectKey: "state_broken_effect", descriptionKey: "state_broken_description", binary: false },
+  { key: "fatigued", translationKey: "state_fatigued", icon: "img/state-fatigued.svg", effectKey: "state_fatigued_effect", descriptionKey: "state_fatigued_description", binary: false },
+  { key: "deafened", translationKey: "state_deafened", icon: "img/state-deafened.svg", effectKey: "state_deafened_effect", descriptionKey: "state_deafened_description", binary: false },
+  { key: "blinded", translationKey: "state_blinded", icon: "img/state-blinded.svg", effectKey: "state_blinded_effect", descriptionKey: "state_blinded_description", binary: false },
+  { key: "entangled", translationKey: "state_entangled", icon: "img/state-entangled.svg", effectKey: "state_entangled_effect", descriptionKey: "state_entangled_description", binary: false },
+  { key: "prone", translationKey: "state_prone", icon: "img/state-prone.svg", effectKey: "state_prone_effect", descriptionKey: "state_prone_description", binary: true },
+  { key: "surprised", translationKey: "state_surprised", icon: "img/state-surprised.svg", effectKey: "state_surprised_effect", descriptionKey: "state_surprised_description", binary: true },
+  { key: "poisoned", translationKey: "state_poisoned", icon: "img/state-poisoned.svg", effectKey: "state_poisoned_effect", descriptionKey: "state_poisoned_description", binary: false }
 ];
 
 function renderConditionCards() {
   return conditionDefinitions.map(condition => `
-    <article class="state-card" data-state-card data-state-key="${condition.key}" data-state-name="${t(condition.translationKey)}" data-state-effect="${t(condition.effectKey)}" data-state-binary="${condition.binary ? 'true' : 'false'}">
+    <article class="state-card" data-state-card data-state-key="${condition.key}" data-state-name="${t(condition.translationKey)}" data-state-effect="${t(condition.effectKey)}" data-state-description="${t(condition.descriptionKey)}" data-state-binary="${condition.binary ? 'true' : 'false'}">
       <button
         type="button"
         class="state-icon-button inactive"
@@ -32,17 +34,20 @@ function renderConditionCards() {
       <div class="state-body ${condition.binary ? 'state-body-binary' : ''}">
         <div class="state-name">${t(condition.translationKey)}</div>
         ${condition.binary ? `
-          <div class="state-binary-value" id="state-${condition.key}-binary">${t('state_inactive_binary')}</div>
-          <input type="hidden" id="state-${condition.key}-value" value="0">
+          <div class="state-controls state-controls-binary">
+            <div class="state-binary-value" id="state-${condition.key}-binary">${t('state_inactive_binary')}</div>
+            <input type="hidden" id="state-${condition.key}-value" value="0">
+            <button type="button" class="state-info-button" data-state-info data-state-key="${condition.key}" title="${t('state_info')}">i</button>
+          </div>
         ` : `
-          <div class="state-counter" aria-label="${t('state_stage')}">
-            <button type="button" class="state-step-button" data-state-step data-direction="up" data-state-key="${condition.key}" aria-label="${t('state_stage')} +1">▲</button>
-            <input type="number" id="state-${condition.key}-value" min="0" max="99" value="0" readonly>
-            <button type="button" class="state-step-button" data-state-step data-direction="down" data-state-key="${condition.key}" aria-label="${t('state_stage')} -1">▼</button>
+          <div class="state-controls state-counter" aria-label="${t('state_stage')}">
+            <button type="button" class="state-step-button" data-state-step data-direction="down" data-state-key="${condition.key}" aria-label="${t('state_stage')} -1">◀</button>
+            <input type="number" id="state-${condition.key}-value" min="0" max="9" step="1" inputmode="numeric" value="0" readonly>
+            <button type="button" class="state-step-button" data-state-step data-direction="up" data-state-key="${condition.key}" aria-label="${t('state_stage')} +1">▶</button>
+            <button type="button" class="state-info-button" data-state-info data-state-key="${condition.key}" title="${t('state_info')}">i</button>
           </div>
         `}
       </div>
-      <button type="button" class="state-info-button" data-state-info data-state-key="${condition.key}" title="${t('state_info')}">i</button>
     </article>
   `).join('');
 }
