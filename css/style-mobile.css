@@ -1346,8 +1346,17 @@ th[data-input]::before {
 }
 
 .state-controls-binary {
-  grid-template-columns: minmax(0, 1fr) var(--state-control-size);
+  grid-template-columns: var(--state-step-control-size) var(--state-count-width) var(--state-step-control-size) minmax(0, 1fr) var(--state-control-size);
   gap: 4px;
+}
+
+.state-controls-binary .state-binary-value {
+  grid-column: 1 / 4;
+}
+
+.state-controls-binary .state-info-button,
+.state-counter .state-info-button {
+  grid-column: 4;
 }
 
 .state-counter {
