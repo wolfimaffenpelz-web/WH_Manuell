@@ -1342,7 +1342,7 @@ th[data-input]::before {
   display: grid;
   align-items: center;
   justify-self: stretch;
-  min-height: var(--row-height);
+  min-height: var(--state-step-control-size);
 }
 
 .state-controls-binary {
@@ -1371,6 +1371,7 @@ th[data-input]::before {
 }
 
 .state-binary-value {
+  align-self: center;
   opacity: 0.75;
 }
 
@@ -1387,6 +1388,7 @@ th[data-input]::before {
 .state-info-button {
   width: var(--state-control-size);
   height: var(--state-control-size);
+  align-self: center;
   justify-self: end;
   padding: 0;
 }
