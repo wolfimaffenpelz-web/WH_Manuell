@@ -639,6 +639,7 @@ function loadState() {
   syncExperienceMode();
   updateAttributes();
   restoreMarkers();
+  syncStateCardsFromInputs();
   ensureInitialRows();
   updateCharacterDisplay();
 }
@@ -2105,6 +2106,18 @@ function setStateCardActive(stateKey, active, { resetValue = false } = {}) {
   }
 }
 
+function syncStateCardsFromInputs() {
+  document.querySelectorAll('[data-state-card]').forEach(card => {
+    const stateKey = card.dataset.stateKey;
+    const input = document.getElementById(`state-${stateKey}-value`);
+    if (!input) return;
+    const value = clampStateValue(parseInt(input.value, 10) || 0);
+    input.value = String(value);
+    setStateCardActive(stateKey, value > 0, { resetValue: value === 0 });
+  });
+  updateStatesSummary();
+}
+
 function updateStatesSummary() {
   const container = document.getElementById('states-summary');
   if (!container) return;
@@ -2153,11 +2166,6 @@ function initStatesSection() {
     const stateKey = card.dataset.stateKey;
     const input = document.getElementById(`state-${stateKey}-value`);
     const toggle = card.querySelector('[data-state-toggle]');
-    if (input) {
-      input.value = String(clampStateValue(parseInt(input.value, 10) || 0));
-    }
-    const active = (parseInt(input?.value, 10) || 0) > 0;
-    setStateCardActive(stateKey, active, { resetValue: !active });
     toggle?.addEventListener('click', () => {
       const isActive = card.classList.contains('active');
       setStateCardActive(stateKey, !isActive, { resetValue: isActive });
@@ -2178,7 +2186,7 @@ function initStatesSection() {
     button.addEventListener('click', () => openStateInfo(button.dataset.stateKey));
   });
 
-  updateStatesSummary();
+  syncStateCardsFromInputs();
 }
 
 // =========================
