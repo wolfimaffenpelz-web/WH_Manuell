@@ -1,5 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="state-prone.svg">
   <rect x="4" y="4" width="56" height="56" rx="12" fill="#a0522d" stroke="#111" stroke-width="3"/>
-  <circle cx="32" cy="32" r="18" fill="#f6e7c1" opacity="0.9"/>
-  <text x="32" y="40" text-anchor="middle" font-size="24" font-family="Segoe UI Symbol, DejaVu Sans, Arial" fill="#111">↧</text>
+  <circle cx="32" cy="32" r="18" fill="#f6e7c1" opacity=".92"/>
+  <circle cx="21" cy="40" r="5" fill="#111"/>
+  <path fill="#111" d="M27 38h23v7H27zM36 30l11 5-3 6-11-5zM25 34l9-10 5 5-9 10zM15 47h38v5H15z"/>
+  <path fill="#111" d="M40 31l-6-8h3v-8h5v8h4z"/>
 </svg>

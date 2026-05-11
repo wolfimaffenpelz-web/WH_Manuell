@@ -1,5 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="state-unconscious.svg">
   <rect x="4" y="4" width="56" height="56" rx="12" fill="#2f2f3f" stroke="#111" stroke-width="3"/>
-  <circle cx="32" cy="32" r="18" fill="#f6e7c1" opacity="0.9"/>
-  <text x="32" y="40" text-anchor="middle" font-size="22" font-family="Segoe UI Symbol, DejaVu Sans, Arial" fill="#111">Zz</text>
+  <circle cx="32" cy="32" r="18" fill="#f6e7c1" opacity=".92"/>
+  <path fill="#111" d="M19 31c4-7 10-10 18-8 8 1 12 7 13 15-5 3-11 4-18 3s-11-5-13-10z"/>
+  <path fill="#f6e7c1" d="M24 30c4 3 10 5 19 4-2-5-6-8-12-8-3 0-6 1-7 4z"/>
+  <path fill="#111" d="M24 30c6 5 14 6 22 2l2 4c-9 5-19 3-26-3l2-3zM20 43h18v5H20z"/>
 </svg>
