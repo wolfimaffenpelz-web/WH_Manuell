@@ -3,18 +3,18 @@
 
 // Zustand-Definitionen für die Zustände-Sektion
 const conditionDefinitions = [
-  { key: "stunned", translationKey: "state_stunned", icon: "img/state-stunned.svg", effectKey: "state_stunned_effect", descriptionKey: "state_stunned_description", binary: false },
-  { key: "unconscious", translationKey: "state_unconscious", icon: "img/state-unconscious.svg", effectKey: "state_unconscious_effect", descriptionKey: "state_unconscious_description", binary: true },
-  { key: "bleeding", translationKey: "state_bleeding", icon: "img/state-bleeding.svg", effectKey: "state_bleeding_effect", descriptionKey: "state_bleeding_description", binary: false },
-  { key: "burning", translationKey: "state_burning", icon: "img/state-burning.svg", effectKey: "state_burning_effect", descriptionKey: "state_burning_description", binary: false },
-  { key: "broken", translationKey: "state_broken", icon: "img/state-broken.svg", effectKey: "state_broken_effect", descriptionKey: "state_broken_description", binary: false },
-  { key: "fatigued", translationKey: "state_fatigued", icon: "img/state-fatigued.svg", effectKey: "state_fatigued_effect", descriptionKey: "state_fatigued_description", binary: false },
-  { key: "deafened", translationKey: "state_deafened", icon: "img/state-deafened.svg", effectKey: "state_deafened_effect", descriptionKey: "state_deafened_description", binary: false },
-  { key: "blinded", translationKey: "state_blinded", icon: "img/state-blinded.svg", effectKey: "state_blinded_effect", descriptionKey: "state_blinded_description", binary: false },
-  { key: "entangled", translationKey: "state_entangled", icon: "img/state-entangled.svg", effectKey: "state_entangled_effect", descriptionKey: "state_entangled_description", binary: false },
-  { key: "prone", translationKey: "state_prone", icon: "img/state-prone.svg", effectKey: "state_prone_effect", descriptionKey: "state_prone_description", binary: true },
-  { key: "surprised", translationKey: "state_surprised", icon: "img/state-surprised.svg", effectKey: "state_surprised_effect", descriptionKey: "state_surprised_description", binary: true },
-  { key: "poisoned", translationKey: "state_poisoned", icon: "img/state-poisoned.svg", effectKey: "state_poisoned_effect", descriptionKey: "state_poisoned_description", binary: false }
+  { key: "stunned", translationKey: "state_stunned", icon: "img/stunned.png", effectKey: "state_stunned_effect", descriptionKey: "state_stunned_description", binary: false },
+  { key: "unconscious", translationKey: "state_unconscious", icon: "img/unconcious.png", effectKey: "state_unconscious_effect", descriptionKey: "state_unconscious_description", binary: true },
+  { key: "bleeding", translationKey: "state_bleeding", icon: "img/bleeding.png", effectKey: "state_bleeding_effect", descriptionKey: "state_bleeding_description", binary: false },
+  { key: "burning", translationKey: "state_burning", icon: "img/ablaze.png", effectKey: "state_burning_effect", descriptionKey: "state_burning_description", binary: false },
+  { key: "broken", translationKey: "state_broken", icon: "img/broken.png", effectKey: "state_broken_effect", descriptionKey: "state_broken_description", binary: false },
+  { key: "fatigued", translationKey: "state_fatigued", icon: "img/exhausted.png", effectKey: "state_fatigued_effect", descriptionKey: "state_fatigued_description", binary: false },
+  { key: "deafened", translationKey: "state_deafened", icon: "img/deafened.png", effectKey: "state_deafened_effect", descriptionKey: "state_deafened_description", binary: false },
+  { key: "blinded", translationKey: "state_blinded", icon: "img/blinded.png", effectKey: "state_blinded_effect", descriptionKey: "state_blinded_description", binary: false },
+  { key: "entangled", translationKey: "state_entangled", icon: "img/entangled.png", effectKey: "state_entangled_effect", descriptionKey: "state_entangled_description", binary: false },
+  { key: "prone", translationKey: "state_prone", icon: "img/prone.png", effectKey: "state_prone_effect", descriptionKey: "state_prone_description", binary: true },
+  { key: "surprised", translationKey: "state_surprised", icon: "img/surpised.png", effectKey: "state_surprised_effect", descriptionKey: "state_surprised_description", binary: true },
+  { key: "poisoned", translationKey: "state_poisoned", icon: "img/poisoned.png", effectKey: "state_poisoned_effect", descriptionKey: "state_poisoned_description", binary: false }
 ];
 
 function renderConditionCards() {
