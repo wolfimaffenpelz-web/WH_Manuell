@@ -9,6 +9,8 @@
   --color-field: #f8d7d7;
   --color-readonly: #e6e6e6;
   --color-highlight: #9E9E9E;
+  --color-baggage: #8b5a2b;
+  --color-baggage-border: #5c3317;
   --color-positive: green;
   --color-negative: darkred;
   --color-attr-cross: #add8e6;
@@ -393,6 +395,13 @@ textarea {
   border-color: var(--color-negative);
 }
 
+#ruestung-table tr.line-baggage .armor-stats-inline label,
+#ruestung-table tr.line-baggage .armor-zone-status,
+#ruestung-table tr.line-baggage .armor-damage-btn {
+  background: transparent;
+  border-color: var(--color-baggage-border);
+}
+
 input[readonly],
 .readonly {
   background: var(--color-readonly);
@@ -693,7 +702,8 @@ td.wsg { width: 35px; }
   height: 1em;
 }
 
-.line-marked [data-marker] .marker-icon {
+.line-marked [data-marker] .marker-icon,
+.line-baggage [data-marker] .marker-icon {
   display: inline-block;
   width: 1em;
 }
@@ -711,6 +721,8 @@ td.wsg { width: 35px; }
 
 .marker-select {
   position: absolute;
+  box-sizing: border-box;
+  max-width: calc(100vw - 20px);
   background: var(--color-bg);
   border: 1px solid var(--color-table-line);
   padding: 4px;
@@ -758,6 +770,30 @@ td.wsg { width: 35px; }
 #ausruestung-table tr.line-marked textarea {
   background: transparent;
   border: 1px solid var(--color-negative);
+  border-radius: 4px;
+  box-sizing: border-box;
+  color: inherit;
+  font-family: var(--font-main);
+}
+
+.line-baggage {
+  background: var(--color-baggage);
+  color: var(--color-bg);
+  font-family: var(--font-main);
+  font-weight: bold;
+}
+
+#waffen-table tr.line-baggage input,
+#ruestung-table tr.line-baggage input,
+#ausruestung-table tr.line-baggage input,
+#waffen-table tr.line-baggage select,
+#ruestung-table tr.line-baggage select,
+#ausruestung-table tr.line-baggage select,
+#waffen-table tr.line-baggage textarea,
+#ruestung-table tr.line-baggage textarea,
+#ausruestung-table tr.line-baggage textarea {
+  background: transparent;
+  border: 1px solid var(--color-baggage-border);
   border-radius: 4px;
   box-sizing: border-box;
   color: inherit;

@@ -702,6 +702,7 @@ function resetCharacterSheet() {
 
   document.querySelectorAll(".marker-icon").forEach(icon => { icon.textContent = ""; });
   document.querySelectorAll("tr.line-marked").forEach(row => row.classList.remove("line-marked"));
+  document.querySelectorAll("tr.line-baggage").forEach(row => row.classList.remove("line-baggage"));
   document.querySelectorAll('th[data-input]').forEach(th => {
     const hid = th.querySelector('input[type="hidden"]');
     if (hid) {
@@ -768,6 +769,10 @@ document.addEventListener('input', e => {
 // 🔘 Markierungen
 // =========================
 const attrSymbols = ["","✠","⚔","☠","🛡"];
+const itemMarkerSymbols = { equipped: "✠", baggage: "🧰", clear: "✕" };
+const ITEM_MARKER_TABLES = ["waffen-table", "ruestung-table", "ausruestung-table"];
+const MARKER_EQUIPPED = "1";
+const MARKER_BAGGAGE = "2";
 let markerPopup = null;
 function updateAttrHeader(th, val) {
   th.classList.remove("attr-cross","attr-axes","attr-skull","attr-shield");
@@ -827,6 +832,23 @@ function applyAttrMarker(th, val) {
   saveState();
 }
 
+function positionMarkerPopup(popup, anchor) {
+  const viewportMargin = 10;
+  const rect = anchor.getBoundingClientRect();
+  const maxWidth = Math.max(0, document.documentElement.clientWidth - viewportMargin * 2);
+
+  popup.style.maxWidth = `${maxWidth}px`;
+  popup.style.transform = 'none';
+
+  const popupWidth = popup.offsetWidth;
+  const minLeft = window.scrollX + viewportMargin;
+  const maxLeft = window.scrollX + document.documentElement.clientWidth - popupWidth - viewportMargin;
+  const centeredLeft = window.scrollX + rect.left + rect.width / 2 - popupWidth / 2;
+
+  popup.style.left = `${Math.max(minLeft, Math.min(centeredLeft, maxLeft))}px`;
+  popup.style.top = `${window.scrollY + rect.bottom}px`;
+}
+
 function selectAttrMarker(th) {
   const hid = th.querySelector('input[type="hidden"]');
   if (!hid) return;
@@ -847,11 +869,8 @@ function selectAttrMarker(th) {
       <button class="icon-btn" data-val="3">${attrSymbols[3]}</button>
       <button class="icon-btn" data-val="4">${attrSymbols[4]}</button>
     </div>`;
-  const rect = th.getBoundingClientRect();
-  markerPopup.style.left = '50%';
-  markerPopup.style.top = `${window.scrollY + rect.bottom}px`;
-  markerPopup.style.transform = 'translateX(-50%)';
   document.body.appendChild(markerPopup);
+  positionMarkerPopup(markerPopup, th);
 
   markerPopup.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -862,31 +881,88 @@ function selectAttrMarker(th) {
     });
   });
 }
-function toggleLineMarker(cell) {
-  const hid = cell.querySelector('input[type="hidden"]');
+function isItemMarkerTable(table) {
+  return table && ITEM_MARKER_TABLES.includes(table.id);
+}
+
+function getMarkerHidden(cell) {
+  return cell?.querySelector('input[type="hidden"]:not(.baggage-note-store)') || null;
+}
+
+function getBaggageNoteStore(row) {
+  return row?.querySelector('.baggage-note-store') || null;
+}
+
+function itemRowHasName(cell) {
+  const nameField = cell?.querySelector('input[type="text"], textarea');
+  return !!nameField && nameField.value.trim() !== '';
+}
+
+function applyLineMarkerState(cell, value) {
+  const hid = getMarkerHidden(cell);
   if (!hid) return;
   const row = cell.closest('tr');
-  const table = row ? row.closest('table') : null;
-  if (table && ['grupp-table','talent-table','waffen-table','ruestung-table','ausruestung-table'].includes(table.id)) {
-    const nameField = cell.querySelector('input[type="text"], textarea');
-    if (!nameField || nameField.value.trim() === '') return;
-  }
   const icon = cell.querySelector('.marker-icon');
-  if (hid.value === "1") {
-    hid.value = "0";
-    if (icon) icon.textContent = "";
-    row.classList.remove('line-marked');
-  } else {
-    hid.value = "1";
-    if (icon) icon.textContent = attrSymbols[1];
-    row.classList.add('line-marked');
+  hid.value = value;
+  if (icon) {
+    icon.textContent = value === MARKER_EQUIPPED
+      ? itemMarkerSymbols.equipped
+      : value === MARKER_BAGGAGE
+        ? itemMarkerSymbols.baggage
+        : "";
   }
-  row.querySelectorAll('textarea').forEach(autoResize);
+  if (row) {
+    row.classList.toggle('line-marked', value === MARKER_EQUIPPED);
+    row.classList.toggle('line-baggage', value === MARKER_BAGGAGE);
+    row.querySelectorAll('textarea').forEach(autoResize);
+  }
+}
+
+function setLineMarker(cell, value) {
+  const row = cell.closest('tr');
+  const table = row ? row.closest('table') : null;
+  if (table && ['grupp-table','talent-table', ...ITEM_MARKER_TABLES].includes(table.id) && !itemRowHasName(cell)) return;
+
+  applyLineMarkerState(cell, value);
+  if (value !== MARKER_BAGGAGE) {
+    const store = getBaggageNoteStore(row);
+    if (store) store.value = "";
+  }
   saveState();
-  if (table && (table.id === 'waffen-table' || table.id === 'ruestung-table' || table.id === 'ausruestung-table')) {
+
+  if (isItemMarkerTable(table)) {
     if (table.id === 'ruestung-table') updateRuestung();
     updateTraglast();
   }
+}
+
+function toggleLineMarker(cell) {
+  const hid = getMarkerHidden(cell);
+  if (!hid) return;
+  setLineMarker(cell, hid.value === MARKER_EQUIPPED ? "0" : MARKER_EQUIPPED);
+}
+
+function selectItemMarker(cell) {
+  if (!itemRowHasName(cell)) return;
+  if (markerPopup) markerPopup.remove();
+  markerPopup = document.createElement('div');
+  markerPopup.className = 'marker-select';
+  markerPopup.innerHTML = `
+    <div class="marker-row">
+      <button class="icon-btn" data-val="${MARKER_EQUIPPED}" title="${t('mark_as_equipped')}">${itemMarkerSymbols.equipped}</button>
+      <button class="icon-btn" data-val="${MARKER_BAGGAGE}" title="${t('mark_as_baggage')}">${itemMarkerSymbols.baggage}</button>
+      <button class="icon-btn" data-val="0" title="${t('clear_marker')}">${itemMarkerSymbols.clear}</button>
+    </div>`;
+  document.body.appendChild(markerPopup);
+  positionMarkerPopup(markerPopup, cell);
+
+  markerPopup.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setLineMarker(cell, btn.dataset.val);
+      markerPopup.remove();
+      markerPopup = null;
+    });
+  });
 }
 
 function restoreMarkers() {
@@ -897,26 +973,14 @@ function restoreMarkers() {
   });
   enforceAttributeExclusivity();
   document.querySelectorAll('[data-marker]').forEach(cell => {
-    const hid = cell.querySelector('input[type="hidden"]');
+    const hid = getMarkerHidden(cell);
     const icon = cell.querySelector('.marker-icon');
     const row = cell.closest('tr');
     const table = row ? row.closest('table') : null;
-    if (hid.value === "1") {
-      if (table && (table.id === 'grupp-table' || table.id === 'talent-table')) {
-        const nameField = cell.querySelector('input[type="text"], textarea');
-        if (!nameField || nameField.value.trim() === '') {
-          hid.value = "0";
-        }
-      }
+    if (hid.value !== "0" && table && ['grupp-table','talent-table', ...ITEM_MARKER_TABLES].includes(table.id) && !itemRowHasName(cell)) {
+      hid.value = "0";
     }
-    if (hid.value === "1") {
-      if (icon) icon.textContent = attrSymbols[1];
-      row.classList.add('line-marked');
-    } else {
-      if (icon) icon.textContent = "";
-      row.classList.remove('line-marked');
-    }
-    row.querySelectorAll('textarea').forEach(autoResize);
+    applyLineMarkerState(cell, hid.value);
   });
   updateRuestung();
   updateTraglast();
@@ -930,7 +994,12 @@ document.addEventListener("click", e => {
   }
   const cell = e.target.closest('[data-marker]');
   if (cell) {
-    toggleLineMarker(cell);
+    const table = cell.closest('table');
+    if (isItemMarkerTable(table)) {
+      selectItemMarker(cell);
+    } else {
+      toggleLineMarker(cell);
+    }
     return;
   }
   const th = e.target.closest('th[data-input]');
@@ -943,14 +1012,24 @@ document.addEventListener("input", e => {
   const cell = e.target.closest('[data-marker]');
   if (!cell || !e.target.matches('input[type="text"], textarea')) return;
   if (e.target.value.trim() !== "") return;
-  const hid = cell.querySelector('input[type="hidden"]');
+  const hid = getMarkerHidden(cell);
   const icon = cell.querySelector('.marker-icon');
   const row = cell.closest('tr');
   if (hid && hid.value !== "0") {
     hid.value = "0";
     if (icon) icon.textContent = "";
-    if (row) row.classList.remove('line-marked');
+    const store = getBaggageNoteStore(row);
+    if (store) store.value = "";
+    if (row) {
+      row.classList.remove('line-marked');
+      row.classList.remove('line-baggage');
+    }
     saveState();
+    const table = row ? row.closest('table') : null;
+    if (isItemMarkerTable(table)) {
+      if (table.id === 'ruestung-table') updateRuestung();
+      updateTraglast();
+    }
   }
 });
 // =========================
@@ -1086,7 +1165,7 @@ function addRow(tableId) {
       <td><input type="number"></td>
       <td><input type="text"></td>
       <td><input type="text"></td>
-      <td class="text-left"><textarea></textarea></td>
+      <td class="text-left"><textarea></textarea><input type="hidden" class="baggage-note-store" value=""></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('waffen-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten(); updateTraglast();">❌</button></td>
     `;
     row.querySelectorAll("input, textarea").forEach(el => {
@@ -1136,7 +1215,7 @@ function addRow(tableId) {
             </div>
           </div>
           <div class="armor-zone-list">${armorZoneRows}</div>
-          <div class="armor-card-qualities text-left"><textarea rows="1"></textarea></div>
+          <div class="armor-card-qualities text-left"><textarea rows="1"></textarea><input type="hidden" class="baggage-note-store" value=""></div>
         </div>
       </td>
     `;
@@ -1177,7 +1256,7 @@ function addRow(tableId) {
       <td><input type="number"></td>
       <td><input type="number"></td>
       <td class="text-left"><textarea></textarea></td>
-      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('ausruestung-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten(); updateTraglast();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('ausruestung-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten(); updateTraglast();">❌</button><input type="hidden" class="baggage-note-store" value=""></td>
     `;
     row.querySelectorAll("input, textarea").forEach(el => {
       el.addEventListener('input', () => { updateTraglast(); saveState(); });
@@ -1465,18 +1544,91 @@ function updateRuestung() {
 // =========================
 // ⚖️ Traglast
 // =========================
+function getItemMarkerValue(row) {
+  return getMarkerHidden(row?.querySelector('[data-marker]'))?.value || "0";
+}
+
+function getItemName(row) {
+  return row?.querySelector('[data-marker] textarea, [data-marker] input[type="text"]')?.value.trim() || "";
+}
+
+function getSourceLabel(tableId) {
+  if (tableId === 'waffen-table') return t('weapons');
+  if (tableId === 'ruestung-table') return t('armor');
+  return t('equipment');
+}
+
+function addBaggageEntry(entries, row, tableId, tp) {
+  if (getItemMarkerValue(row) !== MARKER_BAGGAGE) return true;
+  const name = getItemName(row);
+  if (!name) return true;
+  entries.push({ row, name, source: getSourceLabel(tableId), tp: Math.max(0, tp), note: getBaggageNoteStore(row)?.value || "" });
+  return false;
+}
+
+function renderBaggageList(entries) {
+  const tbody = document.getElementById('gepaeck-list');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  entries.forEach(entry => {
+    const tr = document.createElement('tr');
+
+    const nameTd = document.createElement('td');
+    nameTd.textContent = entry.name;
+    const sourceTd = document.createElement('td');
+    sourceTd.textContent = entry.source;
+    const tpTd = document.createElement('td');
+    const tpInput = document.createElement('input');
+    tpInput.type = 'number';
+    tpInput.value = entry.tp;
+    tpInput.readOnly = true;
+    tpTd.appendChild(tpInput);
+    const noteTd = document.createElement('td');
+    noteTd.className = 'text-left';
+    const note = document.createElement('textarea');
+    note.rows = 1;
+    note.value = entry.note;
+    note.addEventListener('input', () => {
+      const store = getBaggageNoteStore(entry.row);
+      if (store) store.value = note.value;
+      autoResize(note);
+      saveState();
+    });
+    noteTd.appendChild(note);
+    const deleteTd = document.createElement('td');
+    deleteTd.className = 'delete-col';
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'delete-row';
+    btn.title = t('remove_from_baggage');
+    btn.textContent = '❌';
+    btn.addEventListener('click', () => {
+      const cell = entry.row.querySelector('[data-marker]');
+      if (cell) setLineMarker(cell, "0");
+    });
+    deleteTd.appendChild(btn);
+
+    tr.append(nameTd, sourceTd, tpTd, noteTd, deleteTd);
+    tbody.appendChild(tr);
+    autoResize(note);
+  });
+}
+
 function updateTraglast() {
   const ST = parseInt(document.getElementById("ST-akt").value) || 0;
   const WI = parseInt(document.getElementById("WI-akt").value) || 0;
   const max = Math.floor(ST/10) + Math.floor(WI/10); // maximale Traglast
 
-  let waffenTP = 0, ruestungTP = 0, ausrTP = 0;
+  let waffenTP = 0, ruestungTP = 0, ausrTP = 0, gepaeckTP = 0;
+  const baggageEntries = [];
 
   // Gewicht der Waffen aufsummieren
   document.querySelectorAll("#waffen-table tr").forEach((row, idx) => {
     if (idx === 0) return;
     const tp = parseInt(row.cells[2].querySelector("input").value) || 0;
-    const eq = row.cells[0].querySelector("input[type='hidden']")?.value === "1";
+    if (!addBaggageEntry(baggageEntries, row, 'waffen-table', tp)) return;
+    const eq = getItemMarkerValue(row) === MARKER_EQUIPPED;
     waffenTP += Math.max(0, tp - (eq ? 1 : 0));
   });
 
@@ -1484,7 +1636,8 @@ function updateTraglast() {
   document.querySelectorAll("#ruestung-table tr").forEach((row, idx) => {
     if (idx === 0) return;
     const tp = parseInt(row.querySelector('.armor-tp-input')?.value) || 0;
-    const eq = row.cells[0].querySelector("input[type='hidden']")?.value === "1";
+    if (!addBaggageEntry(baggageEntries, row, 'ruestung-table', tp)) return;
+    const eq = getItemMarkerValue(row) === MARKER_EQUIPPED;
     ruestungTP += Math.max(0, tp - (eq ? 1 : 0));
   });
 
@@ -1493,19 +1646,24 @@ function updateTraglast() {
     if (idx === 0) return;
     const menge = parseInt(row.cells[1].querySelector("input").value) || 0;
     const tp = parseInt(row.cells[2].querySelector("input").value) || 0;
-    const eq = row.cells[0].querySelector("input[type='hidden']")?.value === "1";
     const weight = menge * tp;
+    if (!addBaggageEntry(baggageEntries, row, 'ausruestung-table', weight)) return;
+    const eq = getItemMarkerValue(row) === MARKER_EQUIPPED;
     ausrTP += Math.max(0, weight - (eq ? 1 : 0));
   });
 
+  gepaeckTP = baggageEntries.reduce((sum, entry) => sum + entry.tp, 0);
   const gesamt = waffenTP + ruestungTP + ausrTP;
 
   document.getElementById("trag-waffen").value = waffenTP;
   document.getElementById("trag-ruestung").value = ruestungTP;
   document.getElementById("trag-ausruestung").value = ausrTP;
+  const gepaeckEl = document.getElementById("trag-gepaeck");
+  if (gepaeckEl) gepaeckEl.value = gepaeckTP;
   document.getElementById("trag-max").value = max;
   const gesamtEl = document.getElementById("trag-gesamt");
   gesamtEl.value = gesamt;
+  renderBaggageList(baggageEntries);
 
   // Warnung, wenn überladen
   if (gesamt > max) {
