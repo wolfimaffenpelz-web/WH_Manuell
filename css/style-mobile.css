@@ -721,6 +721,8 @@ td.wsg { width: 35px; }
 
 .marker-select {
   position: absolute;
+  box-sizing: border-box;
+  max-width: calc(100vw - 20px);
   background: var(--color-bg);
   border: 1px solid var(--color-table-line);
   padding: 4px;

@@ -832,6 +832,23 @@ function applyAttrMarker(th, val) {
   saveState();
 }
 
+function positionMarkerPopup(popup, anchor) {
+  const viewportMargin = 10;
+  const rect = anchor.getBoundingClientRect();
+  const maxWidth = Math.max(0, document.documentElement.clientWidth - viewportMargin * 2);
+
+  popup.style.maxWidth = `${maxWidth}px`;
+  popup.style.transform = 'none';
+
+  const popupWidth = popup.offsetWidth;
+  const minLeft = window.scrollX + viewportMargin;
+  const maxLeft = window.scrollX + document.documentElement.clientWidth - popupWidth - viewportMargin;
+  const centeredLeft = window.scrollX + rect.left + rect.width / 2 - popupWidth / 2;
+
+  popup.style.left = `${Math.max(minLeft, Math.min(centeredLeft, maxLeft))}px`;
+  popup.style.top = `${window.scrollY + rect.bottom}px`;
+}
+
 function selectAttrMarker(th) {
   const hid = th.querySelector('input[type="hidden"]');
   if (!hid) return;
@@ -852,11 +869,8 @@ function selectAttrMarker(th) {
       <button class="icon-btn" data-val="3">${attrSymbols[3]}</button>
       <button class="icon-btn" data-val="4">${attrSymbols[4]}</button>
     </div>`;
-  const rect = th.getBoundingClientRect();
-  markerPopup.style.left = '50%';
-  markerPopup.style.top = `${window.scrollY + rect.bottom}px`;
-  markerPopup.style.transform = 'translateX(-50%)';
   document.body.appendChild(markerPopup);
+  positionMarkerPopup(markerPopup, th);
 
   markerPopup.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -939,11 +953,8 @@ function selectItemMarker(cell) {
       <button class="icon-btn" data-val="${MARKER_BAGGAGE}" title="${t('mark_as_baggage')}">${itemMarkerSymbols.baggage}</button>
       <button class="icon-btn" data-val="0" title="${t('clear_marker')}">${itemMarkerSymbols.clear}</button>
     </div>`;
-  const rect = cell.getBoundingClientRect();
-  markerPopup.style.left = `${window.scrollX + rect.left + rect.width / 2}px`;
-  markerPopup.style.top = `${window.scrollY + rect.bottom}px`;
-  markerPopup.style.transform = 'translateX(-50%)';
   document.body.appendChild(markerPopup);
+  positionMarkerPopup(markerPopup, cell);
 
   markerPopup.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => {
