@@ -482,17 +482,19 @@ sections.push(
         <tr><td>${t('max_tp')}</td><td><input type="number" id="trag-max" readonly></td></tr>
         <tr><td>${t('total_col')}</td><td><input type="number" id="trag-gesamt" readonly></td></tr>
       </table>
-      <h3>${t('baggage')}</h3>
-      <table class="full-width" id="gepaeck-table">
-        <tr>
-          <th>${t('name')}</th>
-          <th>${t('source')}</th>
-          <th>TP</th>
-          <th class="text-left">${t('notes')}</th>
-          <th class="delete-col"></th>
-        </tr>
-        <tbody id="gepaeck-list"></tbody>
-      </table>
+      <div id="gepaeck-block" hidden>
+        <h3>${t('baggage')}</h3>
+        <table class="full-width" id="gepaeck-table">
+          <tr>
+            <th>${t('name')}</th>
+            <th>${t('source')}</th>
+            <th>TP</th>
+            <th class="text-left">${t('notes')}</th>
+            <th class="delete-col"></th>
+          </tr>
+          <tbody id="gepaeck-list"></tbody>
+        </table>
+      </div>
       <div class="section-divider"></div>
     `
   },

@@ -1568,7 +1568,9 @@ function addBaggageEntry(entries, row, tableId, tp) {
 
 function renderBaggageList(entries) {
   const tbody = document.getElementById('gepaeck-list');
+  const baggageBlock = document.getElementById('gepaeck-block');
   if (!tbody) return;
+  if (baggageBlock) baggageBlock.hidden = entries.length === 0;
   tbody.innerHTML = '';
 
   entries.forEach(entry => {
