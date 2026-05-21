@@ -2358,9 +2358,12 @@ function initLogic() {
   initStatesSection();
 
   document.addEventListener("input", e => {
-    if (e.target.matches("input, textarea, select")) {
-      updateAttributes();
+    if (!e.target.matches("input, textarea, select")) return;
+    if (e.target.closest('#gepaeck-list')) {
+      saveState();
+      return;
     }
+    updateAttributes();
   });
 
   const toggle = document.getElementById("exp-toggle");

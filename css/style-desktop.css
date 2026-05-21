@@ -1012,6 +1012,10 @@ th[data-input]::before {
 #ausruestung-table th:nth-child(5),
 #ausruestung-table td:nth-child(5) { width: 20px; padding: 0; }
 
+#gepaeck-table td:nth-child(4),
+#gepaeck-table th:nth-child(4) { text-align: left; }
+#gepaeck-table td:nth-child(4) textarea { text-align: left; }
+
 #zauber-table th:nth-child(1),
 #zauber-table td:nth-child(1) { max-width: none; width: auto; }
 #zauber-table th:nth-child(2),
