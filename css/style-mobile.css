@@ -159,8 +159,7 @@ textarea {
   vertical-align: middle;
 }
 
-input[type="number"],
-textarea {
+input[type="number"] {
   width: 100%;
   margin: 0;
   border: none;
