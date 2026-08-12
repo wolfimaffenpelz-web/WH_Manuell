@@ -1,0 +1,281 @@
+/* ================================================
+   Drucklayout
+   ================================================ */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
+  }
+
+  :root {
+    --font-size-base: 9pt;
+    --row-height: 1.25em;
+    --color-bg: #fff;
+    --color-field: #fff;
+    --color-readonly: #fff;
+    --color-table-line: #000;
+    --print-gap: 3mm;
+    --print-section-padding: 1.5mm;
+    --print-border: 0.2mm solid var(--color-table-line);
+    --delete-col-width: 0;
+    --coin-col-width: 12mm;
+    --armor-visual-width: 52mm;
+    --silhouette-width: 34mm;
+    --armor-box-size: 5mm;
+    --state-icon-column-width: 9mm;
+    --state-icon-size: 8mm;
+    --state-card-gap: 0;
+    --state-control-size: 4mm;
+    --state-step-control-size: 4mm;
+  }
+
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  html,
+  body {
+    width: 100%;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    color: #000 !important;
+    overflow: visible !important;
+    font-size: var(--font-size-base) !important;
+  }
+
+  header,
+  footer,
+  #password-overlay,
+  #splash-screen,
+  #character-management,
+  .section-arrow,
+  button,
+  .delete-col,
+  .delete-row,
+  #levelup-open,
+  #add-armor-button,
+  .table-footnote,
+  .switch,
+  .slider {
+    display: none !important;
+  }
+
+  #main-content {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--print-gap);
+    align-items: start;
+  }
+
+  section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    border: var(--print-border);
+    padding: var(--print-section-padding);
+    margin: 0 !important;
+    background: #fff !important;
+  }
+
+  section.collapsed .section-body,
+  .section-body,
+  #finanzen-extra {
+    display: block !important;
+  }
+
+  h1,
+  h2,
+  h3 {
+    margin: 0 0 1mm !important;
+    line-height: 1.1;
+    color: #000 !important;
+  }
+
+  h2 {
+    font-size: 12pt;
+    border-bottom: var(--print-border);
+    padding-bottom: 0.5mm;
+  }
+
+  h3 {
+    font-size: 10pt;
+  }
+
+  table {
+    width: 100% !important;
+    margin: 0 0 1mm !important;
+    table-layout: fixed !important;
+    border-collapse: collapse !important;
+  }
+
+  tr {
+    height: auto !important;
+    min-height: var(--row-height) !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  th,
+  td {
+    border: var(--print-border) !important;
+    padding: 0.4mm 0.6mm !important;
+    height: auto !important;
+    min-height: var(--row-height) !important;
+    max-width: none !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    word-break: normal;
+    overflow-wrap: anywhere;
+    color: #000 !important;
+  }
+
+  input,
+  textarea,
+  select {
+    min-height: var(--row-height) !important;
+    height: auto !important;
+    line-height: 1.1 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: #000 !important;
+    font-size: inherit !important;
+    appearance: none;
+    -webkit-appearance: none;
+    resize: none !important;
+    overflow: visible !important;
+  }
+
+  input[type="number"],
+  .wsg,
+  .tiny-field,
+  .small-field {
+    width: 7mm !important;
+    min-width: 7mm !important;
+  }
+
+  .section-divider {
+    display: none !important;
+  }
+
+  .two-col-table td:first-child,
+  .value-table td:first-child,
+  #lp-table td:first-child,
+  #traglast-table td:first-child {
+    width: 38% !important;
+  }
+
+  #attribute,
+  #grundfaehigkeiten,
+  #ruestung,
+  #erfahrung {
+    grid-column: 1 / -1;
+  }
+
+  #attribute-table th,
+  #attribute-table td,
+  #grund-table th,
+  #grund-table td {
+    font-size: 8pt !important;
+  }
+
+  .dual-table-wrapper,
+  .states-top-row {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2mm;
+  }
+
+  .state-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 0 !important;
+    background: transparent !important;
+  }
+
+  .state-card {
+    grid-template-columns: var(--state-icon-column-width) minmax(0, 1fr) !important;
+    border: var(--print-border);
+    break-inside: avoid;
+  }
+
+  .state-icon-button,
+  .state-icon-button img {
+    display: block !important;
+    width: var(--state-icon-size) !important;
+    height: var(--state-icon-size) !important;
+    min-width: var(--state-icon-size) !important;
+    min-height: var(--state-icon-size) !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .state-step-button,
+  .state-info-button {
+    display: none !important;
+  }
+
+  .armor-visual {
+    width: var(--armor-visual-width) !important;
+    margin: 0 auto 1mm !important;
+    transform: none !important;
+  }
+
+  .armor-card {
+    display: grid !important;
+    gap: 0 !important;
+    border: var(--print-border) !important;
+    margin: 1mm 0 !important;
+    break-inside: avoid;
+  }
+
+  .armor-card-top {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 1mm !important;
+    padding: 0.6mm !important;
+  }
+
+  .armor-zone-list {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 0 !important;
+    padding: 0.6mm !important;
+  }
+
+  .armor-card-qualities {
+    padding: 0.6mm !important;
+  }
+
+  #waffen-table th:nth-child(1),
+  #waffen-table td:nth-child(1),
+  #ausruestung-table th:nth-child(1),
+  #ausruestung-table td:nth-child(1),
+  #gepaeck-table th:nth-child(1),
+  #gepaeck-table td:nth-child(1) {
+    width: 24mm !important;
+  }
+
+  #talent-table th:nth-child(1),
+  #talent-table td:nth-child(1),
+  #psychologie-table th:nth-child(1),
+  #psychologie-table td:nth-child(1),
+  #mutationen-table th:nth-child(1),
+  #mutationen-table td:nth-child(1) {
+    width: 32mm !important;
+  }
+
+  #exp-full h3,
+  #exp-table {
+    display: none !important;
+  }
+
+  #exp-full > table:first-of-type,
+  #exp-simple table {
+    max-width: 95mm;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
