@@ -2349,6 +2349,78 @@ function initStatesSection() {
   syncStateCardsFromInputs();
 }
 
+
+// =========================
+// 🖨️ Druckvorbereitung
+// =========================
+const printDynamicTableIds = [
+  "grupp-table",
+  "talent-table",
+  "waffen-table",
+  "schulden-table",
+  "spar-table",
+  "ruestung-table",
+  "ausruestung-table",
+  "zauber-table",
+  "mutationen-table",
+  "psychologie-table",
+  "exp-table"
+];
+
+const printOptionalSectionIds = [
+  "gruppfaehigkeiten",
+  "talente",
+  "waffen",
+  "ausruestung",
+  "zauber",
+  "korruption",
+  "psychologie"
+];
+
+function isPrintableControlFilled(el) {
+  if (el.type === "hidden") return false;
+  if (el.type === "checkbox" || el.type === "radio") return el.checked;
+  return String(el.value || "").trim() !== "";
+}
+
+function rowHasPrintableContent(row) {
+  return Array.from(row.querySelectorAll("input, select, textarea")).some(isPrintableControlFilled);
+}
+
+function preparePrintLayout() {
+  printDynamicTableIds.forEach(tableId => {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+    Array.from(table.rows).slice(1).forEach(row => {
+      row.classList.toggle("print-empty-row", !rowHasPrintableContent(row));
+    });
+  });
+
+  printOptionalSectionIds.forEach(sectionId => {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+    const hasFilledTableRow = Array.from(section.querySelectorAll("table tr:not(:first-child)"))
+      .some(row => !row.classList.contains("print-empty-row") && rowHasPrintableContent(row));
+    const hasStandaloneValue = Array.from(section.querySelectorAll("input, select, textarea"))
+      .some(el => !el.closest("tr") && isPrintableControlFilled(el));
+    section.classList.toggle("print-empty-section", !hasFilledTableRow && !hasStandaloneValue);
+  });
+}
+
+function cleanupPrintLayout() {
+  document.querySelectorAll(".print-empty-row").forEach(row => row.classList.remove("print-empty-row"));
+  document.querySelectorAll(".print-empty-section").forEach(section => section.classList.remove("print-empty-section"));
+}
+
+let printLayoutInitialized = false;
+
+function initPrintLayout() {
+  if (printLayoutInitialized) return;
+  printLayoutInitialized = true;
+  window.addEventListener("beforeprint", preparePrintLayout);
+  window.addEventListener("afterprint", cleanupPrintLayout);
+}
+
 // =========================
 // 🚀 Init
 // =========================
@@ -2358,6 +2430,7 @@ function initLogic() {
   initFinanzenToggle();
   initCharacterManagement();
   initStatesSection();
+  initPrintLayout();
 
   document.addEventListener("input", e => {
     if (!e.target.matches("input, textarea, select")) return;

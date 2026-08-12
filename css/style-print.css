@@ -1,0 +1,384 @@
+/* ================================================
+   Drucklayout
+   ================================================ */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 7mm;
+  }
+
+  :root {
+    --font-size-base: 8.4pt;
+    --row-height: 1.15em;
+    --color-bg: #FAF0E6;
+    --color-field: #f8d7d7;
+    --color-readonly: #e6e6e6;
+    --color-table-line: #000;
+    --print-gap: 2mm;
+    --print-section-padding: 1mm;
+    --print-border: 0.2mm solid var(--color-table-line);
+    --coin-col-width: 9mm;
+    --armor-visual-width: 50mm;
+    --silhouette-width: 32mm;
+    --shield-width: calc(var(--silhouette-width) * 0.55);
+    --armor-box-size: 4.5mm;
+    --state-icon-column-width: 8mm;
+    --state-icon-size: 7.5mm;
+    --state-card-gap: 0;
+    --state-control-size: 4mm;
+    --state-step-control-size: 4mm;
+  }
+
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  html,
+  body {
+    width: 100%;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: var(--color-bg) !important;
+    color: var(--color-text) !important;
+    overflow: visible !important;
+    font-size: var(--font-size-base) !important;
+  }
+
+  header,
+  footer,
+  #password-overlay,
+  #splash-screen,
+  #character-management,
+  .section-arrow,
+  button,
+  .delete-col,
+  .delete-row,
+  #levelup-open,
+  #add-armor-button,
+  .table-footnote,
+  .switch,
+  .slider,
+  .print-empty-row,
+  .print-empty-section {
+    display: none !important;
+  }
+
+  #main-content {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--print-gap);
+    align-items: start;
+  }
+
+  section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    border: var(--print-border);
+    border-radius: 2mm;
+    padding: var(--print-section-padding);
+    margin: 0 !important;
+    background: rgba(250, 240, 230, 0.92) !important;
+  }
+
+  section.collapsed .section-body,
+  .section-body,
+  #finanzen-extra {
+    display: block !important;
+  }
+
+  h1,
+  h2,
+  h3 {
+    margin: 0 0 0.8mm !important;
+    line-height: 1.05;
+    color: var(--color-text) !important;
+  }
+
+  h2 {
+    font-family: var(--font-heading);
+    font-size: 11pt;
+    border-bottom: var(--print-border);
+    padding-bottom: 0.4mm;
+  }
+
+  h3 {
+    font-size: 9pt;
+  }
+
+  table {
+    width: 100% !important;
+    margin: 0 0 0.6mm !important;
+    table-layout: fixed !important;
+    border-collapse: collapse !important;
+  }
+
+  tr {
+    height: auto !important;
+    min-height: var(--row-height) !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  th,
+  td {
+    border: var(--print-border) !important;
+    padding: 0.25mm 0.45mm !important;
+    height: auto !important;
+    min-height: var(--row-height) !important;
+    max-width: none !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    word-break: normal;
+    overflow-wrap: anywhere;
+    color: var(--color-text) !important;
+  }
+
+  th {
+    background: rgba(158, 158, 158, 0.18) !important;
+    font-weight: bold;
+  }
+
+  input,
+  textarea,
+  select {
+    min-height: var(--row-height) !important;
+    height: auto !important;
+    line-height: 1.05 !important;
+    padding: 0 0.3mm !important;
+    border: 0 !important;
+    border-radius: 0.8mm;
+    background: var(--color-field) !important;
+    color: inherit !important;
+    font-size: inherit !important;
+    appearance: none;
+    -webkit-appearance: none;
+    resize: none !important;
+    overflow: visible !important;
+  }
+
+  input[readonly],
+  textarea[readonly] {
+    background: var(--color-readonly) !important;
+  }
+
+  input[type="number"],
+  .wsg,
+  .tiny-field,
+  .small-field {
+    width: 6mm !important;
+    min-width: 6mm !important;
+  }
+
+  .section-divider {
+    display: none !important;
+  }
+
+  .line-marked,
+  .attr-cross,
+  .attr-axes,
+  .attr-skull,
+  .attr-shield {
+    color: var(--color-text) !important;
+  }
+
+  .line-baggage {
+    color: var(--color-bg) !important;
+  }
+
+  .coin {
+    display: inline-block !important;
+  }
+
+  .two-col-table td:first-child,
+  .value-table td:first-child,
+  #lp-table td:first-child,
+  #traglast-table td:first-child {
+    width: 36% !important;
+  }
+
+  #attribute,
+  #grundfaehigkeiten,
+  #ruestung,
+  #erfahrung {
+    grid-column: 1 / -1;
+  }
+
+  #grundfaehigkeiten .section-body {
+    column-count: 2;
+    column-gap: 2mm;
+  }
+
+  #grund-table,
+  #grund-table tbody,
+  #grund-table tr {
+    break-inside: avoid;
+  }
+
+  #attribute-table th,
+  #attribute-table td,
+  #grund-table th,
+  #grund-table td,
+  #grupp-table th,
+  #grupp-table td,
+  #ausruestung-table th,
+  #ausruestung-table td {
+    font-size: 7.4pt !important;
+    padding: 0.15mm 0.3mm !important;
+  }
+
+  #grund-table th:nth-child(1),
+  #grund-table td:nth-child(1),
+  #grupp-table th:nth-child(1),
+  #grupp-table td:nth-child(1) { width: auto !important; }
+  #grund-table th:nth-child(2),
+  #grund-table td:nth-child(2),
+  #grupp-table th:nth-child(2),
+  #grupp-table td:nth-child(2) { width: 8mm !important; }
+  #grund-table th:nth-child(3),
+  #grund-table td:nth-child(3),
+  #grund-table th:nth-child(4),
+  #grund-table td:nth-child(4),
+  #grund-table th:nth-child(5),
+  #grund-table td:nth-child(5),
+  #grupp-table th:nth-child(3),
+  #grupp-table td:nth-child(3),
+  #grupp-table th:nth-child(4),
+  #grupp-table td:nth-child(4),
+  #grupp-table th:nth-child(5),
+  #grupp-table td:nth-child(5) { width: 7mm !important; }
+
+  .dual-table-wrapper,
+  .states-top-row {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5mm;
+  }
+
+  .state-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 0.4mm !important;
+    background: transparent !important;
+  }
+
+  .state-card {
+    grid-template-columns: var(--state-icon-column-width) minmax(0, 1fr) !important;
+    border: var(--print-border);
+    background: var(--color-bg) !important;
+    break-inside: avoid;
+  }
+
+  .state-icon-button,
+  .state-icon-button img {
+    display: block !important;
+    width: var(--state-icon-size) !important;
+    height: var(--state-icon-size) !important;
+    min-width: var(--state-icon-size) !important;
+    min-height: var(--state-icon-size) !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .state-step-button,
+  .state-info-button {
+    display: none !important;
+  }
+
+  .armor-visual {
+    width: var(--armor-visual-width) !important;
+    height: 82mm !important;
+    margin: 0 auto 0.5mm !important;
+    transform: none !important;
+  }
+
+  .zone-range,
+  .zone-label {
+    font-size: 6pt !important;
+  }
+
+  .zone-rp,
+  .shield-display .shield-rp {
+    background: var(--color-bg) !important;
+    font-size: 8pt !important;
+  }
+
+  .armor-card {
+    display: grid !important;
+    gap: 0 !important;
+    border: var(--print-border) !important;
+    margin: 0.6mm 0 !important;
+    background: var(--color-bg) !important;
+    break-inside: avoid;
+  }
+
+  .armor-card-top {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 0.6mm !important;
+    padding: 0.4mm !important;
+  }
+
+  .armor-zone-list {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 0 !important;
+    padding: 0.4mm !important;
+  }
+
+  .armor-card-qualities {
+    padding: 0.4mm !important;
+  }
+
+  .armor-damage-btn {
+    display: none !important;
+  }
+
+  #waffen-table th:nth-child(1),
+  #waffen-table td:nth-child(1),
+  #ausruestung-table th:nth-child(1),
+  #ausruestung-table td:nth-child(1),
+  #gepaeck-table th:nth-child(1),
+  #gepaeck-table td:nth-child(1) { width: 20mm !important; }
+
+  #waffen-table th:nth-child(2),
+  #waffen-table td:nth-child(2) { width: 16mm !important; }
+  #waffen-table th:nth-child(3),
+  #waffen-table td:nth-child(3),
+  #waffen-table th:nth-child(4),
+  #waffen-table td:nth-child(4),
+  #ausruestung-table th:nth-child(2),
+  #ausruestung-table td:nth-child(2),
+  #ausruestung-table th:nth-child(3),
+  #ausruestung-table td:nth-child(3) { width: 8mm !important; }
+  #waffen-table th:nth-child(5),
+  #waffen-table td:nth-child(5) { width: 15mm !important; }
+  #waffen-table th:nth-child(6),
+  #waffen-table td:nth-child(6),
+  #ausruestung-table th:nth-child(4),
+  #ausruestung-table td:nth-child(4),
+  #gepaeck-table th:nth-child(4),
+  #gepaeck-table td:nth-child(4) { width: auto !important; text-align: left !important; }
+
+  #talent-table th:nth-child(1),
+  #talent-table td:nth-child(1),
+  #psychologie-table th:nth-child(1),
+  #psychologie-table td:nth-child(1),
+  #mutationen-table th:nth-child(1),
+  #mutationen-table td:nth-child(1) { width: 30mm !important; }
+
+  #exp-full h3,
+  #exp-table {
+    display: none !important;
+  }
+
+  #exp-full > table:first-of-type,
+  #exp-simple table {
+    max-width: 90mm;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
