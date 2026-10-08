@@ -144,3 +144,44 @@ test('new injury and disease rows persist through reload', () => {
     assert.equal(a.doc.querySelectorAll('#diseases-table tr').length, 3);
   } finally { a.close(); }
 });
+
+test('every character table, including savings, weapons and armor, survives export and import', () => {
+  const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+  let b;
+  try {
+    const tables = Array.from(a.get('CharacterStore.TABLES'));
+    for (const id of tables) {
+      const table = a.doc.getElementById(id);
+      if (table.rows.length === 1) a.get(`addRow('${id}')`);
+      const inputs = Array.from(table.rows[1].querySelectorAll('input, textarea, select'));
+      for (const input of inputs) {
+        if (input.type === 'hidden' || input.readOnly) continue;
+        if (input.type === 'checkbox') input.checked = true;
+        else if (input.tagName === 'SELECT') input.value = 'ST';
+        else if (input.type === 'number') input.value = '2';
+        else input.value = `Export check: ${id}`;
+      }
+    }
+    a.doc.getElementById('verm-gk').value = '3';
+    a.doc.getElementById('verm-s').value = '4';
+    a.doc.getElementById('verm-g').value = '5';
+    a.get('updateAttributes(); saveState()');
+    const exported = JSON.parse(a.get('JSON.stringify(characterStore.export(currentCharacter))'));
+    for (const id of tables) assert.ok(exported.state[id]?.length > 0, `${id} missing from export`);
+    assert.equal(exported.state['verm-gk'], '3');
+    assert.equal(exported.state['verm-s'], '4');
+    assert.equal(exported.state['verm-g'], '5');
+    assert.equal(exported.state['password-input'], undefined);
+    b = app();
+    b.w.testBackup = exported;
+    b.get('currentCharacter = characterStore.import(CharacterStore.normalizeBackup(testBackup)); loadCharacterList(); loadState()');
+    const reexported = JSON.parse(b.get('JSON.stringify(characterStore.export(currentCharacter))'));
+    for (const id of tables) {
+      assert.deepEqual(reexported.state[id], exported.state[id], `${id} changed in stored import`);
+      const restored = JSON.parse(b.get(`JSON.stringify(serializeTable('${id}'))`));
+      assert.deepEqual(restored[0], exported.state[id][0], `${id} not restored in sheet`);
+    }
+    assert.deepEqual(a.errors, []);
+    assert.deepEqual(b.errors, []);
+  } finally { a.close(); b?.close(); }
+});
