@@ -33,6 +33,20 @@ document.addEventListener("DOMContentLoaded", initPasswordProtection);
 // =========================
 let currentCharacter = null;
 let characterList = [];
+let characterStore = null;
+let activeEdition = '4e';
+let loadingState = false;
+let loadFailed = false;
+let logicInitialized = false;
+
+function storageError(error) {
+  console.error(error);
+  alert(t('storage_error'));
+}
+
+function characterName() {
+  return characterStore?.get(currentCharacter)?.name || '';
+}
 
 function applySavedSettings() {
   const colors = JSON.parse(localStorage.getItem("color-settings") || "{}");
@@ -55,56 +69,58 @@ function rgbToHex(rgb) {
 }
 
 function updateCharacterDisplay() {
-  const display = document.getElementById("current-character");
-  if (display) display.textContent = `${t('active_character')} ${currentCharacter || ''}`;
+  const record = characterStore?.get(currentCharacter);
+  const display = document.getElementById('current-character');
+  if (display) display.textContent = record
+    ? `${t('active_character')} ${record.name} · ${record.edition}${record.status === 'deceased' ? ' · ' + t('deceased') : ''}`
+    : t('no_character');
+  document.getElementById('edition-select').value = activeEdition;
+  document.getElementById('status-character').textContent = t(record?.status === 'deceased' ? 'revive_character' : 'mark_deceased');
+  ['status-character', 'delete-character', 'export-character'].forEach(id => { document.getElementById(id).disabled = !record; });
+  document.getElementById('transfer-character').hidden = activeEdition !== '4e';
+  document.getElementById('transfer-character').disabled = !record || loadFailed;
+  document.getElementById('recover-character').hidden = !record?.recovery;
+  document.getElementById('load-error').hidden = !loadFailed;
+  renderTransferReport(record);
 }
 
 function loadCharacterList() {
-  characterList = JSON.parse(localStorage.getItem("characters") || "[]");
-  if (characterList.length > 0) {
-    if (!currentCharacter || !characterList.includes(currentCharacter)) {
-      currentCharacter = characterList[0];
-    }
-  } else {
-    currentCharacter = null;
-  }
+  characterList = characterStore.list(activeEdition).map(record => record.id);
+  const remembered = characterStore.data.active[activeEdition];
+  if (!characterList.includes(currentCharacter)) currentCharacter = characterList.includes(remembered) ? remembered : characterList[0] || null;
   updateCharacterDisplay();
 }
 
-function saveCharacter(name) {
-  let chars = JSON.parse(localStorage.getItem("characters") || "[]");
-  if (!chars.includes(name)) {
-    chars.push(name); // neuen Namen hinzufügen
-    localStorage.setItem("characters", JSON.stringify(chars));
-  }
-  currentCharacter = name; // aktiven Charakter setzen
-}
-
-function deleteCharacter(name) {
-  let chars = JSON.parse(localStorage.getItem("characters") || "[]");
-  chars = chars.filter(c => c !== name); // entfernen
-  localStorage.setItem("characters", JSON.stringify(chars));
-  if (chars.length > 0) {
-    currentCharacter = chars[0]; // anderen Charakter wählen
-  } else {
-    currentCharacter = null; // keiner übrig
-  }
+function deleteCharacter(id) {
+  characterStore.remove(id);
+  currentCharacter = null;
   loadCharacterList();
 }
 
-function killCharacter() {
-  document
-    .querySelectorAll('#main-content input, #main-content textarea, #main-content select, #main-content button')
-    .forEach(el => {
-      if (el.tagName === 'BUTTON' || el.tagName === 'SELECT') {
-        el.disabled = true;
-      } else if (el.type === 'checkbox' || el.type === 'radio') {
-        el.disabled = true;
-      } else {
-        el.setAttribute('readonly', true);
-      }
-      el.classList.add('readonly');
-    });
+function syncCharacterLock() {
+  const locked = loadFailed || characterStore?.get(currentCharacter)?.status === 'deceased';
+  document.querySelectorAll('#main-content input, #main-content textarea, #main-content select, #main-content button').forEach(el => {
+    if (locked) {
+      if (!el.hasAttribute('data-lock-disabled')) el.dataset.lockDisabled = String(el.disabled);
+      el.disabled = true;
+    } else if (el.hasAttribute('data-lock-disabled')) {
+      el.disabled = el.dataset.lockDisabled === 'true';
+      delete el.dataset.lockDisabled;
+    }
+  });
+  document.getElementById('main-content').classList.toggle('character-locked', locked);
+}
+
+function toggleCharacterStatus() {
+  if (!currentCharacter || loadFailed) return;
+  const dead = characterStore.get(currentCharacter).status === 'deceased';
+  if (!confirm(t(dead ? 'revive_confirm' : 'deceased_confirm'))) return;
+  if (!saveState()) return;
+  try {
+    characterStore.setStatus(currentCharacter, dead ? 'alive' : 'deceased');
+    syncCharacterLock();
+    updateCharacterDisplay();
+  } catch (error) { storageError(error); }
 }
 
 // Öffnet Eingabe zur Erstellung eines neuen Charakters
@@ -114,7 +130,7 @@ function promptNewCharacter(preserveValues = false) {
   overlay.innerHTML = `
     <div class="overlay-content">
       <p>${t('character_name_prompt')}</p>
-      <input type="text" id="new-char-name">
+      <input type="text" id="new-char-name" maxlength="200">
       <br>
       <button id="new-char-ok">${t('ok')}</button>
       <button id="new-char-cancel">${t('cancel')}</button>
@@ -131,15 +147,16 @@ function promptNewCharacter(preserveValues = false) {
 
   overlay.querySelector("#new-char-ok").addEventListener("click", () => {
     const newName = input.value.trim();
+    if (newName.length > 200) return;
     if (!newName) { alert(t('name_required')); return; }
-    if (preserveValues) {
-      saveCharacter(newName);
-      saveState();
-    } else {
-      saveState();
-      saveCharacter(newName);
-      resetCharacterSheet();
-    }
+    if (!saveState()) return;
+    try {
+      const state = preserveValues ? collectState() : {};
+      const id = characterStore.create(newName, activeEdition, { ...state, 'char-name': newName });
+      characterStore.select(activeEdition, id);
+      currentCharacter = id;
+      loadState();
+    } catch (error) { storageError(error); return; }
     loadCharacterList();
     close();
   });
@@ -157,7 +174,7 @@ function initCharacterManagement() {
   loadCharacterList();
   if (!currentCharacter) {
     ensureInitialRows();
-    updateAttributes();
+    if (activeEdition === '4e') updateAttributes();
   }
 
   if (cycleBtn) {
@@ -176,9 +193,11 @@ function initCharacterManagement() {
       const list = overlay.querySelector('#char-list');
       characterList.forEach(name => {
         const btn = document.createElement('button');
-        btn.textContent = name;
+        const record = characterStore.get(name);
+        btn.textContent = `${record.name} · ${record.id.slice(0, 8)}${record.importedAt ? ' · ' + t('imported_on') + ' ' + formatDate(record.importedAt) : ''}${record.status === 'deceased' ? ' · ' + t('deceased') : ''}`;
         btn.addEventListener('click', () => {
-          saveState();
+          if (!saveState()) return;
+          try { characterStore.select(activeEdition, name); } catch (error) { storageError(error); return; }
           currentCharacter = name;
           updateCharacterDisplay();
           loadState();
@@ -210,8 +229,7 @@ function initCharacterManagement() {
     overlay.className = "overlay";
     overlay.innerHTML = `
       <div class="overlay-content">
-        <p>${t('delete_confirm_prefix')}${currentCharacter}${t('delete_confirm_suffix')}</p>
-        <button id="del-kill">${t('kill_char')}</button>
+        <p>${t('delete_confirm_prefix')}${escapeHtml(characterName())}${t('delete_confirm_suffix')}</p>
         <button id="del-yes">${t('delete_char')}</button>
         <button id="del-no">${t('cancel')}</button>
       </div>
@@ -222,29 +240,6 @@ function initCharacterManagement() {
 
     overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
     overlay.querySelector("#del-no").addEventListener("click", close);
-    overlay.querySelector("#del-kill").addEventListener("click", () => {
-      const confirmOverlay = document.createElement("div");
-      confirmOverlay.className = "overlay";
-      confirmOverlay.innerHTML = `
-        <div class="overlay-content">
-          <p>${t('kill_confirm')}</p>
-          <button id="kill-yes">${t('yes')}</button>
-          <button id="kill-no">${t('no')}</button>
-        </div>
-      `;
-      document.body.appendChild(confirmOverlay);
-
-      function closeConfirm() { confirmOverlay.remove(); }
-
-      confirmOverlay.addEventListener("click", e => { if (e.target === confirmOverlay) closeConfirm(); });
-      confirmOverlay.querySelector("#kill-no").addEventListener("click", closeConfirm);
-      confirmOverlay.querySelector("#kill-yes").addEventListener("click", () => {
-        killCharacter();
-        closeConfirm();
-        close();
-      });
-    });
-
     overlay.querySelector("#del-yes").addEventListener("click", () => {
       const confirmOverlay = document.createElement("div");
       confirmOverlay.className = "overlay";
@@ -262,7 +257,7 @@ function initCharacterManagement() {
       confirmOverlay.addEventListener("click", e => { if (e.target === confirmOverlay) closeConfirm(); });
       confirmOverlay.querySelector("#confirm-del-no").addEventListener("click", closeConfirm);
       confirmOverlay.querySelector("#confirm-del-yes").addEventListener("click", () => {
-        deleteCharacter(currentCharacter);
+        try { deleteCharacter(currentCharacter); } catch (error) { storageError(error); return; }
         if (currentCharacter) {
           loadState(); // anderen laden
         } else {
@@ -447,10 +442,10 @@ function openFontSettings() {
 // =========================
 // 🧩 Sections Rendern
 // =========================
-function renderSections() {
+function renderSections(definitions = sections) {
   const main = document.getElementById("main-content");
   main.innerHTML = ""; // vorherige Inhalte entfernen
-  sections.forEach(sec => {
+  definitions.forEach(sec => {
     const sectionEl = document.createElement("section");
     sectionEl.id = sec.id; // ID für spätere Referenz
     const header = document.createElement("h2");
@@ -570,78 +565,53 @@ function deserializeTable(tableId, data) {
   });
 }
 
-function saveState() {
-  if (!currentCharacter) return; // nichts gespeichert
+function collectState() {
   const state = {};
-
-  // alle Felder mit ID einsammeln
-  document.querySelectorAll("input, textarea, select").forEach(el => {
-    if (!el.id) return;
-    if (el.type === "checkbox" || el.type === "radio") {
-      state[el.id] = el.checked;
-    } else {
-      state[el.id] = el.value;
-    }
+  document.querySelectorAll('#main-content input[id], #main-content textarea[id], #main-content select[id]').forEach(el => {
+    state[el.id] = el.type === 'checkbox' || el.type === 'radio' ? el.checked : el.value;
   });
+  CharacterStore.TABLES.forEach(id => { if (document.getElementById(id)) state[id] = serializeTable(id); });
+  return state;
+}
 
-  // Tabellen separat serialisieren
-  [
-    "grupp-table",
-    "talent-table",
-    "waffen-table",
-    "schulden-table",
-    "spar-table",
-    "ruestung-table",
-    "ausruestung-table",
-    "zauber-table",
-    "mutationen-table",
-    "psychologie-table",
-    "exp-table"
-  ].forEach(id => {
-    state[id] = serializeTable(id);
-  });
-
-  localStorage.setItem("state-" + currentCharacter, JSON.stringify(state));
+function saveState() {
+  if (loadingState) return true;
+  if (loadFailed) return false;
+  if (!currentCharacter || !characterStore) return true;
+  try {
+    characterStore.save(currentCharacter, collectState());
+    updateCharacterDisplay();
+    return true;
+  } catch (error) { storageError(error); return false; }
 }
 
 function loadState() {
-  if (!currentCharacter) return;
-  const state = JSON.parse(localStorage.getItem("state-" + currentCharacter) || "{}");
-
-  // Werte in Felder zurückschreiben
-  document.querySelectorAll("input, textarea, select").forEach(el => {
-    if (!el.id) return;
-    if (state.hasOwnProperty(el.id)) {
-      if (el.type === "checkbox" || el.type === "radio") {
-        el.checked = state[el.id];
-      } else {
-        el.value = state[el.id];
-      }
+  if (!currentCharacter) { resetCharacterSheet(); return; }
+  loadingState = true;
+  loadFailed = false;
+  try {
+    const state = characterStore.get(currentCharacter).state;
+    document.querySelectorAll('#main-content input[id], #main-content textarea[id], #main-content select[id]').forEach(el => {
+      if (el.type === 'checkbox' || el.type === 'radio') el.checked = state[el.id] === true;
+      else el.value = state[el.id] ?? (el.type === 'hidden' ? '0' : '');
+    });
+    CharacterStore.TABLES.forEach(id => deserializeTable(id, state[id]));
+    ensureInitialRows();
+    if (activeEdition === '4e') {
+      syncExperienceMode();
+      updateAttributes();
+      restoreMarkers();
+      syncStateCardsFromInputs();
     }
-  });
-
-  [
-    "grupp-table",
-    "talent-table",
-    "waffen-table",
-    "schulden-table",
-    "spar-table",
-    "ruestung-table",
-    "ausruestung-table",
-    "zauber-table",
-    "mutationen-table",
-    "psychologie-table",
-    "exp-table"
-  ].forEach(id => {
-    deserializeTable(id, state[id]); // Tabellen rekonstruieren
-  });
-
-  syncExperienceMode();
-  updateAttributes();
-  restoreMarkers();
-  syncStateCardsFromInputs();
-  ensureInitialRows();
-  updateCharacterDisplay();
+    document.querySelectorAll('#main-content textarea').forEach(autoResize);
+  } catch (error) {
+    loadFailed = true;
+    storageError(error);
+  } finally {
+    loadingState = false;
+    syncCharacterLock();
+    updateCharacterDisplay();
+  }
 }
 
 // =========================
@@ -658,7 +628,9 @@ function ensureInitialRows() {
     "zauber-table",
     "mutationen-table",
     "psychologie-table",
-    "exp-table"
+    "exp-table",
+    "injuries-table",
+    "diseases-table"
   ].forEach(id => {
     const table = document.getElementById(id);
     if (table) {
@@ -671,7 +643,10 @@ function ensureInitialRows() {
 }
 
 function resetCharacterSheet() {
-  document.querySelectorAll("input, textarea, select").forEach(el => {
+  const wasLoading = loadingState;
+  loadingState = true;
+  loadFailed = false;
+  document.querySelectorAll("#main-content input, #main-content textarea, #main-content select").forEach(el => {
     if (el.type === "checkbox" || el.type === "radio") {
       el.checked = false;
     } else {
@@ -690,7 +665,9 @@ function resetCharacterSheet() {
     "zauber-table",
     "mutationen-table",
     "psychologie-table",
-    "exp-table"
+    "exp-table",
+    "injuries-table",
+    "diseases-table"
   ].forEach(id => {
     const table = document.getElementById(id);
     if (table) {
@@ -712,45 +689,69 @@ function resetCharacterSheet() {
   });
 
   ensureInitialRows();
-  updateAttributes();
+  if (activeEdition === '4e') { updateAttributes(); syncStateCardsFromInputs(); }
+  loadingState = wasLoading;
+  syncCharacterLock();
+  updateCharacterDisplay();
 }
 
-// Aktuellen Charakter exportieren
+function formatDate(value) {
+  return value ? new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', dateStyle: 'short', timeStyle: 'medium' }).format(new Date(value)) : t('unknown_date');
+}
+
+function downloadJSON(data, filename) {
+  const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 function exportCharacters() {
   if (!currentCharacter) return;
-  saveState();
-  const state = JSON.parse(localStorage.getItem('state-' + currentCharacter) || '{}');
-  const data = { id: currentCharacter, state };
-  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `${currentCharacter}.json`;
-  a.click();
+  // A failed load can still export the intact stored record.
+  if (!loadFailed && !saveState()) return;
+  const date = new Date();
+  downloadJSON(characterStore.export(currentCharacter, date), CharacterStore.filename(characterStore.get(currentCharacter), date));
 }
 
-// Charakter importieren und laden
 function importCharacters(files) {
   const file = files[0];
-  if (!file) return;
-  saveState();
+  if (!file || !saveState()) return;
+  if (file.size > 5 * 1024 * 1024) { alert(t('import_failed')); return; }
   const reader = new FileReader();
   reader.onload = e => {
     try {
-      const data = JSON.parse(e.target.result);
-      if (data.id && data.state) {
-        saveCharacter(data.id);
-        localStorage.setItem('state-' + data.id, JSON.stringify(data.state));
-        loadCharacterList();
-        currentCharacter = data.id;
-        updateCharacterDisplay();
-        loadState();
-      } else {
-        throw new Error('Invalid');
-      }
-    } catch (err) {
-      alert(t('import_failed'));
-    }
+      const backup = CharacterStore.normalizeBackup(JSON.parse(e.target.result));
+      const targets = backup.legacy
+        ? characterStore.list('4e').filter(record => record.name === backup.name)
+        : characterStore.data.characters.filter(record => record.id === backup.id && record.edition === backup.edition);
+      const overlay = document.createElement('div');
+      overlay.className = 'overlay';
+      overlay.innerHTML = `<div class="overlay-content">
+        <h2>${t('import_review')}</h2>
+        <p>${escapeHtml(backup.name)} · ${backup.edition}</p>
+        <p>${t('backup_date')}: ${formatDate(backup.exportedAt)}</p>
+        ${targets.length ? `<label><input type="radio" name="import-mode" value="replace" checked> ${t('import_replace')}</label>
+          <select id="import-target">${targets.map(record => `<option value="${record.id}">${escapeHtml(record.name)} · ${record.id.slice(0, 8)}</option>`).join('')}</select>
+          <label><input type="radio" name="import-mode" value="copy"> ${t('import_copy')}</label>
+          <p>${t('import_recovery_hint')}</p>` : `<p>${t('import_new')}</p>`}
+        <button id="import-confirm">${t('import')}</button><button id="import-cancel">${t('cancel')}</button>
+      </div>`;
+      document.body.appendChild(overlay);
+      overlay.querySelector('#import-cancel').onclick = () => overlay.remove();
+      overlay.addEventListener('click', event => { if (event.target === overlay) overlay.remove(); });
+      overlay.querySelector('#import-confirm').onclick = () => {
+        if (!saveState()) return;
+        const replacing = overlay.querySelector('input[name="import-mode"]:checked')?.value === 'replace';
+        try {
+          const id = characterStore.import(backup, replacing ? overlay.querySelector('#import-target').value : null, !replacing && targets.length > 0);
+          activeEdition = backup.edition; currentCharacter = id;
+          renderEdition(); loadCharacterList(); loadState(); overlay.remove();
+        } catch (error) { storageError(error); }
+      };
+    } catch (error) { alert(t('import_failed')); }
   };
+  reader.onerror = () => alert(t('import_failed'));
   reader.readAsText(file);
 }
 
@@ -988,6 +989,7 @@ function restoreMarkers() {
 }
 
 document.addEventListener("click", e => {
+  if (e.target.closest('#main-content') && (loadFailed || characterStore?.get(currentCharacter)?.status === 'deceased')) return;
   if (markerPopup && !markerPopup.contains(e.target)) {
     markerPopup.remove();
     markerPopup = null;
@@ -1123,6 +1125,16 @@ function addRow(tableId) {
   const table = document.getElementById(tableId); // Ziel-Tabelle
   const row = table.insertRow(-1); // neue Zeile am Ende
 
+  if (tableId === 'injuries-table' || tableId === 'diseases-table') {
+    row.innerHTML = `<td><textarea rows="1" aria-label="${t('entry')}"></textarea></td>
+      <td><textarea rows="1" aria-label="${t('effect')}"></textarea></td>
+      <td><textarea rows="1" aria-label="${t('treatment_progress')}"></textarea></td>
+      <td class="delete-col"><button type="button" class="delete-row" aria-label="${t('delete')}">❌</button></td>`;
+    row.querySelector('button').addEventListener('click', () => { row.remove(); autoAddRow(tableId); saveState(); });
+    row.querySelector('textarea').addEventListener('input', () => { autoAddRow(tableId); saveState(); });
+    saveState();
+    return;
+  }
   if (tableId === "grupp-table") {
     // Vorlage für gruppierte Fähigkeiten
     row.innerHTML = `
@@ -1154,7 +1166,7 @@ function addRow(tableId) {
       <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></td>
       <td class="wsg"><input type="number"></td>
       <td class="text-left"><textarea rows="1"></textarea></td>
-      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('talent-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('talent-table'); updateAttributes();">❌</button></td>
     `;
   }
   else if (tableId === "waffen-table") {
@@ -1323,52 +1335,26 @@ function addRow(tableId) {
 // ⭐ Talente Logik (inkl. Robustheit)
 // =========================
 // Ähnlichkeitsberechnung per Levenshtein-Distanz
-function levenshtein(a, b) {
-  const matrix = Array.from({ length: b.length + 1 }, (_, i) => [i]);
-  matrix[0] = Array.from({ length: a.length + 1 }, (_, j) => j);
-  for (let i = 1; i <= b.length; i++) {
-    for (let j = 1; j <= a.length; j++) {
-      if (b[i - 1] === a[j - 1]) {
-        matrix[i][j] = matrix[i - 1][j - 1];
-      } else {
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j] + 1,
-          matrix[i][j - 1] + 1,
-          matrix[i - 1][j - 1] + 1
-        );
-      }
-    }
-  }
-  return matrix[b.length][a.length];
-}
-
-function similarity(a, b) {
-  const maxLen = Math.max(a.length, b.length);
-  if (maxLen === 0) return 1;
-  const distance = levenshtein(a, b);
-  return 1 - distance / maxLen;
-}
-
-// Ermittelt die Stufe des Talents "Robustheit"/"Hardy" (Ähnlichkeit > 90%).
-// Wenn das Talent existiert, zählt mindestens eine Stufe.
-function checkTalentEffects() {
-  let hardyLevel = 0;
-  document.querySelectorAll("#talent-table tr").forEach((row, idx) => {
-    if (idx === 0) return; // Kopfzeile überspringen
-    const nameField = row.cells[0].querySelector('input[type="text"], textarea');
-    if (!nameField) return;
-    const name = nameField.value.toLowerCase().trim();
-    const simRob = similarity(name, "robustheit");
-    const simHardy = similarity(name, "hardy");
-    if (simRob >= 0.9 || simHardy >= 0.9) {
-      const lvlInput = row.cells[1].querySelector("input");
-      let lvl = parseInt(lvlInput.value);
-      if (isNaN(lvl) || lvl < 1) lvl = 1; // mindestens Stufe 1
-      hardyLevel += lvl; // Stufen addieren (Talent kann mehrfach vorkommen)
-    }
+function readTalentEffects() {
+  const entries = Array.from(document.querySelectorAll('#talent-table tr')).slice(1).map(row => ({
+    name: row.cells[0].querySelector('textarea, input[type="text"]')?.value || '',
+    level: row.cells[1].querySelector('input')?.value || ''
+  }));
+  return WFRP4Rules.talentEffects(entries, {
+    strength: parseInt(document.getElementById('ST-akt').value) || 0,
+    toughness: parseInt(document.getElementById('WI-akt').value) || 0,
+    willpower: parseInt(document.getElementById('WK-akt').value) || 0
   });
-  return hardyLevel;
 }
+
+function checkTalentEffects() { return readTalentEffects().levels.hardy; }
+
+function updateTalentWarnings() {
+  const effects = readTalentEffects();
+  const labels = { hardy: t('talent_hardy'), pureSoul: t('talent_pure_soul'), strongBack: t('talent_strong_back'), sturdy: t('talent_sturdy') };
+  document.getElementById('talent-warnings').textContent = effects.exceeded.map(key => `${labels[key]}: ${t('talent_limit')} (${effects.levels[key]} / ${effects.limits[key]})`).join(' · ');
+}
+
 // =========================
 // ❤️ Lebenspunkte Berechnung
 // =========================
@@ -1383,7 +1369,7 @@ function updateLebenspunkte() {
   const wkb = Math.floor(WK/10);
 
   const hardyLevel = checkTalentEffects();
-  const robust = wib * hardyLevel; // Robustheit: WI-Bonus mal Talentstufe
+  const robust = Math.floor(WI / 10) * hardyLevel; // Robustheit: WI-Bonus mal Talentstufe
 
   document.getElementById("lp-stb").value = stb;
   document.getElementById("lp-wib").value = wib;
@@ -1392,6 +1378,9 @@ function updateLebenspunkte() {
 
   const gesamt = stb + wib + wkb + (hardyLevel > 0 ? robust : 0);
   document.getElementById("lp-gesamt").value = gesamt;
+  const current = parseInt(document.getElementById('lp-aktuell').value) || 0;
+  document.getElementById('lp-warning').textContent = current > gesamt ? t('wounds_above_max') : '';
+  updateTalentWarnings();
 }
 
 // =========================
@@ -1400,17 +1389,19 @@ function updateLebenspunkte() {
 function updateKorruption() {
   const WI = parseInt(document.getElementById("WI-akt").value) || 0;
   const WK = parseInt(document.getElementById("WK-akt").value) || 0;
-  const max = Math.floor(WI/10) + Math.floor(WK/10); // zulässige Korruption
+  const max = Math.floor(WI/10) + Math.floor(WK/10) + readTalentEffects().corruption; // zulässige Korruption
   const akt = parseInt(document.getElementById("korruption-akt").value) || 0;
 
   const maxEl = document.getElementById("korruption-max");
   maxEl.value = max;
+  document.getElementById('corruption-talent-bonus').value = readTalentEffects().corruption;
 
   if (akt > max) {
     document.getElementById("korruption-akt").classList.add("readonly-red");
-    alert("⚠️ Korruption über Maximum – Wurf auf Mutation/Wahnsinn nötig!");
+    document.getElementById('corruption-warning').textContent = t('corruption_above_max');
   } else {
     document.getElementById("korruption-akt").classList.remove("readonly-red");
+    document.getElementById("corruption-warning").textContent = "";
   }
 }
 
@@ -1620,7 +1611,7 @@ function renderBaggageList(entries) {
 function updateTraglast() {
   const ST = parseInt(document.getElementById("ST-akt").value) || 0;
   const WI = parseInt(document.getElementById("WI-akt").value) || 0;
-  const max = Math.floor(ST/10) + Math.floor(WI/10); // maximale Traglast
+  const max = Math.floor(ST/10) + Math.floor(WI/10) + readTalentEffects().encumbrance; // maximale Traglast
 
   let waffenTP = 0, ruestungTP = 0, ausrTP = 0, gepaeckTP = 0;
   const baggageEntries = [];
@@ -1662,6 +1653,8 @@ function updateTraglast() {
   document.getElementById("trag-ausruestung").value = ausrTP;
   const gepaeckEl = document.getElementById("trag-gepaeck");
   if (gepaeckEl) gepaeckEl.value = gepaeckTP;
+  document.getElementById('trag-strong-back').value = readTalentEffects().levels.strongBack;
+  document.getElementById('trag-sturdy').value = readTalentEffects().levels.sturdy * 2;
   document.getElementById("trag-max").value = max;
   const gesamtEl = document.getElementById("trag-gesamt");
   gesamtEl.value = gesamt;
@@ -2353,14 +2346,29 @@ function initStatesSection() {
 // 🚀 Init
 // =========================
 function initLogic() {
+  if (logicInitialized) return;
+  logicInitialized = true;
   renderSections();
-  initSectionToggles();
-  initFinanzenToggle();
+  try {
+    const fields = new Set(document.querySelectorAll('#main-content [id]'));
+    const allowed = new Set(Array.from(fields, el => el.id));
+    characterStore = new CharacterStore.Store(localStorage, allowed);
+    activeEdition = ['4e', '5e'].includes(characterStore.data.edition) ? characterStore.data.edition : '4e';
+    renderEdition();
+  } catch (error) {
+    loadFailed = true;
+    storageError(error);
+    document.getElementById('main-content').hidden = true;
+    document.querySelectorAll('#character-management button, #character-management select').forEach(el => { el.disabled = true; });
+    document.getElementById('load-error').hidden = false;
+    return;
+  }
   initCharacterManagement();
-  initStatesSection();
+  initEditionManagement();
 
   document.addEventListener("input", e => {
-    if (!e.target.matches("input, textarea, select")) return;
+    if (!e.target.matches("input, textarea, select") || !e.target.closest('#main-content')) return;
+    if (activeEdition === '5e') { saveState(); return; }
     if (e.target.closest('#gepaeck-list')) {
       saveState();
       return;
@@ -2368,26 +2376,9 @@ function initLogic() {
     updateAttributes();
   });
 
-  const toggle = document.getElementById("exp-toggle");
-  const addArmorButton = document.getElementById("add-armor-button");
-  const levelUpButton = document.getElementById("levelup-open");
-  if (toggle) {
-    toggle.addEventListener("change", () => {
-      syncExperienceMode();
-      updateErfahrung();
-      saveState();
-    });
-  }
-  if (addArmorButton) {
-    addArmorButton.addEventListener("click", openArmorDialog);
-  }
-  if (levelUpButton) {
-    levelUpButton.addEventListener("click", openLevelUpOverlay);
-  }
-
   loadState();
   if (!currentCharacter) {
     ensureInitialRows();
-    updateAttributes();
+    if (activeEdition === '4e') updateAttributes();
   }
 }

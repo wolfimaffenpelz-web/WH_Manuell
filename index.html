@@ -22,6 +22,7 @@
   <!-- Styles: getrennte Stylesheets für Mobile und Desktop -->
   <link rel="stylesheet" href="css/style-mobile.css" media="(max-width: 1199px)">
   <link rel="stylesheet" href="css/style-desktop.css" media="(min-width: 1200px)">
+  <link rel="stylesheet" href="css/management.css">
 </head>
 <body>
   <div id="splash-screen"></div>
@@ -51,6 +52,17 @@
       <button id="settings" class="icon-btn" data-i18n-title="settings"></button><!-- öffnet Einstellungen -->
       <input type="file" id="import-file" accept="application/json" style="display:none">
     </div>
+    <div class="edition-controls">
+      <label for="edition-select" data-i18n="edition"></label>
+      <select id="edition-select"><option value="4e">WFRP 4e</option><option value="5e">WFRP 5e</option></select>
+      <button id="status-character" type="button" data-i18n="mark_deceased"></button>
+      <button id="transfer-character" type="button" data-i18n="transfer_character"></button>
+      <button id="recover-character" type="button" data-i18n="recover_character" hidden></button>
+    </div>
+    <div id="load-error" class="rule-warning" role="alert" hidden>
+      <p data-i18n="load_error"></p><button id="retry-load" type="button" data-i18n="retry_load"></button>
+    </div>
+    <details id="transfer-report" hidden><summary data-i18n="transfer_report"></summary><div id="transfer-report-body"></div></details>
     <div class="char-fields">
       <div id="current-character" class="current-character-field"></div>
     </div>
@@ -61,44 +73,16 @@
   </main><!-- hier werden beim Start alle Bereiche eingefügt -->
 
   <footer>
-    <p>⚔ Warhammer Fantasy Charakterbogen – Version 0.8.2</p><!-- einfache Fußzeile mit Version -->
+    <p>⚔ Warhammer Fantasy Charakterbogen – Version 0.9.0</p><!-- einfache Fußzeile mit Version -->
   </footer>
 
   <!-- Scripts: Übersetzungen, Struktur und Logik -->
   <script src="js/translations.js"></script>
   <script src="js/sections.js"></script>
+  <script src="js/character-store.js"></script>
+  <script src="js/rules.js"></script>
   <script src="js/logic.js"></script>
-  <script>
-    window.addEventListener('load', () => {
-      const splash = document.getElementById('splash-screen');
-      if (splash) splash.style.display = 'none';
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/service-worker.js').then(reg => {
-          const promptUser = worker => {
-            if (confirm(t('update_available'))) {
-              worker.postMessage({ type: 'SKIP_WAITING' });
-            }
-          };
-
-          if (reg.waiting) {
-            promptUser(reg.waiting);
-          }
-
-          reg.addEventListener('updatefound', () => {
-            const newWorker = reg.installing;
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                promptUser(newWorker);
-              }
-            });
-          });
-
-          navigator.serviceWorker.addEventListener('controllerchange', () => {
-            window.location.reload();
-          });
-        });
-      }
-    });
-  </script>
+  <script src="js/edition-ui.js"></script>
+  <script src="js/offline.js"></script>
 </body>
 </html>

@@ -4,13 +4,12 @@
   "description": "Static Warhammer manual app",
   "scripts": {
     "start": "lite-server",
-    "lint": "eslint js",
-    "build": "rollup -c",
-    "test": "echo \"No tests specified\""
+    "lint": "eslint js service-worker.js",
+    "test": "node --test tests/*.test.cjs"
   },
   "devDependencies": {
     "lite-server": "^2.6.1",
     "eslint": "^8.0.0",
-    "rollup": "^3.0.0"
+    "jsdom": "^26.0.0"
   }
 }
