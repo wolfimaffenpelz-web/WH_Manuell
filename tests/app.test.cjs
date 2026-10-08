@@ -93,12 +93,23 @@ test('edition switching, empty 5e creation and reload never invoke 4e calculatio
 test('deceased status persists, blocks edits and can be reversed without unlocking calculated fields', () => {
   const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
   try {
-    a.doc.getElementById('status-character').click();
+    a.doc.getElementById('delete-character').click();
+    assert.equal(a.doc.getElementById('del-kill').textContent, a.get("t('mark_deceased')"));
+    a.w.confirm = () => false;
+    a.doc.getElementById('del-kill').click();
+    assert.equal(a.get('characterStore.get(currentCharacter).status'), 'alive');
+    assert.ok(a.doc.getElementById('del-kill'));
+    a.w.confirm = () => true;
+    a.doc.getElementById('del-kill').click();
+    assert.equal(a.doc.getElementById('status-character'), null);
+    assert.equal(a.doc.getElementById('del-kill'), null);
     assert.equal(a.get('characterStore.get(currentCharacter).status'), 'deceased');
     assert.equal(a.doc.getElementById('char-name').disabled, true);
     a.get('loadState()');
     assert.equal(a.doc.getElementById('char-name').disabled, true);
-    a.doc.getElementById('status-character').click();
+    a.doc.getElementById('delete-character').click();
+    assert.equal(a.doc.getElementById('del-kill').textContent, a.get("t('revive_character')"));
+    a.doc.getElementById('del-kill').click();
     assert.equal(a.doc.getElementById('char-name').disabled, false);
     assert.equal(a.doc.getElementById('lp-gesamt').readOnly, true);
     assert.equal(a.doc.querySelector('#grupp-table select').disabled, false);

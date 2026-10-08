@@ -75,8 +75,7 @@ function updateCharacterDisplay() {
     ? `${t('active_character')} ${record.name} · ${record.edition}${record.status === 'deceased' ? ' · ' + t('deceased') : ''}`
     : t('no_character');
   document.getElementById('edition-select').value = activeEdition;
-  document.getElementById('status-character').textContent = t(record?.status === 'deceased' ? 'revive_character' : 'mark_deceased');
-  ['status-character', 'delete-character', 'export-character'].forEach(id => { document.getElementById(id).disabled = !record; });
+  ['delete-character', 'export-character'].forEach(id => { document.getElementById(id).disabled = !record; });
   document.getElementById('transfer-character').hidden = activeEdition !== '4e';
   document.getElementById('transfer-character').disabled = !record || loadFailed;
   document.getElementById('recover-character').hidden = !record?.recovery;
@@ -112,15 +111,16 @@ function syncCharacterLock() {
 }
 
 function toggleCharacterStatus() {
-  if (!currentCharacter || loadFailed) return;
+  if (!currentCharacter || loadFailed) return false;
   const dead = characterStore.get(currentCharacter).status === 'deceased';
-  if (!confirm(t(dead ? 'revive_confirm' : 'deceased_confirm'))) return;
-  if (!saveState()) return;
+  if (!confirm(t(dead ? 'revive_confirm' : 'deceased_confirm'))) return false;
+  if (!saveState()) return false;
   try {
     characterStore.setStatus(currentCharacter, dead ? 'alive' : 'deceased');
     syncCharacterLock();
     updateCharacterDisplay();
-  } catch (error) { storageError(error); }
+    return true;
+  } catch (error) { storageError(error); return false; }
 }
 
 // Öffnet Eingabe zur Erstellung eines neuen Charakters
@@ -230,6 +230,7 @@ function initCharacterManagement() {
     overlay.innerHTML = `
       <div class="overlay-content">
         <p>${t('delete_confirm_prefix')}${escapeHtml(characterName())}${t('delete_confirm_suffix')}</p>
+        <button id="del-kill" type="button" ${loadFailed ? 'disabled' : ''}>${t(characterStore.get(currentCharacter).status === 'deceased' ? 'revive_character' : 'mark_deceased')}</button>
         <button id="del-yes">${t('delete_char')}</button>
         <button id="del-no">${t('cancel')}</button>
       </div>
@@ -240,6 +241,9 @@ function initCharacterManagement() {
 
     overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
     overlay.querySelector("#del-no").addEventListener("click", close);
+    overlay.querySelector('#del-kill').addEventListener('click', () => {
+      if (toggleCharacterStatus()) close();
+    });
     overlay.querySelector("#del-yes").addEventListener("click", () => {
       const confirmOverlay = document.createElement("div");
       confirmOverlay.className = "overlay";

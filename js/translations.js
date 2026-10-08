@@ -82,7 +82,7 @@ const baseTranslations = {
   delete_confirm: "Charakter wirklich löschen?",
   kill_confirm: "Charakter wirklich töten?",
   delete_confirm_prefix: "Charakter ",
-  delete_confirm_suffix: " löschen?",
+  delete_confirm_suffix: " verwalten:",
   settings_placeholder: "Einstellungen folgen später.",
   settings: "Einstellungen",
   update_available: "Neue Version verfügbar – jetzt aktualisieren?",

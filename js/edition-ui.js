@@ -24,7 +24,6 @@ function initEditionManagement() {
       renderEdition(); loadCharacterList(); loadState();
     } catch (error) { event.target.value = activeEdition; storageError(error); }
   });
-  document.getElementById('status-character').addEventListener('click', toggleCharacterStatus);
   document.getElementById('retry-load').addEventListener('click', loadState);
   document.getElementById('recover-character').addEventListener('click', () => {
     if (!currentCharacter || !confirm(t('recover_confirm'))) return;

@@ -49,7 +49,8 @@ Historie die JSON-Backups aufbewahren.
 Während des Ladens wird nicht gespeichert. Bei einem Ladefehler bleibt der
 Bogen gesperrt; der gespeicherte Datensatz kann exportiert und das Laden erneut
 versucht werden. „Verstorben“ wird dauerhaft gespeichert und sperrt die
-Bearbeitung; „Als lebend markieren“ hebt die Sperre wieder auf.
+Bearbeitung; „Als lebend markieren“ hebt die Sperre wieder auf. Beide Aktionen befinden sich
+im Popup der Charakter-Löschschaltfläche.
 
 ## Vier automatische Talente
 
