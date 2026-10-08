@@ -619,7 +619,8 @@ const healthSections = ['injuries', 'diseases'].map(key => ({
       <th>${t('entry')}</th><th>${t('effect')}</th><th>${t('treatment_progress')}</th><th class="delete-col"></th>
     </tr></table>`
 }));
-sections.push(narrativeSection, ...healthSections);
+sections.splice(sections.findIndex(section => section.id === 'grunddaten') + 1, 0, narrativeSection);
+sections.splice(sections.findIndex(section => section.id === 'lebenspunkte') + 1, 0, ...healthSections);
 const edition5Sections = [{
   id: 'grunddaten', title: t('draft_5e'),
   content: `<p>${t('transfer_pending')}</p><table class="full-width two-col-table">${[
