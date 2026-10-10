@@ -63,12 +63,13 @@ test('character switching clears fields absent from older backups', () => {
   } finally { a.close(); }
 });
 
-test('edition switching, empty 5e creation and reload never invoke 4e calculations', () => {
+test('edition switching, 5e creation and reload preserve separate full sheets', () => {
   const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
   try {
     const select = a.doc.getElementById('edition-select');
     select.value = '5e'; select.dispatchEvent(new a.w.Event('change'));
-    assert.equal(a.doc.getElementById('attribute-table'), null);
+    assert.ok(a.doc.getElementById('attribute-table'));
+    assert.equal(a.doc.getElementById('exp-advance-step').value, '5');
     assert.equal(a.get('currentCharacter'), null);
     a.doc.getElementById('new-character').click();
     a.doc.getElementById('new-char-name').value = 'Karl 5';
@@ -130,7 +131,7 @@ test('load failures cannot replace stored records; retry restores a usable sheet
   } finally { a.close(); }
 });
 
-test('transfer requires confirmation, produces a 5e draft and keeps complete source report', () => {
+test('transfer requires confirmation, produces a full 5e character and keeps complete source report', () => {
   const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
   try {
     const source = a.get('currentCharacter');
@@ -358,6 +359,117 @@ test('deletion can be cancelled and deleting the last character resets the sheet
     assert.equal(a.doc.getElementById('char-name').value, '');
     assert.equal(a.doc.getElementById('export-character').disabled, true);
     assert.equal(a.doc.getElementById('state-bleeding-value').value, '0');
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
+});
+
+function fifth(a) {
+  a.get("currentCharacter = characterStore.transfer(currentCharacter); activeEdition = '5e'; renderEdition(); loadCharacterList(); loadState()");
+}
+
+test('5e full sheet recalculates transferred talent values and preserves inventory and history', () => {
+  const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+  try {
+    a.doc.getElementById('verm-gk').value = '7'; a.get('saveState()');
+    const original = a.get('currentCharacter');
+    fifth(a);
+    assert.equal(a.doc.getElementById('lp-gesamt').value, '15');
+    assert.equal(a.doc.getElementById('korruption-max').value, '12');
+    assert.equal(a.doc.getElementById('trag-max').value, '12');
+    assert.equal(a.doc.getElementById('verm-gk').value, '7');
+    assert.equal(a.doc.getElementById('lp-aktuell').value, '18');
+    assert.equal(a.doc.getElementById('exp-advance-step').value, '1');
+    a.doc.getElementById('ST-steig').value = '10';
+    a.doc.getElementById('ST-steig').dispatchEvent(new a.w.Event('input', { bubbles: true }));
+    assert.equal(a.doc.getElementById('trag-max').value, '14');
+    assert.equal(a.get(`characterStore.get('${original}').state['ST-steig']`), '');
+    a.doc.getElementById('korruption-akt').value = '12'; a.get('updateKorruption()');
+    assert.equal(a.doc.getElementById('corruption-warning').textContent, '');
+    a.doc.getElementById('korruption-akt').value = '13'; a.get('updateKorruption()');
+    assert.match(a.doc.getElementById('corruption-warning').textContent, /Ausdauerprobe/);
+    a.get('saveState(); loadState()');
+    assert.equal(a.doc.getElementById('ST-akt').value, '40');
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
+});
+
+test('5e +5 purchases use correct costs; off-grid values require +1 until aligned', () => {
+  const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+  try {
+    fifth(a);
+    a.doc.getElementById('ST-mark').value = '1';
+    a.doc.getElementById('ST-steig').value = '4';
+    a.doc.getElementById('exp-simple-akt').value = '1000';
+    a.doc.getElementById('exp-advance-step').value = '5';
+    a.get('updateAttributes(); openLevelUpOverlay()');
+    const plus = () => a.doc.querySelector('tr[data-entry="attr-ST"] [data-act="plus"]');
+    assert.equal(plus().disabled, true);
+    const mode = a.doc.getElementById('levelup-step');
+    mode.value = '1'; mode.dispatchEvent(new a.w.Event('change'));
+    plus().click(); assert.equal(a.doc.getElementById('levelup-total').textContent, '25');
+    a.doc.getElementById('levelup-confirm').click();
+    assert.equal(a.doc.getElementById('ST-steig').value, '5');
+    assert.equal(a.get('getAvailableXP()'), 975);
+    a.get('openLevelUpOverlay()');
+    const bundle = a.doc.getElementById('levelup-step');
+    bundle.value = '5'; bundle.dispatchEvent(new a.w.Event('change'));
+    plus().click(); assert.equal(a.doc.getElementById('levelup-total').textContent, '175');
+    a.doc.getElementById('levelup-confirm').click();
+    assert.equal(a.doc.getElementById('ST-steig').value, '10');
+    assert.equal(a.get('getAvailableXP()'), 800);
+    a.get('loadState()'); assert.equal(a.doc.getElementById('exp-advance-step').value, '5');
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
+});
+
+test('5e Strong Back second purchase costs 100 XP and respects the talent limit', () => {
+  const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+  try {
+    fifth(a);
+    const row = a.doc.querySelector('#talent-table tr:nth-child(4)');
+    row.cells[1].querySelector('input').value = '1';
+    row.cells[0].querySelector('input[type=hidden]').value = '1';
+    a.doc.getElementById('exp-simple-akt').value = '200';
+    a.doc.getElementById('exp-advance-step').value = '5';
+    a.get('updateAttributes(); openLevelUpOverlay()');
+    const plus = a.doc.querySelector('tr[data-entry="talent-3"] [data-act="plus"]');
+    assert.equal(plus.textContent, '+1');
+    plus.click(); assert.equal(plus.disabled, true);
+    assert.equal(a.doc.getElementById('levelup-total').textContent, '100');
+    a.doc.getElementById('levelup-confirm').click();
+    assert.equal(row.cells[1].querySelector('input').value, '2');
+    assert.equal(a.doc.getElementById('trag-strong-back').value, '3');
+    assert.equal(a.get('getAvailableXP()'), 100);
+    a.get('openLevelUpOverlay()');
+    assert.equal(a.doc.querySelector('tr[data-entry="talent-3"]'), null);
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
+});
+
+test('5e +5 skill purchases use the selected full XP ledger and block unaffordable advances', () => {
+  const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+  try {
+    fifth(a);
+    a.doc.getElementById('exp-toggle').checked = true;
+    a.doc.querySelector('#exp-table tr:nth-child(2) input').value = '100';
+    // An unused simple-mode total must not supply the full-mode purchase.
+    a.doc.getElementById('exp-simple-akt').value = '999';
+    a.doc.getElementById('exp-simple-gesamt').value = '999';
+    a.doc.getElementById('exp-advance-step').value = '5';
+    a.doc.getElementById('grund-Klettern-mark').value = '1';
+    a.doc.getElementById('ST-mark').value = '1';
+    a.get('updateAttributes(); openLevelUpOverlay()');
+    assert.equal(a.doc.querySelector('tr[data-entry="attr-ST"] [data-act="plus"]').disabled, true);
+    const plus = a.doc.querySelector('tr[data-entry="grund-Klettern"] [data-act="plus"]');
+    plus.click(); assert.equal(a.doc.getElementById('levelup-total').textContent, '50');
+    a.doc.getElementById('levelup-confirm').click();
+    assert.equal(a.doc.getElementById('grund-Klettern-steig').value, '5');
+    assert.equal(a.get('getAvailableXP()'), 50);
+    const values = Array.from(a.doc.querySelectorAll('#exp-table tr input'), input => input.value);
+    assert.ok(values.includes('-50'));
+    a.get('loadState(); openLevelUpOverlay()');
+    assert.equal(a.doc.querySelector('tr[data-entry="grund-Klettern"] [data-act="plus"]').disabled, true);
+    assert.equal(a.doc.getElementById('exp-simple-akt').value, '999');
     assert.deepEqual(a.errors, []);
   } finally { a.close(); }
 });

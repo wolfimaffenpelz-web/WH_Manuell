@@ -174,7 +174,7 @@ function initCharacterManagement() {
   loadCharacterList();
   if (!currentCharacter) {
     ensureInitialRows();
-    if (activeEdition === '4e') updateAttributes();
+    updateAttributes();
   }
 
   if (cycleBtn) {
@@ -597,16 +597,14 @@ function loadState() {
     const state = characterStore.get(currentCharacter).state;
     document.querySelectorAll('#main-content input[id], #main-content textarea[id], #main-content select[id]').forEach(el => {
       if (el.type === 'checkbox' || el.type === 'radio') el.checked = state[el.id] === true;
-      else el.value = state[el.id] ?? (el.type === 'hidden' ? '0' : '');
+      else el.value = state[el.id] ?? (el.id === 'exp-advance-step' ? (activeEdition === '5e' ? '5' : '1') : el.type === 'hidden' ? '0' : '');
     });
     CharacterStore.TABLES.forEach(id => deserializeTable(id, state[id]));
     ensureInitialRows();
-    if (activeEdition === '4e') {
-      syncExperienceMode();
-      updateAttributes();
-      restoreMarkers();
-      syncStateCardsFromInputs();
-    }
+    syncExperienceMode();
+    updateAttributes();
+    restoreMarkers();
+    syncStateCardsFromInputs();
     document.querySelectorAll('#main-content textarea').forEach(autoResize);
   } catch (error) {
     loadFailed = true;
@@ -654,7 +652,7 @@ function resetCharacterSheet() {
     if (el.type === "checkbox" || el.type === "radio") {
       el.checked = false;
     } else {
-      el.value = "";
+      el.value = el.id === 'exp-advance-step' ? (activeEdition === '5e' ? '5' : '1') : '';
     }
   });
 
@@ -693,7 +691,7 @@ function resetCharacterSheet() {
   });
 
   ensureInitialRows();
-  if (activeEdition === '4e') { updateAttributes(); syncStateCardsFromInputs(); }
+  updateAttributes(); syncStateCardsFromInputs();
   loadingState = wasLoading;
   syncCharacterLock();
   updateCharacterDisplay();
@@ -1338,13 +1336,13 @@ function addRow(tableId) {
 // =========================
 // ⭐ Talente Logik (inkl. Robustheit)
 // =========================
-// Ähnlichkeitsberechnung per Levenshtein-Distanz
+// Exakte deutsche/englische Talentnamen; Hinweise bleiben manuell.
 function readTalentEffects() {
   const entries = Array.from(document.querySelectorAll('#talent-table tr')).slice(1).map(row => ({
     name: row.cells[0].querySelector('textarea, input[type="text"]')?.value || '',
     level: row.cells[1].querySelector('input')?.value || ''
   }));
-  return WFRP4Rules.talentEffects(entries, {
+  return (activeEdition === '5e' ? WFRP5Rules : WFRP4Rules).talentEffects(entries, {
     strength: parseInt(document.getElementById('ST-akt').value) || 0,
     toughness: parseInt(document.getElementById('WI-akt').value) || 0,
     willpower: parseInt(document.getElementById('WK-akt').value) || 0
@@ -1373,7 +1371,7 @@ function updateLebenspunkte() {
   const wkb = Math.floor(WK/10);
 
   const hardyLevel = checkTalentEffects();
-  const robust = Math.floor(WI / 10) * hardyLevel; // Robustheit: WI-Bonus mal Talentstufe
+  const robust = readTalentEffects().wounds; // Robustheit: WI-Bonus mal Talentstufe
 
   document.getElementById("lp-stb").value = stb;
   document.getElementById("lp-wib").value = wib;
@@ -1402,7 +1400,7 @@ function updateKorruption() {
 
   if (akt > max) {
     document.getElementById("korruption-akt").classList.add("readonly-red");
-    document.getElementById('corruption-warning').textContent = t('corruption_above_max');
+    document.getElementById('corruption-warning').textContent = t(activeEdition === '5e' ? 'corruption_5e_test' : 'corruption_above_max');
   } else {
     document.getElementById("korruption-akt").classList.remove("readonly-red");
     document.getElementById("corruption-warning").textContent = "";
@@ -1657,8 +1655,8 @@ function updateTraglast() {
   document.getElementById("trag-ausruestung").value = ausrTP;
   const gepaeckEl = document.getElementById("trag-gepaeck");
   if (gepaeckEl) gepaeckEl.value = gepaeckTP;
-  document.getElementById('trag-strong-back').value = readTalentEffects().levels.strongBack;
-  document.getElementById('trag-sturdy').value = readTalentEffects().levels.sturdy * 2;
+  document.getElementById('trag-strong-back').value = activeEdition === '5e' ? readTalentEffects().strongBack : readTalentEffects().levels.strongBack;
+  document.getElementById('trag-sturdy').value = activeEdition === '5e' ? readTalentEffects().sturdy : readTalentEffects().levels.sturdy * 2;
   document.getElementById("trag-max").value = max;
   const gesamtEl = document.getElementById("trag-gesamt");
   gesamtEl.value = gesamt;
@@ -1781,7 +1779,12 @@ const levelUpCostBrackets = [
   { min: 46, max: 50, attrCost: 230, skillCost: 180 }
 ];
 
+function getAdvanceStep(entry) {
+  return activeEdition === '5e' && entry?.type !== 'talent' && document.getElementById('exp-advance-step')?.value === '5' ? 5 : 1;
+}
+
 function getBracketCost(advances, type) {
+  if (activeEdition === '5e') return WFRP5Rules.advanceCost(Math.max(0, advances - 1), 1, type);
   const safeAdvances = Math.max(1, advances);
   const bracket = levelUpCostBrackets.find(entry => safeAdvances >= entry.min && safeAdvances <= entry.max)
     || levelUpCostBrackets[levelUpCostBrackets.length - 1];
@@ -1789,6 +1792,11 @@ function getBracketCost(advances, type) {
 }
 
 function getPreferredExperienceSource() {
+  if (activeEdition === '5e') {
+    const mode = document.getElementById('exp-toggle').checked ? 'full' : 'simple';
+    return { mode, total: parseInt(document.getElementById(`exp-${mode}-gesamt`).value, 10) || 0,
+      available: parseInt(document.getElementById(`exp-${mode}-akt`).value, 10) || 0 };
+  }
   const simpleTotal = parseInt(document.getElementById("exp-simple-gesamt")?.value, 10) || 0;
   const fullTotal = parseInt(document.getElementById("exp-full-gesamt")?.value, 10) || 0;
   if (simpleTotal > fullTotal) {
@@ -1810,6 +1818,7 @@ function getAvailableXP() {
 }
 
 function formatLevelValue(entry, delta = 0, deltas = {}) {
+  if (entry.type === 'talent') return String(entry.currentAdvances() + delta);
   if (entry.type === "attribute") {
     const start = parseInt(document.getElementById(`${entry.key}-start`)?.value, 10) || 0;
     const baseSteig = parseInt(document.getElementById(`${entry.key}-steig`)?.value, 10) || 0;
@@ -1896,6 +1905,24 @@ function buildLevelUpEntries() {
     });
   });
 
+  if (activeEdition === '5e') {
+    const effects = readTalentEffects();
+    document.querySelectorAll('#talent-table tr').forEach((row, index) => {
+      if (index === 0) return;
+      const marker = row.cells[0]?.querySelector('input[type="hidden"]');
+      const name = row.cells[0]?.querySelector('textarea')?.value?.trim();
+      const level = row.cells[1]?.querySelector('input');
+      if (!name || !level || marker?.value !== '1') return;
+      const key = WFRP5Rules.identify(name);
+      // For other talents, repeatability has not been supplied: only the first purchase.
+      const acquired = level.value === '' ? 1 : Math.max(0, parseInt(level.value, 10) || 0);
+      const maximum = key ? Math.max(0, WFRP5Rules.talentLimits[key] - effects.levels[key]) : acquired > 0 ? 0 : 1;
+      if (maximum === 0) return;
+      entries.push({ id: `talent-${index}`, type: 'talent', group: 'talents', label: name,
+        maxDelta: maximum, talentKey: key, currentAdvances: () => level.value === '' ? 1 : parseInt(level.value, 10) || 0,
+        attributeSource: () => null, apply: delta => { level.value = String((level.value === '' ? 1 : parseInt(level.value, 10) || 0) + delta); } });
+    });
+  }
   return entries;
 }
 
@@ -1903,6 +1930,7 @@ function calculateLevelUpCost(entries, deltas) {
   return entries.reduce((total, entry) => {
     const delta = deltas[entry.id] || 0;
     if (delta <= 0) return total;
+    if (activeEdition === '5e') return total + WFRP5Rules.advanceCost(entry.currentAdvances(), delta, entry.type);
     let sum = total;
     for (let i = 0; i < delta; i++) {
       const advancesAtPurchase = entry.currentAdvances() + i + 1;
@@ -1927,6 +1955,7 @@ function openLevelUpOverlay() {
         <div><strong>${t('levelup_available_xp')}:</strong> <span id="levelup-available">${getAvailableXP()}</span></div>
         <button type="button" id="levelup-clear">🧹 ${t('levelup_clear')}</button>
       </div>
+      ${activeEdition === '5e' ? `<label>${t('advance_step')}<select id="levelup-step"><option value="5">${t('advance_five')}</option><option value="1">${t('advance_single')}</option></select></label><p>${t('advance_boundary_hint')}</p><p>${t('talent_5e_cost_hint')}</p>` : ''}
       <div class="levelup-cost-table-wrap">
         <h3>${t('levelup_cost_table_title')}</h3>
         <table class="full-width levelup-cost-table">
@@ -1935,11 +1964,11 @@ function openLevelUpOverlay() {
             <th>${t('levelup_cost_col_attr')}</th>
             <th>${t('levelup_cost_col_skill')}</th>
           </tr>
-          ${levelUpCostBrackets.map(row => `
+          ${(activeEdition === '5e' ? WFRP5Rules.brackets : levelUpCostBrackets).map(row => `
             <tr>
-              <td>${row.min}-${row.max}</td>
-              <td>${row.attrCost}</td>
-              <td>${row.skillCost}</td>
+              <td>${row.max === Infinity ? row.min + '+' : row.min + '-' + row.max}</td>
+              <td data-unit-cost="${row.attrCost}">${row.attrCost * getAdvanceStep()}</td>
+              <td data-unit-cost="${row.skillCost}">${row.skillCost * getAdvanceStep()}</td>
             </tr>
           `).join('')}
         </table>
@@ -1957,14 +1986,16 @@ function openLevelUpOverlay() {
   const grouped = {
     attributes: entries.filter(e => e.group === "attributes"),
     basic_skills: entries.filter(e => e.group === "basic_skills"),
-    grouped_skills: entries.filter(e => e.group === "grouped_skills")
+    grouped_skills: entries.filter(e => e.group === "grouped_skills"),
+    talents: entries.filter(e => e.group === "talents")
   };
 
   const container = overlay.querySelector("#levelup-tables");
   const groupDefs = [
     { key: "attributes", title: t('levelup_group_attributes') },
     { key: "basic_skills", title: t('levelup_group_basic_skills') },
-    { key: "grouped_skills", title: t('levelup_group_grouped_skills') }
+    { key: "grouped_skills", title: t('levelup_group_grouped_skills') },
+    ...(activeEdition === '5e' ? [{ key: 'talents', title: t('talents') }] : [])
   ];
 
   groupDefs.forEach(group => {
@@ -2000,6 +2031,15 @@ function openLevelUpOverlay() {
     container.appendChild(block);
   });
 
+  function talentPlanWithinLimits(proposal) {
+    if (activeEdition !== '5e') return true;
+    const effects = readTalentEffects();
+    return Object.keys(effects.limits).every(key => {
+      const extra = entries.filter(entry => entry.talentKey === key).reduce((sum, entry) => sum + (proposal[entry.id] || 0), 0);
+      return extra === 0 || effects.levels[key] + extra <= effects.limits[key];
+    });
+  }
+
   function render() {
     updateErfahrung();
     const total = calculateLevelUpCost(entries, deltas);
@@ -2014,7 +2054,24 @@ function openLevelUpOverlay() {
       row.querySelector("[data-delta]").textContent = formatAdvanceDelta(entry, delta);
       row.querySelector(".levelup-projected").textContent = formatLevelValue(entry, delta, deltas);
       row.querySelector('[data-act="minus"]').disabled = delta <= 0;
-      row.querySelector('[data-act="plus"]').disabled = calculateLevelUpCost(entries, { ...deltas, [entry.id]: delta + 1 }) > available;
+      const step = getAdvanceStep(entry);
+      const misaligned = step === 5 && (entry.currentAdvances() + delta) % 5 !== 0;
+      const plus = row.querySelector('[data-act="plus"]');
+      plus.disabled = !talentPlanWithinLimits({ ...deltas, [entry.id]: delta + step }) || misaligned || (entry.maxDelta !== undefined && delta + step > entry.maxDelta) || calculateLevelUpCost(entries, { ...deltas, [entry.id]: delta + step }) > available;
+      plus.textContent = `+${step}`;
+      plus.title = misaligned ? t('advance_boundary_hint') : '';
+      row.querySelector('[data-act="minus"]').textContent = `−${step}`;
+    });
+  }
+
+  const stepSelect = overlay.querySelector('#levelup-step');
+  if (stepSelect) {
+    stepSelect.value = document.getElementById('exp-advance-step').value;
+    stepSelect.addEventListener('change', () => {
+      document.getElementById('exp-advance-step').value = stepSelect.value;
+      Object.keys(deltas).forEach(key => { deltas[key] = 0; });
+      overlay.querySelectorAll('[data-unit-cost]').forEach(cell => { cell.textContent = Number(cell.dataset.unitCost) * getAdvanceStep(); });
+      saveState(); render();
     });
   }
 
@@ -2034,11 +2091,15 @@ function openLevelUpOverlay() {
     const entry = entries.find(item => item.id === row.dataset.entry);
     if (!entry) return;
     row.querySelector('[data-act="minus"]').addEventListener("click", () => {
-      deltas[entry.id] = Math.max(0, (deltas[entry.id] || 0) - 1);
+      deltas[entry.id] = Math.max(0, (deltas[entry.id] || 0) - getAdvanceStep(entry));
       render();
     });
     row.querySelector('[data-act="plus"]').addEventListener("click", () => {
-      const next = (deltas[entry.id] || 0) + 1;
+      const step = getAdvanceStep(entry);
+      if (step === 5 && (entry.currentAdvances() + (deltas[entry.id] || 0)) % 5 !== 0) return;
+      const next = (deltas[entry.id] || 0) + step;
+      if (entry.maxDelta !== undefined && next > entry.maxDelta) return;
+      if (!talentPlanWithinLimits({ ...deltas, [entry.id]: next })) return;
       const nextCost = calculateLevelUpCost(entries, { ...deltas, [entry.id]: next });
       if (nextCost > getAvailableXP()) return;
       deltas[entry.id] = next;
@@ -2062,6 +2123,9 @@ function openLevelUpOverlay() {
         beforeAdv: entry.currentAdvances()
       }));
 
+    if (!talentPlanWithinLimits(deltas)) return;
+    if (totalCost > getAvailableXP()) { alert(t('levelup_insufficient_xp')); return; }
+    if (entries.some(entry => (entry.maxDelta !== undefined && (deltas[entry.id] || 0) > entry.maxDelta) || (getAdvanceStep(entry) === 5 && (deltas[entry.id] || 0) > 0 && (entry.currentAdvances() % 5 !== 0 || deltas[entry.id] % 5 !== 0)))) return;
     entries.forEach(entry => {
       const delta = deltas[entry.id] || 0;
       if (delta !== 0) {
@@ -2372,7 +2436,6 @@ function initLogic() {
 
   document.addEventListener("input", e => {
     if (!e.target.matches("input, textarea, select") || !e.target.closest('#main-content')) return;
-    if (activeEdition === '5e') { saveState(); return; }
     if (e.target.closest('#gepaeck-list')) {
       saveState();
       return;
@@ -2383,6 +2446,6 @@ function initLogic() {
   loadState();
   if (!currentCharacter) {
     ensureInitialRows();
-    if (activeEdition === '4e') updateAttributes();
+    updateAttributes();
   }
 }

@@ -2,15 +2,16 @@
 function renderEdition() {
   renderSections(activeEdition === '4e' ? sections : edition5Sections);
   initSectionToggles();
-  if (activeEdition === '4e') {
-    initFinanzenToggle();
-    initStatesSection();
-    document.getElementById('exp-toggle').addEventListener('change', () => {
-      syncExperienceMode(); updateErfahrung(); saveState();
-    });
-    document.getElementById('add-armor-button').addEventListener('click', openArmorDialog);
-    document.getElementById('levelup-open').addEventListener('click', openLevelUpOverlay);
-  }
+  document.getElementById('advance-step-control').hidden = activeEdition !== '5e';
+  document.getElementById('exp-advance-step').value = activeEdition === '5e' ? '5' : '1';
+  document.getElementById('exp-advance-step').addEventListener('change', saveState);
+  initFinanzenToggle();
+  initStatesSection();
+  document.getElementById('exp-toggle').addEventListener('change', () => {
+    syncExperienceMode(); updateErfahrung(); saveState();
+  });
+  document.getElementById('add-armor-button').addEventListener('click', openArmorDialog);
+  document.getElementById('levelup-open').addEventListener('click', openLevelUpOverlay);
 }
 
 function initEditionManagement() {
@@ -33,12 +34,15 @@ function initEditionManagement() {
   document.getElementById('transfer-character').addEventListener('click', () => {
     if (!currentCharacter || activeEdition !== '4e' || !saveState()) return;
     const sourceId = currentCharacter;
+    const conversion = WFRP5Rules.convertState(characterStore.get(sourceId).state);
     const overlay = document.createElement('div');
     overlay.className = 'overlay';
     overlay.innerHTML = `<div class="overlay-content">
       <h2>${t('transfer_preview')}</h2><p>${escapeHtml(characterName())}</p>
-      <p>${t('transfer_pending')}</p><p>${t('transfer_identity')}</p>
-      <p>${t('transfer_unresolved')}</p><p>${t('transfer_preserve')}</p>
+      <p>${t('transfer_ready')}</p><p>${t('transfer_all_values')}</p>
+      <p>${t('transfer_recalculate')}</p><p>${t('transfer_review')}</p>
+      <ul>${conversion.adjustments.map(item => `<li>${escapeHtml(item.name)}: ${item.before} → ${item.after}</li>`).join('')}</ul>
+      <p>${t('transfer_preserve')}</p>
       <button id="transfer-confirm">${t('transfer_confirm')}</button><button id="transfer-cancel">${t('cancel')}</button>
     </div>`;
     document.body.appendChild(overlay);
@@ -47,7 +51,7 @@ function initEditionManagement() {
     overlay.querySelector('#transfer-confirm').onclick = () => {
       try {
         currentCharacter = characterStore.transfer(sourceId);
-        activeEdition = '5e'; renderEdition(); loadCharacterList(); loadState(); overlay.remove();
+        activeEdition = '5e'; renderEdition(); loadCharacterList(); loadState(); if (!loadFailed) saveState(); overlay.remove();
       } catch (error) { storageError(error); }
     };
   });
@@ -58,14 +62,15 @@ function renderTransferReport(record) {
   report.hidden = !record?.transfer;
   const body = document.getElementById('transfer-report-body');
   // Avoid rebuilding the report (and closing its details) on every keystroke.
-  const reportKey = record?.transfer ? `${record.id}:${record.transfer.transferredAt}` : '';
+  const reportKey = record?.transfer ? `${record.id}:${record.transfer.transferredAt}:${record.transfer.rulesVersion}` : '';
   if (body.dataset.reportKey === reportKey) return;
   body.dataset.reportKey = reportKey;
   body.replaceChildren();
   if (!record?.transfer) return;
   const transfer = record.transfer;
-  for (const text of [t('transfer_pending'), `${t('transfer_source')}: ${transfer.sourceId}`,
-    `${t('transfer_date')}: ${formatDate(transfer.transferredAt)}`, t('transfer_identity'), t('transfer_unresolved')]) {
+  for (const text of [t(transfer.rulesVersion === 'pending' ? 'transfer_pending' : 'transfer_ready'), `${t('transfer_source')}: ${transfer.sourceId}`,
+    `${t('transfer_date')}: ${formatDate(transfer.transferredAt)}`, t(transfer.rulesVersion === 'pending' ? 'transfer_identity' : 'transfer_all_values'), t('transfer_review'),
+    ...(transfer.adjustments || []).map(item => `${item.name}: ${item.before} → ${item.after}`)]) {
     const paragraph = document.createElement('p'); paragraph.textContent = text; body.appendChild(paragraph);
   }
   const details = document.createElement('details');

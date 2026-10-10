@@ -135,6 +135,8 @@
     "t": "readonly",
     "applyTranslations": "readonly",
     "CharacterStore": "readonly",
-    "WFRP4Rules": "readonly"
+    "WFRP4Rules": "readonly",
+    "WFRP5Rules": "readonly",
+    "getAdvanceStep": "readonly"
   }
 }

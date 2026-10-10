@@ -52,7 +52,9 @@
   function cleanTransfer(transfer) {
     if (!transfer || typeof transfer !== 'object' || !validId(transfer.sourceId) || !Number.isFinite(Date.parse(transfer.transferredAt))) throw new Error('invalid_transfer');
     return { sourceId: transfer.sourceId, sourceEdition: '4e', transferredAt: transfer.transferredAt,
-      rulesVersion: 'pending', sourceName: typeof transfer.sourceName === 'string' ? transfer.sourceName : '',
+      rulesVersion: transfer.rulesVersion === '5e-group-v1' ? '5e-group-v1' : 'pending',
+      adjustments: Array.isArray(transfer.adjustments) ? transfer.adjustments.filter(item => typeof item.name === 'string' && Number.isInteger(item.before) && Number.isInteger(item.after) && item.after >= 0 && item.before >= item.after).map(item => ({ name: item.name, before: item.before, after: item.after })) : [],
+      sourceName: typeof transfer.sourceName === 'string' ? transfer.sourceName : '',
       sourceStatus: transfer.sourceStatus === 'deceased' ? 'deceased' : 'alive', sourceState: cleanState(transfer.sourceState) };
   }
   function filename(record, date = new Date()) {
@@ -179,14 +181,12 @@
     transfer(id) {
       const source = this.get(id);
       if (!source || source.edition !== '4e') throw new Error('invalid_source');
-      const targetId = uuid(), now = new Date().toISOString(), state = {};
-      for (const [key, value] of Object.entries(source.state)) {
-        if (/^story-/.test(key) || ['char-name', 'char-volk', 'char-geschlecht', 'char-alter', 'char-groesse', 'char-haare', 'char-augen'].includes(key)) state[key] = clone(value);
-      }
+      const targetId = uuid(), now = new Date().toISOString();
+      const { state, adjustments } = root.WFRP5Rules.convertState(this.clean(source.state));
       this.commit(data => {
         data.characters.push({ id: targetId, name: source.name, edition: '5e', status: source.status, state,
           createdAt: now, updatedAt: now, transfer: { sourceId: id, sourceEdition: '4e', transferredAt: now,
-            rulesVersion: 'pending', sourceName: source.name, sourceStatus: source.status, sourceState: this.clean(source.state) } });
+            rulesVersion: '5e-group-v1', adjustments, sourceName: source.name, sourceStatus: source.status, sourceState: this.clean(source.state) } });
         const original = data.characters.find(record => record.id === id);
         original.transfers = [...(original.transfers || []), { targetId, transferredAt: now }];
         data.edition = '5e'; data.active['5e'] = targetId;

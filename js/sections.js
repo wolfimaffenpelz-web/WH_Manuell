@@ -572,6 +572,9 @@ sections.push(
           <span class="slider"></span>
         </label>
         <label>${t('full')}</label>
+        <label id="advance-step-control" hidden>${t('advance_step')}
+          <select id="exp-advance-step"><option value="5">${t('advance_five')}</option><option value="1">${t('advance_single')}</option></select>
+        </label>
         <button type="button" id="levelup-open">${t('levelup_open')}</button>
       </div>
 
@@ -621,10 +624,5 @@ const healthSections = ['injuries', 'diseases'].map(key => ({
 }));
 sections.splice(sections.findIndex(section => section.id === 'grunddaten') + 1, 0, narrativeSection);
 sections.splice(sections.findIndex(section => section.id === 'lebenspunkte') + 1, 0, ...healthSections);
-const edition5Sections = [{
-  id: 'grunddaten', title: t('draft_5e'),
-  content: `<p>${t('transfer_pending')}</p><table class="full-width two-col-table">${[
-    ['name', 'name'], ['species', 'volk'], ['gender', 'geschlecht'], ['age', 'alter'],
-    ['height', 'groesse'], ['hair', 'haare'], ['eyes', 'augen']
-  ].map(([key, field]) => `<tr><td>${t(key)}</td><td><input type="text" id="char-${field}"></td></tr>`).join('')}</table>`
-}, narrativeSection, ...healthSections];
+// Layout is shared; edition-specific rules are selected by the active character.
+const edition5Sections = sections.map(section => ({ ...section }));
