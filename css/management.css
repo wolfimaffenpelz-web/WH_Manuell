@@ -1,0 +1,28 @@
+/* Shared management, narrative and health segments. */
+:root {
+  --management-gap: 0.6rem;
+  --management-padding: 0.5rem;
+  --health-entry-width: 28%;
+  --health-effect-width: 32%;
+  --health-progress-width: 40%;
+  --health-row-height: 2.5rem;
+  --story-min-height: 4rem;
+}
+[hidden] { display: none !important; }
+.edition-controls { display: flex; flex-wrap: wrap; gap: var(--management-gap); align-items: center; padding: var(--management-padding); }
+.edition-controls button, .edition-controls select { min-height: var(--health-row-height); max-width: 100%; }
+.story-field { display: block; margin-bottom: var(--management-gap); }
+.story-field textarea { display: block; width: 100%; min-height: var(--story-min-height); box-sizing: border-box; text-align: left; }
+.health-table { width: 100%; table-layout: fixed; }
+.health-table tr { height: var(--health-row-height); }
+.health-table th:nth-child(1) { width: var(--health-entry-width); }
+.health-table th:nth-child(2) { width: var(--health-effect-width); }
+.health-table th:nth-child(3) { width: var(--health-progress-width); }
+.health-table .delete-col { width: var(--delete-col-width); }
+.health-table textarea { width: 100%; height: auto; min-height: var(--row-height); white-space: pre-wrap; overflow-wrap: anywhere; box-sizing: border-box; text-align: left; }
+.rule-warning { color: var(--color-negative); font-family: var(--font-main); }
+.rule-warning:empty { display: none; }
+.character-locked { opacity: 0.8; }
+#transfer-report { padding: var(--management-padding); font-family: var(--font-main); }
+#transfer-report pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.overlay-content label { display: block; margin: var(--management-gap) 0; }

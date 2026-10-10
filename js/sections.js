@@ -270,6 +270,7 @@ const sections = [
           <th class="delete-col"></th>
         </tr>
       </table>
+      <p id="talent-warnings" class="rule-warning" role="status"></p>
       <div class="section-divider"></div>
     `
   },
@@ -421,6 +422,8 @@ sections.push(
           <td><input type="number" id="korruption-akt"></td>
         </tr>
       </table>
+      <label>${t('pure_soul_bonus')} <input type="number" id="corruption-talent-bonus" readonly></label>
+      <p id="corruption-warning" class="rule-warning" role="status"></p>
      <h3>Vorhandene Mutationen</h3>
       <table class="full-width" id="mutationen-table">
         <tr>
@@ -459,11 +462,11 @@ sections.push(
         <tr><td>ST-Bonus</td><td><input type="number" id="lp-stb" readonly></td></tr>
         <tr><td>2x WI-Bonus</td><td><input type="number" id="lp-wib" readonly></td></tr>
         <tr><td>WK-Bonus</td><td><input type="number" id="lp-wkb" readonly></td></tr>
-        <tr><td>Robustheit*</td><td><input type="number" id="lp-robustheit" readonly></td></tr>
+        <tr><td>${t('talent_hardy')}</td><td><input type="number" id="lp-robustheit" readonly></td></tr>
         <tr><td>Gesamt-LP</td><td><input type="number" id="lp-gesamt" readonly></td></tr>
         <tr><td>${t('current_lp')}</td><td><input type="number" id="lp-aktuell" min="0" max="99"></td></tr>
       </table>
-      <p>* Automatisch durch Talent "Robustheit" / "Hardy"</p>
+      <p id="lp-warning" class="rule-warning" role="status"></p>
       <div class="section-divider"></div>
     `
   },
@@ -479,6 +482,8 @@ sections.push(
         <tr><td>${t('armor')}</td><td><input type="number" id="trag-ruestung" readonly></td></tr>
         <tr><td>${t('equipment')}</td><td><input type="number" id="trag-ausruestung" readonly></td></tr>
         <tr><td>${t('baggage')}</td><td><input type="number" id="trag-gepaeck" readonly></td></tr>
+        <tr><td>${t('strong_back_bonus')}</td><td><input type="number" id="trag-strong-back" readonly></td></tr>
+        <tr><td>${t('sturdy_bonus')}</td><td><input type="number" id="trag-sturdy" readonly></td></tr>
         <tr><td>${t('max_tp')}</td><td><input type="number" id="trag-max" readonly></td></tr>
         <tr><td>${t('total_col')}</td><td><input type="number" id="trag-gesamt" readonly></td></tr>
       </table>
@@ -567,6 +572,9 @@ sections.push(
           <span class="slider"></span>
         </label>
         <label>${t('full')}</label>
+        <label id="advance-step-control" hidden>${t('advance_step')}
+          <select id="exp-advance-step"><option value="5">${t('advance_five')}</option><option value="1">${t('advance_single')}</option></select>
+        </label>
         <button type="button" id="levelup-open">${t('levelup_open')}</button>
       </div>
 
@@ -601,3 +609,20 @@ sections.push(
     `
   }
 );
+
+// Shared, manual character content in both editions.
+const narrativeSection = {
+  id: 'hintergrund', title: t('story'),
+  content: ['motivation', 'short_ambition', 'long_ambition', 'background', 'relationships', 'character_notes', 'campaign_notes']
+    .map(key => `<label class="story-field">${t(key)}<textarea id="story-${key}" rows="3"></textarea></label>`).join('')
+};
+const healthSections = ['injuries', 'diseases'].map(key => ({
+  id: key, title: t(key), content: `<p>${t('manual_health')}</p>
+    <table id="${key}-table" class="full-width health-table"><tr>
+      <th>${t('entry')}</th><th>${t('effect')}</th><th>${t('treatment_progress')}</th><th class="delete-col"></th>
+    </tr></table>`
+}));
+sections.splice(sections.findIndex(section => section.id === 'grunddaten') + 1, 0, narrativeSection);
+sections.splice(sections.findIndex(section => section.id === 'lebenspunkte') + 1, 0, ...healthSections);
+// Layout is shared; edition-specific rules are selected by the active character.
+const edition5Sections = sections.map(section => ({ ...section }));
