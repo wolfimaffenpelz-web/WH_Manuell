@@ -572,9 +572,7 @@ sections.push(
           <span class="slider"></span>
         </label>
         <label>${t('full')}</label>
-        <label id="advance-step-control" hidden>${t('advance_step')}
-          <select id="exp-advance-step"><option value="5">${t('advance_five')}</option><option value="1">${t('advance_single')}</option></select>
-        </label>
+        <input type="hidden" id="exp-advance-step" value="1">
         <button type="button" id="levelup-open">${t('levelup_open')}</button>
       </div>
 

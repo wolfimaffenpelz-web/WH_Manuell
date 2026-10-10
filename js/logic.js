@@ -1955,7 +1955,7 @@ function openLevelUpOverlay() {
         <div><strong>${t('levelup_available_xp')}:</strong> <span id="levelup-available">${getAvailableXP()}</span></div>
         <button type="button" id="levelup-clear">🧹 ${t('levelup_clear')}</button>
       </div>
-      ${activeEdition === '5e' ? `<label>${t('advance_step')}<select id="levelup-step"><option value="5">${t('advance_five')}</option><option value="1">${t('advance_single')}</option></select></label><p>${t('advance_boundary_hint')}</p><p>${t('talent_5e_cost_hint')}</p>` : ''}
+      ${activeEdition === '5e' ? `<div><span>${t('advance_step')}: </span><span>${t('advance_single')}</span> <label class="switch"><input type="checkbox" id="levelup-step" aria-label="${t('advance_step')}"><span class="slider"></span></label> <span>${t('advance_five')}</span></div><p>${t('advance_boundary_hint')}</p><p>${t('talent_5e_cost_hint')}</p>` : ''}
       <div class="levelup-cost-table-wrap">
         <h3>${t('levelup_cost_table_title')}</h3>
         <table class="full-width levelup-cost-table">
@@ -2064,11 +2064,11 @@ function openLevelUpOverlay() {
     });
   }
 
-  const stepSelect = overlay.querySelector('#levelup-step');
-  if (stepSelect) {
-    stepSelect.value = document.getElementById('exp-advance-step').value;
-    stepSelect.addEventListener('change', () => {
-      document.getElementById('exp-advance-step').value = stepSelect.value;
+  const stepToggle = overlay.querySelector('#levelup-step');
+  if (stepToggle) {
+    stepToggle.checked = document.getElementById('exp-advance-step').value === '5';
+    stepToggle.addEventListener('change', () => {
+      document.getElementById('exp-advance-step').value = stepToggle.checked ? '5' : '1';
       Object.keys(deltas).forEach(key => { deltas[key] = 0; });
       overlay.querySelectorAll('[data-unit-cost]').forEach(cell => { cell.textContent = Number(cell.dataset.unitCost) * getAdvanceStep(); });
       saveState(); render();

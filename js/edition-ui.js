@@ -2,9 +2,7 @@
 function renderEdition() {
   renderSections(activeEdition === '4e' ? sections : edition5Sections);
   initSectionToggles();
-  document.getElementById('advance-step-control').hidden = activeEdition !== '5e';
   document.getElementById('exp-advance-step').value = activeEdition === '5e' ? '5' : '1';
-  document.getElementById('exp-advance-step').addEventListener('change', saveState);
   initFinanzenToggle();
   initStatesSection();
   document.getElementById('exp-toggle').addEventListener('change', () => {
