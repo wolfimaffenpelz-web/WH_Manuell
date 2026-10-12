@@ -623,4 +623,11 @@ const healthSections = ['injuries', 'diseases'].map(key => ({
 sections.splice(sections.findIndex(section => section.id === 'grunddaten') + 1, 0, narrativeSection);
 sections.splice(sections.findIndex(section => section.id === 'lebenspunkte') + 1, 0, ...healthSections);
 // Layout is shared; edition-specific rules are selected by the active character.
-const edition5Sections = sections.map(section => ({ ...section }));
+const edition5Sections = sections.map(section => section.id === 'schicksalzaehigkeit' ? {
+  ...section,
+  title: t('fate_luck'),
+  content: `<table class="value-table">
+    <tr><td>${t('fate')}</td><td><input type="number" id="fate-value" class="small-field" max="99" min="0"></td></tr>
+    <tr><td>${t('luck')}</td><td><input type="number" id="luck-current" class="small-field" max="99" min="0"><span class="slash">/</span><input type="number" id="luck-max" class="small-field" max="99" min="0"></td></tr>
+  </table><div class="section-divider"></div>`
+} : { ...section });

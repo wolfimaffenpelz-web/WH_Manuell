@@ -7,6 +7,7 @@
   --health-progress-width: 40%;
   --health-row-height: 2.5rem;
   --story-min-height: 4rem;
+  --levelup-cost-col-width: 33.333%;
 }
 [hidden] { display: none !important; }
 .edition-controls { display: flex; flex-wrap: wrap; gap: var(--management-gap); align-items: center; padding: var(--management-padding); }
@@ -26,3 +27,10 @@
 #transfer-report { padding: var(--management-padding); font-family: var(--font-main); }
 #transfer-report pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 .overlay-content label { display: block; margin: var(--management-gap) 0; }
+
+/* Level-up reference popup shared by both responsive layouts. */
+.levelup-cost-table { table-layout: fixed; }
+.levelup-cost-table th { width: var(--levelup-cost-col-width); }
+.levelup-cost-table tr { height: var(--row-height); }
+.levelup-top .switch { margin: 0; }
+.switch input:focus-visible + .slider { outline: 2px solid var(--color-text); outline-offset: 2px; }

@@ -118,10 +118,16 @@ Einzelschritt. Ein vollständiger +5-Block kostet fünf Einzelpunkte. Die Bereic
 beziehen sich auf gekaufte Steigerungen, nicht den Gesamtspielwert. Der jeweils
 sichtbare EP-Modus (einfach/voll) wird für 5e-Käufe verwendet.
 
-In 5e können markierte Talente mit Stufe 0 im Kaufdialog für 100 EP erstmals
-erworben werden. Strong Back kann bis zur zweiten Erwerbung gekauft werden,
-ebenfalls für 100 EP. Für andere Talente ist automatische Wiederholbarkeit ohne
-zusätzliche Regeltexte nicht hinterlegt; ihre Verwaltung bleibt manuell möglich.
+Der Schiebeschalter zeigt nur den aktiven Modus als Überschrift an:
+„Modus: Einzelsteigerung“ oder „Modus: Steigerung 5“. Über das Info-Symbol daneben
+öffnet sich die Kostentabelle für den aktiven Modus in einem separaten Popup;
+die aktuelle Kaufplanung bleibt dabei erhalten.
+
+Talente werden außerhalb des Level-Up-Dialogs manuell verwaltet. Die abgeleiteten
+Talentwirkungen und Erwerbsgrenzen werden weiterhin im Charakterbogen angezeigt.
+In 5e enthält der Punkteabschnitt ausschließlich Schicksal und Glück. Das
+Glücksmaximum wird unabhängig von Schicksal eingetragen. 4e behält zusätzlich
+Zähigkeit und Mut.
 
 Ambitionen, Hintergrund, Beziehungen und Notizen sowie Verletzungen und
 Krankheiten werden manuell geführt. Es gibt keine automatische Heilung, EP-Vergabe,

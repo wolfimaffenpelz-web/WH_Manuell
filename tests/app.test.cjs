@@ -427,7 +427,7 @@ test('5e +5 purchases use correct costs; off-grid values require +1 until aligne
   } finally { a.close(); }
 });
 
-test('5e Strong Back second purchase costs 100 XP and respects the talent limit', () => {
+test('5e level-up excludes talents while manual talent changes still update derived values', () => {
   const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
   try {
     fifth(a);
@@ -435,18 +435,82 @@ test('5e Strong Back second purchase costs 100 XP and respects the talent limit'
     row.cells[1].querySelector('input').value = '1';
     row.cells[0].querySelector('input[type=hidden]').value = '1';
     a.doc.getElementById('exp-simple-akt').value = '200';
+    a.get('updateAttributes(); openLevelUpOverlay()');
+    assert.equal(a.get('buildLevelUpEntries().some(entry => entry.type === "talent")'), false);
+    assert.equal(a.doc.querySelector('[data-entry^="talent-"]'), null);
+    assert.equal(a.doc.getElementById('levelup-tables').textContent.includes('Talente'), false);
+    a.doc.getElementById('levelup-cancel').click();
+    row.cells[1].querySelector('input').value = '2';
+    a.get('updateAttributes(); saveState(); loadState()');
+    assert.equal(a.doc.getElementById('trag-strong-back').value, '3');
+    assert.equal(a.get('getAvailableXP()'), 200);
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
+});
+
+test('5e costs open separately for the active mode without changing the purchase plan', () => {
+  const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+  try {
+    a.get('openLevelUpOverlay()');
+    assert.ok(a.doc.querySelector('.levelup-popup .levelup-cost-table'));
+    assert.equal(a.doc.getElementById('levelup-cost-info'), null);
+    assert.equal(a.doc.getElementById('levelup-step-title'), null);
+    a.doc.getElementById('levelup-cancel').click();
+    fifth(a);
+    a.doc.getElementById('ST-mark').value = '1';
+    a.doc.getElementById('exp-simple-akt').value = '1000';
     a.doc.getElementById('exp-advance-step').value = '5';
     a.get('updateAttributes(); openLevelUpOverlay()');
-    const plus = a.doc.querySelector('tr[data-entry="talent-3"] [data-act="plus"]');
-    assert.equal(plus.textContent, '+1');
-    plus.click(); assert.equal(plus.disabled, true);
-    assert.equal(a.doc.getElementById('levelup-total').textContent, '100');
-    a.doc.getElementById('levelup-confirm').click();
-    assert.equal(row.cells[1].querySelector('input').value, '2');
-    assert.equal(a.doc.getElementById('trag-strong-back').value, '3');
-    assert.equal(a.get('getAvailableXP()'), 100);
-    a.get('openLevelUpOverlay()');
-    assert.equal(a.doc.querySelector('tr[data-entry="talent-3"]'), null);
+    assert.equal(a.doc.querySelector('.levelup-popup .levelup-cost-table'), null);
+    assert.equal(a.doc.getElementById('levelup-step-title').textContent, 'Modus: Steigerung 5');
+    const plus = a.doc.querySelector('[data-entry="attr-ST"] [data-act="plus"]');
+    plus.click();
+    const info = a.doc.getElementById('levelup-cost-info');
+    info.click();
+    assert.equal(a.doc.querySelector('#levelup-cost-overlay td:nth-child(2)').textContent, '125');
+    assert.equal(a.doc.getElementById('levelup-cost-mode').textContent, 'Modus: Steigerung 5');
+    a.doc.getElementById('levelup-cost-close').click();
+    assert.equal(a.doc.activeElement, info);
+    assert.equal(a.doc.getElementById('levelup-total').textContent, '125');
+    const mode = a.doc.getElementById('levelup-step');
+    mode.checked = false; mode.dispatchEvent(new a.w.Event('change'));
+    assert.equal(a.doc.getElementById('levelup-step-title').textContent, 'Modus: Einzelsteigerung');
+    assert.equal(a.doc.getElementById('levelup-total').textContent, '0');
+    info.click();
+    assert.equal(a.doc.querySelector('#levelup-cost-overlay td:nth-child(2)').textContent, '25');
+    a.doc.getElementById('levelup-cost-close').dispatchEvent(new a.w.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    assert.equal(a.doc.getElementById('levelup-cost-overlay'), null);
+    assert.equal(a.doc.activeElement, info);
+    info.click();
+    a.doc.getElementById('levelup-cost-overlay').click();
+    assert.equal(a.doc.getElementById('levelup-cost-overlay'), null);
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
+});
+
+test('5e keeps independent fate and luck values across save, export and edition switches', () => {
+  const state = JSON.parse(legacy('Karl'));
+  Object.assign(state, { 'fate-value': '2', 'luck-current': '5', 'luck-max': '8', 'resilience-value': '3', 'resolve-current': '1', 'resolve-max': '3' });
+  const a = app({ characters: '["Karl"]', 'state-Karl': JSON.stringify(state) });
+  try {
+    fifth(a);
+    for (const key of ['resilience-value', 'resolve-current', 'resolve-max']) assert.equal(a.doc.getElementById(key), null);
+    assert.equal(a.doc.getElementById('luck-max').value, '8');
+    a.doc.getElementById('fate-value').value = '1';
+    a.doc.getElementById('fate-value').dispatchEvent(new a.w.Event('input', { bubbles: true }));
+    a.get('saveState(); loadState()');
+    assert.equal(a.doc.getElementById('luck-current').value, '5');
+    assert.equal(a.doc.getElementById('luck-max').value, '8');
+    assert.equal(a.get('characterStore.export(currentCharacter).state["luck-max"]'), '8');
+    assert.equal(a.get('characterStore.export(currentCharacter).state["resilience-value"]'), '3');
+    const select = a.doc.getElementById('edition-select');
+    select.value = '4e'; select.dispatchEvent(new a.w.Event('change'));
+    assert.equal(a.doc.getElementById('resilience-value').value, '3');
+    assert.equal(a.doc.getElementById('resolve-current').value, '1');
+    assert.equal(a.doc.getElementById('luck-max').value, '8');
+    select.value = '5e'; select.dispatchEvent(new a.w.Event('change'));
+    assert.equal(a.doc.getElementById('fate-value').value, '1');
+    assert.equal(a.doc.getElementById('luck-max').value, '8');
     assert.deepEqual(a.errors, []);
   } finally { a.close(); }
 });

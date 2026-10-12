@@ -571,6 +571,13 @@ function deserializeTable(tableId, data) {
 
 function collectState() {
   const state = {};
+  // Keep retired 5e fields in existing backups without displaying them on the sheet.
+  if (activeEdition === '5e') {
+    const previous = characterStore?.get(currentCharacter)?.state || {};
+    for (const key of ['resilience-value', 'resolve-current', 'resolve-max']) {
+      if (Object.prototype.hasOwnProperty.call(previous, key)) state[key] = previous[key];
+    }
+  }
   document.querySelectorAll('#main-content input[id], #main-content textarea[id], #main-content select[id]').forEach(el => {
     state[el.id] = el.type === 'checkbox' || el.type === 'radio' ? el.checked : el.value;
   });
@@ -1905,24 +1912,6 @@ function buildLevelUpEntries() {
     });
   });
 
-  if (activeEdition === '5e') {
-    const effects = readTalentEffects();
-    document.querySelectorAll('#talent-table tr').forEach((row, index) => {
-      if (index === 0) return;
-      const marker = row.cells[0]?.querySelector('input[type="hidden"]');
-      const name = row.cells[0]?.querySelector('textarea')?.value?.trim();
-      const level = row.cells[1]?.querySelector('input');
-      if (!name || !level || marker?.value !== '1') return;
-      const key = WFRP5Rules.identify(name);
-      // For other talents, repeatability has not been supplied: only the first purchase.
-      const acquired = level.value === '' ? 1 : Math.max(0, parseInt(level.value, 10) || 0);
-      const maximum = key ? Math.max(0, WFRP5Rules.talentLimits[key] - effects.levels[key]) : acquired > 0 ? 0 : 1;
-      if (maximum === 0) return;
-      entries.push({ id: `talent-${index}`, type: 'talent', group: 'talents', label: name,
-        maxDelta: maximum, talentKey: key, currentAdvances: () => level.value === '' ? 1 : parseInt(level.value, 10) || 0,
-        attributeSource: () => null, apply: delta => { level.value = String((level.value === '' ? 1 : parseInt(level.value, 10) || 0) + delta); } });
-    });
-  }
   return entries;
 }
 
@@ -1940,23 +1929,8 @@ function calculateLevelUpCost(entries, deltas) {
   }, 0);
 }
 
-function openLevelUpOverlay() {
-  updateErfahrung();
-  const entries = buildLevelUpEntries();
-  const deltas = Object.fromEntries(entries.map(entry => [entry.id, 0]));
-
-  const overlay = document.createElement("div");
-  overlay.className = "overlay";
-  overlay.innerHTML = `
-    <div class="overlay-content scrollable levelup-popup">
-      <h2>${t('levelup_mode')}</h2>
-      <div class="levelup-top">
-        <div><strong>${t('levelup_total_cost')}:</strong> <span id="levelup-total">0</span></div>
-        <div><strong>${t('levelup_available_xp')}:</strong> <span id="levelup-available">${getAvailableXP()}</span></div>
-        <button type="button" id="levelup-clear">🧹 ${t('levelup_clear')}</button>
-      </div>
-      ${activeEdition === '5e' ? `<div><span>${t('advance_step')}: </span><span>${t('advance_single')}</span> <label class="switch"><input type="checkbox" id="levelup-step" aria-label="${t('advance_step')}"><span class="slider"></span></label> <span>${t('advance_five')}</span></div><p>${t('advance_boundary_hint')}</p><p>${t('talent_5e_cost_hint')}</p>` : ''}
-      <div class="levelup-cost-table-wrap">
+function levelUpCostTable() {
+  return `<div class="levelup-cost-table-wrap">
         <h3>${t('levelup_cost_table_title')}</h3>
         <table class="full-width levelup-cost-table">
           <tr>
@@ -1972,7 +1946,46 @@ function openLevelUpOverlay() {
             </tr>
           `).join('')}
         </table>
+      </div>`;
+}
+
+function openLevelUpCostOverlay(trigger) {
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.id = 'levelup-cost-overlay';
+  overlay.innerHTML = `<div class="overlay-content scrollable levelup-popup" role="dialog" aria-modal="true" aria-labelledby="levelup-cost-mode">
+    <h2 id="levelup-cost-mode">${t(getAdvanceStep() === 5 ? 'advance_mode_five' : 'advance_mode_single')}</h2>
+    ${levelUpCostTable()}
+    <button type="button" id="levelup-cost-close">${t('levelup_close')}</button>
+  </div>`;
+  document.body.appendChild(overlay);
+  const close = () => { overlay.remove(); trigger.focus(); };
+  overlay.querySelector('#levelup-cost-close').addEventListener('click', close);
+  overlay.addEventListener('click', event => { if (event.target === overlay) close(); });
+  overlay.addEventListener('keydown', event => {
+    if (event.key === 'Escape') { event.stopPropagation(); close(); }
+    if (event.key === 'Tab') { event.preventDefault(); overlay.querySelector('#levelup-cost-close').focus(); }
+  });
+  overlay.querySelector('#levelup-cost-close').focus();
+}
+
+function openLevelUpOverlay() {
+  updateErfahrung();
+  const entries = buildLevelUpEntries();
+  const deltas = Object.fromEntries(entries.map(entry => [entry.id, 0]));
+
+  const overlay = document.createElement("div");
+  overlay.className = "overlay";
+  overlay.innerHTML = `
+    <div class="overlay-content scrollable levelup-popup">
+      <h2>${t('levelup_mode')}</h2>
+      <div class="levelup-top">
+        <div><strong>${t('levelup_total_cost')}:</strong> <span id="levelup-total">0</span></div>
+        <div><strong>${t('levelup_available_xp')}:</strong> <span id="levelup-available">${getAvailableXP()}</span></div>
+        <button type="button" id="levelup-clear">🧹 ${t('levelup_clear')}</button>
       </div>
+      ${activeEdition === '5e' ? `<h3 id="levelup-step-title"></h3><div class="levelup-top"><label class="switch"><input type="checkbox" id="levelup-step" aria-label="${t('advance_step')}" aria-describedby="levelup-step-title"><span class="slider"></span></label><button type="button" id="levelup-cost-info" aria-label="${t('levelup_cost_info')}" title="${t('levelup_cost_info')}">ⓘ</button></div><p>${t('advance_boundary_hint')}</p>` : ''}
+      ${activeEdition === '4e' ? levelUpCostTable() : ''}
       <div id="levelup-tables"></div>
       <div class="popup-buttons">
         <button type="button" id="levelup-cancel">${t('levelup_close')}</button>
@@ -1986,16 +1999,14 @@ function openLevelUpOverlay() {
   const grouped = {
     attributes: entries.filter(e => e.group === "attributes"),
     basic_skills: entries.filter(e => e.group === "basic_skills"),
-    grouped_skills: entries.filter(e => e.group === "grouped_skills"),
-    talents: entries.filter(e => e.group === "talents")
+    grouped_skills: entries.filter(e => e.group === "grouped_skills")
   };
 
   const container = overlay.querySelector("#levelup-tables");
   const groupDefs = [
     { key: "attributes", title: t('levelup_group_attributes') },
     { key: "basic_skills", title: t('levelup_group_basic_skills') },
-    { key: "grouped_skills", title: t('levelup_group_grouped_skills') },
-    ...(activeEdition === '5e' ? [{ key: 'talents', title: t('talents') }] : [])
+    { key: "grouped_skills", title: t('levelup_group_grouped_skills') }
   ];
 
   groupDefs.forEach(group => {
@@ -2031,19 +2042,12 @@ function openLevelUpOverlay() {
     container.appendChild(block);
   });
 
-  function talentPlanWithinLimits(proposal) {
-    if (activeEdition !== '5e') return true;
-    const effects = readTalentEffects();
-    return Object.keys(effects.limits).every(key => {
-      const extra = entries.filter(entry => entry.talentKey === key).reduce((sum, entry) => sum + (proposal[entry.id] || 0), 0);
-      return extra === 0 || effects.levels[key] + extra <= effects.limits[key];
-    });
-  }
-
   function render() {
     updateErfahrung();
     const total = calculateLevelUpCost(entries, deltas);
     const available = getAvailableXP();
+    const modeTitle = overlay.querySelector('#levelup-step-title');
+    if (modeTitle) modeTitle.textContent = t(getAdvanceStep() === 5 ? 'advance_mode_five' : 'advance_mode_single');
     overlay.querySelector("#levelup-total").textContent = String(total);
     overlay.querySelector("#levelup-available").textContent = String(available);
 
@@ -2057,7 +2061,7 @@ function openLevelUpOverlay() {
       const step = getAdvanceStep(entry);
       const misaligned = step === 5 && (entry.currentAdvances() + delta) % 5 !== 0;
       const plus = row.querySelector('[data-act="plus"]');
-      plus.disabled = !talentPlanWithinLimits({ ...deltas, [entry.id]: delta + step }) || misaligned || (entry.maxDelta !== undefined && delta + step > entry.maxDelta) || calculateLevelUpCost(entries, { ...deltas, [entry.id]: delta + step }) > available;
+      plus.disabled = misaligned || (entry.maxDelta !== undefined && delta + step > entry.maxDelta) || calculateLevelUpCost(entries, { ...deltas, [entry.id]: delta + step }) > available;
       plus.textContent = `+${step}`;
       plus.title = misaligned ? t('advance_boundary_hint') : '';
       row.querySelector('[data-act="minus"]').textContent = `−${step}`;
@@ -2070,12 +2074,15 @@ function openLevelUpOverlay() {
     stepToggle.addEventListener('change', () => {
       document.getElementById('exp-advance-step').value = stepToggle.checked ? '5' : '1';
       Object.keys(deltas).forEach(key => { deltas[key] = 0; });
-      overlay.querySelectorAll('[data-unit-cost]').forEach(cell => { cell.textContent = Number(cell.dataset.unitCost) * getAdvanceStep(); });
       saveState(); render();
     });
   }
 
+  const costInfo = overlay.querySelector('#levelup-cost-info');
+  if (costInfo) costInfo.addEventListener('click', () => openLevelUpCostOverlay(costInfo));
+
   function close() {
+    document.getElementById('levelup-cost-overlay')?.remove();
     overlay.remove();
   }
 
@@ -2099,7 +2106,6 @@ function openLevelUpOverlay() {
       if (step === 5 && (entry.currentAdvances() + (deltas[entry.id] || 0)) % 5 !== 0) return;
       const next = (deltas[entry.id] || 0) + step;
       if (entry.maxDelta !== undefined && next > entry.maxDelta) return;
-      if (!talentPlanWithinLimits({ ...deltas, [entry.id]: next })) return;
       const nextCost = calculateLevelUpCost(entries, { ...deltas, [entry.id]: next });
       if (nextCost > getAvailableXP()) return;
       deltas[entry.id] = next;
@@ -2123,7 +2129,6 @@ function openLevelUpOverlay() {
         beforeAdv: entry.currentAdvances()
       }));
 
-    if (!talentPlanWithinLimits(deltas)) return;
     if (totalCost > getAvailableXP()) { alert(t('levelup_insufficient_xp')); return; }
     if (entries.some(entry => (entry.maxDelta !== undefined && (deltas[entry.id] || 0) > entry.maxDelta) || (getAdvanceStep(entry) === 5 && (deltas[entry.id] || 0) > 0 && (entry.currentAdvances() % 5 !== 0 || deltas[entry.id] % 5 !== 0)))) return;
     entries.forEach(entry => {
