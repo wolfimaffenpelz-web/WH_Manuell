@@ -9,7 +9,7 @@
   --story-min-height: 4rem;
   --state5-count-width: 2.6ch;
   --state-control-gap: 1px;
-  --state-card-border-width: 1px;
+  --state-separator-width: 1px;
   --state-arrow-font-size: 0.9em;
   --state5-grid-gap: 1px;
   --corruption-stack-width: 26rem;
@@ -68,11 +68,11 @@
 .state-counter input { flex: 0 0 var(--state5-count-width); width: var(--state5-count-width); min-width: var(--state5-count-width); max-width: var(--state5-count-width); padding: 0; box-sizing: border-box; appearance: textfield; -moz-appearance: textfield; }
 .state-counter input::-webkit-inner-spin-button, .state-counter input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .state-counter .state-info-button, .state-controls-binary .state-info-button { flex: 0 0 var(--state-control-size); margin-left: auto; width: var(--state-control-size); padding: 0; }
-.state-grid-5e { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--state5-grid-gap); background: var(--color-bg); }
-.state-card { border: var(--state-card-border-width) solid var(--color-table-line); }
-.state-grid-5e .state-card { flex: 0 0 calc((100% - var(--state5-grid-gap)) / 2); min-width: 0; box-sizing: border-box; }
+.state-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--state5-grid-gap); background: var(--color-bg); }
+.state-card { border: none; position: relative; }
+.state-grid .state-card { flex: 0 0 calc((100% - var(--state5-grid-gap)) / 2); min-width: 0; box-sizing: border-box; }
 @media (min-width: 1200px) {
-  .state-grid-5e .state-card { flex-basis: calc((100% - 3 * var(--state5-grid-gap)) / 4); }
+  .state-grid .state-card { flex-basis: calc((100% - 3 * var(--state5-grid-gap)) / 4); }
 }
 .states-summary-5e { display: block; }
 .state5-effect-list, .state5-hint-list { margin: var(--management-gap) 0; padding-inline-start: calc(3 * var(--management-gap)); text-align: left; }
@@ -87,3 +87,16 @@
 #korruption-table tr { height: var(--row-height); }
 #korruption-table input { width: 3ch; }
 #korruption-table .corruption-component { font-style: italic; }
+
+/* A shared table: single inner separators, no frames around individual states. */
+.state-grid { overflow: hidden; }
+.state-card .state-name, .state-card .state-counter input, .state-card .state-step-button, .state-card .state-info-button { font-weight: normal; }
+.state-grid .state-card::before, .state-grid .state-card::after { content: none; position: absolute; background: var(--color-table-line); pointer-events: none; }
+.state-grid .state-card:nth-child(n + 3)::before { content: ""; top: calc(-1 * var(--state5-grid-gap)); left: -100vw; right: -100vw; height: var(--state-separator-width); }
+.state-grid .state-card:nth-child(2n)::after { content: ""; top: 0; bottom: 0; left: calc(-1 * var(--state5-grid-gap)); width: var(--state-separator-width); }
+@media (min-width: 1200px) {
+  .state-grid .state-card:nth-child(-n + 4)::before { content: none; }
+  .state-grid .state-card:nth-child(n + 5)::before { content: ""; }
+  .state-grid .state-card::after { content: ""; top: 0; bottom: 0; left: calc(-1 * var(--state5-grid-gap)); width: var(--state-separator-width); }
+  .state-grid .state-card:nth-child(4n + 1)::after { content: none; }
+}

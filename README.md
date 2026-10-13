@@ -142,7 +142,9 @@ Pfeilen oder direkt bearbeiten. 4e behält die bisherige Liste und Zählergrenze
 
 Die Zustände sind alphabetisch sortiert. Kompakte Zahlenfelder und Pfeile stehen
 wieder rechts neben dem Icon; das Info-Symbol bleibt separat am rechten Rand.
-Die Karten besitzen sichtbare innere Tabellenlinien. Eine
+Beide Editionen verwenden eine gemeinsame Tabelle mit ein Pixel breiten
+inneren Trennlinien, ohne Außenrahmen oder einzelne Statusboxen. Zustandsnamen
+und Bedienelemente sind normal gewichtet. Eine
 einzelne Karte in der letzten Zeile steht mittig, freie Flächen haben die
 allgemeine Hintergrundfarbe. Der 5e-Punkteabschnitt ist bei gleicher Feldbreite
 zentriert.

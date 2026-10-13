@@ -154,7 +154,7 @@ const assert = require('node:assert/strict');
       assert.ok(Math.abs((layout.table.left + layout.table.right) / 2 - (layout.parent.left + layout.parent.right) / 2) < 2);
       assert.deepEqual(layout.centeredWidths, layout.originalWidths);
       for (const controls of layout.controls) {
-        assert.equal(controls.borders, 'solid');
+        assert.equal(controls.borders, 'none');
         assert.ok(controls.parts[0].left >= controls.icon.right, `Controls not beside icon at ${width}px`);
         assert.ok(controls.parts[0].top < controls.icon.bottom, `Controls below icon at ${width}px`);
         for (let index = 0; index < controls.parts.length; index++) {
@@ -166,6 +166,39 @@ const assert = require('node:assert/strict');
       assert.deepEqual(layout.corruptionRows.map(row => row.input), ['korruption-akt', 'korruption-wib', 'korruption-wkb', 'corruption-talent-bonus', 'korruption-max']);
       for (const row of layout.corruptionRows.slice(1, 4)) assert.equal(row.italic, 'italic');
       await page.locator('#zustaende').screenshot({ path: `work/states-layout-${width}.png` });
+    }
+    for (const edition of ['4e', '5e']) {
+      await page.locator('#edition-select').selectOption(edition);
+      for (const width of [320, 390, 1440]) {
+        await page.setViewportSize({ width, height: 1000 });
+        const table = await page.evaluate(() => {
+          const grid = document.querySelector('.state-grid');
+          const cards = Array.from(grid.children);
+          const style = (el, pseudo) => {
+            const css = getComputedStyle(el, pseudo);
+            return { content: css.content, width: css.width, height: css.height,
+              borders: [css.borderTopWidth, css.borderRightWidth, css.borderBottomWidth, css.borderLeftWidth] };
+          };
+          return {
+            grid: style(grid),
+            cards: cards.map(card => ({
+              box: style(card), top: style(card, '::before'), side: style(card, '::after'),
+              weights: Array.from(card.querySelectorAll('.state-name, .state-counter input, .state-info-button'), el => getComputedStyle(el).fontWeight)
+            }))
+          };
+        });
+        const columns = width < 1200 ? 2 : 4;
+        assert.ok(table.grid.borders.every(value => value === '0px'));
+        table.cards.forEach((card, index) => {
+          assert.ok(card.box.borders.every(value => value === '0px'), `Status box border in ${edition} at ${width}px`);
+          assert.ok(card.weights.every(value => value === '400'), `Bold condition text in ${edition} at ${width}px`);
+          assert.equal(card.top.content === 'none', index < columns);
+          assert.equal(card.side.content === 'none', index % columns === 0);
+          if (index >= columns) assert.equal(card.top.height, '1px');
+          if (index % columns) assert.equal(card.side.width, '1px');
+        });
+        await page.locator('#zustaende').screenshot({ path: `work/state-table-${edition}-${width}.png` });
+      }
     }
     assert.deepEqual(errors, []);
     console.log('Mobile browser and offline smoke checks passed.');
