@@ -720,9 +720,22 @@ function downloadJSON(data, filename) {
 function exportCharacters() {
   if (!currentCharacter) return;
   // A failed load can still export the intact stored record.
-  if (!loadFailed && !saveState()) return;
+  const saved = !loadFailed && saveState();
   const date = new Date();
-  downloadJSON(characterStore.export(currentCharacter, date), CharacterStore.filename(characterStore.get(currentCharacter), date));
+  const backup = characterStore.export(currentCharacter, date);
+  if (!loadFailed && !saved) {
+    // Export does not need a storage write; validate live inputs independently.
+    try {
+      const state = characterStore.clean(collectState());
+      const current = CharacterStore.normalizeBackup({ ...backup, state, name: state['char-name']?.trim() || backup.name });
+      backup.state = current.state;
+      backup.name = current.name;
+      alert(t('export_unsaved'));
+    } catch (error) {
+      alert(t('export_stored_only'));
+    }
+  }
+  downloadJSON(backup, CharacterStore.filename(backup, date));
 }
 
 function importCharacters(files) {
@@ -1108,28 +1121,30 @@ function updateGruppierteFaehigkeiten() {
 function autoAddRow(tableId) {
   const table = document.getElementById(tableId);
   if (!table) return;
+  const isEmpty = row => Array.from(row.querySelectorAll('input, textarea, select')).every(input => {
+    if (input.type === 'checkbox' || input.type === 'radio') return !input.checked;
+    if (input.readOnly) return true; // Derived values do not make a placeholder an entry.
+    if (input.type === 'hidden' && !input.classList.contains('baggage-note-store')) return input.value === '' || input.value === '0';
+    return input.value.trim() === '';
+  });
   const rows = Array.from(table.rows).slice(1); // ohne Kopfzeile
   if (rows.length === 0) {
     addRow(tableId);
     return;
   }
   const lastRow = rows[rows.length - 1];
-  const lastInput = lastRow.cells[0]?.querySelector('input:not([type="hidden"]), textarea, select');
-  if (lastInput && lastInput.value.trim() !== '') {
+  if (!isEmpty(lastRow)) {
     addRow(tableId);
   }
-  let emptyCount = 0;
+  const trailingEmpty = [];
   for (let i = rows.length - 1; i >= 0; i--) {
-    const inp = rows[i].cells[0]?.querySelector('input:not([type="hidden"]), textarea, select');
-    if (inp && inp.value.trim() === '') {
-      emptyCount++;
-      if (emptyCount > 1) {
-        table.deleteRow(i + 1); // +1 für Kopfzeile
-      }
-    } else {
-      break;
-    }
+    if (!isEmpty(rows[i])) break;
+    trailingEmpty.push(rows[i]);
   }
+  // Preserve the active editor when a name-only entry is temporarily cleared.
+  const focusedRow = document.activeElement?.closest('tr');
+  const placeholder = trailingEmpty.includes(focusedRow) ? focusedRow : trailingEmpty[0];
+  trailingEmpty.forEach(row => { if (row !== placeholder) row.remove(); });
 }
 
 function addRow(tableId) {
@@ -1804,25 +1819,9 @@ function getBracketCost(advances, type) {
 }
 
 function getPreferredExperienceSource() {
-  if (activeEdition === '5e') {
-    const mode = document.getElementById('exp-toggle').checked ? 'full' : 'simple';
-    return { mode, total: parseInt(document.getElementById(`exp-${mode}-gesamt`).value, 10) || 0,
-      available: parseInt(document.getElementById(`exp-${mode}-akt`).value, 10) || 0 };
-  }
-  const simpleTotal = parseInt(document.getElementById("exp-simple-gesamt")?.value, 10) || 0;
-  const fullTotal = parseInt(document.getElementById("exp-full-gesamt")?.value, 10) || 0;
-  if (simpleTotal > fullTotal) {
-    return {
-      mode: "simple",
-      total: simpleTotal,
-      available: parseInt(document.getElementById("exp-simple-akt")?.value, 10) || 0
-    };
-  }
-  return {
-    mode: "full",
-    total: fullTotal,
-    available: parseInt(document.getElementById("exp-full-akt")?.value, 10) || 0
-  };
+  const mode = document.getElementById('exp-toggle').checked ? 'full' : 'simple';
+  return { mode, total: parseInt(document.getElementById(`exp-${mode}-gesamt`).value, 10) || 0,
+    available: parseInt(document.getElementById(`exp-${mode}-akt`).value, 10) || 0 };
 }
 
 function getAvailableXP() {
@@ -1903,7 +1902,7 @@ function buildLevelUpEntries() {
     const steigInput = row.cells[3]?.querySelector("input");
     if (!label || !sel || !steigInput) return;
     entries.push({
-      id: `group-${idx}-${label}`,
+      id: `group-${idx}`,
       type: "skill",
       group: "grouped_skills",
       label,
@@ -2034,8 +2033,8 @@ function openLevelUpOverlay() {
           <th>${t('total')}</th>
         </tr>
         ${rows.map(entry => `
-          <tr data-entry="${entry.id}">
-            <td class="text-left">${entry.label}</td>
+          <tr data-entry="${escapeHtml(entry.id)}">
+            <td class="text-left"></td>
             <td class="wsg"><button type="button" data-act="minus" disabled>−</button></td>
             <td class="wsg levelup-delta" data-delta>${formatAdvanceDelta(entry, 0)}</td>
             <td class="wsg"><button type="button" data-act="plus">+</button></td>
@@ -2044,6 +2043,9 @@ function openLevelUpOverlay() {
         `).join('')}
       </table>
     `;
+    block.querySelectorAll('tr[data-entry]').forEach((row, index) => {
+      row.cells[0].textContent = rows[index].label;
+    });
     container.appendChild(block);
   });
 
@@ -2269,7 +2271,10 @@ function renderConditionHints() {
   const result = evaluateConditionEffects();
   const hints = [...result.hints];
   for (const key of conditionRemovalNotices) {
-    if (key === 'stunned' && getStateCount('fatigued')) continue;
+    if (key === 'stunned' && getStateCount('fatigued')) {
+      conditionRemovalNotices.delete(key);
+      continue;
+    }
     const id = key === 'poisoned' ? 'poison' : key;
     const text = activeEdition === '4e' ? `state4_${key}_removed` : `state5_${id}_removed`;
     hints.push({ id: `${id}-removed`, text, dismissKey: key });
@@ -2288,7 +2293,7 @@ function renderConditionHints() {
 function noteConditionRemoval(key, before, after) {
   const keys = activeEdition === '4e' ? ['bleeding', 'broken', 'poisoned', 'stunned', 'unconscious'] : ['poisoned', 'stunned'];
   if (!keys.includes(key)) return;
-  if (before > 0 && after === 0) conditionRemovalNotices.add(key);
+  if (before > 0 && after === 0 && (key !== 'stunned' || !getStateCount('fatigued'))) conditionRemovalNotices.add(key);
   if (after > 0) conditionRemovalNotices.delete(key);
 }
 

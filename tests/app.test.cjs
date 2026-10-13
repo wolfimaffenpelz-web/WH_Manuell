@@ -823,3 +823,190 @@ test('5e counters are arrow-operated and follow-up reminders can be closed indep
     assert.deepEqual(a.errors, []);
   } finally { a.close(); }
 });
+
+test('renaming keeps populated rows and the focused empty row in both editions', () => {
+  for (const edition of ['4e', '5e']) {
+    const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+    let b;
+    try {
+      if (edition === '5e') fifth(a);
+      const row = a.doc.querySelector('#ausruestung-table tr:nth-child(2)');
+      const name = row.querySelector('textarea');
+      name.value = 'Rucksack';
+      row.cells[1].querySelector('input').value = '2';
+      row.cells[2].querySelector('input').value = '3';
+      row.cells[3].querySelector('textarea').value = 'wichtige Notiz';
+      a.get("autoAddRow('ausruestung-table'); saveState()");
+      name.focus(); name.value = '';
+      name.dispatchEvent(new a.w.Event('input', { bubbles: true }));
+      assert.equal(row.isConnected, true);
+      assert.equal(a.doc.activeElement, name);
+      const state = JSON.parse(a.get('JSON.stringify(characterStore.export(currentCharacter).state)'));
+      assert.deepEqual(state['ausruestung-table'][0].slice(1, 5), ['', '2', '3', 'wichtige Notiz']);
+      b = app({ 'wfrp-characters-v2': a.w.localStorage.getItem('wfrp-characters-v2') });
+      assert.equal(b.doc.querySelector('#ausruestung-table tr:nth-child(2) td:nth-child(4) textarea').value, 'wichtige Notiz');
+
+      // Also keep a name-only row while its name is temporarily empty.
+      a.get("addRow('psychologie-table')");
+      const empty = a.doc.querySelector('#psychologie-table tr:nth-child(2) textarea');
+      empty.focus(); empty.value = 'Angst';
+      empty.dispatchEvent(new a.w.Event('input', { bubbles: true }));
+      empty.value = '';
+      empty.dispatchEvent(new a.w.Event('input', { bubbles: true }));
+      assert.equal(empty.isConnected, true);
+      assert.equal(a.doc.activeElement, empty);
+      assert.equal(a.doc.querySelectorAll('#psychologie-table tr').length, 2);
+      assert.deepEqual(a.errors, []);
+      assert.deepEqual(b.errors, []);
+    } finally { a.close(); b?.close(); }
+  }
+});
+
+test('restoring unnamed entries preserves all meaningful fields and one blank placeholder', () => {
+  const state = JSON.parse(legacy('Karl'));
+  Object.assign(state, {
+    'spar-table': [['', '12', '', 'Kasse eins'], ['', '8', '', 'Kasse zwei'], ['', '', '', '']],
+    'talent-table': [['0', '', '2', 'Talent noch benennen'], ['0', '', '', '']],
+    'injuries-table': [['', 'Schmerzen', 'Behandlung'], ['', '', '']],
+    'grupp-table': [['0', '', 'ST', '30', '2', '32'], ['0', '', '', '', '', '']]
+  });
+  const a = app({ characters: '["Karl"]', 'state-Karl': JSON.stringify(state) });
+  try {
+    for (const id of ['spar-table', 'talent-table', 'injuries-table', 'grupp-table']) {
+      const rows = JSON.parse(a.get(`JSON.stringify(serializeTable('${id}'))`));
+      assert.equal(rows.length, state[id].length, id);
+      assert.deepEqual(rows.slice(0, -1), state[id].slice(0, -1), id);
+    }
+    a.get('saveState(); loadState()');
+    assert.equal(a.doc.querySelectorAll('#spar-table tr').length, 4);
+    assert.equal(a.doc.getElementById('netto-gk').value, '1');
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
+});
+
+test('level-up renders imported HTML and quoted skill names as text in both editions', () => {
+  for (const edition of ['4e', '5e']) {
+    const state = JSON.parse(legacy('Karl'));
+    const names = ['<img src=bad onerror=window.reviewXss=true>', 'Wissen ("Recht")', 'Wissen ("Recht")'];
+    state['grupp-table'] = names.map(name => ['1', name, 'ST', '30', '0', '30']);
+    const a = app({ characters: '["Karl"]', 'state-Karl': JSON.stringify(state) });
+    try {
+      if (edition === '5e') fifth(a);
+      a.doc.getElementById('exp-simple-akt').value = '1000';
+      a.get('updateAttributes(); openLevelUpOverlay()');
+      const rows = Array.from(a.doc.querySelectorAll('.levelup-popup tr[data-entry^="group-"]'));
+      assert.equal(rows.length, 3);
+      assert.deepEqual(rows.map(row => row.cells[0].textContent), names);
+      assert.equal(new Set(rows.map(row => row.dataset.entry)).size, 3);
+      assert.equal(a.doc.querySelector('.levelup-popup img'), null);
+      assert.equal(a.w.reviewXss, undefined);
+      rows[1].querySelector('[data-act="plus"]').click();
+      a.doc.getElementById('levelup-confirm').click();
+      assert.equal(a.doc.querySelector('#grupp-table tr:nth-child(3) td:nth-child(4) input').value, '1');
+      assert.equal(a.doc.querySelector('#grupp-table tr:nth-child(4) td:nth-child(4) input').value, '0');
+      assert.deepEqual(a.errors, []);
+    } finally { a.close(); }
+  }
+});
+
+test('4e uses the selected XP account after switching modes and cannot spend a hidden balance', () => {
+  const state = JSON.parse(legacy('Karl'));
+  Object.assign(state, { 'exp-toggle': true, 'exp-table': [['25', 'Start']], 'exp-simple-akt': '100' });
+  const a = app({ characters: '["Karl"]', 'state-Karl': JSON.stringify(state) });
+  try {
+    a.doc.getElementById('exp-toggle').checked = false;
+    a.get('syncExperienceMode(); updateErfahrung(); openLevelUpOverlay()');
+    a.doc.querySelector('tr[data-entry="attr-KG"] [data-act="plus"]').click();
+    a.doc.getElementById('levelup-confirm').click();
+    assert.equal(a.doc.getElementById('exp-simple-akt').value, '75');
+    assert.equal(a.doc.querySelector('#exp-table tr:nth-child(2) input').value, '25');
+    a.doc.getElementById('exp-toggle').checked = true;
+    a.get('syncExperienceMode(); updateErfahrung(); openLevelUpOverlay()');
+    assert.equal(a.doc.getElementById('levelup-available').textContent, '25');
+    a.doc.querySelector('tr[data-entry="attr-KG"] [data-act="plus"]').click();
+    a.doc.getElementById('levelup-confirm').click();
+    assert.equal(a.doc.getElementById('exp-full-akt').value, '0');
+    assert.equal(a.doc.getElementById('exp-simple-akt').value, '75');
+    a.get('openLevelUpOverlay()');
+    assert.equal(a.doc.querySelector('tr[data-entry="attr-KG"] [data-act="plus"]').disabled, true);
+    a.doc.getElementById('levelup-cancel').click();
+    a.doc.getElementById('exp-toggle').checked = false;
+    a.doc.getElementById('exp-simple-akt').value = '10';
+    a.get('syncExperienceMode(); updateErfahrung(); openLevelUpOverlay()');
+    assert.equal(a.doc.querySelector('tr[data-entry="attr-KG"] [data-act="plus"]').disabled, true);
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
+});
+
+test('level-up confirmation rechecks the actual selected ledger before changing advances', () => {
+  const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+  try {
+    a.doc.getElementById('exp-toggle').checked = true;
+    const xp = a.doc.querySelector('#exp-table tr:nth-child(2) input');
+    xp.value = '25';
+    a.get('syncExperienceMode(); openLevelUpOverlay()');
+    a.doc.querySelector('tr[data-entry="attr-KG"] [data-act="plus"]').click();
+    xp.value = '0';
+    a.doc.getElementById('levelup-confirm').click();
+    assert.equal(a.doc.getElementById('KG-steig').value, '');
+    assert.equal(a.doc.querySelectorAll('#exp-table tr').length, 2);
+    assert.ok(a.alerts.includes(a.get("t('levelup_insufficient_xp')")));
+  } finally { a.close(); }
+});
+
+test('export with a storage failure downloads validated current inputs without changing the stored record', () => {
+  const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+  try {
+    const before = a.w.localStorage.getItem('wfrp-characters-v2');
+    a.doc.getElementById('story-background').value = 'Noch nicht gespeichert';
+    a.doc.getElementById('char-name').value = 'Karl neu';
+    a.get('characterStore.storage = { getItem: key => localStorage.getItem(key), setItem() { throw new Error("QuotaExceededError"); } }; downloadJSON = (data, name) => { window.reviewDownload = { data, name }; }; exportCharacters()');
+    assert.ok(a.w.reviewDownload);
+    assert.equal(a.w.reviewDownload.data.state['story-background'], 'Noch nicht gespeichert');
+    assert.equal(a.w.reviewDownload.data.name, 'Karl neu');
+    assert.ok(a.w.reviewDownload.name.startsWith('Karl_neu_4e_'));
+    assert.equal(a.w.localStorage.getItem('wfrp-characters-v2'), before);
+    a.get('CharacterStore.normalizeBackup(window.reviewDownload.data)');
+    assert.ok(a.alerts.includes(a.get("t('export_unsaved')")));
+  } finally { a.close(); }
+});
+
+test('export falls back to the stored record for invalid current inputs or a failed load', () => {
+  for (const failure of ['invalid-table', 'invalid-name', 'failed-load']) {
+    const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+    try {
+      const stored = JSON.parse(a.get('JSON.stringify(characterStore.export(currentCharacter).state)'));
+      if (failure === 'invalid-name') {
+        a.doc.getElementById('char-name').value = 'x'.repeat(201);
+        a.get('characterStore.storage = { getItem: key => localStorage.getItem(key), setItem() { throw new Error("QuotaExceededError"); } }');
+      } else {
+        a.get(`loadFailed = ${failure === 'failed-load'}; collectState = () => ({ 'waffen-table': 'invalid' })`);
+      }
+      a.get('downloadJSON = data => { window.reviewDownload = data; }; exportCharacters()');
+      assert.ok(a.w.reviewDownload);
+      assert.deepEqual(JSON.parse(JSON.stringify(a.w.reviewDownload.state)), stored);
+      a.get('CharacterStore.normalizeBackup(window.reviewDownload)');
+      if (failure !== 'failed-load') assert.ok(a.alerts.includes(a.get("t('export_stored_only')")));
+    } finally { a.close(); }
+  }
+});
+
+test('fulfilled stunned fatigue reminders stay cleared after resting in both editions', () => {
+  for (const edition of ['4e', '5e']) {
+    const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+    try {
+      if (edition === '5e') fifth(a);
+      const hint = `[data-state${edition === '4e' ? '4' : '5'}-hint="stunned-removed"]`;
+      a.get("changeStateValue('stunned', 1); changeStateValue('stunned', -1)");
+      assert.ok(a.doc.querySelector(hint));
+      a.get("changeStateValue('fatigued', 1); changeStateValue('fatigued', -1)");
+      assert.equal(a.doc.querySelector(hint), null);
+      a.get("changeStateValue('fatigued', 1); changeStateValue('stunned', 1); changeStateValue('stunned', -1); changeStateValue('fatigued', -1)");
+      assert.equal(a.doc.querySelector(hint), null);
+      a.get("changeStateValue('stunned', 1); changeStateValue('stunned', -1)");
+      assert.ok(a.doc.querySelector(hint), 'a new removal must still produce a new reminder');
+      assert.equal(a.doc.getElementById('state-fatigued-value').value, '0');
+      assert.deepEqual(a.errors, []);
+    } finally { a.close(); }
+  }
+});

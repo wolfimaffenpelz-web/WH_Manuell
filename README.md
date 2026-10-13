@@ -52,6 +52,13 @@ versucht werden. „Verstorben“ wird dauerhaft gespeichert und sperrt die
 Bearbeitung; „Als lebend markieren“ hebt die Sperre wieder auf. Beide Aktionen befinden sich
 im Popup der Charakter-Löschschaltfläche.
 
+Bei einem Speicherfehler bleibt der Export möglich: Sind die aktuellen Eingaben
+gültig, enthält das Backup diese auch ohne erfolgreiche Speicherung. Andernfalls
+wird der letzte gespeicherte Stand exportiert; ein Hinweis benennt diesen Rückfall.
+Bei einem Ladefehler wird ausschließlich der intakte gespeicherte Stand exportiert.
+Die automatische Tabellenbereinigung entfernt nur vollständig leere Platzhalter
+und erhält die gerade bearbeitete Zeile beim vorübergehenden Leeren ihres Namens.
+
 ## Vier automatische Talente
 
 Die Zuordnung erfolgt über die exakten deutschen/englischen Namen, unabhängig
@@ -116,7 +123,8 @@ um bereits vorhandene einzelne 4e-Steigerungen bearbeiten zu können.
 Kosten entsprechen den bereitgestellten Tabellen, einschließlich 71+ im
 Einzelschritt. Ein vollständiger +5-Block kostet fünf Einzelpunkte. Die Bereiche
 beziehen sich auf gekaufte Steigerungen, nicht den Gesamtspielwert. Der jeweils
-sichtbare EP-Modus (einfach/voll) wird für 5e-Käufe verwendet.
+sichtbare EP-Modus (einfach/voll) wird in beiden Editionen für Käufe verwendet;
+das Guthaben wird vor der Bestätigung erneut geprüft.
 
 Der Schiebeschalter zeigt nur den aktiven Modus als Überschrift an:
 „Modus: Einzelsteigerung“ oder „Modus: Steigerung 5“. Über das Info-Symbol daneben
@@ -201,7 +209,9 @@ Verteidigung außer mit Sprache (Magick), gewährt dem Nahkampfangreifer einmal
 
 Entfernungshinweise erinnern bei Blutend, Demoralisiert und Vergiftet an Erschöpft,
 bei Betäubt nur wenn noch kein Erschöpft besteht. Beim Erwachen erinnern sie an
-Niedergestreckt und Erschöpft. Alle Folgen bleiben manuell. Niedergestreckt folgt
+Niedergestreckt und Erschöpft. Der Betäubt-Hinweis wird nach dem Hinzufügen von
+Erschöpft in beiden Editionen erledigt und erscheint nach der Erholung nicht erneut.
+Alle Folgen bleiben manuell. Niedergestreckt folgt
 der konkreten Beschreibung mit −20 auf bewegungsbezogene Proben, nicht dem
 abweichenden allgemeinen Beispiel für alle aktiven Proben.
 
