@@ -136,15 +136,19 @@ Karriereprüfung oder Vorteilsverwaltung.
 ### Zustände in 5e
 
 5e verwendet eigene Regeltexte für alle 13 Zustände, einschließlich Besudelt
-(Besmirched). Besudelt, Niedergestreckt, Überrascht und Bewusstlos sind An/Aus;
-die übrigen Zustände sind zählbar, auch über neun hinaus. Zähler lassen sich mit
-Pfeilen oder direkt bearbeiten. 4e behält die bisherige Liste und Zählergrenze.
+(Besmirched), mit dem bereitgestellten PNG unter `img/bismerched.png`.
+Besudelt, Niedergestreckt, Überrascht und Bewusstlos sind An/Aus;
+die übrigen Zustände sind zählbar, auch über neun hinaus. Die blau hinterlegten
+Zähler sind schreibgeschützt und lassen sich über die Pfeile bearbeiten. 4e behält die bisherige Liste und Zählergrenze.
 
 Die Zustände sind alphabetisch sortiert. Kompakte Zahlenfelder und Pfeile stehen
 wieder rechts neben dem Icon; das Info-Symbol bleibt separat am rechten Rand.
 Beide Editionen verwenden eine gemeinsame Tabelle mit ein Pixel breiten
 inneren Trennlinien, ohne Außenrahmen oder einzelne Statusboxen. Zustandsnamen
-und Bedienelemente sind normal gewichtet. Der letzte einzelne 5e-Zustand steht links mit oberer und rechter Trennlinie; freie Flächen haben die allgemeine Hintergrundfarbe. Der 5e-Punkteabschnitt ist bei gleicher Feldbreite
+und Bedienelemente sind normal gewichtet. Der letzte einzelne 5e-Zustand steht
+links mit oberer und rechter Trennlinie. Die obere Linie trennt auch den letzten
+rechten Zustand der vorherigen Reihe ab. Freie Flächen haben die allgemeine
+Hintergrundfarbe. Der 5e-Punkteabschnitt ist bei gleicher Feldbreite
 zentriert.
 
 Die Übersicht zeigt die gleiche Bulletpoint-Liste mit Ursachen wie das
@@ -165,8 +169,9 @@ wird nicht zusätzlich verwendet.
 
 Hinweise bei 0 LP, Betäubt über WI-Bonus oder bewusstloser Vergiftung aktualisieren
 sich mit den eingegebenen Werten. Beim Entfernen des letzten Vergiftet- oder
-Betäubt-Zustands erinnert die App an Erschöpft. Diese Entfernungshinweise lassen
-sich schließen und werden beim Laden eines Charakters zurückgesetzt. Beim Erhalt
+Betäubt-Zustands erinnert die App an Erschöpft. Diese Entfernungshinweise tragen
+links ein rotes Ausrufezeichen und lassen sich rechts über ein rotes Kreuz einzeln
+schließen. Sie werden beim Laden eines Charakters zurückgesetzt. Beim Erhalt
 eines Zustands geht Momentum verloren; das steht als Hinweis in den Popups.
 Es gibt keine automatische Rundenverwaltung, Würfe, LP-Verluste, Todesentscheidung
 oder Änderung weiterer Zustände. Die Karten behalten ihre manuell gesetzten Werte.

@@ -8,6 +8,9 @@
   --health-row-height: 2.5rem;
   --story-min-height: 4rem;
   --state5-count-width: 2.6ch;
+  --state-counter-background: var(--color-attr-cross);
+  --condition-reminder-color: #d00000;
+  --condition-reminder-icon-width: 1rem;
   --state-control-gap: 1px;
   --state-separator-width: 1px;
   --state-arrow-font-size: 0.9em;
@@ -105,4 +108,10 @@
 .state-grid-5e { justify-content: flex-start; }
 .state-grid-5e .state-card:last-child::after { content: ""; top: 0; bottom: 0; left: auto; right: calc(-1 * var(--state5-grid-gap)); width: var(--state-separator-width); }
 
-.state-grid-5e .state-card:last-child::before { left: 0; right: 0; }
+.state-grid-5e .state-card:last-child::before { left: 0; right: -100vw; }
+
+/* Arrow-operated counters and independently dismissible follow-up reminders. */
+.state-counter input[readonly] { background: var(--state-counter-background); }
+.condition-reminder { display: grid; grid-template-columns: var(--condition-reminder-icon-width) minmax(0, 1fr) var(--delete-col-width); align-items: start; gap: var(--management-gap); list-style: none; }
+.condition-reminder-alert { color: var(--condition-reminder-color); font-weight: bold; }
+.condition-reminder .condition-reminder-dismiss { color: var(--condition-reminder-color); min-height: var(--row-height); }

@@ -18,7 +18,7 @@ const conditionDefinitions = [
 ];
 
 const conditionDefinitions5e = [...conditionDefinitions, {
-  key: 'besmirched', translationKey: 'state_besmirched', icon: 'img/besmirched.svg', binary: true
+  key: 'besmirched', translationKey: 'state_besmirched', icon: 'img/bismerched.png', binary: true
 }].sort((left, right) => t(left.translationKey).localeCompare(t(right.translationKey), 'de'));
 
 function renderConditionCards(edition = '4e') {
@@ -46,7 +46,7 @@ function renderConditionCards(edition = '4e') {
         ` : `
           <div class="state-controls state-counter" aria-label="${t('state_stage')}">
             <button type="button" class="state-step-button" data-state-step data-direction="down" data-state-key="${condition.key}" aria-label="${t('state_stage')} -1">◀︎</button>
-            <input type="number" id="state-${condition.key}-value" min="0" ${edition === '4e' ? 'max="9" readonly' : ''} step="1" inputmode="numeric" value="0">
+            <input type="number" id="state-${condition.key}-value" min="0" ${edition === '4e' ? 'max="9"' : ''} readonly step="1" inputmode="numeric" value="0">
             <button type="button" class="state-step-button" data-state-step data-direction="up" data-state-key="${condition.key}" aria-label="${t('state_stage')} +1">▶︎</button>
             <button type="button" class="state-info-button" data-state-info data-state-key="${condition.key}" title="${t('state_info')}">i</button>
           </div>

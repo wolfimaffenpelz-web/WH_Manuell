@@ -8,6 +8,14 @@ const assert = require('node:assert/strict');
     headless: true, args: ['--no-sandbox'] });
   try {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    const setCondition = async (key, value) => {
+      const field = page.locator(`#state-${key}-value`);
+      const current = Number(await field.inputValue());
+      const direction = current < value ? 'up' : 'down';
+      for (let index = 0; index < Math.abs(value - current); index++) {
+        await page.locator(`[data-state-step][data-state-key="${key}"][data-direction="${direction}"]`).click();
+      }
+    };
     const errors = [];
     await context.route(/https:\/\/(fonts\.googleapis\.com|fonts\.gstatic\.com|fonts\.cdnfonts\.com)\//, route => route.abort());
     const page = await context.newPage();
@@ -75,13 +83,13 @@ const assert = require('node:assert/strict');
     await page.locator('#fate-value').fill('1');
     await page.locator('#luck-max').fill('8');
     await page.locator('#luck-current').fill('5');
-    await page.locator('#state-fatigued-value').fill('3');
-    await page.locator('#state-poisoned-value').fill('2');
-    await page.locator('#state-entangled-value').fill('1');
+    await setCondition('fatigued', 3);
+    await setCondition('poisoned', 2);
+    await setCondition('entangled', 1);
     assert.equal(await page.locator('[data-state5-effect]').count(), 3);
     assert.ok((await page.locator('[data-state5-effect="all-tests"]').textContent()).includes('−3 SL'));
     await page.locator('#state-besmirched-toggle').click();
-    await page.locator('#state-bleeding-value').fill('12');
+    await setCondition('bleeding', 12);
     await page.locator('#lp-aktuell').fill('0');
     assert.equal(await page.locator('[data-state5-hint="bleeding-endurance"]').isVisible(), true);
     assert.equal(await page.locator('#states-summary .state5-effect-list').count(), 1);
@@ -104,6 +112,11 @@ const assert = require('node:assert/strict');
     assert.equal(await page.locator('#luck-current').inputValue(), '5');
     assert.equal(await page.locator('#state-besmirched-value').inputValue(), '1');
     assert.equal(await page.locator('#state-bleeding-value').inputValue(), '12');
+    assert.equal(await page.locator('#state-besmirched-toggle img').getAttribute('src'), 'img/bismerched.png');
+    assert.equal(await page.locator('#state-besmirched-toggle img').evaluate(img => img.complete && img.naturalWidth > 0), true);
+    await page.locator('#state-fatigued-value').focus();
+    await page.keyboard.type('123');
+    assert.equal(await page.locator('#state-fatigued-value').inputValue(), '3');
     assert.ok((await page.locator('[data-state5-effect="all-tests"]').textContent()).includes('−3 SL'));
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.locator('#states-summary-info').click();
@@ -117,7 +130,7 @@ const assert = require('node:assert/strict');
     await page.locator('#levelup-cancel').click();
     for (const width of [320, 390, 1440]) {
       await page.setViewportSize({ width, height: 1000 });
-      await page.locator('#state-fatigued-value').fill('99');
+      await setCondition('fatigued', 99);
       const layout = await page.evaluate(() => {
         const grid = document.querySelector('.state-grid-5e');
         const rect = el => { const r = el.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, width: r.width }; };
@@ -129,6 +142,9 @@ const assert = require('node:assert/strict');
         table.style.marginInline = '';
         return {
           first: grid.firstElementChild.dataset.stateKey,
+          counterColor: getComputedStyle(grid.querySelector('.state-counter input')).backgroundColor,
+          counterReadonly: grid.querySelector('.state-counter input').readOnly,
+          separator: { right: getComputedStyle(grid.lastElementChild, '::before').right, height: getComputedStyle(grid.lastElementChild, '::before').height },
           names: Array.from(grid.querySelectorAll('.state-name'), el => ({ scroll: el.scrollWidth, client: el.clientWidth })),
           grid: rect(grid), last: rect(grid.lastElementChild),
           background: getComputedStyle(grid).backgroundColor,
@@ -148,6 +164,10 @@ const assert = require('node:assert/strict');
         };
       });
       assert.equal(layout.first, 'besmirched');
+      assert.equal(layout.counterReadonly, true);
+      assert.equal(layout.counterColor, 'rgb(173, 216, 230)');
+      assert.ok(Number.parseFloat(layout.separator.right) < 0);
+      assert.equal(layout.separator.height, '1px');
       for (const name of layout.names) assert.ok(name.scroll <= name.client + 1, `Clipped state name at ${width}px`);
       assert.equal(layout.background, layout.cardBackground);
       assert.ok(Math.abs(layout.last.left - layout.grid.left) < 2);
@@ -167,6 +187,18 @@ const assert = require('node:assert/strict');
       for (const row of layout.corruptionRows.slice(1, 4)) assert.equal(row.italic, 'italic');
       await page.locator('#zustaende').screenshot({ path: `work/states-layout-${width}.png` });
     }
+    await setCondition('fatigued', 0);
+    await setCondition('poisoned', 0);
+    await setCondition('stunned', 1);
+    await setCondition('stunned', 0);
+    assert.equal(await page.locator('.condition-reminder').count(), 2);
+    const color = await page.locator('.condition-reminder-alert').first().evaluate(el => getComputedStyle(el).color);
+    assert.equal(color, 'rgb(208, 0, 0)');
+    await page.locator('[data-dismiss-condition="poisoned"]').click();
+    assert.equal(await page.locator('.condition-reminder').count(), 1);
+    assert.equal(await page.locator('[data-dismiss-condition="stunned"]').count(), 1);
+    await page.locator('[data-dismiss-condition="stunned"]').click();
+    assert.equal(await page.locator('.condition-reminder').count(), 0);
     for (const edition of ['4e', '5e']) {
       await page.locator('#edition-select').selectOption(edition);
       if (edition === '4e') {

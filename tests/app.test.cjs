@@ -653,7 +653,7 @@ test('5e condition removal gives dismissible manual reminders without adding fat
     a.get("changeStateValue('poisoned', 1); changeStateValue('poisoned', -1)");
     assert.ok(a.doc.querySelector('[data-state5-hint="poison-removed"]'));
     assert.equal(a.doc.getElementById('state-fatigued-value').value, '0');
-    a.doc.getElementById('state5-dismiss-reminders').click();
+    a.doc.querySelector('[data-dismiss-condition="poisoned"]').click();
     assert.equal(a.doc.querySelector('[data-state5-hint="poison-removed"]'), null);
     a.get("changeStateValue('stunned', 1)");
     a.doc.getElementById('state-stunned-toggle').click();
@@ -792,12 +792,34 @@ test('4e removal reminders cover bleeding, broken, poisoned, stunned and waking 
       assert.ok(a.doc.querySelector(`[data-state4-hint="${id}-removed"]`));
       assert.equal(a.doc.getElementById('state-fatigued-value').value, '0');
       assert.equal(a.doc.getElementById('state-prone-value').value, '0');
-      a.doc.getElementById('state5-dismiss-reminders').click();
+      a.doc.querySelector(`[data-dismiss-condition="${key}"]`).click();
     }
     a.get("changeStateValue('fatigued', 1); changeStateValue('stunned', 1); changeStateValue('stunned', -1)");
     assert.equal(a.doc.querySelector('[data-state4-hint="stunned-removed"]'), null);
     a.get('loadState()');
-    assert.equal(a.doc.getElementById('state5-dismiss-reminders'), null);
+    assert.equal(a.doc.querySelector('.condition-reminder-dismiss'), null);
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
+});
+
+test('5e counters are arrow-operated and follow-up reminders can be closed independently', () => {
+  const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+  try {
+    fifth(a);
+    assert.equal(a.doc.getElementById('state-fatigued-value').readOnly, true);
+    assert.equal(a.doc.querySelector('#state-besmirched-toggle img').getAttribute('src'), 'img/bismerched.png');
+    const up = a.doc.querySelector('[data-state-step][data-state-key="fatigued"][data-direction="up"]');
+    up.click();
+    assert.equal(a.doc.getElementById('state-fatigued-value').value, '1');
+    a.get("changeStateValue('fatigued', -1); changeStateValue('poisoned', 1); changeStateValue('poisoned', -1); changeStateValue('stunned', 1); changeStateValue('stunned', -1)");
+    assert.equal(a.doc.querySelectorAll('.condition-reminder').length, 2);
+    assert.equal(a.doc.querySelectorAll('.condition-reminder-alert').length, 2);
+    a.doc.querySelector('[data-dismiss-condition="poisoned"]').click();
+    assert.equal(a.doc.querySelector('[data-state5-hint="poison-removed"]'), null);
+    assert.ok(a.doc.querySelector('[data-state5-hint="stunned-removed"]'));
+    a.doc.querySelector('[data-dismiss-condition="stunned"]').click();
+    assert.equal(a.doc.querySelector('.condition-reminder'), null);
+    assert.equal(a.doc.getElementById('state-fatigued-value').value, '0');
     assert.deepEqual(a.errors, []);
   } finally { a.close(); }
 });

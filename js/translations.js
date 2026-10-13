@@ -322,7 +322,7 @@ const baseTranslations = {
   state5_clear_stunned: "Bewusstlos entfernt alle Betäubt-Zustände. Die noch eingetragenen Betäubt-Zustände bitte manuell entfernen.",
   state5_poison_removed: "Alle Vergiftet-Zustände entfernt: einen Zustand Erschöpft hinzufügen. Bitte manuell ausführen.",
   state5_stunned_removed: "Alle Betäubt-Zustände entfernt: einen Zustand Erschöpft hinzufügen, sofern noch keiner besteht. Bitte manuell ausführen.",
-  state5_dismiss_reminders: "Entfernungshinweise schließen",
+  condition_reminder_close: "Diesen Entfernungshinweis schließen",
   state5_reason_stunned_cleared: "Bewusstlos entfernt Betäubt. Noch eingetragene Betäubt-Zustände werden hier nicht als geltender Malus berücksichtigt; bitte manuell entfernen.",
   state5_reason_stronger: "Durch einen mindestens gleich hohen Abzug eines anderen Zustands überdeckt.",
   state5_reason_no_actions: "Handlungsbezogene Wirkung durch das Verbot von Aktion/Bewegung überdeckt. Erforderliche oder weiterhin zulässige Proben bleiben separat berücksichtigt.",

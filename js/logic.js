@@ -2272,11 +2272,17 @@ function renderConditionHints() {
     if (key === 'stunned' && getStateCount('fatigued')) continue;
     const id = key === 'poisoned' ? 'poison' : key;
     const text = activeEdition === '4e' ? `state4_${key}_removed` : `state5_${id}_removed`;
-    hints.push({ id: `${id}-removed`, text });
+    hints.push({ id: `${id}-removed`, text, dismissKey: key });
   }
-  container.innerHTML = hints.length ? `<ul class="state5-hint-list">${hints.map(item => `<li data-state${activeEdition === '4e' ? '4' : '5'}-hint="${item.id}">${escapeHtml(conditionText(item.text, item.params))}</li>`).join('')}</ul>` : '';
-  container.innerHTML += (conditionRemovalNotices.size ? `<button type="button" id="state5-dismiss-reminders">${t('state5_dismiss_reminders')}</button>` : '');
-  container.querySelector('#state5-dismiss-reminders')?.addEventListener('click', () => { conditionRemovalNotices.clear(); renderConditionHints(); });
+  container.innerHTML = hints.length ? `<ul class="state5-hint-list">${hints.map(item => {
+    const text = escapeHtml(conditionText(item.text, item.params));
+    const content = item.dismissKey ? `<span class="condition-reminder-alert" aria-hidden="true">!</span><span>${text}</span><button type="button" class="delete-row condition-reminder-dismiss" data-dismiss-condition="${item.dismissKey}" aria-label="${t('condition_reminder_close')}: ${t(`state_${item.dismissKey}`)}">❌</button>` : text;
+    return `<li ${item.dismissKey ? 'class="condition-reminder"' : ''} data-state${activeEdition === '4e' ? '4' : '5'}-hint="${item.id}">${content}</li>`;
+  }).join('')}</ul>` : '';
+  container.querySelectorAll('[data-dismiss-condition]').forEach(button => button.addEventListener('click', () => {
+    conditionRemovalNotices.delete(button.dataset.dismissCondition);
+    renderConditionHints();
+  }));
 }
 
 function noteConditionRemoval(key, before, after) {
