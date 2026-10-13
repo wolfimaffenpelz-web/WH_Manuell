@@ -548,6 +548,9 @@ test('5e condition cards persist Besmirched and large counters through export, i
   try {
     assert.equal(a.doc.getElementById('state-besmirched-value'), null);
     fifth(a);
+    assert.equal(a.doc.querySelector('.state-grid-5e [data-state-card]').dataset.stateKey, 'besmirched');
+    const names = Array.from(a.doc.querySelectorAll('.state-grid-5e .state-name'), el => el.textContent);
+    assert.deepEqual(names, [...names].sort((left, right) => left.localeCompare(right, 'de')));
     const besmirched = a.doc.getElementById('state-besmirched-toggle');
     besmirched.click();
     a.get("changeStateValue('bleeding', 23)");
@@ -587,12 +590,15 @@ test('5e compact effects recalculate suppressed penalties and explain them in th
     fifth(a);
     a.get("changeStateValue('bleeding', -2); changeStateValue('fatigued', 3); changeStateValue('poisoned', 2); changeStateValue('entangled', 1)");
     const summary = a.doc.getElementById('states-summary');
+    assert.equal(summary.querySelectorAll('.state-effect-chip').length, 0);
+    assert.equal(summary.querySelectorAll('.state5-effect-list > li').length, 3);
     assert.equal(summary.querySelectorAll('[data-state5-effect]').length, 3);
     assert.ok(summary.querySelector('[data-state5-effect="all-tests"]').textContent.includes('−3 SL'));
     assert.equal(summary.querySelector('[data-state5-effect="movement-tests"]'), null);
     assert.ok(summary.querySelector('[data-state5-effect="poison-loss"]').textContent.includes('2 LP'));
     a.doc.getElementById('states-summary-info').click();
     const popup = a.doc.querySelector('.state5-info-popup');
+    assert.equal(popup.querySelector('.state5-effect-list').textContent, summary.querySelector('.state5-effect-list').textContent);
     assert.ok(popup.textContent.includes('Überdeckte Wirkungen'));
     assert.ok(popup.textContent.includes('Vergiftet: −2 SL'));
     assert.ok(popup.textContent.includes('Gefesselt: −1 SL'));
@@ -678,6 +684,37 @@ test('5e state info uses separate rules, four sections and material strengths; 4
       if (key === 'stunned') assert.ok(popup.textContent.includes('verbietet keine Aktion'));
       if (key === 'entangled') assert.equal(popup.querySelector('tr:last-child td:last-child').textContent, '105');
       a.doc.getElementById('state-info-close').click();
+    }
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
+});
+
+test('corruption rows show current, separate bonuses and total in both editions without changing the threshold rule', () => {
+  const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+  try {
+    for (const edition of ['4e', '5e']) {
+      if (edition === '5e') fifth(a);
+      const table = a.doc.getElementById('korruption-table');
+      assert.deepEqual(Array.from(table.rows, row => row.querySelector('input').id), ['korruption-akt', 'korruption-wib', 'korruption-wkb', 'corruption-talent-bonus', 'korruption-max']);
+      assert.equal(table.querySelectorAll('.corruption-component').length, 3);
+      a.doc.getElementById('WI-start').value = '40';
+      a.doc.getElementById('WK-start').value = '50';
+      a.get('updateAttributes()');
+      assert.equal(a.doc.getElementById('korruption-wib').value, '4');
+      assert.equal(a.doc.getElementById('korruption-wkb').value, '5');
+      assert.equal(a.doc.getElementById('corruption-talent-bonus').value, edition === '4e' ? '2' : '9');
+      const maximum = edition === '4e' ? 11 : 18;
+      assert.equal(a.doc.getElementById('korruption-max').value, String(maximum));
+      for (const id of ['korruption-wib', 'korruption-wkb', 'corruption-talent-bonus', 'korruption-max']) assert.equal(a.doc.getElementById(id).readOnly, true);
+      a.doc.getElementById('korruption-akt').value = String(maximum);
+      a.get('updateKorruption()');
+      assert.equal(a.doc.getElementById('corruption-warning').textContent, '');
+      a.doc.getElementById('korruption-akt').value = String(maximum + 1);
+      a.get('updateKorruption(); saveState(); loadState()');
+      assert.ok(a.doc.getElementById('corruption-warning').textContent);
+      assert.equal(a.doc.getElementById('korruption-wib').value, '4');
+      assert.equal(a.doc.getElementById('korruption-wkb').value, '5');
+      assert.equal(a.doc.getElementById('korruption-akt').value, String(maximum + 1));
     }
     assert.deepEqual(a.errors, []);
   } finally { a.close(); }

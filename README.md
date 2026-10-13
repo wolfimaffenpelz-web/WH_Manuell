@@ -140,7 +140,14 @@ Karriereprüfung oder Vorteilsverwaltung.
 die übrigen Zustände sind zählbar, auch über neun hinaus. Zähler lassen sich mit
 Pfeilen oder direkt bearbeiten. 4e behält die bisherige Liste und Zählergrenze.
 
-Die Übersicht zeigt nur geltende Wirkungen: höchste passende SL-Mali statt
+Die Zustände sind alphabetisch sortiert. Kompakte Zahlenfelder und Pfeile stehen
+in einer eigenen Zeile; das Info-Symbol bleibt separat am rechten Rand. Eine
+einzelne Karte in der letzten Zeile steht mittig, freie Flächen haben die
+allgemeine Hintergrundfarbe. Der 5e-Punkteabschnitt ist bei gleicher Feldbreite
+zentriert.
+
+Die Übersicht zeigt die gleiche Bulletpoint-Liste mit Ursachen wie das
+Info-Popup und nur geltende Wirkungen: höchste passende SL-Mali statt
 Addition verschiedener Zustände, zusammengefassten Vorteil/Nachteil und die
 strengste relevante Handlungseinschränkung. Teilweise überlappende Bereiche wie
 Bewegung und Rennen/Verstecken bleiben getrennt berücksichtigt. Schaden und
@@ -162,6 +169,11 @@ sich schließen und werden beim Laden eines Charakters zurückgesetzt. Beim Erha
 eines Zustands geht Momentum verloren; das steht als Hinweis in den Popups.
 Es gibt keine automatische Rundenverwaltung, Würfe, LP-Verluste, Todesentscheidung
 oder Änderung weiterer Zustände. Die Karten behalten ihre manuell gesetzten Werte.
+
+Die Korruptionsübersicht zeigt in beiden Editionen untereinander den aktuellen
+Wert, WIB (Widerstandsbonus), WKB (Willenskraftbonus), Pure-Soul-Zuschlag und die
+maximale Korruption. Die drei Bestandteile sind kursiv und werden automatisch
+berechnet; die editionsabhängige Schwelle bleibt unverändert.
 
 ## Offline und Updates
 

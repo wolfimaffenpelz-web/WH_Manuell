@@ -7,7 +7,12 @@
   --health-progress-width: 40%;
   --health-row-height: 2.5rem;
   --story-min-height: 4rem;
-  --state5-count-width: 4rem;
+  --state5-count-width: 2.6ch;
+  --state-control-gap: 0.2rem;
+  --state5-grid-gap: 1px;
+  --corruption-stack-width: 26rem;
+  --corruption-label-width: 75%;
+  --corruption-value-width: 25%;
   --state5-popup-width: 42rem;
   --state5-popup-max-width: 94vw;
   --levelup-cost-col-width: 33.333%;
@@ -48,5 +53,33 @@
 .state5-material-table td { white-space: normal; }
 #states-hints { margin: var(--management-gap) 0; }
 
-.state5-info-header { display: flex; gap: var(--management-gap); align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--color-field); }
+.state5-info-header { display: flex; gap: var(--management-gap); align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--color-bg); }
 .state5-info-header h2 { margin: 0; }
+
+/* State controls keep the arrows, two-digit field and info button separate. */
+.state-card .state-body { display: contents; }
+.state-card .state-icon-button { grid-column: 1; grid-row: 1; }
+.state-card .state-name { grid-column: 2; grid-row: 1; min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+.state-card .state-controls { grid-column: 1 / -1; grid-row: 2; gap: var(--state-control-gap); }
+.state-counter { grid-template-columns: var(--state-step-control-size) var(--state5-count-width) var(--state-step-control-size) minmax(0, 1fr) var(--state-control-size); }
+.state-counter input { width: var(--state5-count-width); min-width: var(--state5-count-width); max-width: var(--state5-count-width); padding: 0; box-sizing: border-box; appearance: textfield; -moz-appearance: textfield; }
+.state-counter input::-webkit-inner-spin-button, .state-counter input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.state-counter .state-info-button, .state-controls-binary .state-info-button { grid-column: 5; justify-self: end; width: var(--state-control-size); padding: 0; }
+.state-grid-5e { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--state5-grid-gap); background: var(--color-bg); }
+.state-grid-5e .state-card { flex: 0 0 calc((100% - var(--state5-grid-gap)) / 2); min-width: 0; box-sizing: border-box; }
+@media (min-width: 1200px) {
+  .state-grid-5e .state-card { flex-basis: calc((100% - 3 * var(--state5-grid-gap)) / 4); }
+}
+.states-summary-5e { display: block; }
+.state5-effect-list, .state5-hint-list { margin: var(--management-gap) 0; padding-inline-start: calc(3 * var(--management-gap)); text-align: left; }
+.state5-effect-list li, .state5-hint-list li { margin-bottom: var(--management-gap); }
+.state5-info-popup { background: var(--color-bg); }
+.points5e-table { margin-inline: auto; }
+
+/* The corruption calculation is shown in order in both editions. */
+#korruption-table { width: var(--corruption-stack-width); max-width: 100%; table-layout: fixed; }
+#korruption-table td:first-child { width: var(--corruption-label-width); max-width: none; text-align: left; white-space: normal; }
+#korruption-table td:nth-child(2) { width: var(--corruption-value-width); text-align: center; }
+#korruption-table tr { height: var(--row-height); }
+#korruption-table input { width: 3ch; }
+#korruption-table .corruption-component { font-style: italic; }

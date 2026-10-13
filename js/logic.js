@@ -1406,6 +1406,8 @@ function updateKorruption() {
 
   const maxEl = document.getElementById("korruption-max");
   maxEl.value = max;
+  document.getElementById('korruption-wib').value = Math.floor(WI / 10);
+  document.getElementById('korruption-wkb').value = Math.floor(WK / 10);
   document.getElementById('corruption-talent-bonus').value = readTalentEffects().corruption;
 
   if (akt > max) {
@@ -2252,10 +2254,12 @@ function state5Sources(effect) {
   return effect.sources.map(key => `${t(`state_${key}`)}${['besmirched', 'prone', 'surprised', 'unconscious'].includes(key) ? '' : ` ${getStateCount(key)}`}`).join(', ');
 }
 
+function state5EffectList(result) {
+  return `<ul class="state5-effect-list">${result.effects.map(effect => `<li data-state5-effect="${effect.id}"><strong>${escapeHtml(t(effect.label))}:</strong> ${escapeHtml(state5Text(effect.text, effect.params))} — ${t('state5_effect_sources')}: ${escapeHtml(state5Sources(effect))}</li>`).join('') || `<li class="state-effect-placeholder">${t('states_effects_empty')}</li>`}</ul>`;
+}
+
 function buildState5EffectSummary() {
-  const result = evaluateState5Effects();
-  if (!result.effects.length) return `<span class="state-effect-placeholder">${t('states_effects_empty')}</span>`;
-  return result.effects.map(effect => `<span class="state-effect-chip" data-state5-effect="${effect.id}"><strong>${escapeHtml(t(effect.label))}:</strong> ${escapeHtml(state5Text(effect.text, effect.params))}</span>`).join('');
+  return state5EffectList(evaluateState5Effects());
 }
 
 function renderState5Hints() {
@@ -2265,8 +2269,8 @@ function renderState5Hints() {
   const hints = [...result.hints];
   if (state5RemovalNotices.has('poisoned')) hints.push({ id: 'poison-removed', text: 'state5_poison_removed' });
   if (state5RemovalNotices.has('stunned') && !getStateCount('fatigued')) hints.push({ id: 'stunned-removed', text: 'state5_stunned_removed' });
-  container.innerHTML = hints.map(item => `<p class="rule-warning" data-state5-hint="${item.id}">${escapeHtml(state5Text(item.text, item.params))}</p>`).join('')
-    + (state5RemovalNotices.size ? `<button type="button" id="state5-dismiss-reminders">${t('state5_dismiss_reminders')}</button>` : '');
+  container.innerHTML = hints.length ? `<ul class="state5-hint-list">${hints.map(item => `<li data-state5-hint="${item.id}">${escapeHtml(state5Text(item.text, item.params))}</li>`).join('')}</ul>` : '';
+  container.innerHTML += (state5RemovalNotices.size ? `<button type="button" id="state5-dismiss-reminders">${t('state5_dismiss_reminders')}</button>` : '');
   container.querySelector('#state5-dismiss-reminders')?.addEventListener('click', () => { state5RemovalNotices.clear(); renderState5Hints(); });
 }
 
@@ -2294,7 +2298,7 @@ function openState5Popup(title, content, trigger) {
 
 function openState5SummaryInfo() {
   const result = evaluateState5Effects();
-  const content = `<p>${t('state5_stack')}</p><h3>${t('states_effects')}</h3><ul>${result.effects.map(effect => `<li><strong>${escapeHtml(t(effect.label))}:</strong> ${escapeHtml(state5Text(effect.text, effect.params))} — ${t('state5_effect_sources')}: ${escapeHtml(state5Sources(effect))}</li>`).join('') || `<li>${t('states_effects_empty')}</li>`}</ul>
+  const content = `<p>${t('state5_stack')}</p><h3>${t('states_effects')}</h3>${state5EffectList(result)}
     <h3>${t('state5_hidden_effects')}</h3><ul>${result.suppressed.map(item => `<li>${escapeHtml(t(`state_${item.source}`))}: ${escapeHtml(state5Text(item.text, item.params))} — ${t(item.reason)}</li>`).join('') || `<li>${t('state5_no_hidden')}</li>`}</ul><p>${t('state5_momentum')}</p>`;
   openState5Popup(t('state5_summary_title'), content, document.getElementById('states-summary-info'));
 }

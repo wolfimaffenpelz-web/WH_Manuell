@@ -84,6 +84,8 @@ const assert = require('node:assert/strict');
     await page.locator('#state-bleeding-value').fill('12');
     await page.locator('#lp-aktuell').fill('0');
     assert.equal(await page.locator('[data-state5-hint="bleeding-endurance"]').isVisible(), true);
+    assert.equal(await page.locator('#states-summary .state5-effect-list').count(), 1);
+    assert.equal(await page.locator('#states-summary .state-effect-chip').count(), 0);
     await page.locator('#states-summary-info').click();
     assert.ok((await page.locator('.state5-info-popup').textContent()).includes('Vergiftet: −2 SL'));
     await page.screenshot({ path: 'work/states5-mobile.png' });
@@ -113,6 +115,53 @@ const assert = require('node:assert/strict');
     await page.keyboard.press('Escape');
     assert.equal(await page.locator('#levelup-cost-overlay').count(), 0);
     await page.locator('#levelup-cancel').click();
+    for (const width of [320, 390, 1440]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.locator('#state-fatigued-value').fill('99');
+      const layout = await page.evaluate(() => {
+        const grid = document.querySelector('.state-grid-5e');
+        const rect = el => { const r = el.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, width: r.width }; };
+        const table = document.querySelector('.points5e-table');
+        const widths = () => Array.from(table.querySelectorAll('input'), el => rect(el).width);
+        const centeredWidths = widths();
+        table.style.marginInline = '0';
+        const originalWidths = widths();
+        table.style.marginInline = '';
+        return {
+          first: grid.firstElementChild.dataset.stateKey,
+          names: Array.from(grid.querySelectorAll('.state-name'), el => ({ scroll: el.scrollWidth, client: el.clientWidth })),
+          grid: rect(grid), last: rect(grid.lastElementChild),
+          background: getComputedStyle(grid).backgroundColor,
+          cardBackground: getComputedStyle(grid.firstElementChild).backgroundColor,
+          table: rect(table), parent: rect(table.parentElement), centeredWidths, originalWidths,
+          controls: Array.from(grid.querySelectorAll('.state-counter'), controls => ({
+            card: rect(controls.closest('.state-card')),
+            parts: Array.from(controls.querySelectorAll('button, input'), rect)
+          })),
+          corruptionRows: Array.from(document.querySelectorAll('#korruption-table tr'), row => ({
+            label: row.cells[0].textContent,
+            italic: getComputedStyle(row.cells[0]).fontStyle,
+            input: row.querySelector('input').id
+          }))
+        };
+      });
+      assert.equal(layout.first, 'besmirched');
+      for (const name of layout.names) assert.ok(name.scroll <= name.client + 1, `Clipped state name at ${width}px`);
+      assert.equal(layout.background, layout.cardBackground);
+      assert.ok(Math.abs((layout.last.left + layout.last.right) / 2 - (layout.grid.left + layout.grid.right) / 2) < 2);
+      assert.ok(Math.abs((layout.table.left + layout.table.right) / 2 - (layout.parent.left + layout.parent.right) / 2) < 2);
+      assert.deepEqual(layout.centeredWidths, layout.originalWidths);
+      for (const controls of layout.controls) {
+        for (let index = 0; index < controls.parts.length; index++) {
+          const part = controls.parts[index];
+          assert.ok(part.left >= controls.card.left && part.right <= controls.card.right, `Control outside card at ${width}px`);
+          if (index) assert.ok(part.left >= controls.parts[index - 1].right, `Overlapping controls at ${width}px`);
+        }
+      }
+      assert.deepEqual(layout.corruptionRows.map(row => row.input), ['korruption-akt', 'korruption-wib', 'korruption-wkb', 'corruption-talent-bonus', 'korruption-max']);
+      for (const row of layout.corruptionRows.slice(1, 4)) assert.equal(row.italic, 'italic');
+      await page.locator('#zustaende').screenshot({ path: `work/states-layout-${width}.png` });
+    }
     assert.deepEqual(errors, []);
     console.log('Mobile browser and offline smoke checks passed.');
   } finally { await browser.close(); }

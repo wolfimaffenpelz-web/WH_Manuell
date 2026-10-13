@@ -19,7 +19,7 @@ const conditionDefinitions = [
 
 const conditionDefinitions5e = [...conditionDefinitions, {
   key: 'besmirched', translationKey: 'state_besmirched', icon: 'img/besmirched.svg', binary: true
-}];
+}].sort((left, right) => t(left.translationKey).localeCompare(t(right.translationKey), 'de'));
 
 function renderConditionCards(edition = '4e') {
   return (edition === '5e' ? conditionDefinitions5e : conditionDefinitions).map(condition => `
@@ -418,15 +418,14 @@ sections.push(
     id: "korruption",
     title: t('corruption') + ' & ' + t('mutations'),
     content: `
-      <h3>Korruptionspunkte</h3>
+      <h3>${t('corruption_points')}</h3>
       <table id="korruption-table">
-        <tr><th class="text-center">${t('max')}</th><th>${t('current')}</th></tr>
-        <tr>
-          <td class="text-center"><input type="number" id="korruption-max" readonly></td>
-          <td><input type="number" id="korruption-akt"></td>
-        </tr>
+        <tr><td>${t('current')}</td><td><input type="number" id="korruption-akt"></td></tr>
+        <tr class="corruption-component"><td>${t('corruption_wib')}</td><td><input type="number" id="korruption-wib" readonly></td></tr>
+        <tr class="corruption-component"><td>${t('corruption_wkb')}</td><td><input type="number" id="korruption-wkb" readonly></td></tr>
+        <tr class="corruption-component"><td>${t('corruption_pure_soul')}</td><td><input type="number" id="corruption-talent-bonus" readonly></td></tr>
+        <tr><td>${t('corruption_maximum')}</td><td><input type="number" id="korruption-max" readonly></td></tr>
       </table>
-      <label>${t('pure_soul_bonus')} <input type="number" id="corruption-talent-bonus" readonly></label>
       <p id="corruption-warning" class="rule-warning" role="status"></p>
      <h3>Vorhandene Mutationen</h3>
       <table class="full-width" id="mutationen-table">
@@ -629,11 +628,11 @@ sections.splice(sections.findIndex(section => section.id === 'lebenspunkte') + 1
 // Layout is shared; edition-specific rules are selected by the active character.
 const edition5Sections = sections.map(section => section.id === 'zustaende' ? {
   ...section,
-  content: `<div class="states-top-row"><div class="states-summary-label">${t('states_effects')} <button type="button" class="state-info-button" id="states-summary-info" aria-label="${t('state5_summary_info')}">ⓘ</button></div><div class="states-summary" id="states-summary"></div></div><div id="states-hints" aria-live="polite"></div><div class="state-grid state-grid-5e">${renderConditionCards('5e')}</div><div class="section-divider"></div>`
+  content: `<div class="states-top-row"><div class="states-summary-label">${t('states_effects')} <button type="button" class="state-info-button" id="states-summary-info" aria-label="${t('state5_summary_info')}">ⓘ</button></div><div class="states-summary states-summary-5e" id="states-summary"></div></div><div id="states-hints" aria-live="polite"></div><div class="state-grid state-grid-5e">${renderConditionCards('5e')}</div><div class="section-divider"></div>`
 } : section.id === 'schicksalzaehigkeit' ? {
   ...section,
   title: t('fate_luck'),
-  content: `<table class="value-table">
+  content: `<table class="value-table points5e-table">
     <tr><td>${t('fate')}</td><td><input type="number" id="fate-value" class="small-field" max="99" min="0"></td></tr>
     <tr><td>${t('luck')}</td><td><input type="number" id="luck-current" class="small-field" max="99" min="0"><span class="slash">/</span><input type="number" id="luck-max" class="small-field" max="99" min="0"></td></tr>
   </table><div class="section-divider"></div>`
