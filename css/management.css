@@ -8,7 +8,9 @@
   --health-row-height: 2.5rem;
   --story-min-height: 4rem;
   --state5-count-width: 2.6ch;
-  --state-control-gap: 0.2rem;
+  --state-control-gap: 1px;
+  --state-card-border-width: 1px;
+  --state-arrow-font-size: 0.9em;
   --state5-grid-gap: 1px;
   --corruption-stack-width: 26rem;
   --corruption-label-width: 75%;
@@ -57,15 +59,17 @@
 .state5-info-header h2 { margin: 0; }
 
 /* State controls keep the arrows, two-digit field and info button separate. */
-.state-card .state-body { display: contents; }
+.state-card .state-body { display: grid; grid-column: 2; grid-row: 1; }
 .state-card .state-icon-button { grid-column: 1; grid-row: 1; }
-.state-card .state-name { grid-column: 2; grid-row: 1; min-width: 0; white-space: normal; overflow-wrap: anywhere; }
-.state-card .state-controls { grid-column: 1 / -1; grid-row: 2; gap: var(--state-control-gap); }
-.state-counter { grid-template-columns: var(--state-step-control-size) var(--state5-count-width) var(--state-step-control-size) minmax(0, 1fr) var(--state-control-size); }
-.state-counter input { width: var(--state5-count-width); min-width: var(--state5-count-width); max-width: var(--state5-count-width); padding: 0; box-sizing: border-box; appearance: textfield; -moz-appearance: textfield; }
+.state-card .state-name { grid-column: 1; grid-row: 1; min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+.state-card .state-controls { grid-column: 1; grid-row: 2; gap: var(--state-control-gap); min-width: 0; display: flex; }
+.state-counter .state-step-button { flex: 0 1 var(--state-step-control-size); min-width: 0; width: var(--state-step-control-size); font-size: var(--state-arrow-font-size); }
+.state-controls-binary .state-binary-value { flex: 1; min-width: 0; }
+.state-counter input { flex: 0 0 var(--state5-count-width); width: var(--state5-count-width); min-width: var(--state5-count-width); max-width: var(--state5-count-width); padding: 0; box-sizing: border-box; appearance: textfield; -moz-appearance: textfield; }
 .state-counter input::-webkit-inner-spin-button, .state-counter input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-.state-counter .state-info-button, .state-controls-binary .state-info-button { grid-column: 5; justify-self: end; width: var(--state-control-size); padding: 0; }
+.state-counter .state-info-button, .state-controls-binary .state-info-button { flex: 0 0 var(--state-control-size); margin-left: auto; width: var(--state-control-size); padding: 0; }
 .state-grid-5e { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--state5-grid-gap); background: var(--color-bg); }
+.state-card { border: var(--state-card-border-width) solid var(--color-table-line); }
 .state-grid-5e .state-card { flex: 0 0 calc((100% - var(--state5-grid-gap)) / 2); min-width: 0; box-sizing: border-box; }
 @media (min-width: 1200px) {
   .state-grid-5e .state-card { flex-basis: calc((100% - 3 * var(--state5-grid-gap)) / 4); }

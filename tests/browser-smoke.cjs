@@ -136,6 +136,8 @@ const assert = require('node:assert/strict');
           table: rect(table), parent: rect(table.parentElement), centeredWidths, originalWidths,
           controls: Array.from(grid.querySelectorAll('.state-counter'), controls => ({
             card: rect(controls.closest('.state-card')),
+            icon: rect(controls.closest('.state-card').querySelector('.state-icon-button')),
+            borders: getComputedStyle(controls.closest('.state-card')).borderTopStyle,
             parts: Array.from(controls.querySelectorAll('button, input'), rect)
           })),
           corruptionRows: Array.from(document.querySelectorAll('#korruption-table tr'), row => ({
@@ -152,6 +154,9 @@ const assert = require('node:assert/strict');
       assert.ok(Math.abs((layout.table.left + layout.table.right) / 2 - (layout.parent.left + layout.parent.right) / 2) < 2);
       assert.deepEqual(layout.centeredWidths, layout.originalWidths);
       for (const controls of layout.controls) {
+        assert.equal(controls.borders, 'solid');
+        assert.ok(controls.parts[0].left >= controls.icon.right, `Controls not beside icon at ${width}px`);
+        assert.ok(controls.parts[0].top < controls.icon.bottom, `Controls below icon at ${width}px`);
         for (let index = 0; index < controls.parts.length; index++) {
           const part = controls.parts[index];
           assert.ok(part.left >= controls.card.left && part.right <= controls.card.right, `Control outside card at ${width}px`);

@@ -141,7 +141,8 @@ die übrigen Zustände sind zählbar, auch über neun hinaus. Zähler lassen sic
 Pfeilen oder direkt bearbeiten. 4e behält die bisherige Liste und Zählergrenze.
 
 Die Zustände sind alphabetisch sortiert. Kompakte Zahlenfelder und Pfeile stehen
-in einer eigenen Zeile; das Info-Symbol bleibt separat am rechten Rand. Eine
+wieder rechts neben dem Icon; das Info-Symbol bleibt separat am rechten Rand.
+Die Karten besitzen sichtbare innere Tabellenlinien. Eine
 einzelne Karte in der letzten Zeile steht mittig, freie Flächen haben die
 allgemeine Hintergrundfarbe. Der 5e-Punkteabschnitt ist bei gleicher Feldbreite
 zentriert.
