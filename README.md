@@ -144,9 +144,7 @@ Die Zustände sind alphabetisch sortiert. Kompakte Zahlenfelder und Pfeile stehe
 wieder rechts neben dem Icon; das Info-Symbol bleibt separat am rechten Rand.
 Beide Editionen verwenden eine gemeinsame Tabelle mit ein Pixel breiten
 inneren Trennlinien, ohne Außenrahmen oder einzelne Statusboxen. Zustandsnamen
-und Bedienelemente sind normal gewichtet. Eine
-einzelne Karte in der letzten Zeile steht mittig, freie Flächen haben die
-allgemeine Hintergrundfarbe. Der 5e-Punkteabschnitt ist bei gleicher Feldbreite
+und Bedienelemente sind normal gewichtet. Der letzte einzelne 5e-Zustand steht links mit oberer und rechter Trennlinie; freie Flächen haben die allgemeine Hintergrundfarbe. Der 5e-Punkteabschnitt ist bei gleicher Feldbreite
 zentriert.
 
 Die Übersicht zeigt die gleiche Bulletpoint-Liste mit Ursachen wie das
@@ -177,6 +175,30 @@ Die Korruptionsübersicht zeigt in beiden Editionen untereinander den aktuellen
 Wert, WIB (Widerstandsbonus), WKB (Willenskraftbonus), Pure-Soul-Zuschlag und die
 maximale Korruption. Die drei Bestandteile sind kursiv und werden automatisch
 berechnet; die editionsabhängige Schwelle bleibt unverändert.
+
+### Zustände in 4e
+
+Die zwölf 4e-Zustände verwenden die bereitgestellten Regeltexte in separaten
+Berechnungen. Die Übersicht zeigt wie in 5e Bulletpoints mit den höchsten
+passenden Prozentmodifikatoren, eigenständigen Schadensfolgen und Quellen.
+Das Info-Symbol erklärt überdeckte Wirkungen; die Zustands-Popups gliedern
+Wirkung, Zeitpunkt, Entfernung und Sonderfälle. Beim Erhalt eines Zustands geht
+sämtlicher Vorteil verloren, nicht Momentum.
+
+Blutend führt bei 0 LP sofort zu Bewusstlosigkeit und am Rundenende zu 10 %
+Todesrisiko je Zustand; ein Pasch entfernt einen Blutend-Zustand. Die App zeigt
+Hinweise, würfelt und verändert LP oder Todesstatus aber nicht automatisch.
+Brennend verursacht nach Reduktion mindestens 1 LP Verlust. Bei bewusstloser
+Vergiftung nennt der Text eine Todesprobe nach WI-Bonus Runden; die 5e-Wiederholung
+alle WI-Bonus Runden wird nicht übernommen. Betäubt verbietet Aktionen, erlaubt
+Verteidigung außer mit Sprache (Magick), gewährt dem Nahkampfangreifer einmal
++1 Vorteil und wird nicht automatisch bei Bewusstlosigkeit entfernt.
+
+Entfernungshinweise erinnern bei Blutend, Demoralisiert und Vergiftet an Erschöpft,
+bei Betäubt nur wenn noch kein Erschöpft besteht. Beim Erwachen erinnern sie an
+Niedergestreckt und Erschöpft. Alle Folgen bleiben manuell. Niedergestreckt folgt
+der konkreten Beschreibung mit −20 auf bewegungsbezogene Proben, nicht dem
+abweichenden allgemeinen Beispiel für alle aktiven Proben.
 
 ## Offline und Updates
 

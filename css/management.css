@@ -100,3 +100,9 @@
   .state-grid .state-card::after { content: ""; top: 0; bottom: 0; left: calc(-1 * var(--state5-grid-gap)); width: var(--state-separator-width); }
   .state-grid .state-card:nth-child(4n + 1)::after { content: none; }
 }
+
+/* The final 5e condition starts a new row at the left, with top/right dividers. */
+.state-grid-5e { justify-content: flex-start; }
+.state-grid-5e .state-card:last-child::after { content: ""; top: 0; bottom: 0; left: auto; right: calc(-1 * var(--state5-grid-gap)); width: var(--state-separator-width); }
+
+.state-grid-5e .state-card:last-child::before { left: 0; right: 0; }

@@ -597,7 +597,7 @@ function saveState() {
 }
 
 function loadState() {
-  state5RemovalNotices.clear();
+  conditionRemovalNotices.clear();
   if (!currentCharacter) { resetCharacterSheet(); return; }
   loadingState = true;
   loadFailed = false;
@@ -653,7 +653,7 @@ function ensureInitialRows() {
 }
 
 function resetCharacterSheet() {
-  state5RemovalNotices.clear();
+  conditionRemovalNotices.clear();
   const wasLoading = loadingState;
   loadingState = true;
   loadFailed = false;
@@ -1392,7 +1392,7 @@ function updateLebenspunkte() {
   const current = parseInt(document.getElementById('lp-aktuell').value) || 0;
   document.getElementById('lp-warning').textContent = current > gesamt ? t('wounds_above_max') : '';
   updateTalentWarnings();
-  if (activeEdition === '5e') updateStatesSummary();
+  updateStatesSummary();
 }
 
 // =========================
@@ -2232,55 +2232,61 @@ document.addEventListener("focusout", e => {
   }
 });
 
-const state5RemovalNotices = new Set();
+const conditionRemovalNotices = new Set();
 
-function state5Text(key, params = {}) {
-  if (Array.isArray(key)) return key.map(item => state5Text(item, params)).join('; ');
+function conditionText(key, params = {}) {
+  if (Array.isArray(key)) return key.map(item => conditionText(item, params)).join('; ');
   return t(key).replace(/\{(\w+)\}/g, (match, name) => params[name] ?? match);
 }
 
-function evaluateState5Effects() {
-  const values = Object.fromEntries(WFRP5Conditions.keys.map(key => [key, getStateCount(key)]));
+function evaluateConditionEffects() {
+  const rules = activeEdition === '4e' ? WFRP4Conditions : WFRP5Conditions;
+  const values = Object.fromEntries(rules.keys.map(key => [key, getStateCount(key)]));
   const read = id => {
     const raw = document.getElementById(id)?.value;
     return raw === '' || raw === undefined ? null : Number(raw);
   };
   const toughness = read('WI-akt');
-  return WFRP5Conditions.evaluate(values, { wounds: read('lp-aktuell'),
+  return rules.evaluate(values, { wounds: read('lp-aktuell'),
     toughnessBonus: toughness === null ? null : Math.max(0, Math.floor(toughness / 10)) });
 }
 
-function state5Sources(effect) {
+function conditionSources(effect) {
   return effect.sources.map(key => `${t(`state_${key}`)}${['besmirched', 'prone', 'surprised', 'unconscious'].includes(key) ? '' : ` ${getStateCount(key)}`}`).join(', ');
 }
 
-function state5EffectList(result) {
-  return `<ul class="state5-effect-list">${result.effects.map(effect => `<li data-state5-effect="${effect.id}"><strong>${escapeHtml(t(effect.label))}:</strong> ${escapeHtml(state5Text(effect.text, effect.params))} — ${t('state5_effect_sources')}: ${escapeHtml(state5Sources(effect))}</li>`).join('') || `<li class="state-effect-placeholder">${t('states_effects_empty')}</li>`}</ul>`;
+function conditionEffectList(result) {
+  return `<ul class="state5-effect-list">${result.effects.map(effect => `<li data-state${activeEdition === '4e' ? '4' : '5'}-effect="${effect.id}"><strong>${escapeHtml(t(effect.label))}:</strong> ${escapeHtml(conditionText(effect.text, effect.params))} — ${t('state5_effect_sources')}: ${escapeHtml(conditionSources(effect))}</li>`).join('') || `<li class="state-effect-placeholder">${t('states_effects_empty')}</li>`}</ul>`;
 }
 
-function buildState5EffectSummary() {
-  return state5EffectList(evaluateState5Effects());
+function buildConditionEffectSummary() {
+  return conditionEffectList(evaluateConditionEffects());
 }
 
-function renderState5Hints() {
+function renderConditionHints() {
   const container = document.getElementById('states-hints');
   if (!container) return;
-  const result = evaluateState5Effects();
+  const result = evaluateConditionEffects();
   const hints = [...result.hints];
-  if (state5RemovalNotices.has('poisoned')) hints.push({ id: 'poison-removed', text: 'state5_poison_removed' });
-  if (state5RemovalNotices.has('stunned') && !getStateCount('fatigued')) hints.push({ id: 'stunned-removed', text: 'state5_stunned_removed' });
-  container.innerHTML = hints.length ? `<ul class="state5-hint-list">${hints.map(item => `<li data-state5-hint="${item.id}">${escapeHtml(state5Text(item.text, item.params))}</li>`).join('')}</ul>` : '';
-  container.innerHTML += (state5RemovalNotices.size ? `<button type="button" id="state5-dismiss-reminders">${t('state5_dismiss_reminders')}</button>` : '');
-  container.querySelector('#state5-dismiss-reminders')?.addEventListener('click', () => { state5RemovalNotices.clear(); renderState5Hints(); });
+  for (const key of conditionRemovalNotices) {
+    if (key === 'stunned' && getStateCount('fatigued')) continue;
+    const id = key === 'poisoned' ? 'poison' : key;
+    const text = activeEdition === '4e' ? `state4_${key}_removed` : `state5_${id}_removed`;
+    hints.push({ id: `${id}-removed`, text });
+  }
+  container.innerHTML = hints.length ? `<ul class="state5-hint-list">${hints.map(item => `<li data-state${activeEdition === '4e' ? '4' : '5'}-hint="${item.id}">${escapeHtml(conditionText(item.text, item.params))}</li>`).join('')}</ul>` : '';
+  container.innerHTML += (conditionRemovalNotices.size ? `<button type="button" id="state5-dismiss-reminders">${t('state5_dismiss_reminders')}</button>` : '');
+  container.querySelector('#state5-dismiss-reminders')?.addEventListener('click', () => { conditionRemovalNotices.clear(); renderConditionHints(); });
 }
 
-function noteState5Removal(key, before, after) {
-  if (activeEdition !== '5e' || !['poisoned', 'stunned'].includes(key)) return;
-  if (before > 0 && after === 0) state5RemovalNotices.add(key);
-  if (after > 0) state5RemovalNotices.delete(key);
+function noteConditionRemoval(key, before, after) {
+  const keys = activeEdition === '4e' ? ['bleeding', 'broken', 'poisoned', 'stunned', 'unconscious'] : ['poisoned', 'stunned'];
+  if (!keys.includes(key)) return;
+  if (before > 0 && after === 0) conditionRemovalNotices.add(key);
+  if (after > 0) conditionRemovalNotices.delete(key);
 }
 
-function openState5Popup(title, content, trigger) {
+function openConditionPopup(title, content, trigger) {
   const overlay = document.createElement('div');
   overlay.className = 'overlay';
   overlay.innerHTML = `<div class="overlay-content scrollable state5-info-popup" role="dialog" aria-modal="true" aria-labelledby="state5-info-title"><div class="state5-info-header"><h2 id="state5-info-title">${escapeHtml(title)}</h2><button type="button" id="state-info-close">${t('ok')}</button></div>${content}</div>`;
@@ -2296,26 +2302,26 @@ function openState5Popup(title, content, trigger) {
   closeButton.focus();
 }
 
-function openState5SummaryInfo() {
-  const result = evaluateState5Effects();
-  const content = `<p>${t('state5_stack')}</p><h3>${t('states_effects')}</h3>${state5EffectList(result)}
-    <h3>${t('state5_hidden_effects')}</h3><ul>${result.suppressed.map(item => `<li>${escapeHtml(t(`state_${item.source}`))}: ${escapeHtml(state5Text(item.text, item.params))} — ${t(item.reason)}</li>`).join('') || `<li>${t('state5_no_hidden')}</li>`}</ul><p>${t('state5_momentum')}</p>`;
-  openState5Popup(t('state5_summary_title'), content, document.getElementById('states-summary-info'));
+function openConditionSummaryInfo() {
+  const result = evaluateConditionEffects();
+  const content = `<p>${t(activeEdition === '4e' ? 'state4_stack' : 'state5_stack')}</p><h3>${t('states_effects')}</h3>${conditionEffectList(result)}
+    <h3>${t('state5_hidden_effects')}</h3><ul>${result.suppressed.map(item => `<li>${escapeHtml(t(`state_${item.source}`))}: ${escapeHtml(conditionText(item.text, item.params))} — ${t(item.reason)}</li>`).join('') || `<li>${t('state5_no_hidden')}</li>`}</ul><p>${t(activeEdition === '4e' ? 'state_all_advantage_lost' : 'state5_momentum')}</p>`;
+  openConditionPopup(t(activeEdition === '4e' ? 'state4_summary_title' : 'state5_summary_title'), content, document.getElementById('states-summary-info'));
 }
 
-function openState5Info(key, trigger) {
+function openConditionInfo(key, trigger) {
   const binary = ['besmirched', 'prone', 'surprised', 'unconscious'].includes(key);
   const content = `<p><strong>${t('state_info_stage_label')}:</strong> ${binary ? t(getStateCount(key) ? 'state_active_binary' : 'state_inactive_binary') : getStateCount(key)}</p>`
     + [['effect', 'state_info_effects_label'], ['time', 'state5_time'], ['removal', 'state5_removal'], ['special', 'state5_special']]
-      .map(([suffix, label]) => `<h3>${t(label)}</h3><p>${t(`state5_${key}_${suffix}`)}</p>`).join('')
-    + (key === 'entangled' ? `<h3>${t('state5_materials')}</h3><table class="full-width state5-material-table"><tr><th>${t('state5_material')}</th><th>${t('state5_material_strength')}</th></tr>${[['wool', 10], ['twine', 25], ['rope', 45], ['manacles', 65], ['chain', 105]].map(([name, strength]) => `<tr><td>${t(`state5_${name}`)}</td><td>${strength}</td></tr>`).join('')}</table>` : '')
-    + `<p>${t('state5_momentum')}</p><p>${t('state_info_future_hint')}</p>`;
-  openState5Popup(t(`state_${key}`), content, trigger);
+      .map(([suffix, label]) => `<h3>${t(label)}</h3><p>${t(`state${activeEdition === '4e' ? '4' : '5'}_${key}_${suffix}`)}</p>`).join('')
+    + (activeEdition === '5e' && key === 'entangled' ? `<h3>${t('state5_materials')}</h3><table class="full-width state5-material-table"><tr><th>${t('state5_material')}</th><th>${t('state5_material_strength')}</th></tr>${[['wool', 10], ['twine', 25], ['rope', 45], ['manacles', 65], ['chain', 105]].map(([name, strength]) => `<tr><td>${t(`state5_${name}`)}</td><td>${strength}</td></tr>`).join('')}</table>` : '')
+    + `<p>${t(activeEdition === '4e' ? 'state_all_advantage_lost' : 'state5_momentum')}</p><p>${t('state_info_future_hint')}</p>`;
+  openConditionPopup(t(`state_${key}`), content, trigger);
 }
 
 function clampStateValue(value, key) {
   if (activeEdition === '5e') return WFRP5Conditions.count(value, key);
-  return Math.max(0, Math.min(9, value));
+  return WFRP4Conditions.count(value, key);
 }
 
 
@@ -2328,74 +2334,13 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
-function formatSignedPenalty(value) {
-  return `${value < 0 ? '' : '-'}${Math.abs(value)}`;
-}
-
 function getStateCount(stateKey) {
   const input = document.getElementById(`state-${stateKey}-value`);
   return clampStateValue(parseInt(input?.value, 10) || 0, stateKey);
 }
 
-function addStateSummary(items, label, detail) {
-  if (!detail) return;
-  items.push(`<span class="state-effect-chip"><strong>${escapeHtml(label)}:</strong> ${escapeHtml(detail)}</span>`);
-}
-
 function buildStateEffectSummary() {
-  if (activeEdition === '5e') return buildState5EffectSummary();
-  const activeCards = Array.from(document.querySelectorAll('[data-state-card].active'));
-  if (activeCards.length === 0) {
-    return `<span class="state-effect-placeholder">${t('states_effects_empty')}</span>`;
-  }
-
-  const values = Object.fromEntries(activeCards.map(card => [card.dataset.stateKey, getStateCount(card.dataset.stateKey)]));
-  const items = [];
-  const allTestPenalties = [
-    values.fatigued ? { name: t('state_fatigued'), value: -10 * values.fatigued } : null,
-    values.poisoned ? { name: t('state_poisoned'), value: -10 * values.poisoned } : null,
-    values.stunned ? { name: t('state_stunned'), value: -10 * values.stunned } : null
-  ].filter(Boolean);
-  const strongestAllTestPenalty = allTestPenalties.reduce((best, current) => !best || current.value < best.value ? current : best, null);
-
-  addStateSummary(items, t('state_summary_label'), activeCards.map(card => {
-    const name = card.dataset.stateName || card.dataset.stateKey;
-    const isBinary = card.dataset.stateBinary === 'true';
-    const value = values[card.dataset.stateKey] || 0;
-    return isBinary ? name : `${name} ${value}`;
-  }).join(', '));
-
-  if (strongestAllTestPenalty) {
-    const sources = allTestPenalties.map(entry => `${entry.name} ${formatSignedPenalty(entry.value)}`).join(', ');
-    addStateSummary(items, t('state_summary_all_tests'), `${formatSignedPenalty(strongestAllTestPenalty.value)} (${strongestAllTestPenalty.name}; ${sources})`);
-  }
-
-  if (values.blinded) addStateSummary(items, t('state_summary_sight_tests'), `${formatSignedPenalty(-10 * values.blinded)}; ${t('state_summary_melee_against_you')} +${10 * values.blinded}`);
-  if (values.deafened) addStateSummary(items, t('state_summary_hearing_tests'), `${formatSignedPenalty(-10 * values.deafened)}; ${t('state_summary_flank_rear_plus10')}`);
-  if (values.broken) addStateSummary(items, t('state_summary_not_run_hide'), `${formatSignedPenalty(-10 * values.broken)}; ${t('state_summary_must_flee_hide')}`);
-
-  const movementPenalties = [
-    values.entangled ? { name: t('state_entangled'), value: -10 * values.entangled, note: t('state_summary_no_normal_move') } : null,
-    values.prone ? { name: t('state_prone'), value: -20, note: t('state_summary_stand_or_crawl') } : null
-  ].filter(Boolean);
-  const strongestMovementPenalty = movementPenalties.reduce((best, current) => !best || current.value < best.value ? current : best, null);
-  if (strongestMovementPenalty) {
-    addStateSummary(items, t('state_summary_movement_tests'), `${formatSignedPenalty(strongestMovementPenalty.value)} (${strongestMovementPenalty.name}; ${strongestMovementPenalty.note})`);
-  }
-
-  if (values.bleeding) {
-    addStateSummary(items, t('state_summary_wounds_end_round'), `${formatSignedPenalty(values.bleeding)} ${t('state_summary_bleeding_wounds')} ${t('state_bleeding')}; ${t('state_summary_infection_penalty')} ${formatSignedPenalty(-10 * values.bleeding)}`);
-  }
-  if (values.poisoned) addStateSummary(items, t('state_summary_poison_end_round'), `${formatSignedPenalty(values.poisoned)} LP; ${t('state_summary_no_heal_until_poison_removed')}`);
-  if (values.burning) addStateSummary(items, t('state_summary_fire_end_round'), `1W10${values.burning > 1 ? `+${values.burning - 1}` : ''} ${t('state_summary_damage_minimum')}`);
-  if (values.prone) addStateSummary(items, t('state_summary_melee_opponents'), t('state_summary_melee_plus20_prone'));
-  if (values.stunned) addStateSummary(items, t('state_stunned'), t('state_summary_stunned_detail'));
-  if (values.surprised) addStateSummary(items, t('state_surprised'), t('state_summary_surprised_detail'));
-  if (values.unconscious) addStateSummary(items, t('state_unconscious'), t('state_summary_unconscious_detail'));
-
-  items.push(`<span class="state-effect-placeholder">${escapeHtml(t('states_effects_stack_hint'))}</span>`);
-  items.push(`<span class="state-effect-placeholder">${escapeHtml(t('state_info_future_hint'))}</span>`);
-  return items.join('');
+  return buildConditionEffectSummary();
 }
 
 function setStateCardActive(stateKey, active, { resetValue = false } = {}) {
@@ -2438,7 +2383,7 @@ function updateStatesSummary() {
   const container = document.getElementById('states-summary');
   if (!container) return;
   container.innerHTML = buildStateEffectSummary();
-  if (activeEdition === '5e') renderState5Hints();
+  renderConditionHints();
 }
 
 function changeStateValue(stateKey, delta) {
@@ -2449,47 +2394,27 @@ function changeStateValue(stateKey, delta) {
   const current = clampStateValue(parseInt(input.value, 10) || 0, stateKey);
   const next = clampStateValue(current + delta, stateKey);
   input.value = String(next);
-  noteState5Removal(stateKey, current, next);
+  noteConditionRemoval(stateKey, current, next);
   setStateCardActive(stateKey, next > 0, { resetValue: next === 0 });
   updateStatesSummary();
   saveState();
 }
 
 function openStateInfo(stateKey, trigger) {
-  if (activeEdition === '5e') { openState5Info(stateKey, trigger); return; }
-  const card = document.querySelector(`[data-state-card][data-state-key="${stateKey}"]`);
-  const input = document.getElementById(`state-${stateKey}-value`);
-  if (!card || !input) return;
-  const isBinary = card.dataset.stateBinary === 'true';
-  const overlay = document.createElement('div');
-  overlay.className = 'overlay';
-  overlay.innerHTML = `
-    <div class="overlay-content">
-      <h2>${escapeHtml(card.dataset.stateName)}</h2>
-      <p><strong>${t('state_info_stage_label')}:</strong> ${isBinary ? t((parseInt(input.value, 10) || 0) > 0 ? 'state_active_binary' : 'state_inactive_binary') : input.value}</p>
-      <p><strong>${t('state_info_effects_label')}:</strong> ${escapeHtml(card.dataset.stateEffect || t('state_effects_none'))}</p>
-      <p><strong>${t('state_info_description_label')}:</strong> ${escapeHtml(card.dataset.stateDescription || t('state_effects_none'))}</p>
-      <p>${t('state_all_advantage_lost')}</p>
-      <p>${t('state_info_future_hint')}</p>
-      <button type="button" id="state-info-close">${t('ok')}</button>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-  const close = () => overlay.remove();
-  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
-  overlay.querySelector('#state-info-close').addEventListener('click', close);
+  if (!document.querySelector(`[data-state-card][data-state-key="${stateKey}"]`)) return;
+  openConditionInfo(stateKey, trigger);
 }
 
 function initStatesSection() {
-  state5RemovalNotices.clear();
-  document.getElementById('states-summary-info')?.addEventListener('click', openState5SummaryInfo);
+  conditionRemovalNotices.clear();
+  document.getElementById('states-summary-info')?.addEventListener('click', openConditionSummaryInfo);
   document.querySelectorAll('[data-state-card]').forEach(card => {
     const stateKey = card.dataset.stateKey;
     const input = document.getElementById(`state-${stateKey}-value`);
     const toggle = card.querySelector('[data-state-toggle]');
     toggle?.addEventListener('click', () => {
       const isActive = card.classList.contains('active');
-      noteState5Removal(stateKey, getStateCount(stateKey), isActive ? 0 : 1);
+      noteConditionRemoval(stateKey, getStateCount(stateKey), isActive ? 0 : 1);
       setStateCardActive(stateKey, !isActive, { resetValue: isActive });
       if (!isActive && input && parseInt(input.value, 10) === 0) input.value = '1';
       updateStatesSummary();
@@ -2497,7 +2422,7 @@ function initStatesSection() {
     });
     if (activeEdition === '5e' && card.dataset.stateBinary !== 'true') input?.addEventListener('input', () => {
       const next = clampStateValue(parseInt(input.value, 10) || 0, stateKey);
-      noteState5Removal(stateKey, Number(card.dataset.count) || 0, next);
+      noteConditionRemoval(stateKey, Number(card.dataset.count) || 0, next);
       input.value = String(next);
       setStateCardActive(stateKey, next > 0, { resetValue: next === 0 });
       updateStatesSummary(); saveState();

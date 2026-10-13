@@ -11,7 +11,7 @@ function app(initial = {}) {
   w.confirm = () => true;
   w.console.error = error => errors.push(String(error));
   Object.entries(initial).forEach(([key, value]) => w.localStorage.setItem(key, value));
-  for (const script of ['translations', 'sections', 'character-store', 'rules', 'conditions5e', 'logic', 'edition-ui']) vm.runInContext(fs.readFileSync(`js/${script}.js`, 'utf8'), dom.getInternalVMContext());
+  for (const script of ['translations', 'sections', 'character-store', 'rules', 'conditions4e', 'conditions5e', 'logic', 'edition-ui']) vm.runInContext(fs.readFileSync(`js/${script}.js`, 'utf8'), dom.getInternalVMContext());
   vm.runInContext('initLogic()', dom.getInternalVMContext());
   return { w, alerts, errors, close: () => w.close(), get: code => vm.runInContext(code, dom.getInternalVMContext()), doc: w.document };
 }
@@ -668,7 +668,7 @@ test('5e condition removal gives dismissible manual reminders without adding fat
   } finally { a.close(); }
 });
 
-test('5e state info uses separate rules, four sections and material strengths; 4e info remains unchanged', () => {
+test('edition-specific condition popups have four sections and never mix 4e/5e rules', () => {
   const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
   try {
     a.get("openStateInfo('stunned')");
@@ -716,6 +716,88 @@ test('corruption rows show current, separate bonuses and total in both editions 
       assert.equal(a.doc.getElementById('korruption-wkb').value, '5');
       assert.equal(a.doc.getElementById('korruption-akt').value, String(maximum + 1));
     }
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
+});
+
+test('4e effects use compact percentage bullets and a shared info list with all supplied condition rules', () => {
+  const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+  try {
+    a.get("changeStateValue('fatigued', 3); changeStateValue('poisoned', 2); changeStateValue('prone', 1)");
+    const summary = a.doc.getElementById('states-summary');
+    assert.equal(summary.querySelector('.state-effect-chip'), null);
+    assert.ok(summary.querySelector('[data-state4-effect="all-tests"]').textContent.includes('−30'));
+    assert.equal(summary.querySelector('[data-state4-effect="movement-tests"]'), null);
+    assert.ok(summary.querySelector('[data-state4-effect="poison-loss"]').textContent.includes('2 LP'));
+    a.doc.getElementById('states-summary-info').click();
+    const popup = a.doc.querySelector('.state5-info-popup');
+    assert.equal(popup.querySelector('.state5-effect-list').textContent, summary.querySelector('.state5-effect-list').textContent);
+    assert.ok(popup.textContent.includes('Vergiftet: −20'));
+    assert.ok(popup.textContent.includes('Vorteil'));
+    assert.equal(popup.textContent.includes('Momentum'), false);
+    a.doc.getElementById('state-info-close').click();
+    for (const key of a.get('WFRP4Conditions.keys')) {
+      a.get(`openStateInfo('${key}')`);
+      const rule = a.doc.querySelector('.state5-info-popup');
+      assert.equal(rule.querySelectorAll('h3').length, 4);
+      assert.equal(rule.textContent.includes('undefined'), false);
+      assert.equal(rule.textContent.includes('Momentum'), false);
+      if (key === 'unconscious') assert.ok(rule.textContent.includes('I Will Not Fail'));
+      if (key === 'bleeding') assert.ok(rule.textContent.includes('Pasch'));
+      if (key === 'poisoned') assert.ok(rule.textContent.includes('keine regelmäßige Wiederholung'));
+      if (key === 'burning') assert.ok(rule.textContent.includes('mindestens 1 LP'));
+      a.doc.getElementById('state-info-close').click();
+    }
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
+});
+
+test('4e zero-wound and poison reminders update live without changing status or inheriting 5e stunned rules', () => {
+  const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+  try {
+    const wounds = a.doc.getElementById('lp-aktuell');
+    wounds.value = '0'; wounds.dispatchEvent(new a.w.Event('input', { bubbles: true }));
+    assert.ok(a.doc.querySelector('[data-state4-hint="bleeding-unconscious"]'));
+    assert.ok(a.doc.querySelector('[data-state4-hint="bleeding-death"]').textContent.includes('20 %'));
+    assert.equal(a.doc.getElementById('state-unconscious-value').value, '0');
+    a.get("changeStateValue('stunned', 4)");
+    assert.equal(a.doc.querySelector('[data-state4-hint="stunned-unconscious"]'), null);
+    a.doc.getElementById('state-unconscious-toggle').click();
+    a.get("changeStateValue('poisoned', 1)");
+    assert.ok(a.doc.querySelector('[data-state4-hint="poison-death"]').textContent.includes('nach 3 Runden'));
+    a.doc.getElementById('WI-start').value = '40';
+    a.doc.getElementById('WI-start').dispatchEvent(new a.w.Event('input', { bubbles: true }));
+    assert.ok(a.doc.querySelector('[data-state4-hint="poison-death"]').textContent.includes('nach 4 Runden'));
+    assert.equal(a.doc.getElementById('state-stunned-value').value, '4');
+    assert.equal(a.get('characterStore.get(currentCharacter).status'), 'alive');
+    assert.equal(wounds.value, '0');
+    a.get('saveState(); loadState()');
+    assert.equal(a.doc.getElementById('state-stunned-value').value, '4');
+    assert.ok(a.doc.querySelector('[data-state4-hint="poison-death"]'));
+    fifth(a);
+    assert.ok(a.doc.querySelector('[data-state5-hint="poison-death"]').textContent.includes('alle 4 Runden'));
+    assert.ok(a.doc.querySelector('[data-state5-hint="clear-stunned"]'));
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
+});
+
+test('4e removal reminders cover bleeding, broken, poisoned, stunned and waking without auto-applying fatigue', () => {
+  const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+  try {
+    for (const key of ['bleeding', 'broken', 'poisoned', 'stunned', 'unconscious']) {
+      const before = Number(a.doc.getElementById(`state-${key}-value`).value);
+      if (!before) a.doc.getElementById(`state-${key}-toggle`).click();
+      a.doc.getElementById(`state-${key}-toggle`).click();
+      const id = key === 'poisoned' ? 'poison' : key;
+      assert.ok(a.doc.querySelector(`[data-state4-hint="${id}-removed"]`));
+      assert.equal(a.doc.getElementById('state-fatigued-value').value, '0');
+      assert.equal(a.doc.getElementById('state-prone-value').value, '0');
+      a.doc.getElementById('state5-dismiss-reminders').click();
+    }
+    a.get("changeStateValue('fatigued', 1); changeStateValue('stunned', 1); changeStateValue('stunned', -1)");
+    assert.equal(a.doc.querySelector('[data-state4-hint="stunned-removed"]'), null);
+    a.get('loadState()');
+    assert.equal(a.doc.getElementById('state5-dismiss-reminders'), null);
     assert.deepEqual(a.errors, []);
   } finally { a.close(); }
 });

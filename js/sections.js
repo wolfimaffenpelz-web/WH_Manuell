@@ -3,18 +3,18 @@
 
 // Zustand-Definitionen für die Zustände-Sektion
 const conditionDefinitions = [
-  { key: "stunned", translationKey: "state_stunned", icon: "img/stunned.png", effectKey: "state_stunned_effect", descriptionKey: "state_stunned_description", binary: false },
-  { key: "unconscious", translationKey: "state_unconscious", icon: "img/unconcious.png", effectKey: "state_unconscious_effect", descriptionKey: "state_unconscious_description", binary: true },
-  { key: "bleeding", translationKey: "state_bleeding", icon: "img/bleeding.png", effectKey: "state_bleeding_effect", descriptionKey: "state_bleeding_description", binary: false },
-  { key: "burning", translationKey: "state_burning", icon: "img/ablaze.png", effectKey: "state_burning_effect", descriptionKey: "state_burning_description", binary: false },
-  { key: "broken", translationKey: "state_broken", icon: "img/broken.png", effectKey: "state_broken_effect", descriptionKey: "state_broken_description", binary: false },
-  { key: "fatigued", translationKey: "state_fatigued", icon: "img/exhausted.png", effectKey: "state_fatigued_effect", descriptionKey: "state_fatigued_description", binary: false },
-  { key: "deafened", translationKey: "state_deafened", icon: "img/deafened.png", effectKey: "state_deafened_effect", descriptionKey: "state_deafened_description", binary: false },
-  { key: "blinded", translationKey: "state_blinded", icon: "img/blinded.png", effectKey: "state_blinded_effect", descriptionKey: "state_blinded_description", binary: false },
-  { key: "entangled", translationKey: "state_entangled", icon: "img/entangled.png", effectKey: "state_entangled_effect", descriptionKey: "state_entangled_description", binary: false },
-  { key: "prone", translationKey: "state_prone", icon: "img/prone.png", effectKey: "state_prone_effect", descriptionKey: "state_prone_description", binary: true },
-  { key: "surprised", translationKey: "state_surprised", icon: "img/surpised.png", effectKey: "state_surprised_effect", descriptionKey: "state_surprised_description", binary: true },
-  { key: "poisoned", translationKey: "state_poisoned", icon: "img/poisoned.png", effectKey: "state_poisoned_effect", descriptionKey: "state_poisoned_description", binary: false }
+  { key: "stunned", translationKey: "state_stunned", icon: "img/stunned.png", binary: false },
+  { key: "unconscious", translationKey: "state_unconscious", icon: "img/unconcious.png", binary: true },
+  { key: "bleeding", translationKey: "state_bleeding", icon: "img/bleeding.png", binary: false },
+  { key: "burning", translationKey: "state_burning", icon: "img/ablaze.png", binary: false },
+  { key: "broken", translationKey: "state_broken", icon: "img/broken.png", binary: false },
+  { key: "fatigued", translationKey: "state_fatigued", icon: "img/exhausted.png", binary: false },
+  { key: "deafened", translationKey: "state_deafened", icon: "img/deafened.png", binary: false },
+  { key: "blinded", translationKey: "state_blinded", icon: "img/blinded.png", binary: false },
+  { key: "entangled", translationKey: "state_entangled", icon: "img/entangled.png", binary: false },
+  { key: "prone", translationKey: "state_prone", icon: "img/prone.png", binary: true },
+  { key: "surprised", translationKey: "state_surprised", icon: "img/surpised.png", binary: true },
+  { key: "poisoned", translationKey: "state_poisoned", icon: "img/poisoned.png", binary: false }
 ];
 
 const conditionDefinitions5e = [...conditionDefinitions, {
@@ -23,7 +23,7 @@ const conditionDefinitions5e = [...conditionDefinitions, {
 
 function renderConditionCards(edition = '4e') {
   return (edition === '5e' ? conditionDefinitions5e : conditionDefinitions).map(condition => `
-    <article class="state-card" data-state-card data-state-key="${condition.key}" data-state-name="${t(condition.translationKey)}" data-state-effect="${t(edition === '5e' ? `state5_${condition.key}_effect` : condition.effectKey)}" data-state-description="${t(edition === '5e' ? `state5_${condition.key}_special` : condition.descriptionKey)}" data-state-binary="${condition.binary ? 'true' : 'false'}">
+    <article class="state-card" data-state-card data-state-key="${condition.key}" data-state-name="${t(condition.translationKey)}" data-state-effect="${t(`state${edition === '5e' ? '5' : '4'}_${condition.key}_effect`)}" data-state-description="${t(`state${edition === '5e' ? '5' : '4'}_${condition.key}_special`)}" data-state-binary="${condition.binary ? 'true' : 'false'}">
       <button
         type="button"
         class="state-icon-button inactive"
@@ -172,11 +172,12 @@ const sections = [
     title: t('states'),
     content: `
       <div class="states-top-row">
-        <div class="states-summary-label">${t('states_effects')}</div>
-        <div class="states-summary" id="states-summary">
+        <div class="states-summary-label">${t('states_effects')} <button type="button" class="state-info-button" id="states-summary-info" aria-label="${t('state5_summary_info')}">ⓘ</button></div>
+        <div class="states-summary states-summary-5e" id="states-summary">
           <span class="state-effect-placeholder">${t('states_effects_empty')}</span>
         </div>
       </div>
+      <div id="states-hints" aria-live="polite"></div>
       <div class="state-grid">
         ${renderConditionCards()}
       </div>

@@ -150,7 +150,7 @@ const assert = require('node:assert/strict');
       assert.equal(layout.first, 'besmirched');
       for (const name of layout.names) assert.ok(name.scroll <= name.client + 1, `Clipped state name at ${width}px`);
       assert.equal(layout.background, layout.cardBackground);
-      assert.ok(Math.abs((layout.last.left + layout.last.right) / 2 - (layout.grid.left + layout.grid.right) / 2) < 2);
+      assert.ok(Math.abs(layout.last.left - layout.grid.left) < 2);
       assert.ok(Math.abs((layout.table.left + layout.table.right) / 2 - (layout.parent.left + layout.parent.right) / 2) < 2);
       assert.deepEqual(layout.centeredWidths, layout.originalWidths);
       for (const controls of layout.controls) {
@@ -169,6 +169,17 @@ const assert = require('node:assert/strict');
     }
     for (const edition of ['4e', '5e']) {
       await page.locator('#edition-select').selectOption(edition);
+      if (edition === '4e') {
+        await page.evaluate(() => { changeStateValue('fatigued', 3); changeStateValue('poisoned', 2); changeStateValue('bleeding', 2); });
+        await page.locator('#lp-aktuell').fill('0');
+        assert.equal(await page.locator('#states-summary .state-effect-chip').count(), 0);
+        assert.ok((await page.locator('[data-state4-effect=all-tests]').textContent()).includes('−30'));
+        assert.equal(await page.locator('[data-state4-hint=bleeding-unconscious]').isVisible(), true);
+        await page.locator('#states-summary-info').click();
+        assert.ok((await page.locator('.state5-info-popup').textContent()).includes('Vergiftet: −20'));
+        assert.ok((await page.locator('.state5-info-popup').textContent()).includes('Vorteil'));
+        await page.locator('#state-info-close').click();
+      }
       for (const width of [320, 390, 1440]) {
         await page.setViewportSize({ width, height: 1000 });
         const table = await page.evaluate(() => {
@@ -193,9 +204,10 @@ const assert = require('node:assert/strict');
           assert.ok(card.box.borders.every(value => value === '0px'), `Status box border in ${edition} at ${width}px`);
           assert.ok(card.weights.every(value => value === '400'), `Bold condition text in ${edition} at ${width}px`);
           assert.equal(card.top.content === 'none', index < columns);
-          assert.equal(card.side.content === 'none', index % columns === 0);
+          const final5e = edition === '5e' && index === table.cards.length - 1;
+          assert.equal(card.side.content === 'none', index % columns === 0 && !final5e);
           if (index >= columns) assert.equal(card.top.height, '1px');
-          if (index % columns) assert.equal(card.side.width, '1px');
+          if (index % columns || final5e) assert.equal(card.side.width, '1px');
         });
         await page.locator('#zustaende').screenshot({ path: `work/state-table-${edition}-${width}.png` });
       }
