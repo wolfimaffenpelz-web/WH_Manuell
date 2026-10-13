@@ -9,7 +9,7 @@ function worker() {
   const self = { location: { origin: 'https://example.test' }, clients: { claim: async () => calls.push('claim') },
     skipWaiting: () => calls.push('skip'), addEventListener: (event, handler) => { handlers[event] = handler; } };
   vm.runInNewContext(fs.readFileSync('service-worker.js', 'utf8'), { self, URL,
-    caches: { open: async () => cache, keys: async () => ['other-app-cache', 'charakterbogen-cache-v4', 'charakterbogen-cache-v5', 'charakterbogen-cache-v6'],
+    caches: { open: async () => cache, keys: async () => ['other-app-cache', 'charakterbogen-cache-v4', 'charakterbogen-cache-v5', 'charakterbogen-cache-v6', 'charakterbogen-cache-v7'],
       delete: async key => deleted.push(key) }, fetch: async () => ({ ok: true, clone() { return this; } }) });
   return { handlers, deleted, added, calls };
 }
@@ -26,7 +26,7 @@ test('installation precaches every local image and script under relative deploym
 test('activation awaits clients.claim and preserves unrelated caches', async () => {
   const w = worker(); let pending;
   w.handlers.activate({ waitUntil: promise => { pending = promise; } }); await pending;
-  assert.deepEqual(w.deleted, ['charakterbogen-cache-v4', 'charakterbogen-cache-v5']);
+  assert.deepEqual(w.deleted, ['charakterbogen-cache-v4', 'charakterbogen-cache-v5', 'charakterbogen-cache-v6']);
   assert.deepEqual(w.calls, ['claim']);
 });
 

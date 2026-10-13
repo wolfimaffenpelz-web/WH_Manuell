@@ -11,7 +11,7 @@ function app(initial = {}) {
   w.confirm = () => true;
   w.console.error = error => errors.push(String(error));
   Object.entries(initial).forEach(([key, value]) => w.localStorage.setItem(key, value));
-  for (const script of ['translations', 'sections', 'character-store', 'rules', 'logic', 'edition-ui']) vm.runInContext(fs.readFileSync(`js/${script}.js`, 'utf8'), dom.getInternalVMContext());
+  for (const script of ['translations', 'sections', 'character-store', 'rules', 'conditions5e', 'logic', 'edition-ui']) vm.runInContext(fs.readFileSync(`js/${script}.js`, 'utf8'), dom.getInternalVMContext());
   vm.runInContext('initLogic()', dom.getInternalVMContext());
   return { w, alerts, errors, close: () => w.close(), get: code => vm.runInContext(code, dom.getInternalVMContext()), doc: w.document };
 }
@@ -539,6 +539,146 @@ test('5e +5 skill purchases use the selected full XP ledger and block unaffordab
     a.get('loadState(); openLevelUpOverlay()');
     assert.equal(a.doc.querySelector('tr[data-entry="grund-Klettern"] [data-act="plus"]').disabled, true);
     assert.equal(a.doc.getElementById('exp-simple-akt').value, '999');
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
+});
+
+test('5e condition cards persist Besmirched and large counters through export, import and switching', () => {
+  const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+  try {
+    assert.equal(a.doc.getElementById('state-besmirched-value'), null);
+    fifth(a);
+    const besmirched = a.doc.getElementById('state-besmirched-toggle');
+    besmirched.click();
+    a.get("changeStateValue('bleeding', 23)");
+    assert.equal(a.doc.getElementById('state-bleeding-value').value, '25');
+    assert.equal(a.doc.getElementById('state-bleeding-value').hasAttribute('max'), false);
+    const fatigue = a.doc.getElementById('state-fatigued-value');
+    fatigue.value = '12'; fatigue.dispatchEvent(new a.w.Event('input', { bubbles: true }));
+    assert.equal(fatigue.closest('[data-state-card]').classList.contains('active'), true);
+    a.doc.getElementById('state-prone-value').value = '8';
+    a.get('syncStateCardsFromInputs(); saveState(); loadState()');
+    assert.equal(a.doc.getElementById('state-besmirched-value').value, '1');
+    assert.equal(a.doc.getElementById('state-prone-value').value, '1');
+    assert.equal(a.doc.getElementById('state-fatigued-value').value, '12');
+    const exported = a.get('characterStore.export(currentCharacter)');
+    assert.equal(exported.state['state-besmirched-value'], '1');
+    assert.equal(exported.state['state-bleeding-value'], '25');
+    // Replacement import uses the same store path as the import dialog.
+    a.get(`characterStore.import(${JSON.stringify(exported)}, currentCharacter); loadState()`);
+    assert.equal(a.doc.getElementById('state-bleeding-value').value, '25');
+    const select = a.doc.getElementById('edition-select');
+    select.value = '4e'; select.dispatchEvent(new a.w.Event('change'));
+    assert.equal(a.doc.getElementById('state-besmirched-value'), null);
+    assert.equal(a.doc.getElementById('state-bleeding-value').value, '2');
+    a.get("changeStateValue('bleeding', 30)");
+    assert.equal(a.doc.getElementById('state-bleeding-value').value, '9');
+    assert.ok(a.doc.getElementById('states-summary').textContent.includes('Infektions-'));
+    select.value = '5e'; select.dispatchEvent(new a.w.Event('change'));
+    assert.equal(a.doc.getElementById('state-bleeding-value').value, '25');
+    assert.equal(a.doc.getElementById('state-besmirched-value').value, '1');
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
+});
+
+test('5e compact effects recalculate suppressed penalties and explain them in the summary popup', () => {
+  const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+  try {
+    fifth(a);
+    a.get("changeStateValue('bleeding', -2); changeStateValue('fatigued', 3); changeStateValue('poisoned', 2); changeStateValue('entangled', 1)");
+    const summary = a.doc.getElementById('states-summary');
+    assert.equal(summary.querySelectorAll('[data-state5-effect]').length, 3);
+    assert.ok(summary.querySelector('[data-state5-effect="all-tests"]').textContent.includes('−3 SL'));
+    assert.equal(summary.querySelector('[data-state5-effect="movement-tests"]'), null);
+    assert.ok(summary.querySelector('[data-state5-effect="poison-loss"]').textContent.includes('2 LP'));
+    a.doc.getElementById('states-summary-info').click();
+    const popup = a.doc.querySelector('.state5-info-popup');
+    assert.ok(popup.textContent.includes('Überdeckte Wirkungen'));
+    assert.ok(popup.textContent.includes('Vergiftet: −2 SL'));
+    assert.ok(popup.textContent.includes('Gefesselt: −1 SL'));
+    assert.ok(popup.textContent.includes('Momentum'));
+    a.doc.getElementById('state-info-close').click();
+    a.get("changeStateValue('fatigued', -3)");
+    assert.ok(summary.querySelector('[data-state5-effect="all-tests"]').textContent.includes('−2 SL'));
+    a.get("changeStateValue('entangled', 3)");
+    assert.ok(summary.querySelector('[data-state5-effect="movement-tests"]').textContent.includes('−4 SL'));
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
+});
+
+test('5e wound and toughness hints update live and never change wounds, death or conditions', () => {
+  const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+  try {
+    fifth(a);
+    const wounds = a.doc.getElementById('lp-aktuell');
+    wounds.value = '0'; wounds.dispatchEvent(new a.w.Event('input', { bubbles: true }));
+    assert.ok(a.doc.querySelector('[data-state5-hint="bleeding-endurance"]'));
+    assert.equal(a.doc.querySelector('[data-state5-effect="bleeding-loss"]'), null);
+    a.get("changeStateValue('stunned', 3)");
+    assert.equal(a.doc.querySelector('[data-state5-hint="stunned-unconscious"]'), null);
+    a.get("changeStateValue('stunned', 1)");
+    assert.ok(a.doc.querySelector('[data-state5-hint="stunned-unconscious"]'));
+    assert.equal(a.doc.getElementById('state-unconscious-value').value, '0');
+    a.doc.getElementById('state-unconscious-toggle').click();
+    assert.ok(a.doc.querySelector('[data-state5-hint="bleeding-death"]'));
+    assert.ok(a.doc.querySelector('[data-state5-hint="clear-stunned"]'));
+    assert.equal(a.doc.querySelector('[data-state5-effect="movement"]'), null);
+    assert.equal(a.doc.querySelector('[data-state5-effect="all-tests"]'), null);
+    assert.equal(a.doc.getElementById('state-stunned-value').value, '4');
+    a.get("changeStateValue('poisoned', 2)");
+    assert.ok(a.doc.querySelector('[data-state5-hint="poison-no-heal"]'));
+    assert.ok(a.doc.querySelector('[data-state5-hint="poison-death"]').textContent.includes('3 Runden'));
+    a.doc.getElementById('WI-start').value = '40';
+    a.doc.getElementById('WI-start').dispatchEvent(new a.w.Event('input', { bubbles: true }));
+    assert.ok(a.doc.querySelector('[data-state5-hint="poison-death"]').textContent.includes('4 Runden'));
+    assert.equal(wounds.value, '0');
+    assert.equal(a.get('characterStore.get(currentCharacter).status'), 'alive');
+    a.get('saveState(); loadState()');
+    assert.equal(a.doc.getElementById('state-stunned-value').value, '4');
+    assert.equal(a.doc.getElementById('state-bleeding-value').value, '2');
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
+});
+
+test('5e condition removal gives dismissible manual reminders without adding fatigue', () => {
+  const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+  try {
+    fifth(a);
+    a.get("changeStateValue('poisoned', 1); changeStateValue('poisoned', -1)");
+    assert.ok(a.doc.querySelector('[data-state5-hint="poison-removed"]'));
+    assert.equal(a.doc.getElementById('state-fatigued-value').value, '0');
+    a.doc.getElementById('state5-dismiss-reminders').click();
+    assert.equal(a.doc.querySelector('[data-state5-hint="poison-removed"]'), null);
+    a.get("changeStateValue('stunned', 1)");
+    a.doc.getElementById('state-stunned-toggle').click();
+    assert.ok(a.doc.querySelector('[data-state5-hint="stunned-removed"]'));
+    a.get("changeStateValue('fatigued', 1)");
+    assert.equal(a.doc.querySelector('[data-state5-hint="stunned-removed"]'), null);
+    a.get("changeStateValue('poisoned', 1); changeStateValue('poisoned', -1)");
+    assert.ok(a.doc.querySelector('[data-state5-hint="poison-removed"]'));
+    a.get('loadState()');
+    assert.equal(a.doc.querySelector('[data-state5-hint="poison-removed"]'), null);
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
+});
+
+test('5e state info uses separate rules, four sections and material strengths; 4e info remains unchanged', () => {
+  const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+  try {
+    a.get("openStateInfo('stunned')");
+    assert.ok(a.doc.getElementById('state-info-close').closest('.overlay-content').textContent.includes('Keine Aktion'));
+    a.doc.getElementById('state-info-close').click();
+    fifth(a);
+    for (const key of a.get('WFRP5Conditions.keys')) {
+      a.get(`openStateInfo('${key}')`);
+      const popup = a.doc.querySelector('.state5-info-popup');
+      assert.equal(popup.querySelectorAll('h3').length, key === 'entangled' ? 5 : 4);
+      assert.equal(popup.textContent.includes('undefined'), false);
+      assert.ok(popup.textContent.includes('Momentum'));
+      if (key === 'stunned') assert.ok(popup.textContent.includes('verbietet keine Aktion'));
+      if (key === 'entangled') assert.equal(popup.querySelector('tr:last-child td:last-child').textContent, '105');
+      a.doc.getElementById('state-info-close').click();
+    }
     assert.deepEqual(a.errors, []);
   } finally { a.close(); }
 });

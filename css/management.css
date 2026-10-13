@@ -7,6 +7,9 @@
   --health-progress-width: 40%;
   --health-row-height: 2.5rem;
   --story-min-height: 4rem;
+  --state5-count-width: 4rem;
+  --state5-popup-width: 42rem;
+  --state5-popup-max-width: 94vw;
   --levelup-cost-col-width: 33.333%;
 }
 [hidden] { display: none !important; }
@@ -34,3 +37,16 @@
 .levelup-cost-table tr { height: var(--row-height); }
 .levelup-top .switch { margin: 0; }
 .switch input:focus-visible + .slider { outline: 2px solid var(--color-text); outline-offset: 2px; }
+
+/* 5e conditions: separate advisory rules and scrollable reference dialogs. */
+.state-grid-5e { --state-count-width: var(--state5-count-width); }
+.state5-info-popup { width: min(var(--state5-popup-width), var(--state5-popup-max-width)); box-sizing: border-box; text-align: left; overflow-wrap: anywhere; }
+.state5-info-popup li { margin-bottom: var(--management-gap); }
+.state5-material-table { table-layout: fixed; }
+.state5-material-table th { width: 50%; }
+.state5-material-table tr { height: var(--row-height); }
+.state5-material-table td { white-space: normal; }
+#states-hints { margin: var(--management-gap) 0; }
+
+.state5-info-header { display: flex; gap: var(--management-gap); align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--color-field); }
+.state5-info-header h2 { margin: 0; }

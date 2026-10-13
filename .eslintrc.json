@@ -137,6 +137,8 @@
     "CharacterStore": "readonly",
     "WFRP4Rules": "readonly",
     "WFRP5Rules": "readonly",
-    "getAdvanceStep": "readonly"
+    "getAdvanceStep": "readonly",
+    "WFRP5Conditions": "readonly",
+    "conditionDefinitions5e": "readonly"
   }
 }

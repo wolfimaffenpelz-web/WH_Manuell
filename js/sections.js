@@ -17,9 +17,13 @@ const conditionDefinitions = [
   { key: "poisoned", translationKey: "state_poisoned", icon: "img/poisoned.png", effectKey: "state_poisoned_effect", descriptionKey: "state_poisoned_description", binary: false }
 ];
 
-function renderConditionCards() {
-  return conditionDefinitions.map(condition => `
-    <article class="state-card" data-state-card data-state-key="${condition.key}" data-state-name="${t(condition.translationKey)}" data-state-effect="${t(condition.effectKey)}" data-state-description="${t(condition.descriptionKey)}" data-state-binary="${condition.binary ? 'true' : 'false'}">
+const conditionDefinitions5e = [...conditionDefinitions, {
+  key: 'besmirched', translationKey: 'state_besmirched', icon: 'img/besmirched.svg', binary: true
+}];
+
+function renderConditionCards(edition = '4e') {
+  return (edition === '5e' ? conditionDefinitions5e : conditionDefinitions).map(condition => `
+    <article class="state-card" data-state-card data-state-key="${condition.key}" data-state-name="${t(condition.translationKey)}" data-state-effect="${t(edition === '5e' ? `state5_${condition.key}_effect` : condition.effectKey)}" data-state-description="${t(edition === '5e' ? `state5_${condition.key}_special` : condition.descriptionKey)}" data-state-binary="${condition.binary ? 'true' : 'false'}">
       <button
         type="button"
         class="state-icon-button inactive"
@@ -42,7 +46,7 @@ function renderConditionCards() {
         ` : `
           <div class="state-controls state-counter" aria-label="${t('state_stage')}">
             <button type="button" class="state-step-button" data-state-step data-direction="down" data-state-key="${condition.key}" aria-label="${t('state_stage')} -1">◀</button>
-            <input type="number" id="state-${condition.key}-value" min="0" max="9" step="1" inputmode="numeric" value="0" readonly>
+            <input type="number" id="state-${condition.key}-value" min="0" ${edition === '4e' ? 'max="9" readonly' : ''} step="1" inputmode="numeric" value="0">
             <button type="button" class="state-step-button" data-state-step data-direction="up" data-state-key="${condition.key}" aria-label="${t('state_stage')} +1">▶</button>
             <button type="button" class="state-info-button" data-state-info data-state-key="${condition.key}" title="${t('state_info')}">i</button>
           </div>
@@ -623,7 +627,10 @@ const healthSections = ['injuries', 'diseases'].map(key => ({
 sections.splice(sections.findIndex(section => section.id === 'grunddaten') + 1, 0, narrativeSection);
 sections.splice(sections.findIndex(section => section.id === 'lebenspunkte') + 1, 0, ...healthSections);
 // Layout is shared; edition-specific rules are selected by the active character.
-const edition5Sections = sections.map(section => section.id === 'schicksalzaehigkeit' ? {
+const edition5Sections = sections.map(section => section.id === 'zustaende' ? {
+  ...section,
+  content: `<div class="states-top-row"><div class="states-summary-label">${t('states_effects')} <button type="button" class="state-info-button" id="states-summary-info" aria-label="${t('state5_summary_info')}">ⓘ</button></div><div class="states-summary" id="states-summary"></div></div><div id="states-hints" aria-live="polite"></div><div class="state-grid state-grid-5e">${renderConditionCards('5e')}</div><div class="section-divider"></div>`
+} : section.id === 'schicksalzaehigkeit' ? {
   ...section,
   title: t('fate_luck'),
   content: `<table class="value-table">

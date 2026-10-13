@@ -597,6 +597,7 @@ function saveState() {
 }
 
 function loadState() {
+  state5RemovalNotices.clear();
   if (!currentCharacter) { resetCharacterSheet(); return; }
   loadingState = true;
   loadFailed = false;
@@ -652,6 +653,7 @@ function ensureInitialRows() {
 }
 
 function resetCharacterSheet() {
+  state5RemovalNotices.clear();
   const wasLoading = loadingState;
   loadingState = true;
   loadFailed = false;
@@ -1390,6 +1392,7 @@ function updateLebenspunkte() {
   const current = parseInt(document.getElementById('lp-aktuell').value) || 0;
   document.getElementById('lp-warning').textContent = current > gesamt ? t('wounds_above_max') : '';
   updateTalentWarnings();
+  if (activeEdition === '5e') updateStatesSummary();
 }
 
 // =========================
@@ -2227,7 +2230,87 @@ document.addEventListener("focusout", e => {
   }
 });
 
-function clampStateValue(value) {
+const state5RemovalNotices = new Set();
+
+function state5Text(key, params = {}) {
+  if (Array.isArray(key)) return key.map(item => state5Text(item, params)).join('; ');
+  return t(key).replace(/\{(\w+)\}/g, (match, name) => params[name] ?? match);
+}
+
+function evaluateState5Effects() {
+  const values = Object.fromEntries(WFRP5Conditions.keys.map(key => [key, getStateCount(key)]));
+  const read = id => {
+    const raw = document.getElementById(id)?.value;
+    return raw === '' || raw === undefined ? null : Number(raw);
+  };
+  const toughness = read('WI-akt');
+  return WFRP5Conditions.evaluate(values, { wounds: read('lp-aktuell'),
+    toughnessBonus: toughness === null ? null : Math.max(0, Math.floor(toughness / 10)) });
+}
+
+function state5Sources(effect) {
+  return effect.sources.map(key => `${t(`state_${key}`)}${['besmirched', 'prone', 'surprised', 'unconscious'].includes(key) ? '' : ` ${getStateCount(key)}`}`).join(', ');
+}
+
+function buildState5EffectSummary() {
+  const result = evaluateState5Effects();
+  if (!result.effects.length) return `<span class="state-effect-placeholder">${t('states_effects_empty')}</span>`;
+  return result.effects.map(effect => `<span class="state-effect-chip" data-state5-effect="${effect.id}"><strong>${escapeHtml(t(effect.label))}:</strong> ${escapeHtml(state5Text(effect.text, effect.params))}</span>`).join('');
+}
+
+function renderState5Hints() {
+  const container = document.getElementById('states-hints');
+  if (!container) return;
+  const result = evaluateState5Effects();
+  const hints = [...result.hints];
+  if (state5RemovalNotices.has('poisoned')) hints.push({ id: 'poison-removed', text: 'state5_poison_removed' });
+  if (state5RemovalNotices.has('stunned') && !getStateCount('fatigued')) hints.push({ id: 'stunned-removed', text: 'state5_stunned_removed' });
+  container.innerHTML = hints.map(item => `<p class="rule-warning" data-state5-hint="${item.id}">${escapeHtml(state5Text(item.text, item.params))}</p>`).join('')
+    + (state5RemovalNotices.size ? `<button type="button" id="state5-dismiss-reminders">${t('state5_dismiss_reminders')}</button>` : '');
+  container.querySelector('#state5-dismiss-reminders')?.addEventListener('click', () => { state5RemovalNotices.clear(); renderState5Hints(); });
+}
+
+function noteState5Removal(key, before, after) {
+  if (activeEdition !== '5e' || !['poisoned', 'stunned'].includes(key)) return;
+  if (before > 0 && after === 0) state5RemovalNotices.add(key);
+  if (after > 0) state5RemovalNotices.delete(key);
+}
+
+function openState5Popup(title, content, trigger) {
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.innerHTML = `<div class="overlay-content scrollable state5-info-popup" role="dialog" aria-modal="true" aria-labelledby="state5-info-title"><div class="state5-info-header"><h2 id="state5-info-title">${escapeHtml(title)}</h2><button type="button" id="state-info-close">${t('ok')}</button></div>${content}</div>`;
+  document.body.appendChild(overlay);
+  const closeButton = overlay.querySelector('#state-info-close');
+  const close = () => { overlay.remove(); trigger?.focus(); };
+  closeButton.addEventListener('click', close);
+  overlay.addEventListener('click', event => { if (event.target === overlay) close(); });
+  overlay.addEventListener('keydown', event => {
+    if (event.key === 'Escape') close();
+    if (event.key === 'Tab') { event.preventDefault(); closeButton.focus(); }
+  });
+  closeButton.focus();
+}
+
+function openState5SummaryInfo() {
+  const result = evaluateState5Effects();
+  const content = `<p>${t('state5_stack')}</p><h3>${t('states_effects')}</h3><ul>${result.effects.map(effect => `<li><strong>${escapeHtml(t(effect.label))}:</strong> ${escapeHtml(state5Text(effect.text, effect.params))} — ${t('state5_effect_sources')}: ${escapeHtml(state5Sources(effect))}</li>`).join('') || `<li>${t('states_effects_empty')}</li>`}</ul>
+    <h3>${t('state5_hidden_effects')}</h3><ul>${result.suppressed.map(item => `<li>${escapeHtml(t(`state_${item.source}`))}: ${escapeHtml(state5Text(item.text, item.params))} — ${t(item.reason)}</li>`).join('') || `<li>${t('state5_no_hidden')}</li>`}</ul><p>${t('state5_momentum')}</p>`;
+  openState5Popup(t('state5_summary_title'), content, document.getElementById('states-summary-info'));
+}
+
+function openState5Info(key, trigger) {
+  const binary = ['besmirched', 'prone', 'surprised', 'unconscious'].includes(key);
+  const content = `<p><strong>${t('state_info_stage_label')}:</strong> ${binary ? t(getStateCount(key) ? 'state_active_binary' : 'state_inactive_binary') : getStateCount(key)}</p>`
+    + [['effect', 'state_info_effects_label'], ['time', 'state5_time'], ['removal', 'state5_removal'], ['special', 'state5_special']]
+      .map(([suffix, label]) => `<h3>${t(label)}</h3><p>${t(`state5_${key}_${suffix}`)}</p>`).join('')
+    + (key === 'entangled' ? `<h3>${t('state5_materials')}</h3><table class="full-width state5-material-table"><tr><th>${t('state5_material')}</th><th>${t('state5_material_strength')}</th></tr>${[['wool', 10], ['twine', 25], ['rope', 45], ['manacles', 65], ['chain', 105]].map(([name, strength]) => `<tr><td>${t(`state5_${name}`)}</td><td>${strength}</td></tr>`).join('')}</table>` : '')
+    + `<p>${t('state5_momentum')}</p><p>${t('state_info_future_hint')}</p>`;
+  openState5Popup(t(`state_${key}`), content, trigger);
+}
+
+function clampStateValue(value, key) {
+  if (activeEdition === '5e') return WFRP5Conditions.count(value, key);
   return Math.max(0, Math.min(9, value));
 }
 
@@ -2247,7 +2330,7 @@ function formatSignedPenalty(value) {
 
 function getStateCount(stateKey) {
   const input = document.getElementById(`state-${stateKey}-value`);
-  return clampStateValue(parseInt(input?.value, 10) || 0);
+  return clampStateValue(parseInt(input?.value, 10) || 0, stateKey);
 }
 
 function addStateSummary(items, label, detail) {
@@ -2256,6 +2339,7 @@ function addStateSummary(items, label, detail) {
 }
 
 function buildStateEffectSummary() {
+  if (activeEdition === '5e') return buildState5EffectSummary();
   const activeCards = Array.from(document.querySelectorAll('[data-state-card].active'));
   if (activeCards.length === 0) {
     return `<span class="state-effect-placeholder">${t('states_effects_empty')}</span>`;
@@ -2317,8 +2401,9 @@ function setStateCardActive(stateKey, active, { resetValue = false } = {}) {
   const binaryValue = document.getElementById(`state-${stateKey}-binary`);
   if (!card || !toggle || !input) return;
   const isBinary = card.dataset.stateBinary === 'true';
-  const nextValue = resetValue ? 0 : clampStateValue(parseInt(input.value, 10) || 0);
+  const nextValue = resetValue ? 0 : clampStateValue(parseInt(input.value, 10) || 0, stateKey);
   input.value = String(nextValue);
+  card.dataset.count = String(nextValue);
   card.classList.toggle('active', active);
   toggle.classList.toggle('inactive', !active);
   toggle.classList.toggle('active', active);
@@ -2329,6 +2414,7 @@ function setStateCardActive(stateKey, active, { resetValue = false } = {}) {
   }
   if (isBinary && active && nextValue === 0) {
     input.value = '1';
+    card.dataset.count = '1';
   }
 }
 
@@ -2337,7 +2423,7 @@ function syncStateCardsFromInputs() {
     const stateKey = card.dataset.stateKey;
     const input = document.getElementById(`state-${stateKey}-value`);
     if (!input) return;
-    const value = clampStateValue(parseInt(input.value, 10) || 0);
+    const value = clampStateValue(parseInt(input.value, 10) || 0, stateKey);
     input.value = String(value);
     setStateCardActive(stateKey, value > 0, { resetValue: value === 0 });
   });
@@ -2348,6 +2434,7 @@ function updateStatesSummary() {
   const container = document.getElementById('states-summary');
   if (!container) return;
   container.innerHTML = buildStateEffectSummary();
+  if (activeEdition === '5e') renderState5Hints();
 }
 
 function changeStateValue(stateKey, delta) {
@@ -2355,15 +2442,17 @@ function changeStateValue(stateKey, delta) {
   if (!input) return;
   const card = document.querySelector(`[data-state-card][data-state-key="${stateKey}"]`);
   if (card?.dataset.stateBinary === 'true') return;
-  const current = clampStateValue(parseInt(input.value, 10) || 0);
-  const next = clampStateValue(current + delta);
+  const current = clampStateValue(parseInt(input.value, 10) || 0, stateKey);
+  const next = clampStateValue(current + delta, stateKey);
   input.value = String(next);
+  noteState5Removal(stateKey, current, next);
   setStateCardActive(stateKey, next > 0, { resetValue: next === 0 });
   updateStatesSummary();
   saveState();
 }
 
-function openStateInfo(stateKey) {
+function openStateInfo(stateKey, trigger) {
+  if (activeEdition === '5e') { openState5Info(stateKey, trigger); return; }
   const card = document.querySelector(`[data-state-card][data-state-key="${stateKey}"]`);
   const input = document.getElementById(`state-${stateKey}-value`);
   if (!card || !input) return;
@@ -2388,16 +2477,26 @@ function openStateInfo(stateKey) {
 }
 
 function initStatesSection() {
+  state5RemovalNotices.clear();
+  document.getElementById('states-summary-info')?.addEventListener('click', openState5SummaryInfo);
   document.querySelectorAll('[data-state-card]').forEach(card => {
     const stateKey = card.dataset.stateKey;
     const input = document.getElementById(`state-${stateKey}-value`);
     const toggle = card.querySelector('[data-state-toggle]');
     toggle?.addEventListener('click', () => {
       const isActive = card.classList.contains('active');
+      noteState5Removal(stateKey, getStateCount(stateKey), isActive ? 0 : 1);
       setStateCardActive(stateKey, !isActive, { resetValue: isActive });
       if (!isActive && input && parseInt(input.value, 10) === 0) input.value = '1';
       updateStatesSummary();
       saveState();
+    });
+    if (activeEdition === '5e' && card.dataset.stateBinary !== 'true') input?.addEventListener('input', () => {
+      const next = clampStateValue(parseInt(input.value, 10) || 0, stateKey);
+      noteState5Removal(stateKey, Number(card.dataset.count) || 0, next);
+      input.value = String(next);
+      setStateCardActive(stateKey, next > 0, { resetValue: next === 0 });
+      updateStatesSummary(); saveState();
     });
   });
 
@@ -2409,7 +2508,7 @@ function initStatesSection() {
   });
 
   document.querySelectorAll('[data-state-info]').forEach(button => {
-    button.addEventListener('click', () => openStateInfo(button.dataset.stateKey));
+    button.addEventListener('click', () => openStateInfo(button.dataset.stateKey, button));
   });
 
   syncStateCardsFromInputs();
@@ -2425,6 +2524,7 @@ function initLogic() {
   try {
     const fields = new Set(document.querySelectorAll('#main-content [id]'));
     const allowed = new Set(Array.from(fields, el => el.id));
+    conditionDefinitions5e.forEach(condition => allowed.add(`state-${condition.key}-value`));
     characterStore = new CharacterStore.Store(localStorage, allowed);
     activeEdition = ['4e', '5e'].includes(characterStore.data.edition) ? characterStore.data.edition : '4e';
     renderEdition();

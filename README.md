@@ -133,6 +133,36 @@ Ambitionen, Hintergrund, Beziehungen und Notizen sowie Verletzungen und
 Krankheiten werden manuell geführt. Es gibt keine automatische Heilung, EP-Vergabe,
 Karriereprüfung oder Vorteilsverwaltung.
 
+### Zustände in 5e
+
+5e verwendet eigene Regeltexte für alle 13 Zustände, einschließlich Besudelt
+(Besmirched). Besudelt, Niedergestreckt, Überrascht und Bewusstlos sind An/Aus;
+die übrigen Zustände sind zählbar, auch über neun hinaus. Zähler lassen sich mit
+Pfeilen oder direkt bearbeiten. 4e behält die bisherige Liste und Zählergrenze.
+
+Die Übersicht zeigt nur geltende Wirkungen: höchste passende SL-Mali statt
+Addition verschiedener Zustände, zusammengefassten Vorteil/Nachteil und die
+strengste relevante Handlungseinschränkung. Teilweise überlappende Bereiche wie
+Bewegung und Rennen/Verstecken bleiben getrennt berücksichtigt. Schaden und
+verpflichtende Proben bleiben eigenständige Folgen. Bei Bewusstlosigkeit werden
+noch eingetragene Betäubt-Zustände nicht als geltender Malus berücksichtigt;
+ein Hinweis erinnert daran, sie manuell zu entfernen.
+
+Das Info-Symbol der Übersicht erklärt Ursachen und überdeckte Wirkungen.
+Jeder Zustand hat ein eigenes Popup mit Wirkung, Zeitpunkt/Dauer, Entfernung
+und Sonderfällen. Gefesselt enthält zusätzlich die Materialstärkentabelle.
+Niedergestreckt folgt der konkreten Beschreibung mit Nachteil auf
+bewegungsbezogene Proben; das widersprüchliche allgemeine Beispiel mit −2 SL
+wird nicht zusätzlich verwendet.
+
+Hinweise bei 0 LP, Betäubt über WI-Bonus oder bewusstloser Vergiftung aktualisieren
+sich mit den eingegebenen Werten. Beim Entfernen des letzten Vergiftet- oder
+Betäubt-Zustands erinnert die App an Erschöpft. Diese Entfernungshinweise lassen
+sich schließen und werden beim Laden eines Charakters zurückgesetzt. Beim Erhalt
+eines Zustands geht Momentum verloren; das steht als Hinweis in den Popups.
+Es gibt keine automatische Rundenverwaltung, Würfe, LP-Verluste, Todesentscheidung
+oder Änderung weiterer Zustände. Die Karten behalten ihre manuell gesetzten Werte.
+
 ## Offline und Updates
 
 Die App und ihre lokalen Bilder werden einschließlich relativer Pfade für eine
