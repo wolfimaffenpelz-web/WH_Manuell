@@ -3,23 +3,27 @@
 
 // Zustand-Definitionen für die Zustände-Sektion
 const conditionDefinitions = [
-  { key: "stunned", translationKey: "state_stunned", icon: "img/stunned.png", effectKey: "state_stunned_effect", descriptionKey: "state_stunned_description", binary: false },
-  { key: "unconscious", translationKey: "state_unconscious", icon: "img/unconcious.png", effectKey: "state_unconscious_effect", descriptionKey: "state_unconscious_description", binary: true },
-  { key: "bleeding", translationKey: "state_bleeding", icon: "img/bleeding.png", effectKey: "state_bleeding_effect", descriptionKey: "state_bleeding_description", binary: false },
-  { key: "burning", translationKey: "state_burning", icon: "img/ablaze.png", effectKey: "state_burning_effect", descriptionKey: "state_burning_description", binary: false },
-  { key: "broken", translationKey: "state_broken", icon: "img/broken.png", effectKey: "state_broken_effect", descriptionKey: "state_broken_description", binary: false },
-  { key: "fatigued", translationKey: "state_fatigued", icon: "img/exhausted.png", effectKey: "state_fatigued_effect", descriptionKey: "state_fatigued_description", binary: false },
-  { key: "deafened", translationKey: "state_deafened", icon: "img/deafened.png", effectKey: "state_deafened_effect", descriptionKey: "state_deafened_description", binary: false },
-  { key: "blinded", translationKey: "state_blinded", icon: "img/blinded.png", effectKey: "state_blinded_effect", descriptionKey: "state_blinded_description", binary: false },
-  { key: "entangled", translationKey: "state_entangled", icon: "img/entangled.png", effectKey: "state_entangled_effect", descriptionKey: "state_entangled_description", binary: false },
-  { key: "prone", translationKey: "state_prone", icon: "img/prone.png", effectKey: "state_prone_effect", descriptionKey: "state_prone_description", binary: true },
-  { key: "surprised", translationKey: "state_surprised", icon: "img/surpised.png", effectKey: "state_surprised_effect", descriptionKey: "state_surprised_description", binary: true },
-  { key: "poisoned", translationKey: "state_poisoned", icon: "img/poisoned.png", effectKey: "state_poisoned_effect", descriptionKey: "state_poisoned_description", binary: false }
+  { key: "stunned", translationKey: "state_stunned", icon: "img/stunned.png", binary: false },
+  { key: "unconscious", translationKey: "state_unconscious", icon: "img/unconcious.png", binary: true },
+  { key: "bleeding", translationKey: "state_bleeding", icon: "img/bleeding.png", binary: false },
+  { key: "burning", translationKey: "state_burning", icon: "img/ablaze.png", binary: false },
+  { key: "broken", translationKey: "state_broken", icon: "img/broken.png", binary: false },
+  { key: "fatigued", translationKey: "state_fatigued", icon: "img/exhausted.png", binary: false },
+  { key: "deafened", translationKey: "state_deafened", icon: "img/deafened.png", binary: false },
+  { key: "blinded", translationKey: "state_blinded", icon: "img/blinded.png", binary: false },
+  { key: "entangled", translationKey: "state_entangled", icon: "img/entangled.png", binary: false },
+  { key: "prone", translationKey: "state_prone", icon: "img/prone.png", binary: true },
+  { key: "surprised", translationKey: "state_surprised", icon: "img/surpised.png", binary: true },
+  { key: "poisoned", translationKey: "state_poisoned", icon: "img/poisoned.png", binary: false }
 ];
 
-function renderConditionCards() {
-  return conditionDefinitions.map(condition => `
-    <article class="state-card" data-state-card data-state-key="${condition.key}" data-state-name="${t(condition.translationKey)}" data-state-effect="${t(condition.effectKey)}" data-state-description="${t(condition.descriptionKey)}" data-state-binary="${condition.binary ? 'true' : 'false'}">
+const conditionDefinitions5e = [...conditionDefinitions, {
+  key: 'besmirched', translationKey: 'state_besmirched', icon: 'img/bismerched.png', binary: true
+}].sort((left, right) => t(left.translationKey).localeCompare(t(right.translationKey), 'de'));
+
+function renderConditionCards(edition = '4e') {
+  return (edition === '5e' ? conditionDefinitions5e : conditionDefinitions).map(condition => `
+    <article class="state-card" data-state-card data-state-key="${condition.key}" data-state-name="${t(condition.translationKey)}" data-state-effect="${t(`state${edition === '5e' ? '5' : '4'}_${condition.key}_effect`)}" data-state-description="${t(`state${edition === '5e' ? '5' : '4'}_${condition.key}_special`)}" data-state-binary="${condition.binary ? 'true' : 'false'}">
       <button
         type="button"
         class="state-icon-button inactive"
@@ -41,9 +45,9 @@ function renderConditionCards() {
           </div>
         ` : `
           <div class="state-controls state-counter" aria-label="${t('state_stage')}">
-            <button type="button" class="state-step-button" data-state-step data-direction="down" data-state-key="${condition.key}" aria-label="${t('state_stage')} -1">◀</button>
-            <input type="number" id="state-${condition.key}-value" min="0" max="9" step="1" inputmode="numeric" value="0" readonly>
-            <button type="button" class="state-step-button" data-state-step data-direction="up" data-state-key="${condition.key}" aria-label="${t('state_stage')} +1">▶</button>
+            <button type="button" class="state-step-button" data-state-step data-direction="down" data-state-key="${condition.key}" aria-label="${t('state_stage')} -1">◀︎</button>
+            <input type="number" id="state-${condition.key}-value" min="0" ${edition === '4e' ? 'max="9"' : ''} readonly step="1" inputmode="numeric" value="0">
+            <button type="button" class="state-step-button" data-state-step data-direction="up" data-state-key="${condition.key}" aria-label="${t('state_stage')} +1">▶︎</button>
             <button type="button" class="state-info-button" data-state-info data-state-key="${condition.key}" title="${t('state_info')}">i</button>
           </div>
         `}
@@ -168,11 +172,12 @@ const sections = [
     title: t('states'),
     content: `
       <div class="states-top-row">
-        <div class="states-summary-label">${t('states_effects')}</div>
-        <div class="states-summary" id="states-summary">
+        <div class="states-summary-label">${t('states_effects')} <button type="button" class="state-info-button" id="states-summary-info" aria-label="${t('state5_summary_info')}">ⓘ</button></div>
+        <div class="states-summary states-summary-5e" id="states-summary">
           <span class="state-effect-placeholder">${t('states_effects_empty')}</span>
         </div>
       </div>
+      <div id="states-hints" aria-live="polite"></div>
       <div class="state-grid">
         ${renderConditionCards()}
       </div>
@@ -270,6 +275,7 @@ const sections = [
           <th class="delete-col"></th>
         </tr>
       </table>
+      <p id="talent-warnings" class="rule-warning" role="status"></p>
       <div class="section-divider"></div>
     `
   },
@@ -413,14 +419,15 @@ sections.push(
     id: "korruption",
     title: t('corruption') + ' & ' + t('mutations'),
     content: `
-      <h3>Korruptionspunkte</h3>
+      <h3>${t('corruption_points')}</h3>
       <table id="korruption-table">
-        <tr><th class="text-center">${t('max')}</th><th>${t('current')}</th></tr>
-        <tr>
-          <td class="text-center"><input type="number" id="korruption-max" readonly></td>
-          <td><input type="number" id="korruption-akt"></td>
-        </tr>
+        <tr><td>${t('current')}</td><td><input type="number" id="korruption-akt"></td></tr>
+        <tr class="corruption-component"><td>${t('corruption_wib')}</td><td><input type="number" id="korruption-wib" readonly></td></tr>
+        <tr class="corruption-component"><td>${t('corruption_wkb')}</td><td><input type="number" id="korruption-wkb" readonly></td></tr>
+        <tr class="corruption-component"><td>${t('corruption_pure_soul')}</td><td><input type="number" id="corruption-talent-bonus" readonly></td></tr>
+        <tr><td>${t('corruption_maximum')}</td><td><input type="number" id="korruption-max" readonly></td></tr>
       </table>
+      <p id="corruption-warning" class="rule-warning" role="status"></p>
      <h3>Vorhandene Mutationen</h3>
       <table class="full-width" id="mutationen-table">
         <tr>
@@ -459,11 +466,11 @@ sections.push(
         <tr><td>ST-Bonus</td><td><input type="number" id="lp-stb" readonly></td></tr>
         <tr><td>2x WI-Bonus</td><td><input type="number" id="lp-wib" readonly></td></tr>
         <tr><td>WK-Bonus</td><td><input type="number" id="lp-wkb" readonly></td></tr>
-        <tr><td>Robustheit*</td><td><input type="number" id="lp-robustheit" readonly></td></tr>
+        <tr><td>${t('talent_hardy')}</td><td><input type="number" id="lp-robustheit" readonly></td></tr>
         <tr><td>Gesamt-LP</td><td><input type="number" id="lp-gesamt" readonly></td></tr>
         <tr><td>${t('current_lp')}</td><td><input type="number" id="lp-aktuell" min="0" max="99"></td></tr>
       </table>
-      <p>* Automatisch durch Talent "Robustheit" / "Hardy"</p>
+      <p id="lp-warning" class="rule-warning" role="status"></p>
       <div class="section-divider"></div>
     `
   },
@@ -479,6 +486,8 @@ sections.push(
         <tr><td>${t('armor')}</td><td><input type="number" id="trag-ruestung" readonly></td></tr>
         <tr><td>${t('equipment')}</td><td><input type="number" id="trag-ausruestung" readonly></td></tr>
         <tr><td>${t('baggage')}</td><td><input type="number" id="trag-gepaeck" readonly></td></tr>
+        <tr><td>${t('strong_back_bonus')}</td><td><input type="number" id="trag-strong-back" readonly></td></tr>
+        <tr><td>${t('sturdy_bonus')}</td><td><input type="number" id="trag-sturdy" readonly></td></tr>
         <tr><td>${t('max_tp')}</td><td><input type="number" id="trag-max" readonly></td></tr>
         <tr><td>${t('total_col')}</td><td><input type="number" id="trag-gesamt" readonly></td></tr>
       </table>
@@ -567,6 +576,7 @@ sections.push(
           <span class="slider"></span>
         </label>
         <label>${t('full')}</label>
+        <input type="hidden" id="exp-advance-step" value="1">
         <button type="button" id="levelup-open">${t('levelup_open')}</button>
       </div>
 
@@ -601,3 +611,30 @@ sections.push(
     `
   }
 );
+
+// Shared, manual character content in both editions.
+const narrativeSection = {
+  id: 'hintergrund', title: t('story'),
+  content: ['motivation', 'short_ambition', 'long_ambition', 'background', 'relationships', 'character_notes', 'campaign_notes']
+    .map(key => `<label class="story-field">${t(key)}<textarea id="story-${key}" rows="3"></textarea></label>`).join('')
+};
+const healthSections = ['injuries', 'diseases'].map(key => ({
+  id: key, title: t(key), content: `<p>${t('manual_health')}</p>
+    <table id="${key}-table" class="full-width health-table"><tr>
+      <th>${t('entry')}</th><th>${t('effect')}</th><th>${t('treatment_progress')}</th><th class="delete-col"></th>
+    </tr></table>`
+}));
+sections.splice(sections.findIndex(section => section.id === 'grunddaten') + 1, 0, narrativeSection);
+sections.splice(sections.findIndex(section => section.id === 'lebenspunkte') + 1, 0, ...healthSections);
+// Layout is shared; edition-specific rules are selected by the active character.
+const edition5Sections = sections.map(section => section.id === 'zustaende' ? {
+  ...section,
+  content: `<div class="states-top-row"><div class="states-summary-label">${t('states_effects')} <button type="button" class="state-info-button" id="states-summary-info" aria-label="${t('state5_summary_info')}">ⓘ</button></div><div class="states-summary states-summary-5e" id="states-summary"></div></div><div id="states-hints" aria-live="polite"></div><div class="state-grid state-grid-5e">${renderConditionCards('5e')}</div><div class="section-divider"></div>`
+} : section.id === 'schicksalzaehigkeit' ? {
+  ...section,
+  title: t('fate_luck'),
+  content: `<table class="value-table points5e-table">
+    <tr><td>${t('fate')}</td><td><input type="number" id="fate-value" class="small-field" max="99" min="0"></td></tr>
+    <tr><td>${t('luck')}</td><td><input type="number" id="luck-current" class="small-field" max="99" min="0"><span class="slash">/</span><input type="number" id="luck-max" class="small-field" max="99" min="0"></td></tr>
+  </table><div class="section-divider"></div>`
+} : { ...section });

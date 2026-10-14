@@ -33,6 +33,20 @@ document.addEventListener("DOMContentLoaded", initPasswordProtection);
 // =========================
 let currentCharacter = null;
 let characterList = [];
+let characterStore = null;
+let activeEdition = '4e';
+let loadingState = false;
+let loadFailed = false;
+let logicInitialized = false;
+
+function storageError(error) {
+  console.error(error);
+  alert(t('storage_error'));
+}
+
+function characterName() {
+  return characterStore?.get(currentCharacter)?.name || '';
+}
 
 function applySavedSettings() {
   const colors = JSON.parse(localStorage.getItem("color-settings") || "{}");
@@ -55,56 +69,58 @@ function rgbToHex(rgb) {
 }
 
 function updateCharacterDisplay() {
-  const display = document.getElementById("current-character");
-  if (display) display.textContent = `${t('active_character')} ${currentCharacter || ''}`;
+  const record = characterStore?.get(currentCharacter);
+  const display = document.getElementById('current-character');
+  if (display) display.textContent = record
+    ? `${t('active_character')} ${record.name} · ${record.edition}${record.status === 'deceased' ? ' · ' + t('deceased') : ''}`
+    : t('no_character');
+  document.getElementById('edition-select').value = activeEdition;
+  ['delete-character', 'export-character'].forEach(id => { document.getElementById(id).disabled = !record; });
+  document.getElementById('transfer-character').hidden = activeEdition !== '4e';
+  document.getElementById('transfer-character').disabled = !record || loadFailed;
+  document.getElementById('recover-character').hidden = !record?.recovery;
+  document.getElementById('load-error').hidden = !loadFailed;
+  renderTransferReport(record);
 }
 
 function loadCharacterList() {
-  characterList = JSON.parse(localStorage.getItem("characters") || "[]");
-  if (characterList.length > 0) {
-    if (!currentCharacter || !characterList.includes(currentCharacter)) {
-      currentCharacter = characterList[0];
-    }
-  } else {
-    currentCharacter = null;
-  }
+  characterList = characterStore.list(activeEdition).map(record => record.id);
+  const remembered = characterStore.data.active[activeEdition];
+  if (!characterList.includes(currentCharacter)) currentCharacter = characterList.includes(remembered) ? remembered : characterList[0] || null;
   updateCharacterDisplay();
 }
 
-function saveCharacter(name) {
-  let chars = JSON.parse(localStorage.getItem("characters") || "[]");
-  if (!chars.includes(name)) {
-    chars.push(name); // neuen Namen hinzufügen
-    localStorage.setItem("characters", JSON.stringify(chars));
-  }
-  currentCharacter = name; // aktiven Charakter setzen
-}
-
-function deleteCharacter(name) {
-  let chars = JSON.parse(localStorage.getItem("characters") || "[]");
-  chars = chars.filter(c => c !== name); // entfernen
-  localStorage.setItem("characters", JSON.stringify(chars));
-  if (chars.length > 0) {
-    currentCharacter = chars[0]; // anderen Charakter wählen
-  } else {
-    currentCharacter = null; // keiner übrig
-  }
+function deleteCharacter(id) {
+  characterStore.remove(id);
+  currentCharacter = null;
   loadCharacterList();
 }
 
-function killCharacter() {
-  document
-    .querySelectorAll('#main-content input, #main-content textarea, #main-content select, #main-content button')
-    .forEach(el => {
-      if (el.tagName === 'BUTTON' || el.tagName === 'SELECT') {
-        el.disabled = true;
-      } else if (el.type === 'checkbox' || el.type === 'radio') {
-        el.disabled = true;
-      } else {
-        el.setAttribute('readonly', true);
-      }
-      el.classList.add('readonly');
-    });
+function syncCharacterLock() {
+  const locked = loadFailed || characterStore?.get(currentCharacter)?.status === 'deceased';
+  document.querySelectorAll('#main-content input, #main-content textarea, #main-content select, #main-content button').forEach(el => {
+    if (locked) {
+      if (!el.hasAttribute('data-lock-disabled')) el.dataset.lockDisabled = String(el.disabled);
+      el.disabled = true;
+    } else if (el.hasAttribute('data-lock-disabled')) {
+      el.disabled = el.dataset.lockDisabled === 'true';
+      delete el.dataset.lockDisabled;
+    }
+  });
+  document.getElementById('main-content').classList.toggle('character-locked', locked);
+}
+
+function toggleCharacterStatus() {
+  if (!currentCharacter || loadFailed) return false;
+  const dead = characterStore.get(currentCharacter).status === 'deceased';
+  if (!confirm(t(dead ? 'revive_confirm' : 'deceased_confirm'))) return false;
+  if (!saveState()) return false;
+  try {
+    characterStore.setStatus(currentCharacter, dead ? 'alive' : 'deceased');
+    syncCharacterLock();
+    updateCharacterDisplay();
+    return true;
+  } catch (error) { storageError(error); return false; }
 }
 
 // Öffnet Eingabe zur Erstellung eines neuen Charakters
@@ -114,7 +130,7 @@ function promptNewCharacter(preserveValues = false) {
   overlay.innerHTML = `
     <div class="overlay-content">
       <p>${t('character_name_prompt')}</p>
-      <input type="text" id="new-char-name">
+      <input type="text" id="new-char-name" maxlength="200">
       <br>
       <button id="new-char-ok">${t('ok')}</button>
       <button id="new-char-cancel">${t('cancel')}</button>
@@ -131,15 +147,16 @@ function promptNewCharacter(preserveValues = false) {
 
   overlay.querySelector("#new-char-ok").addEventListener("click", () => {
     const newName = input.value.trim();
+    if (newName.length > 200) return;
     if (!newName) { alert(t('name_required')); return; }
-    if (preserveValues) {
-      saveCharacter(newName);
-      saveState();
-    } else {
-      saveState();
-      saveCharacter(newName);
-      resetCharacterSheet();
-    }
+    if (!saveState()) return;
+    try {
+      const state = preserveValues ? collectState() : {};
+      const id = characterStore.create(newName, activeEdition, { ...state, 'char-name': newName });
+      characterStore.select(activeEdition, id);
+      currentCharacter = id;
+      loadState();
+    } catch (error) { storageError(error); return; }
     loadCharacterList();
     close();
   });
@@ -176,9 +193,11 @@ function initCharacterManagement() {
       const list = overlay.querySelector('#char-list');
       characterList.forEach(name => {
         const btn = document.createElement('button');
-        btn.textContent = name;
+        const record = characterStore.get(name);
+        btn.textContent = `${record.name} · ${record.id.slice(0, 8)}${record.importedAt ? ' · ' + t('imported_on') + ' ' + formatDate(record.importedAt) : ''}${record.status === 'deceased' ? ' · ' + t('deceased') : ''}`;
         btn.addEventListener('click', () => {
-          saveState();
+          if (!saveState()) return;
+          try { characterStore.select(activeEdition, name); } catch (error) { storageError(error); return; }
           currentCharacter = name;
           updateCharacterDisplay();
           loadState();
@@ -210,8 +229,8 @@ function initCharacterManagement() {
     overlay.className = "overlay";
     overlay.innerHTML = `
       <div class="overlay-content">
-        <p>${t('delete_confirm_prefix')}${currentCharacter}${t('delete_confirm_suffix')}</p>
-        <button id="del-kill">${t('kill_char')}</button>
+        <p>${t('delete_confirm_prefix')}${escapeHtml(characterName())}${t('delete_confirm_suffix')}</p>
+        <button id="del-kill" type="button" ${loadFailed ? 'disabled' : ''}>${t(characterStore.get(currentCharacter).status === 'deceased' ? 'revive_character' : 'mark_deceased')}</button>
         <button id="del-yes">${t('delete_char')}</button>
         <button id="del-no">${t('cancel')}</button>
       </div>
@@ -222,29 +241,9 @@ function initCharacterManagement() {
 
     overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
     overlay.querySelector("#del-no").addEventListener("click", close);
-    overlay.querySelector("#del-kill").addEventListener("click", () => {
-      const confirmOverlay = document.createElement("div");
-      confirmOverlay.className = "overlay";
-      confirmOverlay.innerHTML = `
-        <div class="overlay-content">
-          <p>${t('kill_confirm')}</p>
-          <button id="kill-yes">${t('yes')}</button>
-          <button id="kill-no">${t('no')}</button>
-        </div>
-      `;
-      document.body.appendChild(confirmOverlay);
-
-      function closeConfirm() { confirmOverlay.remove(); }
-
-      confirmOverlay.addEventListener("click", e => { if (e.target === confirmOverlay) closeConfirm(); });
-      confirmOverlay.querySelector("#kill-no").addEventListener("click", closeConfirm);
-      confirmOverlay.querySelector("#kill-yes").addEventListener("click", () => {
-        killCharacter();
-        closeConfirm();
-        close();
-      });
+    overlay.querySelector('#del-kill').addEventListener('click', () => {
+      if (toggleCharacterStatus()) close();
     });
-
     overlay.querySelector("#del-yes").addEventListener("click", () => {
       const confirmOverlay = document.createElement("div");
       confirmOverlay.className = "overlay";
@@ -262,7 +261,7 @@ function initCharacterManagement() {
       confirmOverlay.addEventListener("click", e => { if (e.target === confirmOverlay) closeConfirm(); });
       confirmOverlay.querySelector("#confirm-del-no").addEventListener("click", closeConfirm);
       confirmOverlay.querySelector("#confirm-del-yes").addEventListener("click", () => {
-        deleteCharacter(currentCharacter);
+        try { deleteCharacter(currentCharacter); } catch (error) { storageError(error); return; }
         if (currentCharacter) {
           loadState(); // anderen laden
         } else {
@@ -447,10 +446,10 @@ function openFontSettings() {
 // =========================
 // 🧩 Sections Rendern
 // =========================
-function renderSections() {
+function renderSections(definitions = sections) {
   const main = document.getElementById("main-content");
   main.innerHTML = ""; // vorherige Inhalte entfernen
-  sections.forEach(sec => {
+  definitions.forEach(sec => {
     const sectionEl = document.createElement("section");
     sectionEl.id = sec.id; // ID für spätere Referenz
     const header = document.createElement("h2");
@@ -570,78 +569,59 @@ function deserializeTable(tableId, data) {
   });
 }
 
-function saveState() {
-  if (!currentCharacter) return; // nichts gespeichert
+function collectState() {
   const state = {};
-
-  // alle Felder mit ID einsammeln
-  document.querySelectorAll("input, textarea, select").forEach(el => {
-    if (!el.id) return;
-    if (el.type === "checkbox" || el.type === "radio") {
-      state[el.id] = el.checked;
-    } else {
-      state[el.id] = el.value;
+  // Keep retired 5e fields in existing backups without displaying them on the sheet.
+  if (activeEdition === '5e') {
+    const previous = characterStore?.get(currentCharacter)?.state || {};
+    for (const key of ['resilience-value', 'resolve-current', 'resolve-max']) {
+      if (Object.prototype.hasOwnProperty.call(previous, key)) state[key] = previous[key];
     }
+  }
+  document.querySelectorAll('#main-content input[id], #main-content textarea[id], #main-content select[id]').forEach(el => {
+    state[el.id] = el.type === 'checkbox' || el.type === 'radio' ? el.checked : el.value;
   });
+  CharacterStore.TABLES.forEach(id => { if (document.getElementById(id)) state[id] = serializeTable(id); });
+  return state;
+}
 
-  // Tabellen separat serialisieren
-  [
-    "grupp-table",
-    "talent-table",
-    "waffen-table",
-    "schulden-table",
-    "spar-table",
-    "ruestung-table",
-    "ausruestung-table",
-    "zauber-table",
-    "mutationen-table",
-    "psychologie-table",
-    "exp-table"
-  ].forEach(id => {
-    state[id] = serializeTable(id);
-  });
-
-  localStorage.setItem("state-" + currentCharacter, JSON.stringify(state));
+function saveState() {
+  if (loadingState) return true;
+  if (loadFailed) return false;
+  if (!currentCharacter || !characterStore) return true;
+  try {
+    characterStore.save(currentCharacter, collectState());
+    updateCharacterDisplay();
+    return true;
+  } catch (error) { storageError(error); return false; }
 }
 
 function loadState() {
-  if (!currentCharacter) return;
-  const state = JSON.parse(localStorage.getItem("state-" + currentCharacter) || "{}");
-
-  // Werte in Felder zurückschreiben
-  document.querySelectorAll("input, textarea, select").forEach(el => {
-    if (!el.id) return;
-    if (state.hasOwnProperty(el.id)) {
-      if (el.type === "checkbox" || el.type === "radio") {
-        el.checked = state[el.id];
-      } else {
-        el.value = state[el.id];
-      }
-    }
-  });
-
-  [
-    "grupp-table",
-    "talent-table",
-    "waffen-table",
-    "schulden-table",
-    "spar-table",
-    "ruestung-table",
-    "ausruestung-table",
-    "zauber-table",
-    "mutationen-table",
-    "psychologie-table",
-    "exp-table"
-  ].forEach(id => {
-    deserializeTable(id, state[id]); // Tabellen rekonstruieren
-  });
-
-  syncExperienceMode();
-  updateAttributes();
-  restoreMarkers();
-  syncStateCardsFromInputs();
-  ensureInitialRows();
-  updateCharacterDisplay();
+  conditionRemovalNotices.clear();
+  if (!currentCharacter) { resetCharacterSheet(); return; }
+  loadingState = true;
+  loadFailed = false;
+  try {
+    const state = characterStore.get(currentCharacter).state;
+    document.querySelectorAll('#main-content input[id], #main-content textarea[id], #main-content select[id]').forEach(el => {
+      if (el.type === 'checkbox' || el.type === 'radio') el.checked = state[el.id] === true;
+      else el.value = state[el.id] ?? (el.id === 'exp-advance-step' ? (activeEdition === '5e' ? '5' : '1') : el.type === 'hidden' ? '0' : '');
+    });
+    CharacterStore.TABLES.forEach(id => deserializeTable(id, state[id]));
+    ensureInitialRows();
+    syncExperienceMode();
+    updateAttributes();
+    restoreMarkers();
+    syncStateCardsFromInputs();
+    document.querySelectorAll('#main-content textarea').forEach(autoResize);
+  } catch (error) {
+    loadFailed = true;
+    storageError(error);
+  } finally {
+    loadingState = false;
+    syncCharacterLock();
+    updateCharacterDisplay();
+  }
 }
 
 // =========================
@@ -658,7 +638,9 @@ function ensureInitialRows() {
     "zauber-table",
     "mutationen-table",
     "psychologie-table",
-    "exp-table"
+    "exp-table",
+    "injuries-table",
+    "diseases-table"
   ].forEach(id => {
     const table = document.getElementById(id);
     if (table) {
@@ -671,11 +653,15 @@ function ensureInitialRows() {
 }
 
 function resetCharacterSheet() {
-  document.querySelectorAll("input, textarea, select").forEach(el => {
+  conditionRemovalNotices.clear();
+  const wasLoading = loadingState;
+  loadingState = true;
+  loadFailed = false;
+  document.querySelectorAll("#main-content input, #main-content textarea, #main-content select").forEach(el => {
     if (el.type === "checkbox" || el.type === "radio") {
       el.checked = false;
     } else {
-      el.value = "";
+      el.value = el.id === 'exp-advance-step' ? (activeEdition === '5e' ? '5' : '1') : '';
     }
   });
 
@@ -690,7 +676,9 @@ function resetCharacterSheet() {
     "zauber-table",
     "mutationen-table",
     "psychologie-table",
-    "exp-table"
+    "exp-table",
+    "injuries-table",
+    "diseases-table"
   ].forEach(id => {
     const table = document.getElementById(id);
     if (table) {
@@ -712,45 +700,82 @@ function resetCharacterSheet() {
   });
 
   ensureInitialRows();
-  updateAttributes();
+  updateAttributes(); syncStateCardsFromInputs();
+  loadingState = wasLoading;
+  syncCharacterLock();
+  updateCharacterDisplay();
 }
 
-// Aktuellen Charakter exportieren
+function formatDate(value) {
+  return value ? new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', dateStyle: 'short', timeStyle: 'medium' }).format(new Date(value)) : t('unknown_date');
+}
+
+function downloadJSON(data, filename) {
+  const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 function exportCharacters() {
   if (!currentCharacter) return;
-  saveState();
-  const state = JSON.parse(localStorage.getItem('state-' + currentCharacter) || '{}');
-  const data = { id: currentCharacter, state };
-  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `${currentCharacter}.json`;
-  a.click();
+  // A failed load can still export the intact stored record.
+  const saved = !loadFailed && saveState();
+  const date = new Date();
+  const backup = characterStore.export(currentCharacter, date);
+  if (!loadFailed && !saved) {
+    // Export does not need a storage write; validate live inputs independently.
+    try {
+      const state = characterStore.clean(collectState());
+      const current = CharacterStore.normalizeBackup({ ...backup, state, name: state['char-name']?.trim() || backup.name });
+      backup.state = current.state;
+      backup.name = current.name;
+      alert(t('export_unsaved'));
+    } catch (error) {
+      alert(t('export_stored_only'));
+    }
+  }
+  downloadJSON(backup, CharacterStore.filename(backup, date));
 }
 
-// Charakter importieren und laden
 function importCharacters(files) {
   const file = files[0];
-  if (!file) return;
-  saveState();
+  if (!file || !saveState()) return;
+  if (file.size > 5 * 1024 * 1024) { alert(t('import_failed')); return; }
   const reader = new FileReader();
   reader.onload = e => {
     try {
-      const data = JSON.parse(e.target.result);
-      if (data.id && data.state) {
-        saveCharacter(data.id);
-        localStorage.setItem('state-' + data.id, JSON.stringify(data.state));
-        loadCharacterList();
-        currentCharacter = data.id;
-        updateCharacterDisplay();
-        loadState();
-      } else {
-        throw new Error('Invalid');
-      }
-    } catch (err) {
-      alert(t('import_failed'));
-    }
+      const backup = CharacterStore.normalizeBackup(JSON.parse(e.target.result));
+      const targets = backup.legacy
+        ? characterStore.list('4e').filter(record => record.name === backup.name)
+        : characterStore.data.characters.filter(record => record.id === backup.id && record.edition === backup.edition);
+      const overlay = document.createElement('div');
+      overlay.className = 'overlay';
+      overlay.innerHTML = `<div class="overlay-content">
+        <h2>${t('import_review')}</h2>
+        <p>${escapeHtml(backup.name)} · ${backup.edition}</p>
+        <p>${t('backup_date')}: ${formatDate(backup.exportedAt)}</p>
+        ${targets.length ? `<label><input type="radio" name="import-mode" value="replace" checked> ${t('import_replace')}</label>
+          <select id="import-target">${targets.map(record => `<option value="${record.id}">${escapeHtml(record.name)} · ${record.id.slice(0, 8)}</option>`).join('')}</select>
+          <label><input type="radio" name="import-mode" value="copy"> ${t('import_copy')}</label>
+          <p>${t('import_recovery_hint')}</p>` : `<p>${t('import_new')}</p>`}
+        <button id="import-confirm">${t('import')}</button><button id="import-cancel">${t('cancel')}</button>
+      </div>`;
+      document.body.appendChild(overlay);
+      overlay.querySelector('#import-cancel').onclick = () => overlay.remove();
+      overlay.addEventListener('click', event => { if (event.target === overlay) overlay.remove(); });
+      overlay.querySelector('#import-confirm').onclick = () => {
+        if (!saveState()) return;
+        const replacing = overlay.querySelector('input[name="import-mode"]:checked')?.value === 'replace';
+        try {
+          const id = characterStore.import(backup, replacing ? overlay.querySelector('#import-target').value : null, !replacing && targets.length > 0);
+          activeEdition = backup.edition; currentCharacter = id;
+          renderEdition(); loadCharacterList(); loadState(); overlay.remove();
+        } catch (error) { storageError(error); }
+      };
+    } catch (error) { alert(t('import_failed')); }
   };
+  reader.onerror = () => alert(t('import_failed'));
   reader.readAsText(file);
 }
 
@@ -988,6 +1013,7 @@ function restoreMarkers() {
 }
 
 document.addEventListener("click", e => {
+  if (e.target.closest('#main-content') && (loadFailed || characterStore?.get(currentCharacter)?.status === 'deceased')) return;
   if (markerPopup && !markerPopup.contains(e.target)) {
     markerPopup.remove();
     markerPopup = null;
@@ -1095,34 +1121,46 @@ function updateGruppierteFaehigkeiten() {
 function autoAddRow(tableId) {
   const table = document.getElementById(tableId);
   if (!table) return;
+  const isEmpty = row => Array.from(row.querySelectorAll('input, textarea, select')).every(input => {
+    if (input.type === 'checkbox' || input.type === 'radio') return !input.checked;
+    if (input.readOnly) return true; // Derived values do not make a placeholder an entry.
+    if (input.type === 'hidden' && !input.classList.contains('baggage-note-store')) return input.value === '' || input.value === '0';
+    return input.value.trim() === '';
+  });
   const rows = Array.from(table.rows).slice(1); // ohne Kopfzeile
   if (rows.length === 0) {
     addRow(tableId);
     return;
   }
   const lastRow = rows[rows.length - 1];
-  const lastInput = lastRow.cells[0]?.querySelector('input:not([type="hidden"]), textarea, select');
-  if (lastInput && lastInput.value.trim() !== '') {
+  if (!isEmpty(lastRow)) {
     addRow(tableId);
   }
-  let emptyCount = 0;
+  const trailingEmpty = [];
   for (let i = rows.length - 1; i >= 0; i--) {
-    const inp = rows[i].cells[0]?.querySelector('input:not([type="hidden"]), textarea, select');
-    if (inp && inp.value.trim() === '') {
-      emptyCount++;
-      if (emptyCount > 1) {
-        table.deleteRow(i + 1); // +1 für Kopfzeile
-      }
-    } else {
-      break;
-    }
+    if (!isEmpty(rows[i])) break;
+    trailingEmpty.push(rows[i]);
   }
+  // Preserve the active editor when a name-only entry is temporarily cleared.
+  const focusedRow = document.activeElement?.closest('tr');
+  const placeholder = trailingEmpty.includes(focusedRow) ? focusedRow : trailingEmpty[0];
+  trailingEmpty.forEach(row => { if (row !== placeholder) row.remove(); });
 }
 
 function addRow(tableId) {
   const table = document.getElementById(tableId); // Ziel-Tabelle
   const row = table.insertRow(-1); // neue Zeile am Ende
 
+  if (tableId === 'injuries-table' || tableId === 'diseases-table') {
+    row.innerHTML = `<td><textarea rows="1" aria-label="${t('entry')}"></textarea></td>
+      <td><textarea rows="1" aria-label="${t('effect')}"></textarea></td>
+      <td><textarea rows="1" aria-label="${t('treatment_progress')}"></textarea></td>
+      <td class="delete-col"><button type="button" class="delete-row" aria-label="${t('delete')}">❌</button></td>`;
+    row.querySelector('button').addEventListener('click', () => { row.remove(); autoAddRow(tableId); saveState(); });
+    row.querySelector('textarea').addEventListener('input', () => { autoAddRow(tableId); saveState(); });
+    saveState();
+    return;
+  }
   if (tableId === "grupp-table") {
     // Vorlage für gruppierte Fähigkeiten
     row.innerHTML = `
@@ -1154,7 +1192,7 @@ function addRow(tableId) {
       <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></td>
       <td class="wsg"><input type="number"></td>
       <td class="text-left"><textarea rows="1"></textarea></td>
-      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('talent-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
+      <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('talent-table'); updateAttributes();">❌</button></td>
     `;
   }
   else if (tableId === "waffen-table") {
@@ -1322,53 +1360,27 @@ function addRow(tableId) {
 // =========================
 // ⭐ Talente Logik (inkl. Robustheit)
 // =========================
-// Ähnlichkeitsberechnung per Levenshtein-Distanz
-function levenshtein(a, b) {
-  const matrix = Array.from({ length: b.length + 1 }, (_, i) => [i]);
-  matrix[0] = Array.from({ length: a.length + 1 }, (_, j) => j);
-  for (let i = 1; i <= b.length; i++) {
-    for (let j = 1; j <= a.length; j++) {
-      if (b[i - 1] === a[j - 1]) {
-        matrix[i][j] = matrix[i - 1][j - 1];
-      } else {
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j] + 1,
-          matrix[i][j - 1] + 1,
-          matrix[i - 1][j - 1] + 1
-        );
-      }
-    }
-  }
-  return matrix[b.length][a.length];
-}
-
-function similarity(a, b) {
-  const maxLen = Math.max(a.length, b.length);
-  if (maxLen === 0) return 1;
-  const distance = levenshtein(a, b);
-  return 1 - distance / maxLen;
-}
-
-// Ermittelt die Stufe des Talents "Robustheit"/"Hardy" (Ähnlichkeit > 90%).
-// Wenn das Talent existiert, zählt mindestens eine Stufe.
-function checkTalentEffects() {
-  let hardyLevel = 0;
-  document.querySelectorAll("#talent-table tr").forEach((row, idx) => {
-    if (idx === 0) return; // Kopfzeile überspringen
-    const nameField = row.cells[0].querySelector('input[type="text"], textarea');
-    if (!nameField) return;
-    const name = nameField.value.toLowerCase().trim();
-    const simRob = similarity(name, "robustheit");
-    const simHardy = similarity(name, "hardy");
-    if (simRob >= 0.9 || simHardy >= 0.9) {
-      const lvlInput = row.cells[1].querySelector("input");
-      let lvl = parseInt(lvlInput.value);
-      if (isNaN(lvl) || lvl < 1) lvl = 1; // mindestens Stufe 1
-      hardyLevel += lvl; // Stufen addieren (Talent kann mehrfach vorkommen)
-    }
+// Exakte deutsche/englische Talentnamen; Hinweise bleiben manuell.
+function readTalentEffects() {
+  const entries = Array.from(document.querySelectorAll('#talent-table tr')).slice(1).map(row => ({
+    name: row.cells[0].querySelector('textarea, input[type="text"]')?.value || '',
+    level: row.cells[1].querySelector('input')?.value || ''
+  }));
+  return (activeEdition === '5e' ? WFRP5Rules : WFRP4Rules).talentEffects(entries, {
+    strength: parseInt(document.getElementById('ST-akt').value) || 0,
+    toughness: parseInt(document.getElementById('WI-akt').value) || 0,
+    willpower: parseInt(document.getElementById('WK-akt').value) || 0
   });
-  return hardyLevel;
 }
+
+function checkTalentEffects() { return readTalentEffects().levels.hardy; }
+
+function updateTalentWarnings() {
+  const effects = readTalentEffects();
+  const labels = { hardy: t('talent_hardy'), pureSoul: t('talent_pure_soul'), strongBack: t('talent_strong_back'), sturdy: t('talent_sturdy') };
+  document.getElementById('talent-warnings').textContent = effects.exceeded.map(key => `${labels[key]}: ${t('talent_limit')} (${effects.levels[key]} / ${effects.limits[key]})`).join(' · ');
+}
+
 // =========================
 // ❤️ Lebenspunkte Berechnung
 // =========================
@@ -1383,7 +1395,7 @@ function updateLebenspunkte() {
   const wkb = Math.floor(WK/10);
 
   const hardyLevel = checkTalentEffects();
-  const robust = wib * hardyLevel; // Robustheit: WI-Bonus mal Talentstufe
+  const robust = readTalentEffects().wounds; // Robustheit: WI-Bonus mal Talentstufe
 
   document.getElementById("lp-stb").value = stb;
   document.getElementById("lp-wib").value = wib;
@@ -1392,6 +1404,10 @@ function updateLebenspunkte() {
 
   const gesamt = stb + wib + wkb + (hardyLevel > 0 ? robust : 0);
   document.getElementById("lp-gesamt").value = gesamt;
+  const current = parseInt(document.getElementById('lp-aktuell').value) || 0;
+  document.getElementById('lp-warning').textContent = current > gesamt ? t('wounds_above_max') : '';
+  updateTalentWarnings();
+  updateStatesSummary();
 }
 
 // =========================
@@ -1400,17 +1416,21 @@ function updateLebenspunkte() {
 function updateKorruption() {
   const WI = parseInt(document.getElementById("WI-akt").value) || 0;
   const WK = parseInt(document.getElementById("WK-akt").value) || 0;
-  const max = Math.floor(WI/10) + Math.floor(WK/10); // zulässige Korruption
+  const max = Math.floor(WI/10) + Math.floor(WK/10) + readTalentEffects().corruption; // zulässige Korruption
   const akt = parseInt(document.getElementById("korruption-akt").value) || 0;
 
   const maxEl = document.getElementById("korruption-max");
   maxEl.value = max;
+  document.getElementById('korruption-wib').value = Math.floor(WI / 10);
+  document.getElementById('korruption-wkb').value = Math.floor(WK / 10);
+  document.getElementById('corruption-talent-bonus').value = readTalentEffects().corruption;
 
   if (akt > max) {
     document.getElementById("korruption-akt").classList.add("readonly-red");
-    alert("⚠️ Korruption über Maximum – Wurf auf Mutation/Wahnsinn nötig!");
+    document.getElementById('corruption-warning').textContent = t(activeEdition === '5e' ? 'corruption_5e_test' : 'corruption_above_max');
   } else {
     document.getElementById("korruption-akt").classList.remove("readonly-red");
+    document.getElementById("corruption-warning").textContent = "";
   }
 }
 
@@ -1620,7 +1640,7 @@ function renderBaggageList(entries) {
 function updateTraglast() {
   const ST = parseInt(document.getElementById("ST-akt").value) || 0;
   const WI = parseInt(document.getElementById("WI-akt").value) || 0;
-  const max = Math.floor(ST/10) + Math.floor(WI/10); // maximale Traglast
+  const max = Math.floor(ST/10) + Math.floor(WI/10) + readTalentEffects().encumbrance; // maximale Traglast
 
   let waffenTP = 0, ruestungTP = 0, ausrTP = 0, gepaeckTP = 0;
   const baggageEntries = [];
@@ -1662,6 +1682,8 @@ function updateTraglast() {
   document.getElementById("trag-ausruestung").value = ausrTP;
   const gepaeckEl = document.getElementById("trag-gepaeck");
   if (gepaeckEl) gepaeckEl.value = gepaeckTP;
+  document.getElementById('trag-strong-back').value = activeEdition === '5e' ? readTalentEffects().strongBack : readTalentEffects().levels.strongBack;
+  document.getElementById('trag-sturdy').value = activeEdition === '5e' ? readTalentEffects().sturdy : readTalentEffects().levels.sturdy * 2;
   document.getElementById("trag-max").value = max;
   const gesamtEl = document.getElementById("trag-gesamt");
   gesamtEl.value = gesamt;
@@ -1784,7 +1806,12 @@ const levelUpCostBrackets = [
   { min: 46, max: 50, attrCost: 230, skillCost: 180 }
 ];
 
+function getAdvanceStep(entry) {
+  return activeEdition === '5e' && entry?.type !== 'talent' && document.getElementById('exp-advance-step')?.value === '5' ? 5 : 1;
+}
+
 function getBracketCost(advances, type) {
+  if (activeEdition === '5e') return WFRP5Rules.advanceCost(Math.max(0, advances - 1), 1, type);
   const safeAdvances = Math.max(1, advances);
   const bracket = levelUpCostBrackets.find(entry => safeAdvances >= entry.min && safeAdvances <= entry.max)
     || levelUpCostBrackets[levelUpCostBrackets.length - 1];
@@ -1792,20 +1819,9 @@ function getBracketCost(advances, type) {
 }
 
 function getPreferredExperienceSource() {
-  const simpleTotal = parseInt(document.getElementById("exp-simple-gesamt")?.value, 10) || 0;
-  const fullTotal = parseInt(document.getElementById("exp-full-gesamt")?.value, 10) || 0;
-  if (simpleTotal > fullTotal) {
-    return {
-      mode: "simple",
-      total: simpleTotal,
-      available: parseInt(document.getElementById("exp-simple-akt")?.value, 10) || 0
-    };
-  }
-  return {
-    mode: "full",
-    total: fullTotal,
-    available: parseInt(document.getElementById("exp-full-akt")?.value, 10) || 0
-  };
+  const mode = document.getElementById('exp-toggle').checked ? 'full' : 'simple';
+  return { mode, total: parseInt(document.getElementById(`exp-${mode}-gesamt`).value, 10) || 0,
+    available: parseInt(document.getElementById(`exp-${mode}-akt`).value, 10) || 0 };
 }
 
 function getAvailableXP() {
@@ -1813,6 +1829,7 @@ function getAvailableXP() {
 }
 
 function formatLevelValue(entry, delta = 0, deltas = {}) {
+  if (entry.type === 'talent') return String(entry.currentAdvances() + delta);
   if (entry.type === "attribute") {
     const start = parseInt(document.getElementById(`${entry.key}-start`)?.value, 10) || 0;
     const baseSteig = parseInt(document.getElementById(`${entry.key}-steig`)?.value, 10) || 0;
@@ -1885,7 +1902,7 @@ function buildLevelUpEntries() {
     const steigInput = row.cells[3]?.querySelector("input");
     if (!label || !sel || !steigInput) return;
     entries.push({
-      id: `group-${idx}-${label}`,
+      id: `group-${idx}`,
       type: "skill",
       group: "grouped_skills",
       label,
@@ -1906,6 +1923,7 @@ function calculateLevelUpCost(entries, deltas) {
   return entries.reduce((total, entry) => {
     const delta = deltas[entry.id] || 0;
     if (delta <= 0) return total;
+    if (activeEdition === '5e') return total + WFRP5Rules.advanceCost(entry.currentAdvances(), delta, entry.type);
     let sum = total;
     for (let i = 0; i < delta; i++) {
       const advancesAtPurchase = entry.currentAdvances() + i + 1;
@@ -1913,6 +1931,46 @@ function calculateLevelUpCost(entries, deltas) {
     }
     return sum;
   }, 0);
+}
+
+function levelUpCostTable() {
+  return `<div class="levelup-cost-table-wrap">
+        <h3>${t('levelup_cost_table_title')}</h3>
+        <table class="full-width levelup-cost-table">
+          <tr>
+            <th>${t('levelup_cost_col_advances')}</th>
+            <th>${t('levelup_cost_col_attr')}</th>
+            <th>${t('levelup_cost_col_skill')}</th>
+          </tr>
+          ${(activeEdition === '5e' ? WFRP5Rules.brackets : levelUpCostBrackets).map(row => `
+            <tr>
+              <td>${row.max === Infinity ? row.min + '+' : row.min + '-' + row.max}</td>
+              <td data-unit-cost="${row.attrCost}">${row.attrCost * getAdvanceStep()}</td>
+              <td data-unit-cost="${row.skillCost}">${row.skillCost * getAdvanceStep()}</td>
+            </tr>
+          `).join('')}
+        </table>
+      </div>`;
+}
+
+function openLevelUpCostOverlay(trigger) {
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.id = 'levelup-cost-overlay';
+  overlay.innerHTML = `<div class="overlay-content scrollable levelup-popup" role="dialog" aria-modal="true" aria-labelledby="levelup-cost-mode">
+    <h2 id="levelup-cost-mode">${t(getAdvanceStep() === 5 ? 'advance_mode_five' : 'advance_mode_single')}</h2>
+    ${levelUpCostTable()}
+    <button type="button" id="levelup-cost-close">${t('levelup_close')}</button>
+  </div>`;
+  document.body.appendChild(overlay);
+  const close = () => { overlay.remove(); trigger.focus(); };
+  overlay.querySelector('#levelup-cost-close').addEventListener('click', close);
+  overlay.addEventListener('click', event => { if (event.target === overlay) close(); });
+  overlay.addEventListener('keydown', event => {
+    if (event.key === 'Escape') { event.stopPropagation(); close(); }
+    if (event.key === 'Tab') { event.preventDefault(); overlay.querySelector('#levelup-cost-close').focus(); }
+  });
+  overlay.querySelector('#levelup-cost-close').focus();
 }
 
 function openLevelUpOverlay() {
@@ -1930,23 +1988,8 @@ function openLevelUpOverlay() {
         <div><strong>${t('levelup_available_xp')}:</strong> <span id="levelup-available">${getAvailableXP()}</span></div>
         <button type="button" id="levelup-clear">🧹 ${t('levelup_clear')}</button>
       </div>
-      <div class="levelup-cost-table-wrap">
-        <h3>${t('levelup_cost_table_title')}</h3>
-        <table class="full-width levelup-cost-table">
-          <tr>
-            <th>${t('levelup_cost_col_advances')}</th>
-            <th>${t('levelup_cost_col_attr')}</th>
-            <th>${t('levelup_cost_col_skill')}</th>
-          </tr>
-          ${levelUpCostBrackets.map(row => `
-            <tr>
-              <td>${row.min}-${row.max}</td>
-              <td>${row.attrCost}</td>
-              <td>${row.skillCost}</td>
-            </tr>
-          `).join('')}
-        </table>
-      </div>
+      ${activeEdition === '5e' ? `<h3 id="levelup-step-title"></h3><div class="levelup-top"><label class="switch"><input type="checkbox" id="levelup-step" aria-label="${t('advance_step')}" aria-describedby="levelup-step-title"><span class="slider"></span></label><button type="button" id="levelup-cost-info" aria-label="${t('levelup_cost_info')}" title="${t('levelup_cost_info')}">ⓘ</button></div><p>${t('advance_boundary_hint')}</p>` : ''}
+      ${activeEdition === '4e' ? levelUpCostTable() : ''}
       <div id="levelup-tables"></div>
       <div class="popup-buttons">
         <button type="button" id="levelup-cancel">${t('levelup_close')}</button>
@@ -1990,8 +2033,8 @@ function openLevelUpOverlay() {
           <th>${t('total')}</th>
         </tr>
         ${rows.map(entry => `
-          <tr data-entry="${entry.id}">
-            <td class="text-left">${entry.label}</td>
+          <tr data-entry="${escapeHtml(entry.id)}">
+            <td class="text-left"></td>
             <td class="wsg"><button type="button" data-act="minus" disabled>−</button></td>
             <td class="wsg levelup-delta" data-delta>${formatAdvanceDelta(entry, 0)}</td>
             <td class="wsg"><button type="button" data-act="plus">+</button></td>
@@ -2000,6 +2043,9 @@ function openLevelUpOverlay() {
         `).join('')}
       </table>
     `;
+    block.querySelectorAll('tr[data-entry]').forEach((row, index) => {
+      row.cells[0].textContent = rows[index].label;
+    });
     container.appendChild(block);
   });
 
@@ -2007,6 +2053,8 @@ function openLevelUpOverlay() {
     updateErfahrung();
     const total = calculateLevelUpCost(entries, deltas);
     const available = getAvailableXP();
+    const modeTitle = overlay.querySelector('#levelup-step-title');
+    if (modeTitle) modeTitle.textContent = t(getAdvanceStep() === 5 ? 'advance_mode_five' : 'advance_mode_single');
     overlay.querySelector("#levelup-total").textContent = String(total);
     overlay.querySelector("#levelup-available").textContent = String(available);
 
@@ -2017,11 +2065,31 @@ function openLevelUpOverlay() {
       row.querySelector("[data-delta]").textContent = formatAdvanceDelta(entry, delta);
       row.querySelector(".levelup-projected").textContent = formatLevelValue(entry, delta, deltas);
       row.querySelector('[data-act="minus"]').disabled = delta <= 0;
-      row.querySelector('[data-act="plus"]').disabled = calculateLevelUpCost(entries, { ...deltas, [entry.id]: delta + 1 }) > available;
+      const step = getAdvanceStep(entry);
+      const misaligned = step === 5 && (entry.currentAdvances() + delta) % 5 !== 0;
+      const plus = row.querySelector('[data-act="plus"]');
+      plus.disabled = misaligned || (entry.maxDelta !== undefined && delta + step > entry.maxDelta) || calculateLevelUpCost(entries, { ...deltas, [entry.id]: delta + step }) > available;
+      plus.textContent = `+${step}`;
+      plus.title = misaligned ? t('advance_boundary_hint') : '';
+      row.querySelector('[data-act="minus"]').textContent = `−${step}`;
     });
   }
 
+  const stepToggle = overlay.querySelector('#levelup-step');
+  if (stepToggle) {
+    stepToggle.checked = document.getElementById('exp-advance-step').value === '5';
+    stepToggle.addEventListener('change', () => {
+      document.getElementById('exp-advance-step').value = stepToggle.checked ? '5' : '1';
+      Object.keys(deltas).forEach(key => { deltas[key] = 0; });
+      saveState(); render();
+    });
+  }
+
+  const costInfo = overlay.querySelector('#levelup-cost-info');
+  if (costInfo) costInfo.addEventListener('click', () => openLevelUpCostOverlay(costInfo));
+
   function close() {
+    document.getElementById('levelup-cost-overlay')?.remove();
     overlay.remove();
   }
 
@@ -2037,11 +2105,14 @@ function openLevelUpOverlay() {
     const entry = entries.find(item => item.id === row.dataset.entry);
     if (!entry) return;
     row.querySelector('[data-act="minus"]').addEventListener("click", () => {
-      deltas[entry.id] = Math.max(0, (deltas[entry.id] || 0) - 1);
+      deltas[entry.id] = Math.max(0, (deltas[entry.id] || 0) - getAdvanceStep(entry));
       render();
     });
     row.querySelector('[data-act="plus"]').addEventListener("click", () => {
-      const next = (deltas[entry.id] || 0) + 1;
+      const step = getAdvanceStep(entry);
+      if (step === 5 && (entry.currentAdvances() + (deltas[entry.id] || 0)) % 5 !== 0) return;
+      const next = (deltas[entry.id] || 0) + step;
+      if (entry.maxDelta !== undefined && next > entry.maxDelta) return;
       const nextCost = calculateLevelUpCost(entries, { ...deltas, [entry.id]: next });
       if (nextCost > getAvailableXP()) return;
       deltas[entry.id] = next;
@@ -2065,6 +2136,8 @@ function openLevelUpOverlay() {
         beforeAdv: entry.currentAdvances()
       }));
 
+    if (totalCost > getAvailableXP()) { alert(t('levelup_insufficient_xp')); return; }
+    if (entries.some(entry => (entry.maxDelta !== undefined && (deltas[entry.id] || 0) > entry.maxDelta) || (getAdvanceStep(entry) === 5 && (deltas[entry.id] || 0) > 0 && (entry.currentAdvances() % 5 !== 0 || deltas[entry.id] % 5 !== 0)))) return;
     entries.forEach(entry => {
       const delta = deltas[entry.id] || 0;
       if (delta !== 0) {
@@ -2161,8 +2234,105 @@ document.addEventListener("focusout", e => {
   }
 });
 
-function clampStateValue(value) {
-  return Math.max(0, Math.min(9, value));
+const conditionRemovalNotices = new Set();
+
+function conditionText(key, params = {}) {
+  if (Array.isArray(key)) return key.map(item => conditionText(item, params)).join('; ');
+  return t(key).replace(/\{(\w+)\}/g, (match, name) => params[name] ?? match);
+}
+
+function evaluateConditionEffects() {
+  const rules = activeEdition === '4e' ? WFRP4Conditions : WFRP5Conditions;
+  const values = Object.fromEntries(rules.keys.map(key => [key, getStateCount(key)]));
+  const read = id => {
+    const raw = document.getElementById(id)?.value;
+    return raw === '' || raw === undefined ? null : Number(raw);
+  };
+  const toughness = read('WI-akt');
+  return rules.evaluate(values, { wounds: read('lp-aktuell'),
+    toughnessBonus: toughness === null ? null : Math.max(0, Math.floor(toughness / 10)) });
+}
+
+function conditionSources(effect) {
+  return effect.sources.map(key => `${t(`state_${key}`)}${['besmirched', 'prone', 'surprised', 'unconscious'].includes(key) ? '' : ` ${getStateCount(key)}`}`).join(', ');
+}
+
+function conditionEffectList(result) {
+  return `<ul class="state5-effect-list">${result.effects.map(effect => `<li data-state${activeEdition === '4e' ? '4' : '5'}-effect="${effect.id}"><strong>${escapeHtml(t(effect.label))}:</strong> ${escapeHtml(conditionText(effect.text, effect.params))} — ${t('state5_effect_sources')}: ${escapeHtml(conditionSources(effect))}</li>`).join('') || `<li class="state-effect-placeholder">${t('states_effects_empty')}</li>`}</ul>`;
+}
+
+function buildConditionEffectSummary() {
+  return conditionEffectList(evaluateConditionEffects());
+}
+
+function renderConditionHints() {
+  const container = document.getElementById('states-hints');
+  if (!container) return;
+  const result = evaluateConditionEffects();
+  const hints = [...result.hints];
+  for (const key of conditionRemovalNotices) {
+    if (key === 'stunned' && getStateCount('fatigued')) {
+      conditionRemovalNotices.delete(key);
+      continue;
+    }
+    const id = key === 'poisoned' ? 'poison' : key;
+    const text = activeEdition === '4e' ? `state4_${key}_removed` : `state5_${id}_removed`;
+    hints.push({ id: `${id}-removed`, text, dismissKey: key });
+  }
+  container.innerHTML = hints.length ? `<ul class="state5-hint-list">${hints.map(item => {
+    const text = escapeHtml(conditionText(item.text, item.params));
+    const content = item.dismissKey ? `<span class="condition-reminder-alert" aria-hidden="true">!</span><span>${text}</span><button type="button" class="delete-row condition-reminder-dismiss" data-dismiss-condition="${item.dismissKey}" aria-label="${t('condition_reminder_close')}: ${t(`state_${item.dismissKey}`)}">❌</button>` : text;
+    return `<li ${item.dismissKey ? 'class="condition-reminder"' : ''} data-state${activeEdition === '4e' ? '4' : '5'}-hint="${item.id}">${content}</li>`;
+  }).join('')}</ul>` : '';
+  container.querySelectorAll('[data-dismiss-condition]').forEach(button => button.addEventListener('click', () => {
+    conditionRemovalNotices.delete(button.dataset.dismissCondition);
+    renderConditionHints();
+  }));
+}
+
+function noteConditionRemoval(key, before, after) {
+  const keys = activeEdition === '4e' ? ['bleeding', 'broken', 'poisoned', 'stunned', 'unconscious'] : ['poisoned', 'stunned'];
+  if (!keys.includes(key)) return;
+  if (before > 0 && after === 0 && (key !== 'stunned' || !getStateCount('fatigued'))) conditionRemovalNotices.add(key);
+  if (after > 0) conditionRemovalNotices.delete(key);
+}
+
+function openConditionPopup(title, content, trigger) {
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.innerHTML = `<div class="overlay-content scrollable state5-info-popup" role="dialog" aria-modal="true" aria-labelledby="state5-info-title"><div class="state5-info-header"><h2 id="state5-info-title">${escapeHtml(title)}</h2><button type="button" id="state-info-close">${t('ok')}</button></div>${content}</div>`;
+  document.body.appendChild(overlay);
+  const closeButton = overlay.querySelector('#state-info-close');
+  const close = () => { overlay.remove(); trigger?.focus(); };
+  closeButton.addEventListener('click', close);
+  overlay.addEventListener('click', event => { if (event.target === overlay) close(); });
+  overlay.addEventListener('keydown', event => {
+    if (event.key === 'Escape') close();
+    if (event.key === 'Tab') { event.preventDefault(); closeButton.focus(); }
+  });
+  closeButton.focus();
+}
+
+function openConditionSummaryInfo() {
+  const result = evaluateConditionEffects();
+  const content = `<p>${t(activeEdition === '4e' ? 'state4_stack' : 'state5_stack')}</p><h3>${t('states_effects')}</h3>${conditionEffectList(result)}
+    <h3>${t('state5_hidden_effects')}</h3><ul>${result.suppressed.map(item => `<li>${escapeHtml(t(`state_${item.source}`))}: ${escapeHtml(conditionText(item.text, item.params))} — ${t(item.reason)}</li>`).join('') || `<li>${t('state5_no_hidden')}</li>`}</ul><p>${t(activeEdition === '4e' ? 'state_all_advantage_lost' : 'state5_momentum')}</p>`;
+  openConditionPopup(t(activeEdition === '4e' ? 'state4_summary_title' : 'state5_summary_title'), content, document.getElementById('states-summary-info'));
+}
+
+function openConditionInfo(key, trigger) {
+  const binary = ['besmirched', 'prone', 'surprised', 'unconscious'].includes(key);
+  const content = `<p><strong>${t('state_info_stage_label')}:</strong> ${binary ? t(getStateCount(key) ? 'state_active_binary' : 'state_inactive_binary') : getStateCount(key)}</p>`
+    + [['effect', 'state_info_effects_label'], ['time', 'state5_time'], ['removal', 'state5_removal'], ['special', 'state5_special']]
+      .map(([suffix, label]) => `<h3>${t(label)}</h3><p>${t(`state${activeEdition === '4e' ? '4' : '5'}_${key}_${suffix}`)}</p>`).join('')
+    + (activeEdition === '5e' && key === 'entangled' ? `<h3>${t('state5_materials')}</h3><table class="full-width state5-material-table"><tr><th>${t('state5_material')}</th><th>${t('state5_material_strength')}</th></tr>${[['wool', 10], ['twine', 25], ['rope', 45], ['manacles', 65], ['chain', 105]].map(([name, strength]) => `<tr><td>${t(`state5_${name}`)}</td><td>${strength}</td></tr>`).join('')}</table>` : '')
+    + `<p>${t(activeEdition === '4e' ? 'state_all_advantage_lost' : 'state5_momentum')}</p><p>${t('state_info_future_hint')}</p>`;
+  openConditionPopup(t(`state_${key}`), content, trigger);
+}
+
+function clampStateValue(value, key) {
+  if (activeEdition === '5e') return WFRP5Conditions.count(value, key);
+  return WFRP4Conditions.count(value, key);
 }
 
 
@@ -2175,73 +2345,13 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
-function formatSignedPenalty(value) {
-  return `${value < 0 ? '' : '-'}${Math.abs(value)}`;
-}
-
 function getStateCount(stateKey) {
   const input = document.getElementById(`state-${stateKey}-value`);
-  return clampStateValue(parseInt(input?.value, 10) || 0);
-}
-
-function addStateSummary(items, label, detail) {
-  if (!detail) return;
-  items.push(`<span class="state-effect-chip"><strong>${escapeHtml(label)}:</strong> ${escapeHtml(detail)}</span>`);
+  return clampStateValue(parseInt(input?.value, 10) || 0, stateKey);
 }
 
 function buildStateEffectSummary() {
-  const activeCards = Array.from(document.querySelectorAll('[data-state-card].active'));
-  if (activeCards.length === 0) {
-    return `<span class="state-effect-placeholder">${t('states_effects_empty')}</span>`;
-  }
-
-  const values = Object.fromEntries(activeCards.map(card => [card.dataset.stateKey, getStateCount(card.dataset.stateKey)]));
-  const items = [];
-  const allTestPenalties = [
-    values.fatigued ? { name: t('state_fatigued'), value: -10 * values.fatigued } : null,
-    values.poisoned ? { name: t('state_poisoned'), value: -10 * values.poisoned } : null,
-    values.stunned ? { name: t('state_stunned'), value: -10 * values.stunned } : null
-  ].filter(Boolean);
-  const strongestAllTestPenalty = allTestPenalties.reduce((best, current) => !best || current.value < best.value ? current : best, null);
-
-  addStateSummary(items, t('state_summary_label'), activeCards.map(card => {
-    const name = card.dataset.stateName || card.dataset.stateKey;
-    const isBinary = card.dataset.stateBinary === 'true';
-    const value = values[card.dataset.stateKey] || 0;
-    return isBinary ? name : `${name} ${value}`;
-  }).join(', '));
-
-  if (strongestAllTestPenalty) {
-    const sources = allTestPenalties.map(entry => `${entry.name} ${formatSignedPenalty(entry.value)}`).join(', ');
-    addStateSummary(items, t('state_summary_all_tests'), `${formatSignedPenalty(strongestAllTestPenalty.value)} (${strongestAllTestPenalty.name}; ${sources})`);
-  }
-
-  if (values.blinded) addStateSummary(items, t('state_summary_sight_tests'), `${formatSignedPenalty(-10 * values.blinded)}; ${t('state_summary_melee_against_you')} +${10 * values.blinded}`);
-  if (values.deafened) addStateSummary(items, t('state_summary_hearing_tests'), `${formatSignedPenalty(-10 * values.deafened)}; ${t('state_summary_flank_rear_plus10')}`);
-  if (values.broken) addStateSummary(items, t('state_summary_not_run_hide'), `${formatSignedPenalty(-10 * values.broken)}; ${t('state_summary_must_flee_hide')}`);
-
-  const movementPenalties = [
-    values.entangled ? { name: t('state_entangled'), value: -10 * values.entangled, note: t('state_summary_no_normal_move') } : null,
-    values.prone ? { name: t('state_prone'), value: -20, note: t('state_summary_stand_or_crawl') } : null
-  ].filter(Boolean);
-  const strongestMovementPenalty = movementPenalties.reduce((best, current) => !best || current.value < best.value ? current : best, null);
-  if (strongestMovementPenalty) {
-    addStateSummary(items, t('state_summary_movement_tests'), `${formatSignedPenalty(strongestMovementPenalty.value)} (${strongestMovementPenalty.name}; ${strongestMovementPenalty.note})`);
-  }
-
-  if (values.bleeding) {
-    addStateSummary(items, t('state_summary_wounds_end_round'), `${formatSignedPenalty(values.bleeding)} ${t('state_summary_bleeding_wounds')} ${t('state_bleeding')}; ${t('state_summary_infection_penalty')} ${formatSignedPenalty(-10 * values.bleeding)}`);
-  }
-  if (values.poisoned) addStateSummary(items, t('state_summary_poison_end_round'), `${formatSignedPenalty(values.poisoned)} LP; ${t('state_summary_no_heal_until_poison_removed')}`);
-  if (values.burning) addStateSummary(items, t('state_summary_fire_end_round'), `1W10${values.burning > 1 ? `+${values.burning - 1}` : ''} ${t('state_summary_damage_minimum')}`);
-  if (values.prone) addStateSummary(items, t('state_summary_melee_opponents'), t('state_summary_melee_plus20_prone'));
-  if (values.stunned) addStateSummary(items, t('state_stunned'), t('state_summary_stunned_detail'));
-  if (values.surprised) addStateSummary(items, t('state_surprised'), t('state_summary_surprised_detail'));
-  if (values.unconscious) addStateSummary(items, t('state_unconscious'), t('state_summary_unconscious_detail'));
-
-  items.push(`<span class="state-effect-placeholder">${escapeHtml(t('states_effects_stack_hint'))}</span>`);
-  items.push(`<span class="state-effect-placeholder">${escapeHtml(t('state_info_future_hint'))}</span>`);
-  return items.join('');
+  return buildConditionEffectSummary();
 }
 
 function setStateCardActive(stateKey, active, { resetValue = false } = {}) {
@@ -2251,8 +2361,9 @@ function setStateCardActive(stateKey, active, { resetValue = false } = {}) {
   const binaryValue = document.getElementById(`state-${stateKey}-binary`);
   if (!card || !toggle || !input) return;
   const isBinary = card.dataset.stateBinary === 'true';
-  const nextValue = resetValue ? 0 : clampStateValue(parseInt(input.value, 10) || 0);
+  const nextValue = resetValue ? 0 : clampStateValue(parseInt(input.value, 10) || 0, stateKey);
   input.value = String(nextValue);
+  card.dataset.count = String(nextValue);
   card.classList.toggle('active', active);
   toggle.classList.toggle('inactive', !active);
   toggle.classList.toggle('active', active);
@@ -2263,6 +2374,7 @@ function setStateCardActive(stateKey, active, { resetValue = false } = {}) {
   }
   if (isBinary && active && nextValue === 0) {
     input.value = '1';
+    card.dataset.count = '1';
   }
 }
 
@@ -2271,7 +2383,7 @@ function syncStateCardsFromInputs() {
     const stateKey = card.dataset.stateKey;
     const input = document.getElementById(`state-${stateKey}-value`);
     if (!input) return;
-    const value = clampStateValue(parseInt(input.value, 10) || 0);
+    const value = clampStateValue(parseInt(input.value, 10) || 0, stateKey);
     input.value = String(value);
     setStateCardActive(stateKey, value > 0, { resetValue: value === 0 });
   });
@@ -2282,6 +2394,7 @@ function updateStatesSummary() {
   const container = document.getElementById('states-summary');
   if (!container) return;
   container.innerHTML = buildStateEffectSummary();
+  renderConditionHints();
 }
 
 function changeStateValue(stateKey, delta) {
@@ -2289,49 +2402,41 @@ function changeStateValue(stateKey, delta) {
   if (!input) return;
   const card = document.querySelector(`[data-state-card][data-state-key="${stateKey}"]`);
   if (card?.dataset.stateBinary === 'true') return;
-  const current = clampStateValue(parseInt(input.value, 10) || 0);
-  const next = clampStateValue(current + delta);
+  const current = clampStateValue(parseInt(input.value, 10) || 0, stateKey);
+  const next = clampStateValue(current + delta, stateKey);
   input.value = String(next);
+  noteConditionRemoval(stateKey, current, next);
   setStateCardActive(stateKey, next > 0, { resetValue: next === 0 });
   updateStatesSummary();
   saveState();
 }
 
-function openStateInfo(stateKey) {
-  const card = document.querySelector(`[data-state-card][data-state-key="${stateKey}"]`);
-  const input = document.getElementById(`state-${stateKey}-value`);
-  if (!card || !input) return;
-  const isBinary = card.dataset.stateBinary === 'true';
-  const overlay = document.createElement('div');
-  overlay.className = 'overlay';
-  overlay.innerHTML = `
-    <div class="overlay-content">
-      <h2>${escapeHtml(card.dataset.stateName)}</h2>
-      <p><strong>${t('state_info_stage_label')}:</strong> ${isBinary ? t((parseInt(input.value, 10) || 0) > 0 ? 'state_active_binary' : 'state_inactive_binary') : input.value}</p>
-      <p><strong>${t('state_info_effects_label')}:</strong> ${escapeHtml(card.dataset.stateEffect || t('state_effects_none'))}</p>
-      <p><strong>${t('state_info_description_label')}:</strong> ${escapeHtml(card.dataset.stateDescription || t('state_effects_none'))}</p>
-      <p>${t('state_all_advantage_lost')}</p>
-      <p>${t('state_info_future_hint')}</p>
-      <button type="button" id="state-info-close">${t('ok')}</button>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-  const close = () => overlay.remove();
-  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
-  overlay.querySelector('#state-info-close').addEventListener('click', close);
+function openStateInfo(stateKey, trigger) {
+  if (!document.querySelector(`[data-state-card][data-state-key="${stateKey}"]`)) return;
+  openConditionInfo(stateKey, trigger);
 }
 
 function initStatesSection() {
+  conditionRemovalNotices.clear();
+  document.getElementById('states-summary-info')?.addEventListener('click', openConditionSummaryInfo);
   document.querySelectorAll('[data-state-card]').forEach(card => {
     const stateKey = card.dataset.stateKey;
     const input = document.getElementById(`state-${stateKey}-value`);
     const toggle = card.querySelector('[data-state-toggle]');
     toggle?.addEventListener('click', () => {
       const isActive = card.classList.contains('active');
+      noteConditionRemoval(stateKey, getStateCount(stateKey), isActive ? 0 : 1);
       setStateCardActive(stateKey, !isActive, { resetValue: isActive });
       if (!isActive && input && parseInt(input.value, 10) === 0) input.value = '1';
       updateStatesSummary();
       saveState();
+    });
+    if (activeEdition === '5e' && card.dataset.stateBinary !== 'true') input?.addEventListener('input', () => {
+      const next = clampStateValue(parseInt(input.value, 10) || 0, stateKey);
+      noteConditionRemoval(stateKey, Number(card.dataset.count) || 0, next);
+      input.value = String(next);
+      setStateCardActive(stateKey, next > 0, { resetValue: next === 0 });
+      updateStatesSummary(); saveState();
     });
   });
 
@@ -2343,7 +2448,7 @@ function initStatesSection() {
   });
 
   document.querySelectorAll('[data-state-info]').forEach(button => {
-    button.addEventListener('click', () => openStateInfo(button.dataset.stateKey));
+    button.addEventListener('click', () => openStateInfo(button.dataset.stateKey, button));
   });
 
   syncStateCardsFromInputs();
@@ -2353,37 +2458,35 @@ function initStatesSection() {
 // 🚀 Init
 // =========================
 function initLogic() {
+  if (logicInitialized) return;
+  logicInitialized = true;
   renderSections();
-  initSectionToggles();
-  initFinanzenToggle();
+  try {
+    const fields = new Set(document.querySelectorAll('#main-content [id]'));
+    const allowed = new Set(Array.from(fields, el => el.id));
+    conditionDefinitions5e.forEach(condition => allowed.add(`state-${condition.key}-value`));
+    characterStore = new CharacterStore.Store(localStorage, allowed);
+    activeEdition = ['4e', '5e'].includes(characterStore.data.edition) ? characterStore.data.edition : '4e';
+    renderEdition();
+  } catch (error) {
+    loadFailed = true;
+    storageError(error);
+    document.getElementById('main-content').hidden = true;
+    document.querySelectorAll('#character-management button, #character-management select').forEach(el => { el.disabled = true; });
+    document.getElementById('load-error').hidden = false;
+    return;
+  }
   initCharacterManagement();
-  initStatesSection();
+  initEditionManagement();
 
   document.addEventListener("input", e => {
-    if (!e.target.matches("input, textarea, select")) return;
+    if (!e.target.matches("input, textarea, select") || !e.target.closest('#main-content')) return;
     if (e.target.closest('#gepaeck-list')) {
       saveState();
       return;
     }
     updateAttributes();
   });
-
-  const toggle = document.getElementById("exp-toggle");
-  const addArmorButton = document.getElementById("add-armor-button");
-  const levelUpButton = document.getElementById("levelup-open");
-  if (toggle) {
-    toggle.addEventListener("change", () => {
-      syncExperienceMode();
-      updateErfahrung();
-      saveState();
-    });
-  }
-  if (addArmorButton) {
-    addArmorButton.addEventListener("click", openArmorDialog);
-  }
-  if (levelUpButton) {
-    levelUpButton.addEventListener("click", openLevelUpOverlay);
-  }
 
   loadState();
   if (!currentCharacter) {

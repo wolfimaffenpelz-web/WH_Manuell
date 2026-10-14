@@ -1,0 +1,117 @@
+/* Shared management, narrative and health segments. */
+:root {
+  --management-gap: 0.6rem;
+  --management-padding: 0.5rem;
+  --health-entry-width: 28%;
+  --health-effect-width: 32%;
+  --health-progress-width: 40%;
+  --health-row-height: 2.5rem;
+  --story-min-height: 4rem;
+  --state5-count-width: 2.6ch;
+  --state-counter-background: var(--color-attr-cross);
+  --condition-reminder-color: #d00000;
+  --condition-reminder-icon-width: 1rem;
+  --state-control-gap: 1px;
+  --state-separator-width: 1px;
+  --state-arrow-font-size: 0.9em;
+  --state5-grid-gap: 1px;
+  --corruption-stack-width: 26rem;
+  --corruption-label-width: 75%;
+  --corruption-value-width: 25%;
+  --state5-popup-width: 42rem;
+  --state5-popup-max-width: 94vw;
+  --levelup-cost-col-width: 33.333%;
+}
+[hidden] { display: none !important; }
+.edition-controls { display: flex; flex-wrap: wrap; gap: var(--management-gap); align-items: center; padding: var(--management-padding); }
+.edition-controls button, .edition-controls select { min-height: var(--health-row-height); max-width: 100%; }
+.story-field { display: block; margin-bottom: var(--management-gap); }
+.story-field textarea { display: block; width: 100%; min-height: var(--story-min-height); box-sizing: border-box; text-align: left; }
+.health-table { width: 100%; table-layout: fixed; }
+.health-table tr { height: var(--health-row-height); }
+.health-table th:nth-child(1) { width: var(--health-entry-width); }
+.health-table th:nth-child(2) { width: var(--health-effect-width); }
+.health-table th:nth-child(3) { width: var(--health-progress-width); }
+.health-table .delete-col { width: var(--delete-col-width); }
+.health-table textarea { width: 100%; height: auto; min-height: var(--row-height); white-space: pre-wrap; overflow-wrap: anywhere; box-sizing: border-box; text-align: left; }
+.rule-warning { color: var(--color-negative); font-family: var(--font-main); }
+.rule-warning:empty { display: none; }
+.character-locked { opacity: 0.8; }
+#transfer-report { padding: var(--management-padding); font-family: var(--font-main); }
+#transfer-report pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.overlay-content label { display: block; margin: var(--management-gap) 0; }
+
+/* Level-up reference popup shared by both responsive layouts. */
+.levelup-cost-table { table-layout: fixed; }
+.levelup-cost-table th { width: var(--levelup-cost-col-width); }
+.levelup-cost-table tr { height: var(--row-height); }
+.levelup-top .switch { margin: 0; }
+.switch input:focus-visible + .slider { outline: 2px solid var(--color-text); outline-offset: 2px; }
+
+/* 5e conditions: separate advisory rules and scrollable reference dialogs. */
+.state-grid-5e { --state-count-width: var(--state5-count-width); }
+.state5-info-popup { width: min(var(--state5-popup-width), var(--state5-popup-max-width)); box-sizing: border-box; text-align: left; overflow-wrap: anywhere; }
+.state5-info-popup li { margin-bottom: var(--management-gap); }
+.state5-material-table { table-layout: fixed; }
+.state5-material-table th { width: 50%; }
+.state5-material-table tr { height: var(--row-height); }
+.state5-material-table td { white-space: normal; }
+#states-hints { margin: var(--management-gap) 0; }
+
+.state5-info-header { display: flex; gap: var(--management-gap); align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--color-bg); }
+.state5-info-header h2 { margin: 0; }
+
+/* State controls keep the arrows, two-digit field and info button separate. */
+.state-card .state-body { display: grid; grid-column: 2; grid-row: 1; }
+.state-card .state-icon-button { grid-column: 1; grid-row: 1; }
+.state-card .state-name { grid-column: 1; grid-row: 1; min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+.state-card .state-controls { grid-column: 1; grid-row: 2; gap: var(--state-control-gap); min-width: 0; display: flex; }
+.state-counter .state-step-button { flex: 0 1 var(--state-step-control-size); min-width: 0; width: var(--state-step-control-size); font-size: var(--state-arrow-font-size); }
+.state-controls-binary .state-binary-value { flex: 1; min-width: 0; }
+.state-counter input { flex: 0 0 var(--state5-count-width); width: var(--state5-count-width); min-width: var(--state5-count-width); max-width: var(--state5-count-width); padding: 0; box-sizing: border-box; appearance: textfield; -moz-appearance: textfield; }
+.state-counter input::-webkit-inner-spin-button, .state-counter input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.state-counter .state-info-button, .state-controls-binary .state-info-button { flex: 0 0 var(--state-control-size); margin-left: auto; width: var(--state-control-size); padding: 0; }
+.state-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--state5-grid-gap); background: var(--color-bg); }
+.state-card { border: none; position: relative; }
+.state-grid .state-card { flex: 0 0 calc((100% - var(--state5-grid-gap)) / 2); min-width: 0; box-sizing: border-box; }
+@media (min-width: 1200px) {
+  .state-grid .state-card { flex-basis: calc((100% - 3 * var(--state5-grid-gap)) / 4); }
+}
+.states-summary-5e { display: block; }
+.state5-effect-list, .state5-hint-list { margin: var(--management-gap) 0; padding-inline-start: calc(3 * var(--management-gap)); text-align: left; }
+.state5-effect-list li, .state5-hint-list li { margin-bottom: var(--management-gap); }
+.state5-info-popup { background: var(--color-bg); }
+.points5e-table { margin-inline: auto; }
+
+/* The corruption calculation is shown in order in both editions. */
+#korruption-table { width: var(--corruption-stack-width); max-width: 100%; table-layout: fixed; }
+#korruption-table td:first-child { width: var(--corruption-label-width); max-width: none; text-align: left; white-space: normal; }
+#korruption-table td:nth-child(2) { width: var(--corruption-value-width); text-align: center; }
+#korruption-table tr { height: var(--row-height); }
+#korruption-table input { width: 3ch; }
+#korruption-table .corruption-component { font-style: italic; }
+
+/* A shared table: single inner separators, no frames around individual states. */
+.state-grid { overflow: hidden; }
+.state-card .state-name, .state-card .state-counter input, .state-card .state-step-button, .state-card .state-info-button { font-weight: normal; }
+.state-grid .state-card::before, .state-grid .state-card::after { content: none; position: absolute; background: var(--color-table-line); pointer-events: none; }
+.state-grid .state-card:nth-child(n + 3)::before { content: ""; top: calc(-1 * var(--state5-grid-gap)); left: -100vw; right: -100vw; height: var(--state-separator-width); }
+.state-grid .state-card:nth-child(2n)::after { content: ""; top: 0; bottom: 0; left: calc(-1 * var(--state5-grid-gap)); width: var(--state-separator-width); }
+@media (min-width: 1200px) {
+  .state-grid .state-card:nth-child(-n + 4)::before { content: none; }
+  .state-grid .state-card:nth-child(n + 5)::before { content: ""; }
+  .state-grid .state-card::after { content: ""; top: 0; bottom: 0; left: calc(-1 * var(--state5-grid-gap)); width: var(--state-separator-width); }
+  .state-grid .state-card:nth-child(4n + 1)::after { content: none; }
+}
+
+/* The final 5e condition starts a new row at the left, with top/right dividers. */
+.state-grid-5e { justify-content: flex-start; }
+.state-grid-5e .state-card:last-child::after { content: ""; top: 0; bottom: 0; left: auto; right: calc(-1 * var(--state5-grid-gap)); width: var(--state-separator-width); }
+
+.state-grid-5e .state-card:last-child::before { left: 0; right: -100vw; }
+
+/* Arrow-operated counters and independently dismissible follow-up reminders. */
+.state-counter input[readonly] { background: var(--state-counter-background); }
+.condition-reminder { display: grid; grid-template-columns: var(--condition-reminder-icon-width) minmax(0, 1fr) var(--delete-col-width); align-items: start; gap: var(--management-gap); list-style: none; }
+.condition-reminder-alert { color: var(--condition-reminder-color); font-weight: bold; }
+.condition-reminder .condition-reminder-dismiss { color: var(--condition-reminder-color); min-height: var(--row-height); }
