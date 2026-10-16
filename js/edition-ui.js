@@ -1,6 +1,7 @@
 /* Edition views share manual notes, but never share rule calculations. */
 function renderEdition() {
   renderSections(activeEdition === '4e' ? sections : edition5Sections);
+  window.CombatPopup?.mountFields();
   initSectionToggles();
   document.getElementById('exp-advance-step').value = activeEdition === '5e' ? '5' : '1';
   initFinanzenToggle();

@@ -138,6 +138,7 @@
     "getAdvanceStep": "readonly",
     "WFRP5Conditions": "readonly",
     "conditionDefinitions5e": "readonly",
-    "WFRP4Conditions": "readonly"
+    "WFRP4Conditions": "readonly",
+    "evaluateConditionEffects": "readonly"
   }
 }

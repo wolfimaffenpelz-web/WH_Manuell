@@ -1,0 +1,54 @@
+/* Compact combat overlay, shared by desktop and mobile. */
+:root {
+  --combat-width: 46rem;
+  --combat-gap: 0.45rem;
+  --combat-field-width: 4.5rem;
+  --combat-icon-size: 1.6rem;
+  --combat-zone-size: 3.8rem;
+  --combat-title-size: 1.2rem;
+}
+#combat-open { background-image: none; color: var(--color-text); font-size: 1.7rem; }
+.combat-popup { width: min(var(--combat-width), 100%); max-width: 100%; text-align: left; padding: var(--management-padding); }
+.overlay-content.combat-popup.scrollable { max-height: 92dvh; }
+.combat-popup * { box-sizing: border-box; }
+.combat-header { display: flex; justify-content: space-between; align-items: center; gap: var(--combat-gap); position: sticky; top: 0; background: var(--color-bg); z-index: 1; }
+.combat-popup h2 { margin: 0; font-size: var(--combat-title-size); }
+.combat-popup h3 { margin: var(--combat-gap) 0; }
+#combat-body { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--combat-gap); }
+.combat-popup section { min-width: 0; margin: 0; padding: var(--combat-gap); border: 1px solid var(--color-table-line); overflow-wrap: anywhere; }
+.combat-popup section:first-child, .combat-popup section:last-child { grid-column: 1 / -1; }
+.combat-popup label { display: flex; align-items: center; justify-content: space-between; gap: var(--combat-gap); margin: var(--combat-gap) 0; }
+.combat-popup input[type=number] { width: var(--combat-field-width); max-width: 100%; margin: 0; padding: 2px; }
+.combat-popup select { width: 100%; min-width: 0; padding: 2px; }
+.combat-popup label:has(select) { display: block; }
+.combat-resources { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 var(--combat-gap); }
+.combat-resources label { display: block; }
+.combat-resources label > span { display: flex; align-items: center; }
+.combat-resources b { display: block; }
+.combat-max { white-space: nowrap; }
+.combat-weapon-stats, .combat-calculation { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--combat-gap); margin: var(--combat-gap) 0; }
+.combat-effective { border-top: 1px solid var(--color-table-line); padding-top: var(--combat-gap); }
+.combat-popup details { margin: var(--combat-gap) 0; }
+.combat-popup summary { cursor: pointer; }
+.combat-notes { white-space: pre-wrap; }
+.combat-popup p { margin: var(--combat-gap) 0; }
+.combat-states { display: flex; flex-wrap: wrap; gap: var(--combat-gap); }
+.combat-states button { display: flex; align-items: center; gap: var(--combat-gap); padding: 2px; color: var(--color-text); }
+.combat-states img { width: var(--combat-icon-size); height: var(--combat-icon-size); object-fit: contain; }
+/* Six labelled zones form a readable silhouette without relying on colour. */
+.combat-armor-map { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px; max-width: 22rem; margin: auto; background: url('../img/silhouette.svg') center / contain no-repeat; }
+.combat-zone { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: var(--combat-zone-size); text-align: center; border: 1px solid var(--color-table-line); background: var(--color-bg); }
+.combat-zone b { font-size: 1.2em; }
+.combat-zone-0 { grid-column: 2; grid-row: 1; }
+.combat-zone-1 { grid-column: 3; grid-row: 2; }
+.combat-zone-2 { grid-column: 1; grid-row: 2; }
+.combat-zone-3 { grid-column: 2; grid-row: 2; }
+.combat-zone-4 { grid-column: 3; grid-row: 3; }
+.combat-zone-5 { grid-column: 1; grid-row: 3; }
+@media (max-width: 600px) {
+  .combat-overlay { padding: var(--management-padding); }
+  #combat-body { grid-template-columns: minmax(0, 1fr); }
+  .combat-resources { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+body:has(.combat-overlay) { overflow: hidden; }
