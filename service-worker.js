@@ -1,11 +1,12 @@
 const CACHE_PREFIX = 'charakterbogen-cache-';
-const CACHE_NAME = CACHE_PREFIX + 'v13';
+const CACHE_NAME = CACHE_PREFIX + 'v14';
 const ASSETS = [
   "./",
   "./index.html",
   "./css/style-mobile.css",
   "./css/style-desktop.css",
   "./css/management.css",
+  "./css/combat.css",
   "./js/translations.js",
   "./js/sections.js",
   "./js/character-store.js",
@@ -14,6 +15,7 @@ const ASSETS = [
   "./js/conditions5e.js",
   "./img/bismerched.png",
   "./js/logic.js",
+  "./js/combat.js",
   "./js/edition-ui.js",
   "./js/offline.js",
   "./manifest.json",

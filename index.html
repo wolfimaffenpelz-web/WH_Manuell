@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="css/style-mobile.css" media="(max-width: 1199px)">
   <link rel="stylesheet" href="css/style-desktop.css" media="(min-width: 1200px)">
   <link rel="stylesheet" href="css/management.css">
+  <link rel="stylesheet" href="css/combat.css">
 </head>
 <body>
   <div id="splash-screen"></div>
@@ -49,6 +50,7 @@
       <button id="delete-character" class="icon-btn" data-i18n-title="delete_char"></button><!-- entfernt aktuellen Charakter -->
       <button id="import-character" class="icon-btn" data-i18n-title="import"></button>
       <button id="export-character" class="icon-btn" data-i18n-title="export"></button>
+      <button id="combat-open" type="button" class="icon-btn" data-i18n-title="combat_title" aria-label="Kampf" disabled>⚔</button>
       <button id="settings" class="icon-btn" data-i18n-title="settings"></button><!-- öffnet Einstellungen -->
       <input type="file" id="import-file" accept="application/json" style="display:none">
     </div>
@@ -83,6 +85,7 @@
   <script src="js/conditions4e.js"></script>
   <script src="js/conditions5e.js"></script>
   <script src="js/logic.js"></script>
+  <script src="js/combat.js"></script>
   <script src="js/edition-ui.js"></script>
   <script src="js/offline.js"></script>
 </body>

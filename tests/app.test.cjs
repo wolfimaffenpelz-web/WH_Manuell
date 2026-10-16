@@ -11,7 +11,7 @@ function app(initial = {}) {
   w.confirm = () => true;
   w.console.error = error => errors.push(String(error));
   Object.entries(initial).forEach(([key, value]) => w.localStorage.setItem(key, value));
-  for (const script of ['translations', 'sections', 'character-store', 'rules', 'conditions4e', 'conditions5e', 'logic', 'edition-ui']) vm.runInContext(fs.readFileSync(`js/${script}.js`, 'utf8'), dom.getInternalVMContext());
+  for (const script of ['translations', 'sections', 'character-store', 'rules', 'conditions4e', 'conditions5e', 'logic', 'combat', 'edition-ui']) vm.runInContext(fs.readFileSync(`js/${script}.js`, 'utf8'), dom.getInternalVMContext());
   vm.runInContext('initLogic()', dom.getInternalVMContext());
   return { w, alerts, errors, close: () => w.close(), get: code => vm.runInContext(code, dom.getInternalVMContext()), doc: w.document };
 }
@@ -1009,4 +1009,105 @@ test('fulfilled stunned fatigue reminders stay cleared after resting in both edi
       assert.deepEqual(a.errors, []);
     } finally { a.close(); }
   }
+});
+
+test('combat resources share sheet validation, persist and respect character locks', () => {
+  const a = app({ characters: '["Karl"]', 'state-Karl': legacy('Karl') });
+  try {
+    a.doc.getElementById('combat-open').click();
+    assert.ok(a.doc.querySelector('[role=dialog].combat-popup'));
+    const edit = (id, value) => {
+      const input = a.doc.querySelector(`[data-resource="${id}"]`);
+      input.value = value;
+      input.dispatchEvent(new a.w.Event('input', { bubbles: true }));
+    };
+    edit('lp-aktuell', '8');
+    assert.equal(a.doc.getElementById('lp-aktuell').value, '8');
+    assert.equal(a.get("characterStore.get(currentCharacter).state['lp-aktuell']"), '8');
+    edit('luck-current', '120');
+    assert.equal(a.doc.getElementById('luck-current').value, '99');
+    a.doc.getElementById('lp-aktuell').value = '6';
+    a.doc.getElementById('lp-aktuell').dispatchEvent(new a.w.Event('input', { bubbles: true }));
+    assert.equal(a.doc.querySelector('[data-resource="lp-aktuell"]').value, '6');
+    a.get('toggleCharacterStatus()');
+    assert.equal(a.doc.querySelector('[data-resource="lp-aktuell"]').disabled, true);
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
+});
+
+test('combat weapon, defence and backups persist only UI selections and reset removed weapons', () => {
+  const state = JSON.parse(legacy('Karl'));
+  state['KG-start'] = '41';
+  state['waffen-table'] = [['1', 'Sword', 'Standard', '1', 'Average', 'STB+4', 'Fast; personal note', '']];
+  const a = app({ characters: '["Karl"]', 'state-Karl': JSON.stringify(state) });
+  try {
+    a.doc.getElementById('combat-open').click();
+    const select = a.doc.querySelector('[data-selection="combat-weapon"]');
+    select.value = select.options[1].value;
+    select.dispatchEvent(new a.w.Event('change', { bubbles: true }));
+    assert.match(a.doc.querySelector('.combat-weapon-stats').textContent, /STB\+4 = 7/);
+    assert.equal(a.doc.querySelector('[data-test=attack] [data-base]').textContent, '41');
+    assert.match(a.doc.querySelector('.combat-notes').textContent, /Fast; personal note/);
+    const defense = a.doc.querySelector('[data-selection="combat-defense"]');
+    defense.value = 'grund-Nahkampf (Standard)-gesamt';
+    defense.dispatchEvent(new a.w.Event('change', { bubbles: true }));
+    const state = a.get('collectState()');
+    assert.ok(state['combat-weapon']);
+    assert.equal(state['combat-defense'], 'grund-Nahkampf (Standard)-gesamt');
+    assert.equal(state['combat-manual'], undefined);
+    const exported = a.get('characterStore.export(currentCharacter)');
+    assert.equal(exported.state['combat-weapon'], state['combat-weapon']);
+    a.get('CombatPopup.close(); loadState(); CombatPopup.open()');
+    assert.equal(a.doc.querySelector('[data-selection="combat-weapon"]').value, state['combat-weapon']);
+    a.doc.querySelector('#waffen-table tr:nth-child(2)').remove();
+    a.get('saveState()');
+    assert.equal(a.doc.querySelector('[data-selection="combat-weapon"]').value, '');
+    assert.equal(a.get("characterStore.get(currentCharacter).state['combat-weapon']"), '');
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
+});
+
+test('combat uses strongest 4e penalties, separates manual modifiers and blocks forbidden actions', () => {
+  const state = JSON.parse(legacy('Karl'));
+  state['GW-start'] = '50';
+  state['state-fatigued-value'] = '1';
+  state['state-poisoned-value'] = '2';
+  state['state-prone-value'] = '1';
+  const a = app({ characters: '["Karl"]', 'state-Karl': JSON.stringify(state) });
+  try {
+    a.get('CombatPopup.open()');
+    assert.equal(a.doc.querySelector('[data-test=defense] [data-auto]').textContent, '−20');
+    assert.equal(a.doc.querySelector('[data-test=defense] [data-effective]').textContent, '30');
+    const input = a.doc.querySelector('[data-manual=defense]');
+    input.value = '-10'; input.dispatchEvent(new a.w.Event('input', { bubbles: true }));
+    assert.equal(a.doc.querySelector('[data-test=defense] [data-effective]').textContent, '20');
+    assert.equal(a.doc.getElementById('grund-Ausweichen-gesamt').value, '50');
+    a.get("setStateCardActive('surprised', true); saveState()");
+    assert.equal(a.doc.querySelector('[data-test=defense] [data-effective]').textContent, '—');
+    a.get("setStateCardActive('surprised', false, {resetValue:true}); saveState(); CombatPopup.close(); CombatPopup.open()");
+    assert.equal(a.doc.querySelector('[data-manual=defense]').value, '0');
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
+});
+
+test('combat follows edition and character switches without converting 5e SL into percentages', () => {
+  const a = app({ characters: '["Karl","Anna"]', 'state-Karl': legacy('Karl'), 'state-Anna': '{"char-name":"Anna"}' });
+  try {
+    a.get('CombatPopup.open()');
+    a.get("currentCharacter = characterStore.list('4e')[1].id; loadState()");
+    assert.match(a.doc.getElementById('combat-heading').textContent, /Anna/);
+    assert.equal(a.doc.querySelector('[data-resource="lp-aktuell"]').value, '');
+    const edition = a.doc.getElementById('edition-select');
+    edition.value = '5e'; edition.dispatchEvent(new a.w.Event('change'));
+    assert.equal(a.doc.querySelector('.combat-popup'), null);
+    a.doc.getElementById('new-character').click();
+    a.doc.getElementById('new-char-name').value = 'Five';
+    a.doc.getElementById('new-char-ok').click();
+    a.get("document.getElementById('GW-start').value = '50'; updateAttributes(); changeStateValue('fatigued', 1); CombatPopup.open()");
+    assert.equal(a.doc.querySelector('[data-resource="resilience-value"]'), null);
+    assert.equal(a.doc.querySelector('[data-resource="resolve-current"]'), null);
+    assert.equal(a.doc.querySelector('[data-test=defense] [data-auto]').textContent, '0');
+    assert.equal(a.doc.querySelector('[data-test=defense] [data-effective]').textContent, '50');
+    assert.deepEqual(a.errors, []);
+  } finally { a.close(); }
 });

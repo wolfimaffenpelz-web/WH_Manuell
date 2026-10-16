@@ -81,6 +81,7 @@ function updateCharacterDisplay() {
   document.getElementById('recover-character').hidden = !record?.recovery;
   document.getElementById('load-error').hidden = !loadFailed;
   renderTransferReport(record);
+  window.CombatPopup?.refresh();
 }
 
 function loadCharacterList() {
@@ -570,6 +571,7 @@ function deserializeTable(tableId, data) {
 }
 
 function collectState() {
+  window.CombatPopup?.normalizeSelections();
   const state = {};
   // Keep retired 5e fields in existing backups without displaying them on the sheet.
   if (activeEdition === '5e') {
@@ -2465,6 +2467,7 @@ function initLogic() {
     const fields = new Set(document.querySelectorAll('#main-content [id]'));
     const allowed = new Set(Array.from(fields, el => el.id));
     conditionDefinitions5e.forEach(condition => allowed.add(`state-${condition.key}-value`));
+    ['combat-weapon', 'combat-defense'].forEach(key => allowed.add(key));
     characterStore = new CharacterStore.Store(localStorage, allowed);
     activeEdition = ['4e', '5e'].includes(characterStore.data.edition) ? characterStore.data.edition : '4e';
     renderEdition();

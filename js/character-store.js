@@ -5,7 +5,7 @@
   const TABLES = ['grupp-table', 'talent-table', 'waffen-table', 'schulden-table', 'spar-table',
     'ruestung-table', 'ausruestung-table', 'zauber-table', 'mutationen-table',
     'psychologie-table', 'exp-table', 'injuries-table', 'diseases-table'];
-  const FIELD = /^(char-|story-|KG-|BF-|ST-|WI-|I-|GW-|GS-|IN-|WK-|CH-|grund-|state-|fate-|luck-|resilience-|resolve-|rp-|lp-|korruption-|trag-|verm-|netto-|exp-|sin-)/;
+  const FIELD = /^(char-|story-|KG-|BF-|ST-|WI-|I-|GW-|GS-|IN-|WK-|CH-|grund-|state-|fate-|luck-|resilience-|resolve-|rp-|lp-|korruption-|trag-|verm-|netto-|exp-|sin-)|^combat-(weapon|defense)$/;
   function cleanState(state) {
     if (!state || typeof state !== 'object' || Array.isArray(state)) throw new Error('invalid_state');
     const result = {};
