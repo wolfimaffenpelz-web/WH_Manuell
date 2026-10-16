@@ -41,9 +41,11 @@
 Nur `combat-weapon` und `combat-defense` werden als UI-Auswahl pro Charakter im
 bestehenden State gespeichert. Alle Kampfwerte werden live aus dem Bogen gelesen.
 Manuelle Modifikatoren gelten nur bis zum Schließen oder Charakterwechsel.
-Die Waffenauswahl verwendet den Inhalt der Zeile und einen Duplikatindex, da das
-Inventar keine IDs hat. Bearbeitete/entfernte Waffen setzen die Auswahl zurück;
-inhaltlich identische Duplikate sind dadurch nicht dauerhaft unterscheidbar.
+Waffen erhalten eine stabile UI-ID als letztes verborgenes Feld der bestehenden
+Inventarzeile. Ältere Zeilen erhalten diese beim Laden; bestehende Spaltenpositionen
+bleiben erhalten. Die Auswahl speichert nur diese ID, keine Kopie der Waffendaten.
+Damit bleiben Bearbeitungen und gleichnamige Waffen unterscheidbar. Entfernte
+Waffen setzen die Auswahl zurück. Import und Export verwenden dieselbe Tabellenlogik.
 
 Die ursprüngliche Anforderung zu neuen Eigenschaftsregeltexten wurde vom Nutzer
 zugunsten der vorhandenen Notizen zurückgestellt. Unbekannte Schadensformeln und

@@ -1205,7 +1205,7 @@ function addRow(tableId) {
       <td><input type="number"></td>
       <td><input type="text"></td>
       <td><input type="text"></td>
-      <td class="text-left"><textarea></textarea><input type="hidden" class="baggage-note-store" value=""></td>
+      <td class="text-left"><textarea></textarea><input type="hidden" class="baggage-note-store" value=""><input type="hidden" class="combat-item-id" readonly value="${CharacterStore.createId()}"></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('waffen-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten(); updateTraglast();">❌</button></td>
     `;
     row.querySelectorAll("input, textarea").forEach(el => {

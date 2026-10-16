@@ -18,16 +18,14 @@
   }
 
   function weapons() {
-    const duplicates = new Map();
     return Array.from(document.querySelectorAll('#waffen-table tr')).slice(1).flatMap(row => {
       const name = row.cells[0].querySelector('textarea').value.trim();
       if (!name) return [];
       const read = index => row.cells[index].querySelector('input, textarea').value.trim();
       const entry = { name, group: read(1), range: read(3), damage: read(4), notes: read(5) };
-      const signature = JSON.stringify(entry);
-      const ordinal = duplicates.get(signature) || 0;
-      duplicates.set(signature, ordinal + 1);
-      return [{ ...entry, key: JSON.stringify([signature, ordinal]) }];
+      const identity = row.querySelector('.combat-item-id');
+      if (!identity.value) identity.value = CharacterStore.createId();
+      return [{ ...entry, key: identity.value }];
     });
   }
 

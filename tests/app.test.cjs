@@ -1059,6 +1059,11 @@ test('combat weapon, defence and backups persist only UI selections and reset re
     assert.equal(exported.state['combat-weapon'], state['combat-weapon']);
     a.get('CombatPopup.close(); loadState(); CombatPopup.open()');
     assert.equal(a.doc.querySelector('[data-selection="combat-weapon"]').value, state['combat-weapon']);
+    const weaponName = a.doc.querySelector('#waffen-table tr:nth-child(2) textarea');
+    weaponName.value = 'Renamed sword';
+    weaponName.dispatchEvent(new a.w.Event('input', { bubbles: true }));
+    assert.equal(a.doc.querySelector('[data-selection="combat-weapon"]').value, state['combat-weapon']);
+    assert.equal(a.doc.querySelector('[data-selection="combat-weapon"] option:checked').textContent, 'Renamed sword');
     a.doc.querySelector('#waffen-table tr:nth-child(2)').remove();
     a.get('saveState()');
     assert.equal(a.doc.querySelector('[data-selection="combat-weapon"]').value, '');

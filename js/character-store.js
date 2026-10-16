@@ -194,6 +194,6 @@
       return targetId;
     }
   }
-  root.CharacterStore = { Store, TABLES, cleanState, normalizeBackup, filename };
+  root.CharacterStore = { Store, TABLES, cleanState, normalizeBackup, filename, createId: uuid };
   if (typeof module !== 'undefined') module.exports = root.CharacterStore;
 })(typeof window !== 'undefined' ? window : globalThis);
