@@ -1,6 +1,4 @@
 window.addEventListener('load', () => {
-  const splash = document.getElementById('splash-screen');
-  if (splash) splash.style.display = 'none';
   if (!('serviceWorker' in navigator)) return;
   let requestedUpdate = false;
   let reloading = false;

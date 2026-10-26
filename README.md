@@ -253,7 +253,7 @@ cp img/appicon2-512.png img/appicon2-maskable-512.png
 ```
 
 Der Service Worker speichert die neue Datei vorab und verwendet Cache-Version
-v17. Nach Bereitstellung das angebotene App-Update bestätigen. Eine
+v18. Nach Bereitstellung das angebotene App-Update bestätigen. Eine
 Neuinstallation ist für den App-Code nicht erforderlich. Android/Chrome kann
 das bereits installierte Launcher-Icon zeitversetzt aktualisieren. Bleibt das
 alte Icon bestehen, die PWA entfernen und über den Browser neu installieren;
@@ -266,17 +266,15 @@ Offline-Einbindung werden mit `npm test` geprüft. Die randfüllende Variante wu
 mit dem vorhandenen 512-Pixel-Icon geprüft. Eine Prüfung auf einem realen
 Android-Launcher steht noch aus.
 
-### Ladeschirm und Installationsvorschau
+### Direkter Einstieg und Installationsvorschau
 
-`img/warhammer-loading-screen.jpg` ist das unveränderte hochgeladene
-Hochformatbild (720 × 1280 Pixel, JPEG). Der bestehende Ladeschirm zeigt es
-auf Mobilgeräten und Desktop vollständig und proportional (`contain`) vor
-dunklem Hintergrund. Er verschwindet wie bisher nach dem Laden der Seite.
-Auch die Apple-Startbildreferenz verweist auf diese Datei.
+Die Webapp startet direkt ohne Bild-Ladeschirm, Startanimation oder künstliche
+Mindestwartezeit. Auch beim Aktualisieren durch Herunterwischen erscheint
+kein kurz aufblitzendes Bild. Das frühere Overlay, seine CSS-Regeln und die
+Apple-Startbildreferenz wurden entfernt. Die Offline- und Update-Logik bleibt
+erhalten. Androids nativer Startbildschirm verwendet weiterhin das App-Icon.
 
-Das Manifest verwendet dasselbe Bild als Installationsvorschau mit
-`form_factor: "narrow"`. Ob die Vorschau erscheint, entscheidet der Browser;
-sie ist ein Motivbild und kein Screenshot der App-Oberfläche. Androids nativer
-PWA-Startbildschirm wird vom System aus App-Icon und Manifest erzeugt und kann
-nicht durch ein beliebiges Hintergrundbild ersetzt werden. Die neue Grafik
-erscheint im Ladeschirm der Webapp. Der Service Worker hält sie offline vor.
+`img/warhammer-loading-screen.jpg` bleibt als unverändertes Motivbild
+(720 × 1280 Pixel, JPEG) für die Installationsvorschau im Manifest erhalten
+(`form_factor: "narrow"`). Ob die Vorschau erscheint, entscheidet der Browser;
+sie ist kein Screenshot der App-Oberfläche. Der Service Worker hält sie offline vor.
