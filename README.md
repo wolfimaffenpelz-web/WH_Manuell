@@ -253,7 +253,7 @@ cp img/appicon2-512.png img/appicon2-maskable-512.png
 ```
 
 Der Service Worker speichert die neue Datei vorab und verwendet Cache-Version
-v18. Nach Bereitstellung das angebotene App-Update bestätigen. Eine
+v19. Nach Bereitstellung das angebotene App-Update bestätigen. Eine
 Neuinstallation ist für den App-Code nicht erforderlich. Android/Chrome kann
 das bereits installierte Launcher-Icon zeitversetzt aktualisieren. Bleibt das
 alte Icon bestehen, die PWA entfernen und über den Browser neu installieren;
