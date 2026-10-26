@@ -2390,11 +2390,17 @@ function syncStateCardsFromInputs() {
   updateStatesSummary();
 }
 
-function updateStatesSummary() {
+function updateStatesSummary(anchor = null) {
   const container = document.getElementById('states-summary');
   if (!container) return;
+  const top = anchor?.getBoundingClientRect().top;
   container.innerHTML = buildStateEffectSummary();
   renderConditionHints();
+  if (anchor && Number.isFinite(top)) {
+    // Measure after layout so native scroll anchoring is already accounted for.
+    const shift = anchor.getBoundingClientRect().top - top;
+    if (shift) window.scrollBy({ top: shift, left: 0, behavior: 'instant' });
+  }
 }
 
 function changeStateValue(stateKey, delta) {
@@ -2407,7 +2413,7 @@ function changeStateValue(stateKey, delta) {
   input.value = String(next);
   noteConditionRemoval(stateKey, current, next);
   setStateCardActive(stateKey, next > 0, { resetValue: next === 0 });
-  updateStatesSummary();
+  updateStatesSummary(card);
   saveState();
 }
 
@@ -2428,7 +2434,7 @@ function initStatesSection() {
       noteConditionRemoval(stateKey, getStateCount(stateKey), isActive ? 0 : 1);
       setStateCardActive(stateKey, !isActive, { resetValue: isActive });
       if (!isActive && input && parseInt(input.value, 10) === 0) input.value = '1';
-      updateStatesSummary();
+      updateStatesSummary(card);
       saveState();
     });
     if (activeEdition === '5e' && card.dataset.stateBinary !== 'true') input?.addEventListener('input', () => {
@@ -2436,7 +2442,7 @@ function initStatesSection() {
       noteConditionRemoval(stateKey, Number(card.dataset.count) || 0, next);
       input.value = String(next);
       setStateCardActive(stateKey, next > 0, { resetValue: next === 0 });
-      updateStatesSummary(); saveState();
+      updateStatesSummary(card); saveState();
     });
   });
 
