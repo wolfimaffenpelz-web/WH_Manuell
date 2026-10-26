@@ -9,7 +9,7 @@ function worker() {
   const self = { location: { origin: 'https://example.test' }, clients: { claim: async () => calls.push('claim') },
     skipWaiting: () => calls.push('skip'), addEventListener: (event, handler) => { handlers[event] = handler; } };
   vm.runInNewContext(fs.readFileSync('service-worker.js', 'utf8'), { self, URL,
-    caches: { open: async () => cache, keys: async () => ['other-app-cache', 'charakterbogen-cache-v4', 'charakterbogen-cache-v5', 'charakterbogen-cache-v6', 'charakterbogen-cache-v7', 'charakterbogen-cache-v8', 'charakterbogen-cache-v9', 'charakterbogen-cache-v10', 'charakterbogen-cache-v11', 'charakterbogen-cache-v12', 'charakterbogen-cache-v13'],
+    caches: { open: async () => cache, keys: async () => ['other-app-cache', 'charakterbogen-cache-v4', 'charakterbogen-cache-v5', 'charakterbogen-cache-v6', 'charakterbogen-cache-v7', 'charakterbogen-cache-v8', 'charakterbogen-cache-v9', 'charakterbogen-cache-v10', 'charakterbogen-cache-v11', 'charakterbogen-cache-v12', 'charakterbogen-cache-v13', 'charakterbogen-cache-v14', 'charakterbogen-cache-v15', 'charakterbogen-cache-v16', 'charakterbogen-cache-v17', 'charakterbogen-cache-v18', 'charakterbogen-cache-v19'],
       delete: async key => deleted.push(key) }, fetch: async () => ({ ok: true, clone() { return this; } }) });
   return { handlers, deleted, added, calls };
 }
@@ -19,14 +19,14 @@ test('installation precaches every local image and script under relative deploym
   w.handlers.install({ waitUntil: promise => { pending = promise; } }); await pending;
   assert.equal(w.calls.includes('skip'), false);
   for (const path of w.added) if (path !== './') assert.equal(fs.existsSync(path), true, path);
-  for (const image of fs.readdirSync('img').filter(path => /\.(png|svg)$/.test(path))) assert.ok(w.added.includes('./img/' + image), image);
+  for (const image of fs.readdirSync('img').filter(path => /\.(png|svg|jpg)$/.test(path))) assert.ok(w.added.includes('./img/' + image), image);
   assert.ok(w.added.includes('./js/character-store.js'));
 });
 
 test('activation awaits clients.claim and preserves unrelated caches', async () => {
   const w = worker(); let pending;
   w.handlers.activate({ waitUntil: promise => { pending = promise; } }); await pending;
-  assert.deepEqual(w.deleted, ['charakterbogen-cache-v4', 'charakterbogen-cache-v5', 'charakterbogen-cache-v6', 'charakterbogen-cache-v7', 'charakterbogen-cache-v8', 'charakterbogen-cache-v9', 'charakterbogen-cache-v10', 'charakterbogen-cache-v11', 'charakterbogen-cache-v12', 'charakterbogen-cache-v13']);
+  assert.deepEqual(w.deleted, ['charakterbogen-cache-v4', 'charakterbogen-cache-v5', 'charakterbogen-cache-v6', 'charakterbogen-cache-v7', 'charakterbogen-cache-v8', 'charakterbogen-cache-v9', 'charakterbogen-cache-v10', 'charakterbogen-cache-v11', 'charakterbogen-cache-v12', 'charakterbogen-cache-v13', 'charakterbogen-cache-v14', 'charakterbogen-cache-v15', 'charakterbogen-cache-v16', 'charakterbogen-cache-v17', 'charakterbogen-cache-v18']);
   assert.deepEqual(w.calls, ['claim']);
 });
 

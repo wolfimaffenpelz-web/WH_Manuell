@@ -222,3 +222,59 @@ Installation im Unterverzeichnis vorab zwischengespeichert. Externe Schriftarten
 benötigen eine Verbindung; offline werden Ersatzschriften verwendet. Ein Update
 wartet auf Bestätigung, speichert vorher den Bogen und lädt anschließend neu.
 Eine abgelehnte Aktualisierung kann beim nächsten Öffnen erneut angeboten werden.
+
+### Android-App-Icons
+
+Das Manifest trennt die unveränderten Standard-Icons (`purpose: "any"`,
+192 × 192 und 512 × 512 Pixel) von `img/appicon2-maskable-512.png`
+(`purpose: "maskable"`, 512 × 512 Pixel). Alle Dateien sind echte PNGs.
+Browser-Favicon und Apple-Touch-Icon verwenden weiterhin das Standard-Icon.
+
+Die maskierbare Variante verwendet das vorhandene 512 × 512 Pixel große
+Originalmotiv über die volle Breite und Höhe, ohne zusätzlichen Rahmen,
+Verkleinerung oder Beschnitt in der Datei. Sie ist vollständig deckend und
+quadratisch. Die dunklen Bildbereiche des Originals bleiben erhalten;
+zusätzliche Außenabrundungen werden nicht eingezeichnet.
+
+Android schneidet daraus die vom Launcher gewählte Form. Zugunsten einer
+größeren Darstellung liegen die Randfiguren bewusst teilweise außerhalb des
+zentralen Sicherheitskreises (80 % Bilddurchmesser). Je nach Launcher-Maske
+können deshalb Ecken und Motivteile am Rand abgeschnitten werden. Die
+vollständige Erhaltung aller Motivteile unter jeder Maske wird nicht zugesichert.
+Bei Browsern und Launchern mit Unterstützung für maskierbare PWA-Icons ist
+kein zusätzlicher weißer Systemkreis nötig; die konkrete Darstellung bestimmt
+weiterhin Androids Launcher.
+
+Die separate Datei für das maskierbare Icon enthält exakt dieselben Bilddaten
+wie das Standard-Icon mit 512 × 512 Pixeln:
+
+```sh
+cp img/appicon2-512.png img/appicon2-maskable-512.png
+```
+
+Der Service Worker speichert die neue Datei vorab und verwendet Cache-Version
+v19. Nach Bereitstellung das angebotene App-Update bestätigen. Eine
+Neuinstallation ist für den App-Code nicht erforderlich. Android/Chrome kann
+das bereits installierte Launcher-Icon zeitversetzt aktualisieren. Bleibt das
+alte Icon bestehen, die PWA entfernen und über den Browser neu installieren;
+ein bloßer Startbildschirm-Link kann weiterhin ein Standard-Icon verwenden.
+Vor dem Entfernen Charaktere als JSON exportieren und danach bei Bedarf
+importieren, da das Entfernen je nach Browser auch App-Daten löschen kann.
+
+Manifest-Pfade, PNG-Signaturen, tatsächliche Bildgrößen, MIME-Typen und die
+Offline-Einbindung werden mit `npm test` geprüft. Die randfüllende Variante wurde zusätzlich auf pixelgleiche Übereinstimmung
+mit dem vorhandenen 512-Pixel-Icon geprüft. Eine Prüfung auf einem realen
+Android-Launcher steht noch aus.
+
+### Direkter Einstieg und Installationsvorschau
+
+Die Webapp startet direkt ohne Bild-Ladeschirm, Startanimation oder künstliche
+Mindestwartezeit. Auch beim Aktualisieren durch Herunterwischen erscheint
+kein kurz aufblitzendes Bild. Das frühere Overlay, seine CSS-Regeln und die
+Apple-Startbildreferenz wurden entfernt. Die Offline- und Update-Logik bleibt
+erhalten. Androids nativer Startbildschirm verwendet weiterhin das App-Icon.
+
+`img/warhammer-loading-screen.jpg` bleibt als unverändertes Motivbild
+(720 × 1280 Pixel, JPEG) für die Installationsvorschau im Manifest erhalten
+(`form_factor: "narrow"`). Ob die Vorschau erscheint, entscheidet der Browser;
+sie ist kein Screenshot der App-Oberfläche. Der Service Worker hält sie offline vor.
