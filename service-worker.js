@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'charakterbogen-cache-';
-const CACHE_NAME = CACHE_PREFIX + 'v16';
+const CACHE_NAME = CACHE_PREFIX + 'v17';
 const ASSETS = [
   "./",
   "./index.html",
@@ -39,6 +39,7 @@ const ASSETS = [
   "./img/shield.svg",
   "./img/silhouette.svg",
   "./img/splash.png",
+  "./img/warhammer-loading-screen.jpg",
   "./img/state-bleeding.svg",
   "./img/state-blinded.svg",
   "./img/state-broken.svg",

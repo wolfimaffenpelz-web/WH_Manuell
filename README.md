@@ -229,8 +229,6 @@ Das Manifest trennt die unveränderten Standard-Icons (`purpose: "any"`,
 192 × 192 und 512 × 512 Pixel) von `img/appicon2-maskable-512.png`
 (`purpose: "maskable"`, 512 × 512 Pixel). Alle Dateien sind echte PNGs.
 Browser-Favicon und Apple-Touch-Icon verwenden weiterhin das Standard-Icon.
-Die Größenangabe des vorhandenen Screenshots wurde auf seine tatsächlichen
-1024 × 1024 Pixel korrigiert; die Bilddatei bleibt unverändert.
 
 Die maskierbare Variante verwendet das vorhandene 512 × 512 Pixel große
 Originalmotiv über die volle Breite und Höhe, ohne zusätzlichen Rahmen,
@@ -255,7 +253,7 @@ cp img/appicon2-512.png img/appicon2-maskable-512.png
 ```
 
 Der Service Worker speichert die neue Datei vorab und verwendet Cache-Version
-v16. Nach Bereitstellung das angebotene App-Update bestätigen. Eine
+v17. Nach Bereitstellung das angebotene App-Update bestätigen. Eine
 Neuinstallation ist für den App-Code nicht erforderlich. Android/Chrome kann
 das bereits installierte Launcher-Icon zeitversetzt aktualisieren. Bleibt das
 alte Icon bestehen, die PWA entfernen und über den Browser neu installieren;
@@ -267,3 +265,18 @@ Manifest-Pfade, PNG-Signaturen, tatsächliche Bildgrößen, MIME-Typen und die
 Offline-Einbindung werden mit `npm test` geprüft. Die randfüllende Variante wurde zusätzlich auf pixelgleiche Übereinstimmung
 mit dem vorhandenen 512-Pixel-Icon geprüft. Eine Prüfung auf einem realen
 Android-Launcher steht noch aus.
+
+### Ladeschirm und Installationsvorschau
+
+`img/warhammer-loading-screen.jpg` ist das unveränderte hochgeladene
+Hochformatbild (720 × 1280 Pixel, JPEG). Der bestehende Ladeschirm zeigt es
+auf Mobilgeräten und Desktop vollständig und proportional (`contain`) vor
+dunklem Hintergrund. Er verschwindet wie bisher nach dem Laden der Seite.
+Auch die Apple-Startbildreferenz verweist auf diese Datei.
+
+Das Manifest verwendet dasselbe Bild als Installationsvorschau mit
+`form_factor: "narrow"`. Ob die Vorschau erscheint, entscheidet der Browser;
+sie ist ein Motivbild und kein Screenshot der App-Oberfläche. Androids nativer
+PWA-Startbildschirm wird vom System aus App-Icon und Manifest erzeugt und kann
+nicht durch ein beliebiges Hintergrundbild ersetzt werden. Die neue Grafik
+erscheint im Ladeschirm der Webapp. Der Service Worker hält sie offline vor.

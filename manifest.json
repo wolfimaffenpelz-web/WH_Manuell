@@ -12,6 +12,6 @@
     { "src": "img/appicon2-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "screenshots": [
-    { "src": "img/splash.png", "sizes": "1024x1024", "type": "image/png" }
+    { "src": "img/warhammer-loading-screen.jpg", "sizes": "720x1280", "type": "image/jpeg", "form_factor": "narrow" }
   ]
 }

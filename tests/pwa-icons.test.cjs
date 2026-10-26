@@ -38,12 +38,24 @@ test('manifest declares separate standard and opaque maskable PNG icons with mat
   }
 });
 
-test('manifest screenshot metadata matches the referenced PNG files', () => {
+test('manifest installation preview matches the referenced JPEG dimensions', () => {
   const manifest = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
   for (const screenshot of manifest.screenshots) {
-    const png = fs.readFileSync(screenshot.src);
-    assert.equal(png.subarray(0, 8).toString('hex'), '89504e470d0a1a0a');
-    assert.equal(screenshot.type, 'image/png');
-    assert.equal(screenshot.sizes, `${png.readUInt32BE(16)}x${png.readUInt32BE(20)}`);
+    const jpeg = fs.readFileSync(screenshot.src);
+    assert.equal(jpeg.readUInt16BE(0), 0xffd8);
+    assert.equal(screenshot.type, 'image/jpeg');
+    assert.equal(screenshot.form_factor, 'narrow');
+    let dimensions;
+    for (let offset = 2; offset + 8 < jpeg.length;) {
+      assert.equal(jpeg[offset], 0xff);
+      const marker = jpeg[offset + 1];
+      if (marker === 0xc0 || marker === 0xc2) {
+        dimensions = `${jpeg.readUInt16BE(offset + 7)}x${jpeg.readUInt16BE(offset + 5)}`;
+        break;
+      }
+      offset += 2 + jpeg.readUInt16BE(offset + 2);
+    }
+    assert.ok(dimensions, 'JPEG contains a frame header');
+    assert.equal(screenshot.sizes, dimensions);
   }
 });
