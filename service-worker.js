@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'charakterbogen-cache-';
-const CACHE_NAME = CACHE_PREFIX + 'v13';
+const CACHE_NAME = CACHE_PREFIX + 'v14';
 const ASSETS = [
   "./",
   "./index.html",
@@ -19,6 +19,8 @@ const ASSETS = [
   "./manifest.json",
   "./img/ablaze.png",
   "./img/appicon.png",
+  "./img/appicon2.png",
+  "./img/appicon2-512.png",
   "./img/bleeding.png",
   "./img/blinded.png",
   "./img/broken.png",
