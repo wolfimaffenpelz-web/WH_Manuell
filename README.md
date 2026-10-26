@@ -222,3 +222,51 @@ Installation im Unterverzeichnis vorab zwischengespeichert. Externe Schriftarten
 benötigen eine Verbindung; offline werden Ersatzschriften verwendet. Ein Update
 wartet auf Bestätigung, speichert vorher den Bogen und lädt anschließend neu.
 Eine abgelehnte Aktualisierung kann beim nächsten Öffnen erneut angeboten werden.
+
+### Android-App-Icons
+
+Das Manifest trennt die unveränderten Standard-Icons (`purpose: "any"`,
+192 × 192 und 512 × 512 Pixel) von `img/appicon2-maskable-512.png`
+(`purpose: "maskable"`, 512 × 512 Pixel). Alle Dateien sind echte PNGs.
+Browser-Favicon und Apple-Touch-Icon verwenden weiterhin das Standard-Icon.
+Die Größenangabe des vorhandenen Screenshots wurde auf seine tatsächlichen
+1024 × 1024 Pixel korrigiert; die Bilddatei bleibt unverändert.
+
+Die maskierbare Variante hat eine vollständig deckende, quadratische Fläche
+ohne Transparenz, weiße Ränder oder vorgezeichnete abgerundete Außenkanten.
+Der Hintergrund ist dunkelrot/schwarz (`#100200`); Android schneidet daraus die
+vom Launcher gewählte Form. Das vollständige Originalmotiv liegt unverzerrt
+und unbeschnitten als 288 × 288 Pixel großes Bild mittig bei (112, 112).
+Seine äußersten Ecken liegen rund 203,65 Pixel vom Mittelpunkt entfernt,
+innerhalb des vorgeschriebenen Sicherheitsradius von 204,8 Pixeln
+(80 % von 512 Pixeln als Durchmesser). Damit bleiben auch die Randfiguren
+unter allen standardkonformen Masken erhalten.
+
+Die Szene enthält wesentliche Motivteile an gegenüberliegenden Bildrändern.
+Soll das komplette quadratische Motiv im sicheren Kreis bleiben, beträgt seine
+maximale Seitenlänge etwa 289,63 Pixel (`512 × 0,8 / sqrt(2)`).
+288 Pixel nutzen diesen Platz nahezu vollständig. Eine größere Darstellung
+der Szene würde Beschnitt riskieren. Die dunkle Hintergrundfläche füllt das
+gesamte Launcher-Symbol; ein zusätzlicher weißer Systemkreis ist bei Browsern
+und Launchern mit Unterstützung für maskierbare PWA-Icons nicht nötig.
+Die konkrete Form und Darstellung bestimmt weiterhin Androids Launcher.
+
+Reproduzierbar mit ImageMagick, ohne Neuzeichnen des Motivs:
+
+```sh
+magick img/appicon2-512.png -resize 288x288 -background '#100200' -gravity center -extent 512x512 -alpha off -strip img/appicon2-maskable-512.png
+```
+
+Der Service Worker speichert die neue Datei vorab und verwendet Cache-Version
+v15. Nach Bereitstellung das angebotene App-Update bestätigen. Eine
+Neuinstallation ist für den App-Code nicht erforderlich. Android/Chrome kann
+das bereits installierte Launcher-Icon zeitversetzt aktualisieren. Bleibt das
+alte Icon bestehen, die PWA entfernen und über den Browser neu installieren;
+ein bloßer Startbildschirm-Link kann weiterhin ein Standard-Icon verwenden.
+Vor dem Entfernen Charaktere als JSON exportieren und danach bei Bedarf
+importieren, da das Entfernen je nach Browser auch App-Daten löschen kann.
+
+Manifest-Pfade, PNG-Signaturen, tatsächliche Bildgrößen, MIME-Typen und die
+Offline-Einbindung werden mit `npm test` geprüft. Der Sicherheitsabstand wurde
+zusätzlich anhand der Bildpixel und der obigen Geometrie kontrolliert. Eine
+Prüfung auf einem realen Android-Launcher steht noch aus.
