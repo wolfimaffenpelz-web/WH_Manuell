@@ -115,3 +115,58 @@
 .condition-reminder { display: grid; grid-template-columns: var(--condition-reminder-icon-width) minmax(0, 1fr) var(--delete-col-width); align-items: start; gap: var(--management-gap); list-style: none; }
 .condition-reminder-alert { color: var(--condition-reminder-color); font-weight: bold; }
 .condition-reminder .condition-reminder-dismiss { color: var(--condition-reminder-color); min-height: var(--row-height); }
+
+/* Keep controls inside cell borders, including marked rows. */
+table input[type="text"],
+table input[type="number"],
+table textarea,
+table select {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.editable-table td {
+  vertical-align: top;
+}
+
+.editable-table td[data-marker] {
+  display: table-cell;
+}
+
+.marker-field {
+  min-width: 0;
+  align-items: flex-start;
+}
+
+[data-marker] .marker-icon {
+  flex: 0 0 auto;
+  line-height: var(--row-height);
+  height: var(--row-height);
+}
+
+.editable-table:not(#ruestung-table) input[type="text"],
+.editable-table:not(#ruestung-table) input[type="number"],
+.editable-table:not(#ruestung-table) textarea,
+.editable-table:not(#ruestung-table) select {
+  display: block;
+  width: 100%;
+  height: calc(var(--row-height) + 2px);
+  min-height: calc(var(--row-height) + 2px);
+  margin: 0;
+  padding: 0 2px;
+  border: 1px solid transparent;
+  line-height: var(--row-height);
+}
+
+.editable-table:not(#ruestung-table) textarea {
+  text-align: left;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.editable-table .delete-col {
+  width: var(--delete-col-width);
+  padding: 0;
+  vertical-align: middle;
+}
