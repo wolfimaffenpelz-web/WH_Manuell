@@ -233,7 +233,7 @@ const sections = [
           ["Wahrnehmung","I"],["Zechen","WI"]
           ].map(([name,att]) => `
           <tr>
-            <td data-marker="grund-${name}"><span class="marker-icon"></span><span>${name}</span><input type="hidden" id="grund-${name}-mark" value="0"></td>
+            <td data-marker="grund-${name}"><div class="marker-field"><span class="marker-icon"></span><span>${name}</span><input type="hidden" id="grund-${name}-mark" value="0"></div></td>
             <td class="wsg">${att}</td>
             <td class="wsg"><input type="number" id="grund-${name}-wert" readonly></td>
             <td class="wsg"><input type="number" id="grund-${name}-steig"></td>

@@ -638,7 +638,8 @@ td.wsg { width: 35px; }
 /* ================================================
    Markericons
    ================================================ */
-[data-marker] {
+[data-marker]:not(td),
+.marker-field {
   display: flex;
   align-items: center;
   gap: 2px;
@@ -663,6 +664,7 @@ td.wsg { width: 35px; }
 [data-marker] span:not(.marker-icon),
 [data-marker] textarea {
   flex: 1;
+  min-width: 0;
 }
 
 [data-marker] input[type="text"],

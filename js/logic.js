@@ -487,6 +487,7 @@ function initSectionToggle(sectionId) {
       body.style.display = "block";
       arrow.textContent = "▼";
       section.classList.remove("collapsed");
+      body.querySelectorAll('textarea').forEach(autoResize);
       localStorage.setItem(storageKey, "false");
     } else {
       body.style.display = "none";
@@ -780,9 +781,25 @@ function importCharacters(files) {
 }
 
 function autoResize(el) {
+  if (!el.getClientRects().length) return;
   el.style.height = 'auto';
-  el.style.height = el.scrollHeight + 'px';
+  const style = getComputedStyle(el);
+  const border = parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
+  const padding = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+  const adjustment = style.boxSizing === 'border-box' ? border : -padding;
+  el.style.height = (el.scrollHeight + adjustment) + 'px';
 }
+
+function resizeTextareas() {
+  document.querySelectorAll('#main-content textarea').forEach(autoResize);
+}
+
+let textareaResizeFrame;
+window.addEventListener('resize', () => {
+  cancelAnimationFrame(textareaResizeFrame);
+  textareaResizeFrame = requestAnimationFrame(resizeTextareas);
+});
+if (document.fonts) document.fonts.ready.then(resizeTextareas);
 
 document.addEventListener('input', e => {
   if (e.target.tagName === 'TEXTAREA') {
@@ -1149,6 +1166,7 @@ function autoAddRow(tableId) {
 
 function addRow(tableId) {
   const table = document.getElementById(tableId); // Ziel-Tabelle
+  table.classList.add("editable-table");
   const row = table.insertRow(-1); // neue Zeile am Ende
 
   if (tableId === 'injuries-table' || tableId === 'diseases-table') {
@@ -1164,7 +1182,7 @@ function addRow(tableId) {
   if (tableId === "grupp-table") {
     // Vorlage für gruppierte Fähigkeiten
     row.innerHTML = `
-      <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></td>
+      <td data-marker><div class="marker-field"><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></div></td>
       <td>
           <select required>
             <option value="" selected disabled>-</option>
@@ -1189,7 +1207,7 @@ function addRow(tableId) {
   else if (tableId === "talent-table") {
     // Zeile für Talente
     row.innerHTML = `
-      <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></td>
+      <td data-marker><div class="marker-field"><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></div></td>
       <td class="wsg"><input type="number"></td>
       <td class="text-left"><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('talent-table'); updateAttributes();">❌</button></td>
@@ -1198,12 +1216,12 @@ function addRow(tableId) {
   else if (tableId === "waffen-table") {
     // Waffenliste
     row.innerHTML = `
-      <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></td>
+      <td data-marker><div class="marker-field"><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></div></td>
       <td class="text-left"><input type="text"></td>
       <td><input type="number"></td>
       <td><input type="text"></td>
       <td><input type="text"></td>
-      <td class="text-left"><textarea></textarea><input type="hidden" class="baggage-note-store" value=""></td>
+      <td class="text-left"><textarea rows="1"></textarea><input type="hidden" class="baggage-note-store" value=""></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('waffen-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten(); updateTraglast();">❌</button></td>
     `;
     row.querySelectorAll("input, textarea").forEach(el => {
@@ -1290,10 +1308,10 @@ function addRow(tableId) {
   else if (tableId === "ausruestung-table") {
     // Allgemeine Ausrüstung
     row.innerHTML = `
-      <td data-marker><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></td>
+      <td data-marker><div class="marker-field"><span class="marker-icon"></span><input type="hidden" value="0"><textarea rows="1"></textarea></div></td>
       <td><input type="number"></td>
       <td><input type="number"></td>
-      <td class="text-left"><textarea></textarea></td>
+      <td class="text-left"><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('ausruestung-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten(); updateTraglast();">❌</button><input type="hidden" class="baggage-note-store" value=""></td>
     `;
     row.querySelectorAll("input, textarea").forEach(el => {
@@ -1308,7 +1326,7 @@ function addRow(tableId) {
       <td><input type="text"></td>
       <td><input type="text"></td>
       <td><input type="text"></td>
-      <td class="text-left"><textarea></textarea></td>
+      <td class="text-left"><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('zauber-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
@@ -1323,7 +1341,7 @@ function addRow(tableId) {
           <option>${t('mind')}</option>
         </select>
       </td>
-      <td class="text-left"><textarea></textarea></td>
+      <td class="text-left"><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('mutationen-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }
@@ -1331,7 +1349,7 @@ function addRow(tableId) {
     // Einträge für psychologische Effekte
     row.innerHTML = `
       <td><textarea rows="1"></textarea></td>
-      <td class="text-left"><textarea></textarea></td>
+      <td class="text-left"><textarea rows="1"></textarea></td>
       <td class="delete-col"><button class="delete-row" onclick="this.parentElement.parentElement.remove(); autoAddRow('psychologie-table'); saveState(); updateLebenspunkte(); updateGruppierteFaehigkeiten();">❌</button></td>
     `;
   }

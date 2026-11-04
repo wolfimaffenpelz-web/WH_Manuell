@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'charakterbogen-cache-';
-const CACHE_NAME = CACHE_PREFIX + 'v19';
+const CACHE_NAME = CACHE_PREFIX + 'v20';
 const ASSETS = [
   "./",
   "./index.html",
